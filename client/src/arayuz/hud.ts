@@ -26,7 +26,7 @@ export class Hud {
       <button class="dugme hepsini">Take all</button></div>`);
   private olum = $<HTMLDivElement>(`<div class="olum gizli"><div>You have died.</div><button class="dugme">Respawn</button></div>`);
   private ipucu = $<HTMLDivElement>(`<div class="panel ipucu gizli"></div>`);
-  private yardim = $<HTMLDivElement>(`<div class="yardim">WASD / Left click: move · Click monster: attack · Right drag: camera · Wheel: zoom · Tab: next target · I: inventory</div>`);
+  private yardim = $<HTMLDivElement>(`<div class="yardim">WASD / Left click: move · Click monster: attack · Right drag: camera · Middle click: turn around · Wheel: zoom · Tab: next target · U: stats · K: skills · I: inventory</div>`);
   private etiketler = document.createElement('div');
   private etiketHaritasi = new Map<Canavar, HTMLDivElement>();
   private npcEtiketHaritasi = new Map<Npc, HTMLDivElement>();
@@ -96,7 +96,9 @@ export class Hud {
     y.onmouseleave = () => this.ipucu.classList.add('gizli');
   }
 
-  private ipucuGoster(e: EsyaTanimi, ev: MouseEvent): void {
+  ipucuGizle(): void { this.ipucu.classList.add('gizli'); }
+
+  ipucuGoster(e: EsyaTanimi, ev: MouseEvent): void {
     const st = e.tur === 'silah' ? `Attack Power ${e.hasar}` : `Defense ${e.savunma}`;
     this.ipucu.innerHTML = '';
     this.ipucu.append($(`<div class="ad"></div>`), $(`<div class="st"></div>`), $(`<div class="ac"></div>`), $(`<div class="fi"></div>`));

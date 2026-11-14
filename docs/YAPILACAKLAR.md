@@ -14,6 +14,26 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] **Zeminin birebir görünümü:** geçiş karolarının gerçek karışım kuralı ve karo yön kodlarının anlamı (renk haritası artık okunabiliyor, kural araştırılacak).
 - [x] **Çarpışma** — sunucu `.smd` çarpışma üçgenleriyle duvarlar, zemin yüksekliği ve dik yamaç sınırı uygulanıyor (Moradon). Belge: [formatlar/smd.md](formatlar/smd.md). Kalan: `new_runawar` için sunucu `.smd` eşleşmesi, kapıların/kolların işlevi, kameranın duvardan geçmesi.
 
+## 🧩 Eksikler ve sonraki işler (2026-11-14 oturumundan)
+
+**NPC ve dünya**
+- [ ] NPC konuşmaları ve işlevleri: `Depo/Quests/*.lua` görev/konuşma dosyaları, mağaza (K_NPC `iSellingGroup` → ITEM_SELLTABLE), banka, Sanctuary. Şimdi tıklayınca "(conversation is not available yet)" yazıyor.
+- [ ] NPC bakış yönü (`byDirection`) tahminle ayarlandı; bazıları yanlış yöne bakıyor olabilir, doğrulanacak.
+- [ ] Moradon şehir dışı canavarları: K_NPCPOS1098 bölge 21'de ~90 canavar kaydı (Bandicoot, Kecoon, Bulcan, Werewolf…) gerçek değerlerle (K_NPC) eklenecek.
+- [ ] Zemin geçişlerinin birebir karışım kuralı bilinmiyor (şimdi: renk haritası + parlaklığa göre karo katmanları).
+- [ ] Işınlanma kapıları (Delos, Luferson Castle, El Morad Castle…) okunuyor ama işlevsiz; kapı/kol nesne olayları kullanılmıyor.
+- [ ] Kamera binaların/duvarların içinden geçebiliyor.
+
+**Orijinal arayüz — eksikler**
+- [ ] Sohbet kutusu (`re_el_chatting_box`), hedef çerçevesi (`re_target_framebar`: 14'ten büyük yeni öğe türleri nedeniyle okunamıyor) ve ganimet penceresi hâlâ eski basit arayüzde.
+- [ ] Görev çubuğunun çoğu düğmesi işlevsiz (Map, Control, Invite, Option, Exit, saldır/koş/otur); ortadaki 4 simge (`re_el_hotkey` hızlı çubuk) bağlı değil.
+- [ ] Skill penceresi: yalnızca "Basic Skill" sekmesi ve El Morad Savaşçı temel skilleri listeleniyor; skill **kullanılamıyor** (MP harcama, hasar, etki yok). Sınıf sekmeleri ve skill puanı harcama yok; üstteki "P" (premium) düğmeleri gizlenemedi.
+- [ ] Durum penceresi: Myko'nun "perk" paneli gizli; direnç ve silah savunma değerleri 0; ağırlık yalnızca yuva sayısı; Knight Cash / TL bakiyesi 0.
+- [ ] Envanter: yalnızca silah (yuva 6) ve zırh (yuva 4) ekipman olarak çiziliyor; diğer 13 ekipman yuvası, çanta kilidi/kozmetik paneli, eşya yok etme çalışmıyor. Sürükle-bırak yok (tıkla-kuşan).
+- [ ] Pencereler 1:1 piksel; çok küçük ekranda taşabilir, ölçek ayarı yok.
+- [ ] `.lilith` arayüz geri yazıcısı (pencere düzenleyip tekrar şifreleme).
+- [ ] U / K / I kısayol tuşları istek üzerine verildi; oyunun kendi varsayılan kısayol tablosu (KnightOnline.exe) çözülmedi.
+
 ## 🎮 Tek oyunculu mod (tarayıcı oyunu)
 
 - [x] Harita: arazi + karo dokuları + binalar/ağaçlar
@@ -27,7 +47,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] Kuşanılan eşyanın karakter üzerinde görünmesi (`.n3cplug`, `.n3cpart` değişimi)
 - [ ] Skill'ler, iksirler, NPC'ler, mağaza
 - [ ] Gökyüzü (`.n3sky`), efektler (`.fxb`), sesler (`.ogg`), su
-- [ ] Oyunun arayüz grafiklerinin (`.uif` + UI dokuları) kullanılması (şu an kendi basit arayüzümüz var)
+- [x] Oyunun orijinal arayüzü: HP çubuğu, görev çubuğu, durum (U), skill (K), envanter (I) pencereleri oyunun kendi UIF/doku dosyalarından ([formatlar/uif.md](formatlar/uif.md)). Kalanlar: "Eksikler ve sonraki işler".
 - [ ] Performans: dokuların sıkıştırılması (KTX2), uzak nesnelerin sadeleştirilmesi, büyük haritaların parça parça yüklenmesi
 
 ## 📦 Dosya formatlarını çözme (tam kontrol hedefi)
@@ -45,7 +65,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] `.opd` harita nesneleri (kayıtlar arasındaki bilinmeyen ek alan atlanıyor)
 - [ ] `.tct` (renk haritası, şifreli), `.tlt` (ışık haritası), `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd`
 - [ ] `.opdext`, `.opdsub`, `.evt`, `.evtsub` harita nesne ekleri ve olayları
-- [ ] `.uif` / `.lilith` arayüz dosyaları (`.lilith`: SHA-1 + RC4, parola `xCODE/uif.ini`'de, 32 baytlık bloklar)
+- [x] `.uif` / `.lilith` arayüz dosyaları — okunuyor (185/187). Geri yazıcı (düzenleyip tekrar şifreleme) henüz yok.
 - [ ] `.n3scene`, `.n3camera`, `.n3light`, `.n3sky`, `.n3fxplug`, `.fxb` sahne, ışık, gökyüzü, efektler
 - [ ] `.mob` yaratık yerleşimleri
 - [ ] Diğer küçük harita dosyaları (`.navimesh`, `.rvr`, `.wap`, `.wal`, `.tsd`, `.trn`, `.tld`, `.tcm`, `.sdt`, `.pvr`, `.grs`, `.tgx`, `.swal`, `.dtx`, `.mcn`, `.gea`, `.n3m`, `.n3pp`, `.n3me_lightmap`)

@@ -77,6 +77,15 @@ export abstract class Varlik {
     return d <= adim;
   }
 
+  /**
+   * Klavyeyle yürüme: `yon` (Knight Online x, z; birim vektör) yönünde `adim` metre ilerler. `yuru` gibi bir "vardı" eşiği yoktur;
+   * yüksek yenileme hızında (adım < 5 cm) hareket bozulmasın diye ayrı tutuldu.
+   */
+  ilerle(yon: THREE.Vector2, adim: number): void {
+    this.bak(new THREE.Vector2(this.konum.x + yon.x, this.konum.y + yon.y));
+    this.hareketEt(yon.clone().multiplyScalar(adim));
+  }
+
   /** `fark` kadar ilerlemeyi dener: duvarlardan kayarak, dik yamaçlara tırmanmadan. */
   protected hareketEt(fark: THREE.Vector2): void {
     const arazi = Varlik.arazi;
@@ -237,8 +246,21 @@ export class Oyuncu extends Varlik {
     this.model.oynat('bekle');
   }
 
+  /** Statüler (Knight Online savaşçı başlangıç değerleri) ve harcanmamış statü puanı. */
+  stat = { str: 60, sta: 60, dex: 30, int: 30 };
+  bonusPuan = 0;
+  /** Bir statü puanı harcar: STR saldırı, STA can, INT mana, DEX kritik şansı. Harcanamazsa false. */
+  statArtir(ad: 'str' | 'sta' | 'dex' | 'int'): boolean {
+    if (this.bonusPuan <= 0) return false;
+    this.bonusPuan--; this.stat[ad]++;
+    if (ad === 'sta') { this.enCok += 5; this.can += 5; }
+    if (ad === 'int') { this.enCokMana += 3; this.mana += 3; }
+    return true;
+  }
+  get kritikSansi(): number { return 0.1 + (this.stat.dex - 30) * 0.002; }
+
   hasarAraligi(): [number, number] {
-    const taban = 6 + this.seviye * 3, ek = this.silah ? Math.round(this.silah.hasar * 0.6) : 0;
+    const taban = 6 + this.seviye * 3 + Math.floor((this.stat.str - 60) / 2), ek = this.silah ? Math.round(this.silah.hasar * 0.6) : 0;
     return [taban + ek, taban + ek + 6 + this.seviye];
   }
   savunma(): number { return this.seviye * 2 + (this.zirh ? Math.round(this.zirh.savunma * 0.5) : 0); }

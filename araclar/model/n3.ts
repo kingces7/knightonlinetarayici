@@ -8,6 +8,7 @@ export class Okuyucu {
   constructor(b: Buffer, o = 0) { this.b = b; this.o = o; }
   i32(): number { const v = this.b.readInt32LE(this.o); this.o += 4; return v; }
   u16(): number { const v = this.b.readUInt16LE(this.o); this.o += 2; return v; }
+  u32(): number { const v = this.b.readUInt32LE(this.o); this.o += 4; return v; }
   f32(): number { const v = this.b.readFloatLE(this.o); this.o += 4; return v; }
   v3(): [number, number, number] { return [this.f32(), this.f32(), this.f32()]; }
   q4(): [number, number, number, number] { return [this.f32(), this.f32(), this.f32(), this.f32()]; }

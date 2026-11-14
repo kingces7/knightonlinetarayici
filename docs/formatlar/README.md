@@ -19,7 +19,7 @@ Sayılar `KnightEmpire/` client klasöründen (2026-11-14).
 | 1 | `.tbl` | 246 | Oyun tabloları (item, skill, NPC, zone…) | ✅ 244/246 | [tbl.md](tbl.md) |
 | 2 | `.hdr` + `.src` | 4 çift | **Paket arşivleri**: `UI/ui`, `Item/item`, `Object/object`, `fx/fx` | ✅ | [model.md](model.md) |
 | 3 | `.dxt` / `.gtt` / `.tct` | 16.814 + 1.096 + 59 | Dokular → PNG (sürüm 7 şifreli olanlar dahil: RC4, 588 dosya) | ✅ | [model.md](model.md) |
-| 4 | `.uif` / `.lilith` | 1 / 201 | Arayüz pencere tanımları; `.lilith` bu sunucuya özel şifreli sürüm (anahtar `xCODE/uif.ini`'de) | 🟡 | |
+| 4 | `.uif` / `.lilith` | 1 / 187 | Arayüz pencere tanımları; `.lilith` = şifreli UIF (RC4, 31/32 baytlık bloklar) | ✅ 185/187 | [uif.md](uif.md) |
 | 5 | `.n3pmesh`, `.n3shape` | ~11.700 | Statik modeller → glTF | ✅ | [model.md](model.md) |
 | 6 | `.n3joint`, `.n3cskins`, `.n3cpart`, `.n3anim` (+ `.n3chr` ✅ okunuyor, `.n3cplug` ⬜) | ~8.000 | Karakterler, iskelet, animasyon → glTF | ✅ | [model.md](model.md) |
 | 7 | `.gtd` ✅ · `.tct` ✅ (renk haritası, haritaya yerleşimi ölçülerek bulundu), `.tlt`, `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd` ⬜ | ~600 | Harita/arazi verisi | 🟡 | [model.md](model.md) |

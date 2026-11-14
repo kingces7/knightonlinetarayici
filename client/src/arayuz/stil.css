@@ -55,3 +55,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .etiket .mini { width: 60px; height: 4px; margin: 2px auto 0; background: #000a; border: 1px solid #0008; }
 .etiket .mini i { display: block; height: 100%; background: #e0473e; }
 .etiket.secili span { color: #ff8a7a; }
+
+/* ---- Orijinal arayüz (UIF pencereleri) ---- */
+.ui-pencere { position: absolute; pointer-events: auto; user-select: none; }
+.ui-dugum { position: absolute; background-repeat: no-repeat; box-sizing: border-box; }
+.ui-yazi { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; line-height: 1.1; overflow: hidden; text-shadow: 0 1px 1px #0008; pointer-events: none; }
+.ui-ilerleme { position: absolute; overflow: hidden; }
+.ui-t9 { pointer-events: auto; cursor: pointer; background-position: center; background-repeat: no-repeat; }
+.ui-t1 .ui-durum { pointer-events: none; }
+.orijinal-arayuz .durum, .orijinal-arayuz .envanter { display: none !important; }

@@ -5,6 +5,7 @@ import { nesneleriYukle } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
+import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { CANAVARLAR, OYUNCU_MODELI, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
@@ -80,6 +81,16 @@ async function basla(): Promise<void> {
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
 
+  // Orijinal arayüz (oyunun kendi UIF pencereleri); yüklenemezse eski basit arayüz kalır.
+  let arayuz: OyunArayuzu | null = null;
+  try {
+    const a = new OyunArayuzu({
+      kok: document.getElementById('arayuz')!, oyuncu, kamera,
+      esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
+      mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
+    });
+    await a.baslat(); arayuz = a;
+  } catch (e) { console.warn('Orijinal arayüz yüklenemedi, basit arayüz kullanılacak', e); }
   hud.mesaj('Welcome to KnightEmpire!', 'sistem');
   hud.mesaj(ayar.canavar ? 'Hunt monsters, open the chests they drop and level up.' : 'You are in a safe town. Explore with WASD or by clicking the ground.', 'sistem');
 
@@ -117,7 +128,7 @@ async function basla(): Promise<void> {
   const tuslar = new Set<string>();
   addEventListener('keydown', (e) => {
     tuslar.add(e.code);
-    if (e.code === 'KeyI') hud.envanterAcKapa();
+    if (!e.repeat && arayuz?.tus(e.code)) { e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
     if (e.code === 'Tab') {
       e.preventDefault();
       const yakin = canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40 && c !== oyuncu.hedef)
@@ -165,6 +176,7 @@ async function basla(): Promise<void> {
       oyuncu.seviye++;
       oyuncu.enCok += 25; oyuncu.can = oyuncu.enCok;
       oyuncu.enCokMana += 10; oyuncu.mana = oyuncu.enCokMana;
+      oyuncu.bonusPuan += 3; // her seviyede 3 statü puanı (U penceresinde harcanır)
       hud.mesaj(`Level up! You are now level ${oyuncu.seviye}.`, 'sistem');
       envanterYenile();
     }
@@ -191,9 +203,8 @@ async function basla(): Promise<void> {
 
     if (hareket.lengthSq() > 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null;
-      hareket.normalize().multiplyScalar(OYUNCU_HIZI * dt);
-      const hedefNokta = new THREE.Vector2(oyuncu.konum.x + hareket.x, oyuncu.konum.y - hareket.y);
-      oyuncu.yuru(hedefNokta, OYUNCU_HIZI * dt);
+      hareket.normalize();
+      oyuncu.ilerle(new THREE.Vector2(hareket.x, -hareket.y), OYUNCU_HIZI * dt); // kamera yönü (x, -z) → dünya (x, z)
       oyuncu.model?.oynat('kos');
     } else if (oyuncu.hedef) {
       const h = oyuncu.hedef;
@@ -232,7 +243,7 @@ async function basla(): Promise<void> {
       vurusZamanlayici.splice(i, 1);
       if (v.hedef.olu || oyuncu.olu) continue;
       const [h0, h1] = oyuncu.hasarAraligi();
-      const kritik = Math.random() < 0.1;
+      const kritik = Math.random() < oyuncu.kritikSansi;
       const hasar = Math.round(rastgeleTam(h0, h1) * (kritik ? 1.8 : 1));
       v.hedef.hasarAl(hasar);
       hud.mesaj(`${kritik ? 'Critical! ' : ''}You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
@@ -284,8 +295,9 @@ async function basla(): Promise<void> {
     canavarlariGuncelle(dt);
     npcleriGuncelle(dt);
     oyuncu.sahneyeYerlestir(arazi);
-    kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z));
+    kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt);
     hud.guncelle(oyuncu, oyuncu.hedef);
+    arayuz?.guncelle(dt);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
     hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
