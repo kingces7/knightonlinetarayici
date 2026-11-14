@@ -45,6 +45,29 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] `.lilith` arayüz geri yazıcısı (pencere düzenleyip tekrar şifreleme).
 - [ ] U / K / I kısayol tuşları istek üzerine verildi; oyunun kendi varsayılan kısayol tablosu (KnightOnline.exe) çözülmedi.
 
+## 🔒 Erişemediğimiz istemci kodu (`KnightOnline.exe`, paketli, kaynağı yok)
+
+Veri dosyaları açık; kapalı olan, veriyi **nasıl kullanacağını** söyleyen istemci kuralları. Elimizde: tam sunucu kaynağı, tablolar ve N3BASE'in yalnızca arayüz/doku/animasyon-anahtarı parçası (`N3Joint`, `N3Chr`, `N3AnimControl` yok). Yöntem sırası: **1)** veriden çıkarım, **2)** `.exe` içindeki düz metin/sabit arama, **3)** paketi açıp tersine mühendislik (ancak 1-2 yetmezse; önce kullanıcıya sorulur). İlke: oyunu uyarlıyoruz, kural icat etmiyoruz.
+
+Bilinmeyenler (bulunca işaretle):
+- [ ] Varsayılan **kısayol tuşu tablosu** (şimdilik U/K/I/C/T istek üzerine verildi)
+- [ ] **Silah türüne göre** bekleme/saldırı/skill animasyon seçimi (`breath_sword0`, `attack_sword0_A`… hangi eşya türü hangisini kullanıyor)
+- [ ] Animasyon **hız/geçiş/vuruş anı** kuralları, hareket ve koşma **hız sabitleri**, yürüme↔koşma geçişi
+- [ ] **Kamera** kuralları (mesafe, açı sınırları, çarpışma)
+- [ ] **Skill efekti** tetikleme (`.fxb`, `.n3fxplug`), ses çalma kuralları
+- [ ] Dokuların/ışığın **render ayarları** (zemin karışım kuralı, gökyüzü, su, sis değerleri)
+- [ ] `.n3joint`, `.n3chr`, `.n3anim` okuyucu sınıflarının **gerçek kodu** (formatlar şimdilik hex incelemeyle çözüldü; bazı alanların anlamı belirsiz)
+- [ ] Arayüz **olay mantığı** (hangi düğme ne yapar: Map, Control, Invite, Option, hızlı çubuk…)
+- [ ] `modify_us.tbl` gibi okunamayan dosyaların istemcide nasıl çözüldüğü
+- [ ] Ağ paketi **istemci tarafı** düzeni (sunucu kaynağından çıkarılacak; istemci doğrulaması için `.exe`)
+
+İlerleme:
+- [ ] **Yöntem 1** (veriden çıkarım) — sürekli uygulanır
+- [ ] **Yöntem 2** (`.exe` düz metin/sabit taraması: kısayollar, animasyon adları, sabitler) — sıradaki iş
+- [ ] **Yöntem 3** (paket açma + tersine mühendislik) — yalnızca gerekirse, kullanıcıya sorarak
+
+---
+
 ## 🎮 Tek oyunculu mod (tarayıcı oyunu)
 
 - [x] Harita: arazi + karo dokuları + binalar/ağaçlar
