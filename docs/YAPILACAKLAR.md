@@ -65,13 +65,14 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 **Modeller ve haritalar**
 - [ ] `.n3anim` kayıtlarının başındaki 2 bayt ve bazı float alanların anlamı (şimdilik başlangıç/bitiş/hız/vuruş kullanılıyor).
 - [ ] `.opd` nesne listesinde kayıt işareti (1051 / 5147) ve nadir ek alanın anlamı.
-- [ ] Bazı `.gtd` dosyaları farklı başlıkta (ör. `clanfight`, `freezone`, `moradon_xmas`, `war_a`).
+- [ ] Bazı `.gtd` dosyaları farklı başlıkta (ör. `clanfight`, `freezone`, `war_a`). `moradon_xmas` çözüldü (4096 baytlık blok yok); diğerleri aynı yedek düzenle denenecek.
 - [ ] 30 deri ve 11 iskelet dosyası özel durumlar nedeniyle okunamıyor (çok kemikli / çok çocuklu).
 - [ ] `misc\river\caust36_*.dxt` (39 dosya) anti-cheat'in oyun çalışırken bıraktığı geçici dosyalar; silinebilir.
 
 **Server ve veritabanı**
 - [x] **SQL Server 2022** — bilgisayarda zaten kuruluydu (Express, örnek `.\SQLEXPRESS`, Windows girişi). `LILITH_MYKO.bak` **2026-11-14'te `LILITH_MYKO` adıyla geri yüklendi** (229 tablo; dosyalar `C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\`). `LILITH_LOG.bak` henüz geri yüklenmedi (4,5 GB veri; oyun için gerekmiyor).
-- [ ] **Moradon NPC konumları ile harita uyuşmuyor (karar bekliyor).** `ZONE_INFO1098`: bölge 21 → `1098moradon_0826.smd` (1024 m; şehir meydanı ≈ (815, 440)), `InitX/InitZ` = (815.9, 530.8). Ama `K_NPCPOS1098` bölge 21'deki 114 NPC (Iris, Zarta, Clan Bank, Sanctuary…) hepsi x 31–472, z 45–483'te; `START_POSITION1098` bölge 21 = (264, 302), `K_OBJECTPOS1098` kapıları (282, 374) ve (338, 319). Bu konumlarda yeni Moradon'da vahşi arazi var; eski Moradon'da (`14th_oldmoradon`, 512 m, Old Moradon başlangıcı (312, 402)) ise tam pazar alanı var. NPC dizilimi eski Moradon'a göre. Seçenekler: (A) yeni Moradon + NPC'leri şehre taşımak, (B) eski Moradon'u kullanmak.
+- [x] **Moradon haritası kararı:** sunucu NPC dizilimi (K_NPCPOS1098 bölge 21), başlangıç noktası (264, 302) ve kapılar **eski Moradon**a (`14th_oldmoradon.gtd`, 512 m) uyuyor; Sanctuary kristali tam NPC bölgesinde çıktı. Oyunda Moradon = `?harita=14th_oldmoradon`, sunucu eşi `old_moradon.smd` (1098moradon_0826.smd 1024 m'lik başka bir haritadır, NPC'ler ona uymuyor). `moradon_xmas` aynı yeni Moradon'un kış sürümü.
+- [ ] **Eski Moradon'da NPC'leri göstermek:** `K_NPCPOS1098` bölge 21'deki 114 kayıt (esnaf, Sanctuary, Clan Bank, vb.) NPC modelleriyle yerleştirilecek. Kapıların (Delos, Luferson Castle…) işlevi, `.lua` konuşmaları.
 - [ ] `LILITH_MYKO.bak` geri yüklenince `VERSION` tablosundaki **2401 / 2450** kayıtlarının gerçek olup olmadığı kontrol edilecek.
 - [ ] `LILITH_LOG.bak` içeriği incelenecek.
 - [ ] Veritabanındaki eşya / NPC / görev adlarının dili kontrol edilecek — **oyun İngilizce** olacak.

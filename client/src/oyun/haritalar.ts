@@ -10,6 +10,8 @@ export interface HaritaAyari {
 export const HARITALAR: Record<string, HaritaAyari> = {
   // Şehir meydanı (oval alan) — kuşbakışı önizlemeye ve sunucudaki kapı olaylarına (x≈800-840, z≈526) göre.
   moradon: { baslangic: [815, 440], canavar: false },
+  // Sunucu NPC dizilimi, başlangıç noktası (START_POSITION1098 bölge 21 = 264, 302) ve kapılar bu haritaya uyuyor.
+  '14th_oldmoradon': { baslangic: [264, 302], canavar: false },
   new_runawar: { baslangic: null, canavar: true },
 };
 

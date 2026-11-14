@@ -24,6 +24,8 @@ Kaynak: server `shared/SMDFile.cpp` ve `N3BASE/N3ShapeMgr.cpp` (Myko_Source.rar)
 - Zemin/duvar ayrımı istemcide yapılır (`client/src/dunya/carpisma.ts`): normal.y > 0,55 → yürünebilir zemin
   (köprü, kat, merdiven), |normal.y| ≤ 0,55 → duvar.
 
+- **Eski Moradon:** `14th_oldmoradon.gtd` (129×129) ile eşleşen sunucu dosyası `old_moradon.smd`dir (yükseklik %94 aynı, bu haritada x/z yer değiştirmemiş). `14th_oldmoradon.smd` 257'lik başka bir haritadır, eşleşmez. Eski dosyalardaki kapı adları Korece (CP949) kodlu; okuyucu `euc-kr` ile çözer.
+
 ## Dışa aktarım
 `npm run harita -- moradon` artık `donusturulmus/web/harita/moradon/` altına şunları da yazar:
 - `carpisma.bin` — ham float32, üçgen başına 9 sayı (Moradon: 31.077 üçgen, 1,1 MB)

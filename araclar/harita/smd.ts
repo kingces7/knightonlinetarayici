@@ -82,7 +82,9 @@ export function smdOku(b: Buffer): Smd {
   }
   if (o + 4 <= b.length) {
     const n = i32();
-    const cs = (a: number, c: number) => b.toString('latin1', a, a + c).replace(/\0[\s\S]*$/, '');
+    // Eski dosyalarda adlar Korece (CP949/EUC-KR) kodlu.
+    const korece = new TextDecoder('euc-kr');
+    const cs = (a: number, c: number) => { const m = b.subarray(a, a + c); const e = m.indexOf(0); return korece.decode(e < 0 ? m : m.subarray(0, e)); };
     for (let i = 0; i < n && o + WARP_BOYU <= b.length; i++) {
       kapilar.push({
         id: b.readInt16LE(o), ad: cs(o + 2, 32), duyuru: cs(o + 34, 256), ucret: b.readUInt32LE(o + 292),

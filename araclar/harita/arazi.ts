@@ -45,8 +45,15 @@ export function gtdOku(dosya: Buffer): Arazi {
   const yama = (n - 1) / 8;
   o += yama * yama * 8; // yama orta yükseklik + yarıçap
   o += n * n; // çim haritası
-  o += yama * yama * 4; // bilinmeyen 4096 bayt (32×32 int)
-  o += MAX_PATH; // çim dosya adı
+  // Çim dosya adından sonra karo/kaynak sayıları gelir. Çoğu dosyada önce 4096 baytlık bilinmeyen blok (32×32 int)
+  // vardır; bazılarında (ör. moradon_xmas) yoktur. Sayılar makul çıkan düzen seçilir.
+  const sayilarMakul = (p: number): boolean => {
+    if (p + 8 > dosya.length) return false;
+    const k = dosya.readInt32LE(p), r = dosya.readInt32LE(p + 4);
+    return k >= 0 && k <= 1024 && r >= 0 && r <= 1024 && p + 8 + r * MAX_PATH + k * 4 <= dosya.length;
+  };
+  const blokluSayilar = o + yama * yama * 4 + MAX_PATH, blokSuzSayilar = o + MAX_PATH;
+  o = sayilarMakul(blokluSayilar) ? blokluSayilar : blokSuzSayilar;
   const karoSayisi = dosya.readInt32LE(o); o += 4;
   const kaynakSayisi = dosya.readInt32LE(o); o += 4;
   if (karoSayisi < 0 || karoSayisi > 1024 || kaynakSayisi < 0 || kaynakSayisi > 1024) {

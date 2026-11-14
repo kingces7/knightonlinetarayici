@@ -122,7 +122,7 @@ function onizleme(a: Arazi, karolar: Uint8Array[], pxKaro: number): Buffer {
 }
 
 /** İstemci haritası → sunucu haritası (.smd) eşleşmesi. İstemci adıyla aynı olmayanlar burada. */
-const SUNUCU_HARITASI: Record<string, string> = { moradon: '1098moradon_0826.smd' };
+const SUNUCU_HARITASI: Record<string, string> = { moradon: '1098moradon_0826.smd', '14th_oldmoradon': 'old_moradon.smd' };
 
 /**
  * Sunucu haritasından çarpışma üçgenlerini (carpisma.bin: ham float32, üçgen başına 9 sayı, x/y/z — istemci

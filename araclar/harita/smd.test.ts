@@ -39,3 +39,29 @@ test('smd: çarpışma köşeleri istemci arazisiyle (gtd) aynı dünya koordina
   // (x,z) sırası doğruysa köşelerin çoğu zemine yakındır; yer değiştirmiş (z,x) olsaydı ~%30 olurdu.
   assert.ok(yakin / say > 0.6, `köşelerin ${yakin}/${say} kadarı zemine yakın`);
 });
+
+test('smd: eski Moradon (old_moradon.smd) çarpışması ve yüksekliği 14th_oldmoradon.gtd ile aynı', { skip: !fs.existsSync(path.join(SUNUCU_HARITA_DIZINI, 'old_moradon.smd')) || !fs.existsSync(path.join(OYUN_DIZINI, 'Zones', '14th_oldmoradon.gtd')) && 'dosyalar yok' }, () => {
+  const s = smdOku(fs.readFileSync(path.join(SUNUCU_HARITA_DIZINI, 'old_moradon.smd')));
+  const g = gtdOku(fs.readFileSync(path.join(OYUN_DIZINI, 'Zones', '14th_oldmoradon.gtd')));
+  assert.equal(s.boyut, 129);
+  assert.equal(g.boyut, 129);
+  // Yükseklik ızgarası bu haritada x/z yer değiştirmeden aynı (yeni Moradon'da devrik).
+  let esit = 0; for (let i = 0; i < g.yukseklik.length; i++) if (Math.abs(g.yukseklik[i] - s.yukseklik[i]) < 0.05) esit++;
+  assert.ok(esit / g.yukseklik.length > 0.9, `yükseklik eşleşmesi ${esit}/${g.yukseklik.length}`);
+  const N = g.boyut;
+  const h = (x: number, z: number) => g.yukseklik[Math.min(N - 1, Math.max(0, Math.round(x / 4))) * N + Math.min(N - 1, Math.max(0, Math.round(z / 4)))];
+  let yakin = 0, say = 0;
+  for (let i = 0; i < s.yuzler.length; i += 3) {
+    const x = s.yuzler[i], y = s.yuzler[i + 1], z = s.yuzler[i + 2];
+    if (x < 0 || z < 0 || x > 512 || z > 512) continue;
+    say++;
+    if (Math.abs(y - h(x, z)) < 6) yakin++;
+  }
+  assert.ok(yakin / say > 0.6, `köşelerin ${yakin}/${say} kadarı zemine yakın`);
+});
+
+test('gtd: moradon_xmas (4096 baytlık bloksuz düzen) okunuyor', { skip: !fs.existsSync(path.join(OYUN_DIZINI, 'Zones', 'moradon_xmas.gtd')) && 'oyun dosyaları yok' }, () => {
+  const g = gtdOku(fs.readFileSync(path.join(OYUN_DIZINI, 'Zones', 'moradon_xmas.gtd')));
+  assert.equal(g.boyut, 257);
+  assert.equal(g.karolar.length, 247);
+});
