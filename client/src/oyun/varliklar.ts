@@ -8,6 +8,13 @@ import { type CanavarTuru, type EsyaTanimi, rastgele, rastgeleTam } from './veri
 /** Modellerin "ileri" yönü için düzeltme (radyan). Knight Online modelleri sahnede -z'ye bakıyor. */
 export const YON_OFSET = Math.PI;
 
+/** `a` açısını `hedef`e en kısa yoldan, en fazla `adim` radyan yaklaştırır. */
+export function acıyaYaklas(a: number, hedef: number, adim: number): number {
+  let fark = (hedef - a) % (Math.PI * 2);
+  if (fark > Math.PI) fark -= Math.PI * 2; else if (fark < -Math.PI) fark += Math.PI * 2;
+  return Math.abs(fark) <= adim ? hedef : a + Math.sign(fark) * adim;
+}
+
 /** Bir basamakta çıkılabilecek en büyük yükseklik (m). */
 const BASAMAK = 0.7;
 
@@ -15,7 +22,11 @@ export abstract class Varlik {
   /** Çarpışma ve zemin için kullanılan harita (main.ts atar). */
   static arazi: Arazi | null = null;
   readonly konum = new THREE.Vector2();
-  yon = 0; // sahnede y ekseni etrafında dönüş
+  yon = 0; // sahnede y ekseni etrafında dönüş (görünen)
+  /** `yonYumusat` açıksa model yönü hedefe sınırlı hızla (rad/sn) döner; kapalıysa anında. */
+  hedefYon = 0;
+  yonYumusat = false;
+  donusHizi = 9;
   can = 1;
   enCok = 1;
   model: KarakterModeli | null = null;
@@ -55,12 +66,16 @@ export abstract class Varlik {
     const hedef = this.zeminBul(arazi, this.konum.x, this.konum.y).y;
     if (this.yuksek === null || !arazi.carpisma) this.yuksek = hedef;
     else this.yuksek += (hedef - this.yuksek) * Math.min(1, dt * 16); // basamak/eğimde yumuşak geçiş
+    if (this.yonYumusat) this.yon = acıyaYaklas(this.yon, this.hedefYon, this.donusHizi * dt);
     this.grup.position.set(this.konum.x, this.yuksek, -this.konum.y);
     this.grup.rotation.y = this.yon;
   }
   bak(hedef: THREE.Vector2): void {
     const dx = hedef.x - this.konum.x, dz = -(hedef.y - this.konum.y);
-    if (dx * dx + dz * dz > 1e-6) this.yon = Math.atan2(dx, dz) + YON_OFSET;
+    if (dx * dx + dz * dz > 1e-6) {
+      this.hedefYon = Math.atan2(dx, dz) + YON_OFSET;
+      if (!this.yonYumusat) this.yon = this.hedefYon;
+    }
   }
   /** hedefe doğru en fazla `adim` kadar ilerler; vardıysa true. */
   yuru(hedef: THREE.Vector2, adim: number, durMesafe = 0): boolean {
@@ -232,11 +247,18 @@ export class Oyuncu extends Varlik {
   zirh: EsyaTanimi | null = null;
   hedef: Canavar | null = null;
   yuruHedef: THREE.Vector2 | null = null;
+  /** C ile oturma: hareket edemez, can/mana hızlı dolar. */
+  oturuyor = false;
+  /** T ile yürüme modu (kapalıyken koşar). */
+  yuruyor = false;
+  /** Klavyeyle yürürken gidiş yönü (Knight Online x,z düzleminde radyan); null = duruyor. Yön hedefe yumuşakça döner. */
+  yuruAcisi: number | null = null;
   saldiriSayaci = 0;
   savastanBeri = 99;
 
   constructor() {
     super(0.5, 1.9);
+    this.yonYumusat = true;
     this.can = this.enCok = 120;
   }
 

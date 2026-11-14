@@ -9,7 +9,7 @@ import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dokuPng } from '../model/dokuYardim.ts';
 import { lilithOku, type UiDugum } from './uif.ts';
 
-const VARSAYILAN = ['re_el_hpbar', 're_el_taskbar_main', 're_el_page_state', 're_el_skill', 're_el_inventory'];
+const VARSAYILAN = ['re_el_hpbar', 're_el_taskbar_main', 're_el_page_state', 're_el_skill', 're_el_inventory', 're_el_chatting_box', 're_el_information_box'];
 
 /** İstemcinin kullandığı sade düğüm. */
 interface Sade {

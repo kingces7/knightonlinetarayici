@@ -65,5 +65,48 @@ export class KarakterModeli {
     return klip.duration / (yeni.timeScale || 1);
   }
 
-  guncelle(dt: number): void { this.karistirici.update(dt); }
+  // ---- Oturma: modelde oturma animasyonu yok; animasyonun üstüne kemik pozu uygulanır.
+  // Ölçüm (scripts/pozara.mjs): kalça kemiği X ekseninde −90° → uyluk öne (−z) yatay; diz +90° → baldır dikey aşağı; kalça kökü ≈0,75 m alçalır.
+  private oturHedef = 0;
+  private oturDeger = 0;
+  private kemikler: Record<string, THREE.Object3D | null> | null = null;
+  private static readonly EKSEN_X = new THREE.Vector3(1, 0, 0);
+  private readonly oturDonus = new THREE.Quaternion();
+
+  oturPozu(aktif: boolean): void { this.oturHedef = aktif ? 1 : 0; }
+  get oturuyor(): boolean { return this.oturHedef === 1; }
+
+  guncelle(dt: number): void {
+    this.karistirici.update(dt);
+    const fark = this.oturHedef - this.oturDeger;
+    if (fark !== 0) this.oturDeger += Math.sign(fark) * Math.min(Math.abs(fark), dt * 2.2); // ~0,45 sn
+    if (this.oturDeger <= 0.0005) { this.hipsGeriAl(); return; }
+    if (!this.kemikler) {
+      const b = (ad: string) => this.kok.getObjectByName(ad) ?? null;
+      this.kemikler = { Hips: b('Hips'), LeftHip: b('LeftHip'), RightHip: b('RightHip'), LeftKnee: b('LeftKnee'), RightKnee: b('RightKnee') };
+    }
+    const e = this.oturDeger * this.oturDeger * (3 - 2 * this.oturDeger); // yumuşatma
+    const k = this.kemikler;
+    const don = (kemik: THREE.Object3D | null | undefined, derece: number) => {
+      if (!kemik) return;
+      this.oturDonus.setFromAxisAngle(KarakterModeli.EKSEN_X, (derece * e * Math.PI) / 180);
+      kemik.quaternion.multiply(this.oturDonus);
+    };
+    don(k.LeftHip, -90); don(k.RightHip, -90); don(k.LeftKnee, 90); don(k.RightKnee, 90);
+    if (k.Hips) {
+      // Animasyonda kalça konum izi yoksa kemik konumu kareden kareye kalır: önceki ofseti geri alıp yenisini uygula.
+      const h = k.Hips;
+      let taban = h.position.y;
+      if (this.sonHipsY !== null && Math.abs(h.position.y - this.sonHipsY) < 1e-9) taban += this.sonOfset;
+      h.position.y = taban - 0.75 * e; this.sonHipsY = h.position.y; this.sonOfset = 0.75 * e;
+    }
+  }
+
+  private sonHipsY: number | null = null;
+  private sonOfset = 0;
+  private hipsGeriAl(): void {
+    const h = this.kemikler?.Hips;
+    if (h && this.sonHipsY !== null && Math.abs(h.position.y - this.sonHipsY) < 1e-9) h.position.y += this.sonOfset;
+    this.sonHipsY = null; this.sonOfset = 0;
+  }
 }

@@ -10,6 +10,10 @@ export class TakipKamerasi {
   private surukleniyor = false;
   /** Hızlı dönüş: ulaşılacak yatay açı (null = dönüş yok). */
   private donusHedefi: number | null = null;
+  private donusBaslangic = 0;
+  private donusGecen = 0;
+  /** Orta tuşla 180° dönüşün süresi (sn). */
+  static readonly DONUS_SURESI = 0.7;
 
   constructor(tuval: HTMLCanvasElement) {
     this.kamera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
@@ -31,17 +35,20 @@ export class TakipKamerasi {
   }
 
   /** Hızlıca 180° arkaya döner (orta fare tuşu / görev çubuğu kamera düğmesi). */
-  arkayaDon(): void { this.donusHedefi = (this.donusHedefi ?? this.aci) + Math.PI; }
+  arkayaDon(): void {
+    this.donusBaslangic = this.aci; this.donusGecen = 0;
+    this.donusHedefi = (this.donusHedefi ?? this.aci) + Math.PI;
+  }
 
   /** Kameranın yatay bakış yönü (WASD için). */
   ileriYon(): THREE.Vector2 { return new THREE.Vector2(-Math.sin(this.aci), -Math.cos(this.aci)); }
 
   guncelle(hedef: THREE.Vector3, zeminYuksekligi: (x: number, zSahne: number) => number, dt = 1 / 60): void {
     if (this.donusHedefi !== null) {
-      const fark = this.donusHedefi - this.aci;
-      const adim = Math.min(1, dt * 18); // ~0,15 sn
-      this.aci += fark * adim;
-      if (Math.abs(fark) < 0.01) { this.aci = this.donusHedefi; this.donusHedefi = null; }
+      this.donusGecen += dt / TakipKamerasi.DONUS_SURESI;
+      const t = Math.min(1, this.donusGecen), e = t * t * (3 - 2 * t); // yumuşak başla, yumuşak dur
+      this.aci = this.donusBaslangic + (this.donusHedefi - this.donusBaslangic) * e;
+      if (t >= 1) { this.aci = this.donusHedefi; this.donusHedefi = null; }
     }
     const yatay = Math.cos(this.egim) * this.uzaklik;
     const k = new THREE.Vector3(

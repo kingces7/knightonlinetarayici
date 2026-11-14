@@ -48,7 +48,7 @@ async function basla(): Promise<void> {
   Varlik.arazi = arazi;
   const baslangic = new THREE.Vector2(...(ayar.baslangic ?? [arazi.genislik / 2, arazi.genislik / 2]));
   oyuncu.isinla(baslangic.x, baslangic.y, arazi);
-  await oyuncu.modelYukle(OYUNCU_MODELI);
+  await oyuncu.modelYukle(Number(parametre.get('model')) || OYUNCU_MODELI);
   sahne.add(oyuncu.grup);
 
   // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere (güvenli şehirlerde yok)
@@ -81,6 +81,20 @@ async function basla(): Promise<void> {
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
 
+  // Yürüme/koşma ve oturma (görev çubuğu düğmeleri; C = otur, R = yürü/koş)
+  let kosuyor = true;
+  const oturDegistir = () => {
+    if (oyuncu.olu || !oyuncu.model) return;
+    const otur = !oyuncu.model.oturuyor;
+    if (otur) { oyuncu.hedef = null; oyuncu.yuruHedef = null; acilacakKutu = null; oyuncu.model.oynat('bekle'); }
+    oyuncu.model.oturPozu(otur);
+    hud.mesaj(otur ? 'You sit down. Health and mana recover faster.' : 'You stand up.', 'sistem');
+  };
+  const kalk = () => { if (oyuncu.model?.oturuyor) oyuncu.model.oturPozu(false); };
+  const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
+  const hizAl = () => (kosuyor ? OYUNCU_HIZI : OYUNCU_HIZI * 0.5);
+  const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
+
   // Orijinal arayüz (oyunun kendi UIF pencereleri); yüklenemezse eski basit arayüz kalır.
   let arayuz: OyunArayuzu | null = null;
   try {
@@ -88,6 +102,7 @@ async function basla(): Promise<void> {
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
+      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(),
     });
     await a.baslat(); arayuz = a;
   } catch (e) { console.warn('Orijinal arayüz yüklenemedi, basit arayüz kullanılacak', e); }
@@ -121,7 +136,7 @@ async function basla(): Promise<void> {
   };
   hud.yenidenDog = () => {
     oyuncu.isinla(baslangic.x, baslangic.y, arazi); oyuncu.can = oyuncu.enCok; oyuncu.mana = oyuncu.enCokMana;
-    oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.model?.oynat('bekle');
+    oyuncu.hedef = null; oyuncu.yuruHedef = null; kalk(); oyuncu.model?.oynat('bekle');
     hud.mesaj('You have been revived.', 'sistem');
   };
 
@@ -136,6 +151,8 @@ async function basla(): Promise<void> {
       if (yakin) oyuncu.hedef = yakin;
     }
     if (e.code === 'Escape') { oyuncu.hedef = null; hud.ganimetAc(null); }
+    if (!e.repeat && e.code === 'KeyC') oturDegistir();
+    if (!e.repeat && e.code === 'KeyR') yuruKosDegistir();
   });
   addEventListener('keyup', (e) => tuslar.delete(e.code));
 
@@ -188,7 +205,7 @@ async function basla(): Promise<void> {
     oyuncu.savastanBeri += dt;
     if (oyuncu.olu) return;
     // Yenilenme (savaş dışında hızlı)
-    const yenilenme = oyuncu.savastanBeri > 6 ? 8 : 0.6;
+    const yenilenme = (oyuncu.savastanBeri > 6 ? 8 : 0.6) * (oyuncu.model?.oturuyor ? 3 : 1);
     oyuncu.can = Math.min(oyuncu.enCok, oyuncu.can + yenilenme * dt);
     oyuncu.mana = Math.min(oyuncu.enCokMana, oyuncu.mana + 3 * dt);
 
@@ -200,17 +217,19 @@ async function basla(): Promise<void> {
     if (tuslar.has('KeyD')) hareket.add(sag);
     if (tuslar.has('KeyA')) hareket.sub(sag);
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
+    // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
+    if (oyuncu.model?.oturuyor && (hareket.lengthSq() > 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
 
     if (hareket.lengthSq() > 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null;
       hareket.normalize();
-      oyuncu.ilerle(new THREE.Vector2(hareket.x, -hareket.y), OYUNCU_HIZI * dt); // kamera yönü (x, -z) → dünya (x, z)
-      oyuncu.model?.oynat('kos');
+      oyuncu.ilerle(new THREE.Vector2(hareket.x, -hareket.y), hizAl() * dt); // kamera yönü (x, -z) → dünya (x, z)
+      oyuncu.model?.oynat(hareketAnimi());
     } else if (oyuncu.hedef) {
       const h = oyuncu.hedef;
       if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) {
-        oyuncu.yuru(h.konum, OYUNCU_HIZI * dt, SALDIRI_MENZILI - 0.3);
-        oyuncu.model?.oynat('kos');
+        oyuncu.yuru(h.konum, hizAl() * dt, SALDIRI_MENZILI - 0.3);
+        oyuncu.model?.oynat(hareketAnimi());
       } else {
         oyuncu.bak(h.konum);
         oyuncu.saldiriSayaci -= dt;
@@ -222,12 +241,12 @@ async function basla(): Promise<void> {
         } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('savun');
       }
     } else if (oyuncu.yuruHedef) {
-      if (oyuncu.yuru(oyuncu.yuruHedef, OYUNCU_HIZI * dt, acilacakKutu ? 1.5 : 0)) {
+      if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? 1.5 : 0)) {
         oyuncu.yuruHedef = null;
         if (acilacakKutu && kutular.includes(acilacakKutu)) hud.ganimetAc(acilacakKutu);
         acilacakKutu = null;
         oyuncu.model?.oynat('bekle');
-      } else oyuncu.model?.oynat('kos');
+      } else oyuncu.model?.oynat(hareketAnimi());
     } else if (oyuncu.saldiriSayaci <= 0.4 || !oyuncu.model?.aktifAd.startsWith('saldir')) {
       oyuncu.model?.oynat('bekle');
     }

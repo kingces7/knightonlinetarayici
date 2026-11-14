@@ -20,6 +20,10 @@ export interface ArayuzBaglami {
   mesaj: (m: string) => void;
   /** Statü puanı harcandığında oyun kuralları (en çok can/mana vb.) güncellensin. */
   statDegisti: () => void;
+  /** Otur / kalk (görev çubuğu düğmesi ve C tuşu). */
+  otur: () => void;
+  /** Yürüme ↔ koşma geçişi (görev çubuğu düğmesi ve R tuşu). */
+  yuruKos: () => void;
 }
 
 type Ad = 'durum' | 'beceri' | 'envanter';
@@ -98,11 +102,13 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- görev çubuğu
   private gorevKur(): void {
     const g = this.gorev;
-    g.gizleDesen(/^(base_menu|base_TaskBar|btn_option|btn_uishow|btn_change|btn_close|btn_disband|btn_invite|btn_command|btn_trade|btn_sit|btn_walk|btn_rank|img_backboard|btn_seed|btn_powerup|btn_question|btn_menu)/);
+    g.gizleDesen(/^(base_menu|base_TaskBar|btn_option|btn_uishow|btn_change|btn_close|btn_disband|btn_invite|btn_command|btn_trade|btn_rank|img_backboard|btn_seed|btn_powerup|btn_question|btn_menu)/);
     g.tikla.set('btn_inventory', () => this.degistir('envanter'));
     g.tikla.set('btn_character', () => this.degistir('durum'));
     g.tikla.set('btn_skill', () => this.degistir('beceri'));
     g.tikla.set('btn_camera', () => this.b.kamera.arkayaDon());
+    g.tikla.set('btn_sit', () => this.b.otur());
+    g.tikla.set('btn_walk', () => this.b.yuruKos());
   }
 
   // ---------------------------------------------------------------- karakter durumu (U)

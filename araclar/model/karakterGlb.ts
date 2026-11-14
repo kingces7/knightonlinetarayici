@@ -8,6 +8,31 @@ const KARE_HIZI = 30; // Knight Online animasyon kare birimi (kare/sn)
 /** .n3anim kayıt sırası her modelde aynı; özgün adlar modele göre değiştiği için standart adlar verilir. */
 const ROLLER = ['bekle', 'yuru', 'kos', 'geri', 'saldir0', 'saldir1', 'darbe0', 'darbe1', 'darbe2', 'savun', 'olum0', 'olum1', 'konus0', 'konus1', 'konus2', 'konus3', 'buyu0', 'buyu1'];
 
+/**
+ * Standart animasyon adı. Özgün ad bilinen bir adsa ona göre (oturma animasyonları dahil), değilse eski sıra tablosuna göre verilir.
+ * Aynı ad iki kez çıkarsa (ör. iki "attack0") ailedeki sıradaki boş ad seçilir (saldir0 → saldir1).
+ */
+const AILELER: [RegExp, string[]][] = [
+  [/^breath$/i, ['bekle']], [/^walk$/i, ['yuru']], [/^run$/i, ['kos']], [/^walk_(reverse|backward)$/i, ['geri']],
+  [/^attack\d?$/i, ['saldir0', 'saldir1', 'saldir2']], [/^struck\d$/i, ['darbe0', 'darbe1', 'darbe2']], [/^guard$/i, ['savun']],
+  [/^dead\d$/i, ['olum0', 'olum1', 'olum2']], [/^talk\d$/i, ['konus0', 'konus1', 'konus2', 'konus3']],
+  [/^(spellmagic\d|magic_attack)$/i, ['buyu0', 'buyu1']],
+  [/^(breath_sit|sitdown_breath)$/i, ['otur']], [/^sitdown$/i, ['oturBasla']], [/^0?standup$/i, ['kalk']],
+];
+export function animAdi(ozgun: string, sira: number, kullanilan: string[]): string {
+  for (const [desen, aile] of AILELER) {
+    if (!desen.test(ozgun)) continue;
+    const bos = aile.find((x) => !kullanilan.includes(x));
+    if (bos) return bos;
+    break;
+  }
+  const eski = ROLLER[sira];
+  if (eski && !kullanilan.includes(eski)) return eski;
+  let ad = `${sira}_${ozgun}`;
+  while (kullanilan.includes(ad)) ad += '_';
+  return ad;
+}
+
 // ---- 4x4 matris (sütun öncelikli, glTF düzeni) ----
 type M4 = Float64Array;
 function trs(t: number[], q: number[], s: number[]): M4 {
@@ -114,7 +139,7 @@ export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer
       }
     }
     if (!kanallar.length) continue;
-    const ad = ROLLER[sira] ?? `${sira}_${a.ad}`;
+    const ad = animAdi(a.ad, sira, adlar);
     g.json.animations.push({ name: ad, channels: kanallar, samplers: ornekleyiciler, extras: { ozgunAd: a.ad, hiz: a.hiz / KARE_HIZI, vurus: a.vurus > a.bas ? (a.vurus - a.bas) / KARE_HIZI : null } });
     adlar.push(ad);
     hizlar[ad] = { hiz: a.hiz / KARE_HIZI, vurus: a.vurus > a.bas ? (a.vurus - a.bas) / KARE_HIZI : null, sure: (Math.max(a.son, a.bas) - a.bas) / KARE_HIZI };

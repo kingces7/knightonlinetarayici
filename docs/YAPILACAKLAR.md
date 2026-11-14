@@ -26,7 +26,8 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 
 **Orijinal arayüz — eksikler**
 - [ ] Sohbet kutusu (`re_el_chatting_box`), hedef çerçevesi (`re_target_framebar`: 14'ten büyük yeni öğe türleri nedeniyle okunamıyor) ve ganimet penceresi hâlâ eski basit arayüzde.
-- [ ] Görev çubuğunun çoğu düğmesi işlevsiz (Map, Control, Invite, Option, Exit, saldır/koş/otur); ortadaki 4 simge (`re_el_hotkey` hızlı çubuk) bağlı değil.
+- [x] Oturma (C) ve yürü/koş geçişi (R): kemik pozu ile oturma, oturunca 3 kat hızlı yenilenme, yürürken `yuru` animasyonu ve yarı hız. Kalan: görev çubuğundaki Otur/Yürü düğmeleri ekranda görünmüyor (UIF'te başka pencerede olabilir, bulunacak); oyunun gerçek `breath_sit` animasyonu ham modellerde yok.
+- [ ] Görev çubuğunun çoğu düğmesi işlevsiz (Map, Control, Invite, Option, Exit); ortadaki 4 simge (`re_el_hotkey` hızlı çubuk) bağlı değil.
 - [ ] Skill penceresi: yalnızca "Basic Skill" sekmesi ve El Morad Savaşçı temel skilleri listeleniyor; skill **kullanılamıyor** (MP harcama, hasar, etki yok). Sınıf sekmeleri ve skill puanı harcama yok; üstteki "P" (premium) düğmeleri gizlenemedi.
 - [ ] Durum penceresi: Myko'nun "perk" paneli gizli; direnç ve silah savunma değerleri 0; ağırlık yalnızca yuva sayısı; Knight Cash / TL bakiyesi 0.
 - [ ] Envanter: yalnızca silah (yuva 6) ve zırh (yuva 4) ekipman olarak çiziliyor; diğer 13 ekipman yuvası, çanta kilidi/kozmetik paneli, eşya yok etme çalışmıyor. Sürükle-bırak yok (tıkla-kuşan).
