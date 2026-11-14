@@ -1,0 +1,168 @@
+// Arazi: yükseklik ızgarası + karo dokuları (araclar/harita ile üretilen veriler).
+// Koordinatlar: Knight Online (x, y, z) -> sahne (x, y, -z). glTF nesneleri de aynı dönüşümle üretildi.
+import * as THREE from 'three';
+
+export interface AraziBilgisi {
+  ad: string; boyut: number; birim: number; karoSayisi: number;
+  atlas: { dosya: string; kolon: number; satir: number; karoPx: number };
+}
+
+export class Arazi {
+  readonly bilgi: AraziBilgisi;
+  readonly yukseklik: Float32Array;
+  readonly mesh: THREE.Mesh;
+  /** Haritanın kenar uzunluğu (metre). */
+  readonly genislik: number;
+
+  private constructor(bilgi: AraziBilgisi, yukseklik: Float32Array, mesh: THREE.Mesh) {
+    this.bilgi = bilgi; this.yukseklik = yukseklik; this.mesh = mesh;
+    this.genislik = (bilgi.boyut - 1) * bilgi.birim;
+  }
+
+  static async yukle(klasor: string): Promise<Arazi> {
+    const bilgi = (await (await fetch(`${klasor}/arazi.json`)).json()) as AraziBilgisi;
+    const bin = await (await fetch(`${klasor}/arazi.bin`)).arrayBuffer();
+    const n = bilgi.boyut, nn = n * n;
+    let o = 0;
+    const yukseklik = new Float32Array(bin, o, nn); o += nn * 4;
+    const doku1 = new Uint16Array(bin, o, nn); o += nn * 2;
+    const doku2 = new Uint16Array(bin, o, nn); o += nn * 2;
+    const yon1 = new Uint8Array(bin, o, nn); o += nn;
+    const yon2 = new Uint8Array(bin, o, nn);
+    const karolar = await karoDizisi(`${klasor}/karolar.bin`, bilgi);
+
+    // Karo bilgisi dokuları (karo başına bir piksel)
+    const k = n - 1;
+    const v1 = new Uint8Array(k * k * 4), v2 = new Uint8Array(k * k * 4);
+    for (let tx = 0; tx < k; tx++) for (let tz = 0; tz < k; tz++) {
+      const i = tx * n + tz, p = (tz * k + tx) * 4;
+      v1[p] = doku1[i] & 255; v1[p + 1] = doku1[i] >> 8; v1[p + 2] = yon1[i];
+      const var2 = doku2[i] < bilgi.karoSayisi;
+      v2[p] = doku2[i] & 255; v2[p + 1] = doku2[i] >> 8; v2[p + 2] = yon2[i]; v2[p + 3] = var2 ? 255 : 0;
+    }
+    const veriDokusu = (v: Uint8Array) => {
+      const t = new THREE.DataTexture(v, k, k, THREE.RGBAFormat, THREE.UnsignedByteType);
+      t.magFilter = t.minFilter = THREE.NearestFilter; t.needsUpdate = true; return t;
+    };
+    // Yaklaşık renk haritası (karo başına renk, yumuşak geçişli)
+    const tabanVeri = new Uint8Array(await (await fetch(`${klasor}/taban.bin`)).arrayBuffer());
+    const taban = new THREE.DataTexture(tabanVeri, k, k, THREE.RGBAFormat, THREE.UnsignedByteType);
+    taban.magFilter = taban.minFilter = THREE.LinearFilter; taban.colorSpace = THREE.SRGBColorSpace; taban.needsUpdate = true;
+
+    // Geometri: köşe başına bir nokta
+    const geo = new THREE.BufferGeometry();
+    const konum = new Float32Array(nn * 3);
+    for (let x = 0; x < n; x++) for (let z = 0; z < n; z++) {
+      const i = x * n + z;
+      konum[i * 3] = x * bilgi.birim; konum[i * 3 + 1] = yukseklik[i]; konum[i * 3 + 2] = -z * bilgi.birim;
+    }
+    const indeks = new Uint32Array(k * k * 6);
+    let t = 0;
+    for (let x = 0; x < k; x++) for (let z = 0; z < k; z++) {
+      const a = x * n + z, b = (x + 1) * n + z, c = x * n + z + 1, d = (x + 1) * n + z + 1;
+      indeks.set([a, b, c, c, b, d], t); t += 6;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(konum, 3));
+    geo.setIndex(new THREE.BufferAttribute(indeks, 1));
+    geo.computeVertexNormals();
+
+    const malzeme = new THREE.ShaderMaterial({
+      glslVersion: THREE.GLSL3,
+      uniforms: {
+        karolar: { value: karolar }, bilgi1: { value: veriDokusu(v1) }, bilgi2: { value: veriDokusu(v2) }, taban: { value: taban },
+        birim: { value: bilgi.birim }, karoSayisi: { value: k },
+        gunesYonu: { value: new THREE.Vector3(0.4, 0.8, 0.3).normalize() },
+        sisRengi: { value: new THREE.Color(0x9fb4c8) }, sisYakin: { value: 150 }, sisUzak: { value: 600 },
+      },
+      vertexShader: /* glsl */ `
+        out vec3 vDunya; out vec3 vNormal; out float vDerinlik;
+        void main() {
+          vDunya = position; vNormal = normal;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vDerinlik = -mv.z;
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: /* glsl */ `
+        precision highp float; precision highp sampler2DArray;
+        layout(location = 0) out highp vec4 pc_fragColor;
+        #define gl_FragColor pc_fragColor
+        uniform sampler2DArray karolar; uniform sampler2D bilgi1; uniform sampler2D bilgi2; uniform sampler2D taban;
+        uniform float birim; uniform float karoSayisi; uniform vec3 gunesYonu;
+        uniform vec3 sisRengi; uniform float sisYakin; uniform float sisUzak;
+        in vec3 vDunya; in vec3 vNormal; in float vDerinlik;
+        vec2 yonUv(float yon, vec2 uv) {
+          int d = int(yon + 0.5) & 7;
+          if (d == 1) return vec2(uv.y, 1.0 - uv.x);
+          if (d == 2) return vec2(1.0 - uv.x, 1.0 - uv.y);
+          if (d == 3) return vec2(1.0 - uv.y, uv.x);
+          if (d == 4) return vec2(1.0 - uv.x, uv.y);
+          if (d == 5) return vec2(uv.x, 1.0 - uv.y);
+          if (d == 6) return vec2(uv.y, uv.x);
+          if (d == 7) return vec2(1.0 - uv.y, 1.0 - uv.x);
+          return uv;
+        }
+        void main() {
+          vec2 ko = vec2(vDunya.x, -vDunya.z) / birim;
+          ivec2 karo = clamp(ivec2(floor(ko)), ivec2(0), ivec2(int(karoSayisi) - 1));
+          vec2 yerel = fract(ko);
+          vec4 b1 = texelFetch(bilgi1, karo, 0) * 255.0;
+          vec4 b2 = texelFetch(bilgi2, karo, 0) * 255.0;
+          // Türevleri karo sınırında sıçramasın diye sürekli koordinattan al
+          vec2 dx = dFdx(ko), dy = dFdy(ko);
+          // Geçiş karoları ters yönlerde kararır; iki karonun rengi TOPLANARAK birleşir.
+          vec2 uv1 = yonUv(b1.z, yerel);
+          vec3 c = textureGrad(karolar, vec3(uv1, b1.x + b1.y * 256.0), dx, dy).rgb;
+          if (b2.w > 0.5) {
+            vec2 uv2 = yonUv(b2.z, yerel);
+            c = min(c + textureGrad(karolar, vec3(uv2, b2.x + b2.y * 256.0), dx, dy).rgb, vec3(1.0));
+          }
+          // Tek karonun karanlık kalan kısmını yaklaşık renk haritasıyla doldur
+          if (b2.w < 0.5) {
+            vec3 tb = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
+            float parlak = max(c.r, max(c.g, c.b));
+            c = mix(tb, c, smoothstep(0.02, 0.2, parlak));
+          }
+          float isik = 0.45 + 0.75 * max(dot(normalize(vNormal), gunesYonu), 0.0);
+          vec3 r = c * isik;
+          float sis = smoothstep(sisYakin, sisUzak, vDerinlik);
+          gl_FragColor = vec4(mix(r, sisRengi, sis), 1.0);
+          #include <colorspace_fragment>
+        }`,
+    });
+    const mesh = new THREE.Mesh(geo, malzeme);
+    mesh.name = 'arazi';
+    return new Arazi(bilgi, yukseklik, mesh);
+  }
+
+  /** Knight Online koordinatında (x, z) yükseklik (çift doğrusal ara değer). */
+  yukseklikAl(x: number, z: number): number {
+    const n = this.bilgi.boyut, b = this.bilgi.birim;
+    const fx = Math.min(Math.max(x / b, 0), n - 1.001), fz = Math.min(Math.max(z / b, 0), n - 1.001);
+    const ix = Math.floor(fx), iz = Math.floor(fz), ax = fx - ix, az = fz - iz;
+    const h = (i: number, j: number) => this.yukseklik[i * n + j];
+    // Üçgen bölünmesi geometriyle aynı: (a,b,c) ve (c,b,d)
+    if (ax + az <= 1) return h(ix, iz) + (h(ix + 1, iz) - h(ix, iz)) * ax + (h(ix, iz + 1) - h(ix, iz)) * az;
+    return h(ix + 1, iz + 1) + (h(ix, iz + 1) - h(ix + 1, iz + 1)) * (1 - ax) + (h(ix + 1, iz) - h(ix + 1, iz + 1)) * (1 - az);
+  }
+
+  /** Sis ayarı (nesnelerle uyumlu olsun diye). */
+  sisAyarla(renk: THREE.Color, yakin: number, uzak: number): void {
+    const u = (this.mesh.material as THREE.ShaderMaterial).uniforms;
+    u.sisRengi.value.copy(renk); u.sisYakin.value = yakin; u.sisUzak.value = uzak;
+  }
+}
+
+async function karoDizisi(url: string, bilgi: AraziBilgisi): Promise<THREE.DataArrayTexture> {
+  // Ham RGBA (karo karo art arda). PNG + canvas kullanılmıyor: saydam piksellerin rengini siliyor.
+  const p = bilgi.atlas.karoPx;
+  const veri = new Uint8Array(await (await fetch(url)).arrayBuffer());
+  if (veri.length !== p * p * 4 * bilgi.karoSayisi) throw new Error('karolar.bin boyutu beklenenden farklı');
+  const t = new THREE.DataArrayTexture(veri, p, p, bilgi.karoSayisi);
+  t.format = THREE.RGBAFormat; t.type = THREE.UnsignedByteType;
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter;
+  t.generateMipmaps = true; t.anisotropy = 4;
+  t.needsUpdate = true;
+  return t;
+}

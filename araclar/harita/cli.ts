@@ -8,6 +8,7 @@ import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dxtOku, rgbayaCevir } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
 import { gtdOku, dokuKonumu, type Arazi } from './arazi.ts';
+import { nesneleriDisaAktar } from './nesneler.ts';
 
 const KARO_PX = 128;
 const ATLAS_KOLON = 16;
@@ -53,6 +54,44 @@ function atlasYap(karolar: Uint8Array[]): { png: Buffer; satir: number } {
   return { png: pngKodla(g, y, rgba), satir };
 }
 
+/**
+ * Yaklaşık renk haritası (karo başına RGB). Oyunun gerçek renk haritası (.tct) şifreli olduğu için,
+ * geçiş karolarının saydam kısımlarının altına konacak taban rengi karoların opak kısımlarının
+ * ortalamasından ve komşularından tahmin eder.
+ */
+function tabanRenk(a: Arazi, karolar: Uint8Array[]): Buffer {
+  const ort = karolar.map((k) => {
+    let r = 0, g = 0, b = 0, w = 0;
+    for (let i = 0; i < k.length; i += 4) { const al = k[i + 3] / 255; if (al < 0.9) continue; r += k[i]; g += k[i + 1]; b += k[i + 2]; w++; }
+    return w ? [r / w, g / w, b / w, 1] : [0, 0, 0, 0];
+  });
+  const k = a.boyut - 1;
+  let alan = new Float32Array(k * k * 4);
+  for (let tx = 0; tx < k; tx++) for (let tz = 0; tz < k; tz++) {
+    const i = tx * a.boyut + tz, p = (tz * k + tx) * 4;
+    const kaynak = [ort[a.doku1[i]], a.doku2[i] < ort.length ? ort[a.doku2[i]] : null];
+    for (const c of kaynak) if (c && c[3]) { alan[p] += c[0]; alan[p + 1] += c[1]; alan[p + 2] += c[2]; alan[p + 3] += 1; }
+  }
+  // Boşlukları doldurup yumuşat (birkaç tur 3x3 ortalama)
+  for (let tur = 0; tur < 6; tur++) {
+    const yeni = new Float32Array(alan.length);
+    for (let x = 0; x < k; x++) for (let z = 0; z < k; z++) {
+      let r = 0, g = 0, b = 0, w = 0;
+      for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+        const xx = x + dx, zz = z + dz; if (xx < 0 || zz < 0 || xx >= k || zz >= k) continue;
+        const p = (zz * k + xx) * 4; r += alan[p]; g += alan[p + 1]; b += alan[p + 2]; w += alan[p + 3];
+      }
+      const p = (z * k + x) * 4;
+      if (w) { yeni[p] = r / w; yeni[p + 1] = g / w; yeni[p + 2] = b / w; yeni[p + 3] = 1; }
+    }
+    alan = yeni;
+  }
+  const cikti = Buffer.alloc(k * k * 4);
+  for (let i = 0; i < k * k; i++) for (let c = 0; c < 3; c++) cikti[i * 4 + c] = Math.round(alan[i * 4 + c]);
+  for (let i = 0; i < k * k; i++) cikti[i * 4 + 3] = 255;
+  return cikti;
+}
+
 function onizleme(a: Arazi, karolar: Uint8Array[], pxKaro: number): Buffer {
   const k = a.boyut - 1, boy = k * pxKaro;
   const rgba = new Uint8Array(boy * boy * 4);
@@ -72,7 +111,7 @@ function onizleme(a: Arazi, karolar: Uint8Array[], pxKaro: number): Buffer {
       if (t2) { uv2 = yonUv(a.yon2[i], u, v); al = ornek(t2, uv2[0], uv2[1], 3) / 255; }
       for (let c = 0; c < 3; c++) {
         const c1 = ornek(t1, u1, v1, c);
-        rgba[hedef + c] = t2 ? Math.round(c1 * (1 - al) + ornek(t2, uv2[0], uv2[1], c) * al) : c1;
+        rgba[hedef + c] = t2 ? Math.min(255, c1 + ornek(t2, uv2[0], uv2[1], c)) : c1;
       }
       rgba[hedef + 3] = 255;
     }
@@ -91,7 +130,9 @@ function main(argv: string[]): number {
   oyunDisindaOlmali(hedef);
   fs.mkdirSync(hedef, { recursive: true });
   const { png, satir } = atlasYap(karolar);
-  fs.writeFileSync(path.join(hedef, 'karolar.png'), png);
+  fs.writeFileSync(path.join(hedef, 'karolar.png'), png); // bakmak/düzenlemek için
+  // Oyun için ham RGBA: tarayıcıda PNG'yi canvas ile okumak saydam piksellerin rengini siliyor.
+  fs.writeFileSync(path.join(hedef, 'karolar.bin'), Buffer.concat(karolar.map((k) => Buffer.from(k.buffer, k.byteOffset, k.byteLength))));
   const n = a.boyut * a.boyut;
   const bin = Buffer.alloc(n * 4 + n * 2 * 2 + n * 2);
   let o = 0;
@@ -101,12 +142,19 @@ function main(argv: string[]): number {
   Buffer.from(a.yon1).copy(bin, o); o += n;
   Buffer.from(a.yon2).copy(bin, o);
   fs.writeFileSync(path.join(hedef, 'arazi.bin'), bin);
+  fs.writeFileSync(path.join(hedef, 'taban.bin'), tabanRenk(a, karolar));
   fs.writeFileSync(path.join(hedef, 'arazi.json'), JSON.stringify({
     ad: a.ad, boyut: a.boyut, birim: a.birim, karoSayisi: a.karolar.length,
     atlas: { dosya: 'karolar.png', kolon: ATLAS_KOLON, satir, karoPx: KARO_PX },
     ikili: { dosya: 'arazi.bin', duzen: 'float32 yukseklik[N*N], uint16 doku1[N*N], uint16 doku2[N*N], uint8 yon1[N*N], uint8 yon2[N*N]; sira x*N+z' },
   }, null, 2));
   console.log(`  -> ${hedef}`);
+  if (!argv.includes('--nesnesiz')) {
+    const { glb, rapor } = nesneleriDisaAktar(od, harita);
+    fs.writeFileSync(path.join(hedef, 'nesneler.glb'), glb);
+    console.log(`  nesneler: ${rapor.nesne} nesne (${rapor.atlanan} atlandı), ${rapor.model} model (${rapor.eksikModel} okunamadı), ` +
+      `${rapor.doku} doku (${rapor.sifreliDoku} şifreli → gri), ${(rapor.boyut / 1048576).toFixed(1)} MB`);
+  }
   if (argv.includes('--onizleme')) {
     const d = path.join(CIKTI_DIZINI, 'onizleme');
     fs.mkdirSync(d, { recursive: true });
