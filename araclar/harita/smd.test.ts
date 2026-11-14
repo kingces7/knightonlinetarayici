@@ -6,7 +6,7 @@ import { smdOku } from './smd.ts';
 import { gtdOku } from './arazi.ts';
 import { OYUN_DIZINI, SUNUCU_HARITA_DIZINI } from '../ortak/yollar.ts';
 
-const smdYolu = path.join(SUNUCU_HARITA_DIZINI, 'moradon_0826.smd');
+const smdYolu = path.join(SUNUCU_HARITA_DIZINI, '1098moradon_0826.smd');
 const gtdYolu = path.join(OYUN_DIZINI, 'Zones', 'moradon.gtd');
 const atla = (!fs.existsSync(smdYolu) || !fs.existsSync(gtdYolu)) && 'server/oyun dosyaları yok';
 

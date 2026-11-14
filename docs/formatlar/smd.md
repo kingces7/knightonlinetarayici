@@ -19,7 +19,7 @@ Kaynak: server `shared/SMDFile.cpp` ve `N3BASE/N3ShapeMgr.cpp` (Myko_Source.rar)
   %70'i araziye 6 m içinde (x,z sırası); x/z yer değiştirseydi %30 olurdu.
 - `.smd` içindeki yükseklik ızgarası `.gtd` ile **x/z yer değiştirmiş** saklanıyor (`smd[z*N+x] == gtd[x*N+z]`,
   %78 eşleşiyor, kalanı iki dosya arasındaki sürüm farkı). Oyunda arazi için `.gtd` kullanılır.
-- İstemci harita adı ile sunucu dosyası eşleşmesi: `moradon` → `moradon_0826.smd` (kapı adları Moradon'a ait).
+- İstemci harita adı ile sunucu dosyası eşleşmesi: `moradon` → `1098moradon_0826.smd` (sunucu v1098'in güncel Moradon'u; `moradon_0826.smd` ile yükseklik ve çarpışma aynı, yalnız kapı listesi farklı — 1098'de Kecoon Valley kapıları var).
   Eşleşme `araclar/harita/cli.ts` içindeki `SUNUCU_HARITASI` tablosunda.
 - Zemin/duvar ayrımı istemcide yapılır (`client/src/dunya/carpisma.ts`): normal.y > 0,55 → yürünebilir zemin
   (köprü, kat, merdiven), |normal.y| ≤ 0,55 → duvar.
