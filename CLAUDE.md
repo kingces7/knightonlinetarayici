@@ -15,8 +15,8 @@ değiştirilmeden kullanılacak.
 
 ## Kararlar
 - **Myko** sürümüyle çalışılıyor: veritabanı `Myko Database/LILITH_MYKO.bak` (+ `LILITH_LOG.bak`),
-  server kaynağı `Source Files/Myko_Source.rar`. Homeko veritabanı silindi; Homeko kaynak kodu
-  sadece yedek/kıyas amaçlı.
+  server kaynağı `Source Files/Myko_Source.rar`, client `DiabloKO/` (Myko arşivinden çıkarıldı).
+  Homeko'ya ait her şey (veritabanı, kaynak kodu, `SpecialKO` client'ı) silindi; yedeği `knight online ham proje.rar` içinde.
 - Proje **bu bilgisayarda** geliştirilir. GitHub yedek ve bulut oturumu ile paylaşım içindir.
 
 ## Kesin kurallar
@@ -66,9 +66,9 @@ Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 ## Klasör yapısı
 ```
 E:\Knight Online Browser Project\
-├── SpecialKO\              # orijinal client (sadece oku)
+├── DiabloKO              # Myko client'ı, Myko_Source.rar'dan çıkarıldı (sadece oku)
 ├── Myko Database\          # LILITH_MYKO.bak, LILITH_LOG.bak (SQL Server 2022 yedeği)
-├── Source Files\           # Myko_Source.rar (kullanılan), HomekoSource.rar, DXSDK, libcurl
+├── Source Files\           # Myko_Source.rar, DXSDK, libcurl
 ├── Noah-System\            # topluluk araçları (TBL editor, UIE…)
 ├── *.rar                   # ham proje arşivi, panel (proje için gerekmiyor)
 └── knightonlinetarayici\   # BU DEPO
@@ -79,4 +79,4 @@ E:\Knight Online Browser Project\
     ├── oyun-dosyalari\     # .rar'lardan çıkarılan dosyalar (git'e girmez)
     └── donusturulmus\      # dönüştürülmüş asset'ler (git'e girmez)
 ```
-Kodda oyun dosyalarına giden yol tek bir ayardan okunmalı (ör. `../SpecialKO`), sabit yazılmamalı.
+Kodda oyun dosyalarına giden yol tek bir ayardan okunmalı (ör. `../DiabloKO`), sabit yazılmamalı.
