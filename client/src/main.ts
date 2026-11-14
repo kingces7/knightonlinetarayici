@@ -210,7 +210,9 @@ async function basla(): Promise<void> {
     }
   };
 
-  const vurusZamanlayici: { kalan: number; hedef: Canavar }[] = [];
+  let sonTusSayisi = 0;
+  let yonKilidi: number | null = null;
+  const vurusZamanlayici:{ kalan: number; hedef: Canavar }[] = [];
   const oyuncuGuncelle = (dt: number) => {
     oyuncu.model?.guncelle(dt);
     oyuncu.savastanBeri += dt;
@@ -233,11 +235,17 @@ async function basla(): Promise<void> {
     // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
     if (oyuncu.model?.oturuyor && (hareket.lengthSq() > 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
 
+    // Basılı yön tuşu sayısı: bir tuş bırakılınca (hâlâ başka tuş basılıyken) yön kilitlenir, yeni tuşa basılana ya da hepsi bırakılana kadar korunur.
+    const tusSayisi = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].filter((k) => tuslar.has(k)).length;
+    if (tusSayisi === 0 || tusSayisi > sonTusSayisi) yonKilidi = null;
+    else if (tusSayisi < sonTusSayisi && yonKilidi === null) yonKilidi = oyuncu.yuruAcisi ?? oyuncu.bakisAcisi;
+    sonTusSayisi = tusSayisi;
+
     if (hareket.lengthSq() > 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null;
       hareket.normalize();
       // İstenen yön (kamera yönü (x, -z) → dünya (x, z)); gidiş yönü ona sınırlı hızla döner → yumuşak kavisler.
-      const istenen = Math.atan2(-hareket.y, hareket.x);
+      const istenen = yonKilidi ?? Math.atan2(-hareket.y, hareket.x);
       oyuncu.yuruAcisi = acıyaYaklas(oyuncu.yuruAcisi ?? oyuncu.bakisAcisi, istenen, YURUME_DONUS_HIZI * dt);
       let fark = Math.abs(istenen - oyuncu.yuruAcisi) % (Math.PI * 2);
       if (fark > Math.PI) fark = Math.PI * 2 - fark;

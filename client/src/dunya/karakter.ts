@@ -65,11 +65,16 @@ export class KarakterModeli {
     return klip.duration / (yeni.timeScale || 1);
   }
 
-  // ---- Oturma: modelde oturma animasyonu yok; animasyonun üstüne kemik pozu uygulanır.
-  // Ölçüm (scripts/pozara.mjs): kalça kemiği X ekseninde −90° → uyluk öne (−z) yatay; diz +90° → baldır dikey aşağı; kalça kökü ≈0,75 m alçalır.
+  // ---- Oturma: modelde oturma animasyonu yok; animasyonun üstüne yerde oturma pozu (kemik açıları) uygulanır.
+  // Ölçüm (scripts/oturgor.mjs): kalça −140°, diz +160° (X ekseni) → dizler yukarıda, baldır geriye eğik, ayaklar yerde; kalça kökü 0,90 m alçalır.
+  // Her karede: önceki karenin pozu geri yüklenir → animasyon güncellenir → ham poz saklanır → oturma eklenir (birikme/kayma olmaz).
+  private static readonly OTUR_KALCA = -140;
+  private static readonly OTUR_DIZ = 160;
+  private static readonly OTUR_INDIR = 0.9;
   private oturHedef = 0;
   private oturDeger = 0;
-  private kemikler: Record<string, THREE.Object3D | null> | null = null;
+  private kemikler: { hips: THREE.Object3D; ayak: { kemik: THREE.Object3D; aci: number }[] } | null = null;
+  private kayit: { q: THREE.Quaternion[]; hipsY: number } | null = null;
   private static readonly EKSEN_X = new THREE.Vector3(1, 0, 0);
   private readonly oturDonus = new THREE.Quaternion();
 
@@ -77,36 +82,31 @@ export class KarakterModeli {
   get oturuyor(): boolean { return this.oturHedef === 1; }
 
   guncelle(dt: number): void {
+    const kb = this.kemikler;
+    if (this.kayit && kb) { // önceki karede eklenen oturma pozunu geri al
+      kb.ayak.forEach((a, i) => a.kemik.quaternion.copy(this.kayit!.q[i]));
+      kb.hips.position.y = this.kayit.hipsY;
+    }
+    this.kayit = null;
     this.karistirici.update(dt);
     const fark = this.oturHedef - this.oturDeger;
     if (fark !== 0) this.oturDeger += Math.sign(fark) * Math.min(Math.abs(fark), dt * 2.2); // ~0,45 sn
-    if (this.oturDeger <= 0.0005) { this.hipsGeriAl(); return; }
+    if (this.oturDeger <= 0.0005) { this.oturDeger = Math.max(0, this.oturDeger); return; }
     if (!this.kemikler) {
-      const b = (ad: string) => this.kok.getObjectByName(ad) ?? null;
-      this.kemikler = { Hips: b('Hips'), LeftHip: b('LeftHip'), RightHip: b('RightHip'), LeftKnee: b('LeftKnee'), RightKnee: b('RightKnee') };
+      const b = (ad: string) => this.kok.getObjectByName(ad);
+      const hips = b('Hips');
+      const ayak = ([['LeftHip', KarakterModeli.OTUR_KALCA], ['RightHip', KarakterModeli.OTUR_KALCA], ['LeftKnee', KarakterModeli.OTUR_DIZ], ['RightKnee', KarakterModeli.OTUR_DIZ]] as [string, number][])
+        .flatMap(([ad, aci]) => { const k = b(ad); return k ? [{ kemik: k, aci }] : []; });
+      if (!hips || !ayak.length) { this.oturDeger = 0; return; }
+      this.kemikler = { hips, ayak };
     }
-    const e = this.oturDeger * this.oturDeger * (3 - 2 * this.oturDeger); // yumuşatma
     const k = this.kemikler;
-    const don = (kemik: THREE.Object3D | null | undefined, derece: number) => {
-      if (!kemik) return;
-      this.oturDonus.setFromAxisAngle(KarakterModeli.EKSEN_X, (derece * e * Math.PI) / 180);
-      kemik.quaternion.multiply(this.oturDonus);
-    };
-    don(k.LeftHip, -90); don(k.RightHip, -90); don(k.LeftKnee, 90); don(k.RightKnee, 90);
-    if (k.Hips) {
-      // Animasyonda kalça konum izi yoksa kemik konumu kareden kareye kalır: önceki ofseti geri alıp yenisini uygula.
-      const h = k.Hips;
-      let taban = h.position.y;
-      if (this.sonHipsY !== null && Math.abs(h.position.y - this.sonHipsY) < 1e-9) taban += this.sonOfset;
-      h.position.y = taban - 0.75 * e; this.sonHipsY = h.position.y; this.sonOfset = 0.75 * e;
+    const e = this.oturDeger * this.oturDeger * (3 - 2 * this.oturDeger); // yumuşatma
+    this.kayit = { q: k.ayak.map((a) => a.kemik.quaternion.clone()), hipsY: k.hips.position.y };
+    for (const a of k.ayak) {
+      this.oturDonus.setFromAxisAngle(KarakterModeli.EKSEN_X, (a.aci * e * Math.PI) / 180);
+      a.kemik.quaternion.multiply(this.oturDonus);
     }
-  }
-
-  private sonHipsY: number | null = null;
-  private sonOfset = 0;
-  private hipsGeriAl(): void {
-    const h = this.kemikler?.Hips;
-    if (h && this.sonHipsY !== null && Math.abs(h.position.y - this.sonHipsY) < 1e-9) h.position.y += this.sonOfset;
-    this.sonHipsY = null; this.sonOfset = 0;
+    k.hips.position.y -= KarakterModeli.OTUR_INDIR * e;
   }
 }
