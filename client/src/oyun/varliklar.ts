@@ -8,7 +8,12 @@ import { type CanavarTuru, type EsyaTanimi, rastgele, rastgeleTam } from './veri
 /** Modellerin "ileri" yönü için düzeltme (radyan). Knight Online modelleri sahnede -z'ye bakıyor. */
 export const YON_OFSET = Math.PI;
 
+/** Bir basamakta çıkılabilecek en büyük yükseklik (m). */
+const BASAMAK = 0.7;
+
 export abstract class Varlik {
+  /** Çarpışma ve zemin için kullanılan harita (main.ts atar). */
+  static arazi: Arazi | null = null;
   readonly konum = new THREE.Vector2();
   yon = 0; // sahnede y ekseni etrafında dönüş
   can = 1;
@@ -23,8 +28,34 @@ export abstract class Varlik {
     this.grup.add(this.secimKutusu);
   }
   get olu(): boolean { return this.can <= 0; }
+
+  /** Ayağın bulunduğu yükseklik (arazi ya da köprü/kat zemini). null = henüz yerleştirilmedi. */
+  yuksek: number | null = null;
+  /** Çarpışma yarıçapı (m). */
+  yaricap = 0.4;
+  private takilma = 0;
+  private sonYerlestirme = 0;
+
+  /** Işınlama: konumu ayarlar, yüksekliği sıfırdan bulur. */
+  isinla(x: number, z: number, arazi: Arazi): void {
+    this.konum.set(x, z); this.yuksek = arazi.yukseklikAl(x, z); this.takilma = 0;
+  }
+
+  /** (x,z) noktasındaki yürünebilir zemin: arazi ya da en fazla bir basamak yüksekteki köprü/kat. `kat` = zemin araziden mi yüksek. */
+  private zeminBul(arazi: Arazi, x: number, z: number): { y: number; kat: boolean } {
+    const t = arazi.yukseklikAl(x, z);
+    const f = arazi.carpisma?.zemin(x, z, (this.yuksek ?? t) + BASAMAK) ?? null;
+    return f !== null && f > t + 0.05 ? { y: f, kat: true } : { y: t, kat: false };
+  }
+
   sahneyeYerlestir(arazi: Arazi): void {
-    this.grup.position.set(this.konum.x, arazi.yukseklikAl(this.konum.x, this.konum.y), -this.konum.y);
+    const simdi = performance.now();
+    const dt = Math.min((simdi - this.sonYerlestirme) / 1000, 0.1);
+    this.sonYerlestirme = simdi;
+    const hedef = this.zeminBul(arazi, this.konum.x, this.konum.y).y;
+    if (this.yuksek === null || !arazi.carpisma) this.yuksek = hedef;
+    else this.yuksek += (hedef - this.yuksek) * Math.min(1, dt * 16); // basamak/eğimde yumuşak geçiş
+    this.grup.position.set(this.konum.x, this.yuksek, -this.konum.y);
     this.grup.rotation.y = this.yon;
   }
   bak(hedef: THREE.Vector2): void {
@@ -37,8 +68,32 @@ export abstract class Varlik {
     const d = fark.length() - durMesafe;
     if (d <= 0.05) return true;
     this.bak(hedef);
-    this.konum.add(fark.normalize().multiplyScalar(Math.min(adim, d)));
+    const ad = Math.min(adim, d);
+    const onceki = this.konum.clone();
+    this.hareketEt(fark.normalize().multiplyScalar(ad));
+    // Duvara takılıp ilerleyemiyorsa bir süre sonra vazgeç (tıklanan yere ulaşılamıyor demektir).
+    this.takilma = this.konum.distanceTo(onceki) < ad * 0.25 ? this.takilma + 1 : 0;
+    if (this.takilma > 12) { this.takilma = 0; return true; }
     return d <= adim;
+  }
+
+  /** `fark` kadar ilerlemeyi dener: duvarlardan kayarak, dik yamaçlara tırmanmadan. */
+  protected hareketEt(fark: THREE.Vector2): void {
+    const arazi = Varlik.arazi;
+    if (!arazi) { this.konum.add(fark); return; }
+    const y = this.yuksek ?? arazi.yukseklikAl(this.konum.x, this.konum.y);
+    const dene = (dx: number, dz: number): boolean => {
+      let nx = this.konum.x + dx, nz = this.konum.y + dz;
+      if (arazi.carpisma) [nx, nz] = arazi.carpisma.duvarlardanIt(nx, nz, y, this.yaricap);
+      const z = this.zeminBul(arazi, nx, nz);
+      const mesafe = Math.hypot(nx - this.konum.x, nz - this.konum.y);
+      // Dik yamaç: arazi bir adımda belirgin yükseliyorsa (eğim > ~54°) geçilmez. Köprü/kat zeminleri bundan muaf.
+      if (!z.kat && z.y - y > 0.25 && (z.y - y) / Math.max(mesafe, 0.05) > 1.4) return false;
+      if (nx < 2 || nz < 2 || nx > arazi.genislik - 2 || nz > arazi.genislik - 2) return false;
+      this.konum.set(nx, nz);
+      return true;
+    };
+    if (!dene(fark.x, fark.y) && !dene(fark.x, 0)) dene(0, fark.y);
   }
 }
 

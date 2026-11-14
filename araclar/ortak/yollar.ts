@@ -14,6 +14,11 @@ export const OYUN_DIZINI = path.resolve(
   process.env.KE_OYUN_DIZINI ?? path.join(DEPO_KOKU, '..', 'KnightEmpire'),
 );
 
+/** Server harita dosyalarının (.smd) klasörü (Myko_Source.rar'dan çıkarılan server, git'e girmez). */
+export const SUNUCU_HARITA_DIZINI = path.resolve(
+  process.env.KE_SUNUCU_HARITA_DIZINI ?? path.join(DEPO_KOKU, 'oyun-dosyalari', 'kaynak', 'LILITH_Game-Server', 'Depo', 'Map'),
+);
+
 /** Dönüştürülmüş çıktılar (git'e girmez). */
 export const CIKTI_DIZINI = path.join(DEPO_KOKU, 'donusturulmus');
 

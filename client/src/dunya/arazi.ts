@@ -1,6 +1,7 @@
 // Arazi: yükseklik ızgarası + karo dokuları (araclar/harita ile üretilen veriler).
 // Koordinatlar: Knight Online (x, y, z) -> sahne (x, y, -z). glTF nesneleri de aynı dönüşümle üretildi.
 import * as THREE from 'three';
+import { Carpisma } from './carpisma';
 
 export interface AraziBilgisi {
   ad: string; boyut: number; birim: number; karoSayisi: number;
@@ -13,6 +14,8 @@ export class Arazi {
   readonly mesh: THREE.Mesh;
   /** Haritanın kenar uzunluğu (metre). */
   readonly genislik: number;
+  /** Sunucu haritasından gelen duvar/zemin üçgenleri (varsa). */
+  carpisma: Carpisma | null = null;
 
   private constructor(bilgi: AraziBilgisi, yukseklik: Float32Array, mesh: THREE.Mesh) {
     this.bilgi = bilgi; this.yukseklik = yukseklik; this.mesh = mesh;
@@ -134,7 +137,10 @@ export class Arazi {
     });
     const mesh = new THREE.Mesh(geo, malzeme);
     mesh.name = 'arazi';
-    return new Arazi(bilgi, yukseklik, mesh);
+    const arazi = new Arazi(bilgi, yukseklik, mesh);
+    // Çarpışma verisi isteğe bağlı: yoksa karakterler duvarlardan geçer (eski davranış).
+    arazi.carpisma = await Carpisma.yukle(`${klasor}/carpisma.bin`, arazi.genislik).catch(() => null);
+    return arazi;
   }
 
   /** Knight Online koordinatında (x, z) yükseklik (çift doğrusal ara değer). */

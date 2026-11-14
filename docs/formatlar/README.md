@@ -29,4 +29,4 @@ Sayılar `KnightEmpire/` client klasöründen (2026-11-14).
 | 11 | `.navimesh`, `.rvr`, `.wap`, `.wal`, `.tsd`, `.trn`, `.tld`, `.tcm`, `.sdt`, `.pvr`, `.grs`, `.tgx`, `.swal`, `.dtx`, `.mcn`, `.gea`, `.n3m`, `.n3pp`, `.n3me_lightmap` | az sayıda | Çeşitli harita/editör dosyaları | ⬜ | |
 | – | `.ogg`, `.png`, `.bmp`, `.tga`, `.ttf`, `.swf`, `.ini`, `.lst` | ~560 | Ses, resim, yazı tipi, ayar | ➖ | |
 
-Server tarafındaki formatlar (`.smd` harita dosyaları, Lua script'leri, veritabanı) ayrıca ele alınacak.
+Server tarafındaki formatlar: `.smd` harita dosyası ✅ okunuyor (yükseklik, çarpışma üçgenleri, kapılar, olaylar) → [smd.md](smd.md). Lua script'leri ve veritabanı ayrıca ele alınacak.

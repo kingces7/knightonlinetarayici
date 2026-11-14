@@ -7,10 +7,11 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 ## 🟢 Şu an sıradaki
 
 - [x] **Sürüm 7 (şifreli) dokuların çözülmesi** — çözüldü (RC4, parola `KnightOnline.exe` içinde); 588 `.dxt`/`.tct` ve `.gtt` içindeki 960 karo dokusu okunuyor. Ayrıntı ve kanıtlar: [formatlar/model.md](formatlar/model.md).
-- [ ] **Harita dönüştürücüyü Moradon için yeniden çalıştırmak:** sürüm 7 artık çözülüyor; `donusturulmus/` çıktıları ve istemcinin gri-yer-tutucu varsayımı (`araclar/harita/cli.ts` içindeki "yaklaşık renk haritası") gerçek `.tct` ile değiştirilecek. Her `.tct` parçasının (128×128) haritanın hangi alanına denk geldiği henüz doğrulanmadı.
-- [ ] **Moradon'u oynanabilir yapmak** (yukarıdakine bağlı). Şu an tek oyunculu mod `new_runawar` haritasında çalışıyor.
+- [x] **Harita dönüştürücüyü Moradon için yeniden çalıştırmak** — yapıldı (430 doku, şifreli/gri doku kalmadı).
+- [ ] **Zeminde gerçek renk haritası (`.tct`):** istemci zemini hâlâ "yaklaşık renk haritası" (`araclar/harita/cli.ts` → `tabanRenk`) ile çiziyor; Moradon zemini bu yüzden koyu lekeli görünüyor. `.tct` okunuyor ama her 128×128 parçanın haritanın hangi alanına denk geldiği henüz doğrulanmadı.
+- [x] **Moradon'u oynanabilir yapmak** — `?harita=moradon`: şehir meydanında doğma, çarpışma, köprü/kat zemini, güvenli şehir (canavar yok). Ayar: `client/src/oyun/haritalar.ts`. Gerçek başlangıç noktası ve NPC/canavar yerleşimi sunucu veritabanından gelecek.
 - [ ] **Zeminin birebir görünümü:** geçiş karolarının gerçek karışım kuralı ve karo yön kodlarının anlamı (renk haritası artık okunabiliyor, kural araştırılacak).
-- [ ] **Çarpışma:** karakterler şu an binaların/duvarların içinden geçebiliyor. `.opd` ve sunucu `.smd` dosyalarındaki çarpışma üçgenleri kullanılacak.
+- [x] **Çarpışma** — sunucu `.smd` çarpışma üçgenleriyle duvarlar, zemin yüksekliği ve dik yamaç sınırı uygulanıyor (Moradon). Belge: [formatlar/smd.md](formatlar/smd.md). Kalan: `new_runawar` için sunucu `.smd` eşleşmesi, kapıların/kolların işlevi, kameranın duvardan geçmesi.
 
 ## 🎮 Tek oyunculu mod (tarayıcı oyunu)
 
@@ -47,7 +48,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] `.n3scene`, `.n3camera`, `.n3light`, `.n3sky`, `.n3fxplug`, `.fxb` sahne, ışık, gökyüzü, efektler
 - [ ] `.mob` yaratık yerleşimleri
 - [ ] Diğer küçük harita dosyaları (`.navimesh`, `.rvr`, `.wap`, `.wal`, `.tsd`, `.trn`, `.tld`, `.tcm`, `.sdt`, `.pvr`, `.grs`, `.tgx`, `.swal`, `.dtx`, `.mcn`, `.gea`, `.n3m`, `.n3pp`, `.n3me_lightmap`)
-- [ ] Server tarafı formatlar: `.smd` harita dosyaları (yükseklik + çarpışma okunabiliyor), Lua script'leri
+- [ ] Server tarafı formatlar: `.smd` ✅ okunuyor ([formatlar/smd.md](formatlar/smd.md)); Lua script'leri ⬜
 
 ## 🔍 Sonra dönüp bakılacaklar (açık sorular)
 

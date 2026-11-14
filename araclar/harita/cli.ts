@@ -3,7 +3,8 @@
 //   npm run harita -- moradon --onizleme -> ayrıca kuşbakışı önizleme resmi (donusturulmus/onizleme/)
 import fs from 'node:fs';
 import path from 'node:path';
-import { CIKTI_DIZINI, oyunDisindaOlmali } from '../ortak/yollar.ts';
+import { CIKTI_DIZINI, SUNUCU_HARITA_DIZINI, oyunDisindaOlmali } from '../ortak/yollar.ts';
+import { smdOku } from './smd.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dxtOku, rgbayaCevir } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
@@ -120,6 +121,24 @@ function onizleme(a: Arazi, karolar: Uint8Array[], pxKaro: number): Buffer {
   return pngKodla(boy, boy, rgba);
 }
 
+/** İstemci haritası → sunucu haritası (.smd) eşleşmesi. İstemci adıyla aynı olmayanlar burada. */
+const SUNUCU_HARITASI: Record<string, string> = { moradon: 'moradon_0826.smd' };
+
+/**
+ * Sunucu haritasından çarpışma üçgenlerini (carpisma.bin: ham float32, üçgen başına 9 sayı, x/y/z — istemci
+ * arazisiyle aynı dünya koordinatı) ve kapı/olay bilgisini (sunucu.json) yazar. Dosya yoksa atlar.
+ */
+function sunucuVerisiniYaz(harita: string, hedef: string): void {
+  const ad = SUNUCU_HARITASI[harita.toLowerCase()] ?? `${harita}.smd`;
+  if (!fs.existsSync(SUNUCU_HARITA_DIZINI)) { console.log('  çarpışma: sunucu harita klasörü yok, atlandı'); return; }
+  const dosya = fs.readdirSync(SUNUCU_HARITA_DIZINI).find((f) => f.toLowerCase() === ad.toLowerCase());
+  if (!dosya) { console.log(`  çarpışma: sunucu haritası (${ad}) bulunamadı, atlandı`); return; }
+  const s = smdOku(fs.readFileSync(path.join(SUNUCU_HARITA_DIZINI, dosya)));
+  fs.writeFileSync(path.join(hedef, 'carpisma.bin'), Buffer.from(s.yuzler.buffer, s.yuzler.byteOffset, s.yuzler.byteLength));
+  fs.writeFileSync(path.join(hedef, 'sunucu.json'), JSON.stringify({ kaynak: dosya, kapilar: s.kapilar, nesneOlaylari: s.nesneOlaylari, dogus: s.dogus }, null, 1));
+  console.log(`  çarpışma: ${s.yuzler.length / 9} üçgen, ${s.kapilar.length} kapı, ${s.nesneOlaylari.length} nesne olayı (${dosya})`);
+}
+
 function main(argv: string[]): number {
   const harita = argv.find((x) => !x.startsWith('--'));
   if (!harita) { console.log('Kullanım: npm run harita -- <harita_adı> [--onizleme]'); return 1; }
@@ -150,6 +169,7 @@ function main(argv: string[]): number {
     ikili: { dosya: 'arazi.bin', duzen: 'float32 yukseklik[N*N], uint16 doku1[N*N], uint16 doku2[N*N], uint8 yon1[N*N], uint8 yon2[N*N]; sira x*N+z' },
   }, null, 2));
   console.log(`  -> ${hedef}`);
+  sunucuVerisiniYaz(harita, hedef);
   if (!argv.includes('--nesnesiz')) {
     const { glb, rapor } = nesneleriDisaAktar(od, harita);
     fs.writeFileSync(path.join(hedef, 'nesneler.glb'), glb);

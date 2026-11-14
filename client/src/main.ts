@@ -5,11 +5,13 @@ import { nesneleriYukle } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
-import { Canavar, GanimetKutusu, Oyuncu } from './oyun/varliklar';
+import { Canavar, GanimetKutusu, Oyuncu, Varlik } from './oyun/varliklar';
+import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { CANAVARLAR, OYUNCU_MODELI, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
 
 const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? 'new_runawar';
+const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
 const SALDIRI_MENZILI = 2.6;
 const OYUNCU_HIZI = 6.5;
@@ -42,14 +44,15 @@ async function basla(): Promise<void> {
 
   const hud = new Hud();
   const oyuncu = new Oyuncu();
-  const baslangic = new THREE.Vector2(arazi.genislik / 2, arazi.genislik / 2);
-  oyuncu.konum.copy(baslangic);
+  Varlik.arazi = arazi;
+  const baslangic = new THREE.Vector2(...(ayar.baslangic ?? [arazi.genislik / 2, arazi.genislik / 2]));
+  oyuncu.isinla(baslangic.x, baslangic.y, arazi);
   await oyuncu.modelYukle(OYUNCU_MODELI);
   sahne.add(oyuncu.grup);
 
-  // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere
+  // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere (güvenli şehirlerde yok)
   const canavarlar: Canavar[] = [];
-  for (const [i, tur] of CANAVARLAR.entries()) {
+  for (const [i, tur] of (ayar.canavar ? CANAVARLAR : []).entries()) {
     const aci = (i / CANAVARLAR.length) * Math.PI * 2;
     const merkez = new THREE.Vector2(baslangic.x + Math.cos(aci) * (22 + i * 9), baslangic.y + Math.sin(aci) * (22 + i * 9));
     for (let k = 0; k < tur.adet; k++) {
@@ -66,7 +69,7 @@ async function basla(): Promise<void> {
   addEventListener('resize', boyut); boyut();
 
   hud.mesaj('Welcome to KnightEmpire!', 'sistem');
-  hud.mesaj('Hunt monsters, open the chests they drop and level up.', 'sistem');
+  hud.mesaj(ayar.canavar ? 'Hunt monsters, open the chests they drop and level up.' : 'You are in a safe town. Explore with WASD or by clicking the ground.', 'sistem');
 
   // ---------------- Olaylar ----------------
   const envanterYenile = () => hud.envanterCiz(oyuncu);
@@ -94,7 +97,7 @@ async function basla(): Promise<void> {
     if (k.bos) { k.omur = 0; hud.ganimetAc(null); } else hud.ganimetAc(k);
   };
   hud.yenidenDog = () => {
-    oyuncu.konum.copy(baslangic); oyuncu.can = oyuncu.enCok; oyuncu.mana = oyuncu.enCokMana;
+    oyuncu.isinla(baslangic.x, baslangic.y, arazi); oyuncu.can = oyuncu.enCok; oyuncu.mana = oyuncu.enCokMana;
     oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.model?.oynat('bekle');
     hud.mesaj('You have been revived.', 'sistem');
   };
