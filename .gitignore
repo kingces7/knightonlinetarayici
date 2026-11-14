@@ -1,0 +1,22 @@
+# Orijinal oyun dosyaları — asla depoya girmez
+oyun-dosyalari/
+
+# Üretilen çıktılar
+build/
+dist/
+donusturulmus/
+node_modules/
+__pycache__/
+*.pyc
+
+# Arşivler ve büyük ikili dosyalar
+*.zip
+*.rar
+*.7z
+*.exe
+*.dll
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+.env
