@@ -47,7 +47,19 @@ export const OYUNCU_MODELI = 31137;
  * Oyuncu kuralları (sunucu veritabanı + NewChrValue.tbl; araclar: sunucu/oyuncu-disa-aktar.ps1 + npm run oyuncu).
  * Yüklenemezse eski tahmini değerler kullanılır.
  */
+/** Sunucu MAGIC + MAGIC_TYPE1/4 (MagicInstance.cpp ExecuteType1 / ExecuteType4). */
+export interface BeceriKurali {
+  no: number; ad: string; msp: number;
+  /** Tekrar kullanım: sunucu ReCastTime × 90 ms */
+  yenidenKullanim: number; seviye: number;
+  /** 1 = fiziksel saldırı skill'i (Type1), 4 = buff (Type4) */
+  tip: number;
+  tip1?: { isabetTuru: number; isabet: number; vurus: number; ekHasar: number; canavarYuzde: number };
+  tip4?: { turu: number; sure: number; hiz: number; ac: number; acYuzde: number; saldiriHizi: number };
+}
+
 export interface OyuncuKurallari {
+  beceri: Record<string, BeceriKurali>;
   deneyim: Record<string, number>;
   katsayi: Record<string, { hp: number; mp: number; sp: number; ac: number; isabet: number; kacis: number; kisaKilic: number; jamadar: number; kilic: number; balta: number; sopa: number; mizrak: number; mace: number; asa: number; yay: number }>;
   hasarAyar: { mondef: number; canavarHasarCarpani: number; rdamage: number };

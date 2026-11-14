@@ -8,9 +8,9 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { canavarTurleri, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
 import * as savas from './oyun/savas';
-import { canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
+import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
 const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? 'new_runawar';
@@ -20,6 +20,8 @@ const SALDIRI_MENZILI = 2.6;
 const OYUNCU_HIZI = 6.5;
 /** Klavyeyle yürürken gidiş yönünün dönebileceği en yüksek hız (rad/sn): yumuşak, geniş kavisler. */
 const YURUME_DONUS_HIZI = 3.2;
+/** W + A/D basılıyken karakterin sürekli dönüş hızı (rad/sn): tuş basılı kaldıkça 360° dönebilir. */
+const DIREKSIYON_HIZI = 2.4;
 /** Oturma: saniyede en çok canın / mananın yüzdesi kadar dolar (sonradan ayarlanabilir). */
 const OTURMA_CAN_ORANI = 0.04;
 const OTURMA_MANA_ORANI = 0.05;
@@ -105,8 +107,40 @@ async function basla(): Promise<void> {
   };
   const kalk = () => { if (oyuncu.model?.oturuyor) oyuncu.model.oturPozu(false); };
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
-  const hizAl = () => (kosuyor ? OYUNCU_HIZI : OYUNCU_HIZI * 0.5);
+  const hizAl = () => (kosuyor ? OYUNCU_HIZI : OYUNCU_HIZI * 0.5) * oyuncu.hizCarpani; // hız buff'ı (Sprint) dahil
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
+
+  const simdiSn = () => performance.now() / 1000;
+  /** Skill kullanımı (sunucu MagicInstance): seviye, MP, tekrar kullanım süresi; Type1 hedef ister, Type4 buff kendine uygulanır. */
+  const beceriKullan = (no: number) => {
+    const v = kurallar?.beceri[String(no)];
+    if (!v || oyuncu.olu) return;
+    if (oyuncu.seviye < v.seviye) { hud.mesaj(`${v.ad} requires level ${v.seviye}.`, 'sistem'); return; }
+    const hazir = oyuncu.beceriBekleme.get(no) ?? 0;
+    if (hazir > simdiSn()) { hud.mesaj(`${v.ad} is not ready yet.`, 'sistem'); return; }
+    if (oyuncu.mana < v.msp) { hud.mesaj('Not enough MP.', 'sistem'); return; }
+    let hedef: Canavar | null = null;
+    if (v.tip === 1) {
+      hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
+      if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
+      if (oyuncu.konum.distanceTo(hedef.konum) > SALDIRI_MENZILI + 0.5) { hud.mesaj('The target is too far away.', 'sistem'); return; }
+    } else if (v.tip !== 4) { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
+    kalk();
+    oyuncu.mana -= v.msp;
+    oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
+    oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
+    if (v.tip === 1 && hedef) {
+      oyuncu.bak(hedef.konum);
+      oyuncu.animKilidi = oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08) || 0.8;
+      oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
+      vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
+    } else if (v.tip4) {
+      oyuncu.animKilidi = oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
+      oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
+      oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
+      hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
+    }
+  };
 
   let esyaCikar: (p: number) => void = () => {};
   // Orijinal arayüz (oyunun kendi UIF pencereleri); yüklenemezse eski basit arayüz kalır.
@@ -116,7 +150,7 @@ async function basla(): Promise<void> {
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p),
+      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -157,7 +191,7 @@ async function basla(): Promise<void> {
   };
   hud.yenidenDog = () => {
     oyuncu.isinla(baslangic.x, baslangic.y, arazi); oyuncu.can = oyuncu.enCok; oyuncu.mana = oyuncu.enCokMana;
-    oyuncu.hedef = null; oyuncu.yuruHedef = null; kalk(); oyuncu.model?.oynat('bekle');
+    oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.buflar = []; kalk(); oyuncu.model?.oynat('bekle');
     hud.mesaj('You have been revived.', 'sistem');
   };
 
@@ -222,11 +256,14 @@ async function basla(): Promise<void> {
 
   let sonTusSayisi = 0;
   let yonKilidi: number | null = null;
-  const vurusZamanlayici:{ kalan: number; hedef: Canavar }[] = [];
+  const vurusZamanlayici: { kalan: number; hedef: Canavar; beceri?: BeceriKurali }[] = [];
   const oyuncuGuncelle = (dt: number) => {
     oyuncu.model?.guncelle(dt);
     oyuncu.savastanBeri += dt;
+    oyuncu.animKilidi = Math.max(0, oyuncu.animKilidi - dt);
     if (oyuncu.olu) return;
+    for (const b of oyuncu.buflar.filter((x) => x.bitis <= simdiSn())) hud.mesaj(`${b.ad} has worn off.`, 'sistem');
+    oyuncu.buflar = oyuncu.buflar.filter((x) => x.bitis > simdiSn());
     // Yenilenme (savaş dışında hızlı)
     const oturuyor = !!oyuncu.model?.oturuyor;
     const yenilenme = oyuncu.savastanBeri > 6 ? 8 : 0.6;
@@ -255,11 +292,13 @@ async function basla(): Promise<void> {
       oyuncu.yuruHedef = null; acilacakKutu = null;
       hareket.normalize();
       // İstenen yön (kamera yönü (x, -z) → dünya (x, z)); gidiş yönü ona sınırlı hızla döner → yumuşak kavisler.
+      const direksiyon = tuslar.has('KeyW') && tuslar.has('KeyA') !== tuslar.has('KeyD'); // W + A ya da D: tuş basılı kaldıkça sürekli dön
       const istenen = yonKilidi ?? Math.atan2(-hareket.y, hareket.x);
-      oyuncu.yuruAcisi = acıyaYaklas(oyuncu.yuruAcisi ?? oyuncu.bakisAcisi, istenen, YURUME_DONUS_HIZI * dt);
+      if (direksiyon) oyuncu.yuruAcisi = (oyuncu.yuruAcisi ?? oyuncu.bakisAcisi) + (tuslar.has('KeyA') ? 1 : -1) * DIREKSIYON_HIZI * dt;
+      else oyuncu.yuruAcisi = acıyaYaklas(oyuncu.yuruAcisi ?? oyuncu.bakisAcisi, istenen, YURUME_DONUS_HIZI * dt);
       let fark = Math.abs(istenen - oyuncu.yuruAcisi) % (Math.PI * 2);
       if (fark > Math.PI) fark = Math.PI * 2 - fark;
-      const hizCarpani = 0.55 + 0.45 * Math.max(0, Math.cos(fark)); // dönerken yavaşlar
+      const hizCarpani = direksiyon ? 1 : 0.55 + 0.45 * Math.max(0, Math.cos(fark)); // dönerken yavaşlar
       oyuncu.ilerle(new THREE.Vector2(Math.cos(oyuncu.yuruAcisi), Math.sin(oyuncu.yuruAcisi)), hizAl() * dt * hizCarpani);
       oyuncu.model?.oynat(hareketAnimi());
     } else if (oyuncu.hedef) {
@@ -284,6 +323,8 @@ async function basla(): Promise<void> {
         acilacakKutu = null;
         oyuncu.model?.oynat('bekle');
       } else oyuncu.model?.oynat(hareketAnimi());
+    } else if (oyuncu.animKilidi > 0) {
+      /* skill animasyonu oynuyor */
     } else if (oyuncu.saldiriSayaci <= 0.4 || !oyuncu.model?.aktifAd.startsWith('saldir')) {
       oyuncu.model?.oynat('bekle');
     }
@@ -298,11 +339,18 @@ async function basla(): Promise<void> {
       if (v.kalan > 0) continue;
       vurusZamanlayici.splice(i, 1);
       if (v.hedef.olu || oyuncu.olu) continue;
-      const vurus = oyuncuVurusu(oyuncu.savasVeri, v.hedef.tur); // sunucu formülü (savas.ts)
-      if (vurus.sonuc === 'iska') { hud.mesaj(`You missed ${v.hedef.tur.ad}.`, 'bilgi'); continue; }
-      const hasar = vurus.hasar;
-      v.hedef.hasarAl(hasar);
-      hud.mesaj(`You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
+      let hasar: number;
+      if (v.beceri?.tip1) { // skill vuruşu ıskalamaz (sunucu)
+        hasar = beceriVurusu(oyuncu.savasVeri, v.hedef.tur, v.beceri.tip1);
+        v.hedef.hasarAl(hasar);
+        hud.mesaj(`Your ${v.beceri.ad} hits ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
+      } else {
+        const vurus = oyuncuVurusu(oyuncu.savasVeri, v.hedef.tur); // sunucu formülü (savas.ts)
+        if (vurus.sonuc === 'iska') { hud.mesaj(`You missed ${v.hedef.tur.ad}.`, 'bilgi'); continue; }
+        hasar = vurus.hasar;
+        v.hedef.hasarAl(hasar);
+        hud.mesaj(`You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
+      }
       if (v.hedef.olu) {
         hud.mesaj(`${v.hedef.tur.ad} has been defeated.`, 'sistem');
         deneyimKazan(v.hedef.tur.exp); // sunucu iExp (tek başına: tamamı, seviye çarpanı 1)

@@ -41,6 +41,8 @@ export interface SavasOyuncusu {
   silah: EsyaTanimi | null;
   /** Giyilen tüm eşyaların savunma toplamı (sunucu m_sItemAc). */
   esyaSavunma: number;
+  /** Aktif buff'lardan gelen ek savunma (sunucu m_sACAmount). */
+  acEk: number;
 }
 
 /** SetUserAbility: toplam vuruş gücü (m_sTotalHit), STR tabanlı (haydut hariç). Silahsızken güç en az 3. */
@@ -83,7 +85,7 @@ export function oyuncuVurusu(o: SavasOyuncusu, c: CanavarDegerleri): { sonuc: Vu
 
 /** Canavarın oyuncuya vuruşu (CNpc::GetDamage → CUser). Hasar 0 = ıska. */
 export function canavarVurusu(c: CanavarDegerleri, o: SavasOyuncusu): { sonuc: VurusSonucu; hasar: number } {
-  const hitB = Math.trunc((c.hasar * 100 * 200 / 100) / (toplamSavunma(o) + 240));
+  const hitB = Math.trunc((c.hasar * 100 * 200 / 100) / (toplamSavunma(o) + o.acEk + 240));
   if (hitB <= 0) return { sonuc: 'iska', hasar: 0 };
   const sonuc = isabetSonucu(c.isabet / kacisOrani(o));
   if (sonuc === 'iska') return { sonuc, hasar: 0 };
@@ -91,6 +93,23 @@ export function canavarVurusu(c: CanavarDegerleri, o: SavasOyuncusu): { sonuc: V
   if (sonuc === 'buyuk') hasar = Math.trunc((hasar * 3) / 2);
   hasar = Math.min(hasar, Math.trunc(2.6 * c.hasar), MAX_HASAR);
   return { sonuc, hasar };
+}
+
+/**
+ * Type1 skill vuruşu canavara (CUser::GetDamage skill dalı + MagicInstance::ExecuteType1). Skill vuruşları sunucuda ıskalamaz (FAIL → SUCCESS).
+ * hasar = (hitB·Hit/100 + 0,3·rastgele(0..hitB·Hit/100/10)) · canavar çarpanı + AddDamage, ardından canavara yüzde (AddDmgPercToNpc).
+ * Silahın min/maks hasarı (skill vuruşlarına eklenir) bu eşyalarda 0 olduğu için henüz yok.
+ */
+export function beceriVurusu(o: SavasOyuncusu, c: CanavarDegerleri, t: { vurus: number; ekHasar: number; canavarYuzde: number }): number {
+  const ayar = kurallar?.hasarAyar ?? { mondef: 1, canavarHasarCarpani: 1, rdamage: 1 };
+  const ap = toplamVurus(o) * 100;
+  let ac = c.ac; if (ac) ac = Math.trunc(ac * ayar.mondef);
+  const hitB = Math.trunc((ap * 200 / 100) / (ac + 240));
+  const tempHit = Math.trunc(hitB * (t.vurus / 100));
+  let hasar = Math.trunc(tempHit + 0.3 * rastgeleTam0(Math.trunc(tempHit / 10)) + 0.99);
+  hasar = Math.trunc(hasar * ayar.canavarHasarCarpani);
+  hasar = Math.min(hasar, MAX_HASAR) + t.ekHasar;
+  return Math.min(MAX_HASAR, Math.trunc(hasar * t.canavarYuzde / 100));
 }
 
 /** Silahın vuruş aralığı (sn): eşya tablosundaki gecikme/100; silahsızken 1 sn (sunucu: delaytime < 100 reddedilir). */

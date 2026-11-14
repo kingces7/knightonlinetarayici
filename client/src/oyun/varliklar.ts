@@ -327,6 +327,15 @@ export class Oyuncu extends Varlik {
     this.can = doldur ? this.enCok : Math.min(this.can, this.enCok);
     this.mana = doldur ? this.enCokMana : Math.min(this.mana, this.enCokMana);
   }
+  /** Skill tekrar kullanım bitişleri (skill no → performans saati, sn) ve aktif buff'lar (sunucu Type4). */
+  /** Skill/büyü animasyonu sürerken (sn) boşta animasyonu araya girmez. */
+  animKilidi = 0;
+  beceriBekleme = new Map<number, number>();
+  buflar: { no: number; ad: string; bitis: number; hiz: number; ac: number }[] = [];
+  /** Koşma/yürüme hız çarpanı (sunucu m_bSpeedAmount / 100); buff yoksa 1. */
+  get hizCarpani(): number { return this.buflar.reduce((m, b) => Math.max(m, b.hiz > 0 ? b.hiz / 100 : 1), 1); }
+  /** Buff'lardan gelen ek savunma (sunucu m_sACAmount). */
+  get acEk(): number { return this.buflar.reduce((t, b) => t + b.ac, 0); }
   /** Harcanan tüm statü puanlarını geri alır (başlangıç değerlerine döner); iade edilen puanı döndürür. */
   statSifirla(): number {
     let iade = 0;
@@ -343,7 +352,7 @@ export class Oyuncu extends Varlik {
     return true;
   }
   /** Savaş formüllerine (savas.ts) verilen oyuncu görüntüsü. */
-  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, esyaSavunma: this.ekipman.reduce((t, e) => t + (e?.savunma ?? 0), 0) }; }
+  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, esyaSavunma: this.ekipman.reduce((t, e) => t + (e?.savunma ?? 0), 0), acEk: this.acEk }; }
   /** Toplam vuruş gücü (sunucu m_sTotalHit) ve toplam savunma (m_sTotalAc). */
   toplamVurus(): number { return toplamVurus(this.savasVeri); }
   savunma(): number { return toplamSavunma(this.savasVeri); }
