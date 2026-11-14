@@ -21,6 +21,8 @@ değiştirilmeden kullanılacak.
   Orijinal dosyalardaki eski adlar (DiabloKO, MykoNetwork, Lilith) değiştirilmez; server ayarlarındaki
   görünen adlar server kurulurken kullanıcıya sorularak güncellenebilir.
 - Proje **bu bilgisayarda** geliştirilir. GitHub yedek ve bulut oturumu ile paylaşım içindir.
+- **Tam kontrol hedefi:** Oyunun okunamayan bütün dosya türleri için "çöz + geri yaz" aracı yapılacak
+  (kayıpsız, testli). Güncel durum ve sıra: `docs/formatlar/README.md`.
 
 ## Kesin kurallar
 1. **Orijinal oyun dosyaları asla depoya girmez.** Oyun dosyaları depo klasörünün **dışında**,
@@ -51,7 +53,7 @@ Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 - [x] **Aşama 0 — Keşif:** Oyun dosyalarını tara. Klasör yapısını, dosya türlerini,
       kaynak kodu (.cpp/.h) olup olmadığını, server türünü ve veritabanını belirle.
       Sonucu `docs/KESIF.md` dosyasına yaz. Neyin elde olduğunu ve neyin eksik olduğunu kullanıcıya özetle.
-- [ ] **Aşama 1 — Tablolar:** `.tbl` okuyucu yaz (item, mob, NPC, skill) ve JSON'a çevir.
+- [x] **Aşama 1 — Tablolar:** `.tbl` okuyucu yaz (item, mob, NPC, skill) ve JSON'a çevir.
       Formatı `docs/formatlar/` altında belgele.
 - [ ] **Aşama 2 — Harita ve model:** Arazi (terrain), nesne ve karakter modeli okuyucuları ile glTF çıktısı.
 - [ ] **Aşama 3 — İlk görüntü:** Tarayıcıda bir harita, üzerinde yürüyen bir karakter ve kamera kontrolü.

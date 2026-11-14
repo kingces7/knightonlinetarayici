@@ -1,0 +1,15 @@
+{
+  "name": "knightempire-araclar",
+  "private": true,
+  "description": "KnightEmpire oyun dosyalarını okunabilir/düzenlenebilir biçimlere çeviren araçlar",
+  "type": "module",
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "tbl-coz": "node tbl/cli.ts coz",
+    "tbl-yaz": "node tbl/cli.ts yaz",
+    "tbl-dogrula": "node tbl/cli.ts dogrula",
+    "test": "node --test"
+  }
+}

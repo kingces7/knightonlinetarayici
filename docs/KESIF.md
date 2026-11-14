@@ -100,7 +100,7 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 |---|---|
 | WinRAR (UnRAR) | ✅ var |
 | Python | ❌ yok (sadece Windows Store kısayolu var, kendisi kurulu değil) |
-| Node.js | ❌ yok — client ve köprü için kurulmalı |
+| Node.js | ✅ v26.13.1 kuruldu (2026-11-14) |
 | SQL Server | ❌ yok — server'ı çalıştırmak için gerekli |
 | 7-Zip | ❌ yok (gerekli değil) |
 
