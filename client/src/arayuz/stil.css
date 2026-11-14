@@ -64,3 +64,10 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .ui-t9 { pointer-events: auto; cursor: pointer; background-position: center; background-repeat: no-repeat; }
 .ui-t1 .ui-durum { pointer-events: none; }
 .orijinal-arayuz .durum, .orijinal-arayuz .envanter { display: none !important; }
+
+/* Pencereler kayarak açılır/kapanır */
+.ui-pencere.kayan { transition: transform .28s cubic-bezier(.2,.85,.25,1), opacity .22s ease-out; }
+.ui-pencere.kapali { opacity: 0; transform: translateX(var(--kay, 140px)); pointer-events: none; }
+.ui-gunluk { scrollbar-width: thin; scrollbar-color: #8a7340 #0004; user-select: text; }
+.orijinal-arayuz .mesajlar { display: none !important; }
+.orijinal-arayuz .yardim { bottom: 74px; }

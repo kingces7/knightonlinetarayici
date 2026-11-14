@@ -70,6 +70,11 @@ export abstract class Varlik {
     this.grup.position.set(this.konum.x, this.yuksek, -this.konum.y);
     this.grup.rotation.y = this.yon;
   }
+  /** Baktığı yön, Knight Online x,z düzleminde radyan (`atan2(z, x)`). */
+  get bakisAcisi(): number {
+    const t = this.hedefYon - YON_OFSET;
+    return Math.atan2(-Math.cos(t), Math.sin(t));
+  }
   bak(hedef: THREE.Vector2): void {
     const dx = hedef.x - this.konum.x, dz = -(hedef.y - this.konum.y);
     if (dx * dx + dz * dz > 1e-6) {
@@ -247,10 +252,6 @@ export class Oyuncu extends Varlik {
   zirh: EsyaTanimi | null = null;
   hedef: Canavar | null = null;
   yuruHedef: THREE.Vector2 | null = null;
-  /** C ile oturma: hareket edemez, can/mana hızlı dolar. */
-  oturuyor = false;
-  /** T ile yürüme modu (kapalıyken koşar). */
-  yuruyor = false;
   /** Klavyeyle yürürken gidiş yönü (Knight Online x,z düzleminde radyan); null = duruyor. Yön hedefe yumuşakça döner. */
   yuruAcisi: number | null = null;
   saldiriSayaci = 0;

@@ -1,0 +1,15 @@
+import { chromium } from 'playwright-core';
+const [url, klasor] = process.argv.slice(2);
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 900, height: 600 } });
+await s.goto(url);
+await s.waitForFunction(() => window.ke, null, { timeout: 120000 });
+await s.waitForTimeout(2500);
+await s.evaluate(() => { const o = window.ke; o.kamera.uzaklik = 4.5; o.kamera.egim = 0.12; o.kamera.aci = Math.PI / 2; });
+await s.screenshot({ path: `${klasor}/s0.png`, clip: { x: 250, y: 80, width: 400, height: 440 } });
+await s.keyboard.press('KeyC'); await s.waitForTimeout(1200);
+await s.screenshot({ path: `${klasor}/s1.png`, clip: { x: 250, y: 80, width: 400, height: 440 } });
+await s.evaluate(() => { window.ke.kamera.aci = 0.2; });
+await s.waitForTimeout(300);
+await s.screenshot({ path: `${klasor}/s2.png`, clip: { x: 250, y: 80, width: 400, height: 440 } });
+await t.close();

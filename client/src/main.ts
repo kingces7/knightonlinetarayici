@@ -6,7 +6,7 @@ import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
-import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik } from './oyun/varliklar';
+import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { CANAVARLAR, OYUNCU_MODELI, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
 
@@ -16,6 +16,13 @@ const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
 const SALDIRI_MENZILI = 2.6;
 const OYUNCU_HIZI = 6.5;
+/** Klavyeyle yürürken gidiş yönünün dönebileceği en yüksek hız (rad/sn): yumuşak, geniş kavisler. */
+const YURUME_DONUS_HIZI = 3.2;
+/** Oturma: saniyede en çok canın / mananın yüzdesi kadar dolar (sonradan ayarlanabilir). */
+const OTURMA_CAN_ORANI = 0.04;
+const OTURMA_MANA_ORANI = 0.05;
+/** Savaştan bu kadar saniye sonra oturulabilir. */
+const OTURMA_SAVAS_BEKLEME = 4;
 
 function durum(metin: string): void {
   const el = document.getElementById('yukleme-durum');
@@ -81,14 +88,15 @@ async function basla(): Promise<void> {
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
 
-  // Yürüme/koşma ve oturma (görev çubuğu düğmeleri; C = otur, R = yürü/koş)
+  // Yürüme/koşma ve oturma (görev çubuğu düğmeleri; C = otur, T = yürü/koş)
   let kosuyor = true;
   const oturDegistir = () => {
     if (oyuncu.olu || !oyuncu.model) return;
     const otur = !oyuncu.model.oturuyor;
-    if (otur) { oyuncu.hedef = null; oyuncu.yuruHedef = null; acilacakKutu = null; oyuncu.model.oynat('bekle'); }
+    if (otur && oyuncu.savastanBeri < OTURMA_SAVAS_BEKLEME) { hud.mesaj('You cannot sit down during combat.', 'sistem'); return; }
+    if (otur) { oyuncu.hedef = null; oyuncu.yuruHedef = null; acilacakKutu = null; oyuncu.yuruAcisi = null; oyuncu.model.oynat('bekle'); }
     oyuncu.model.oturPozu(otur);
-    hud.mesaj(otur ? 'You sit down. Health and mana recover faster.' : 'You stand up.', 'sistem');
+    hud.mesaj(otur ? 'You sit down. Health and mana recover quickly.' : 'You stand up.', 'sistem');
   };
   const kalk = () => { if (oyuncu.model?.oturuyor) oyuncu.model.oturPozu(false); };
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
@@ -103,8 +111,10 @@ async function basla(): Promise<void> {
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
       otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(),
+      durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
+    hud.mesajKancasi = (m, t) => a.bilgiMesaji(m, t);
   } catch (e) { console.warn('Orijinal arayüz yüklenemedi, basit arayüz kullanılacak', e); }
   hud.mesaj('Welcome to KnightEmpire!', 'sistem');
   hud.mesaj(ayar.canavar ? 'Hunt monsters, open the chests they drop and level up.' : 'You are in a safe town. Explore with WASD or by clicking the ground.', 'sistem');
@@ -142,6 +152,7 @@ async function basla(): Promise<void> {
 
   const tuslar = new Set<string>();
   addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement) return; // sohbet yazarken oyun tuşları çalışmasın
     tuslar.add(e.code);
     if (!e.repeat && arayuz?.tus(e.code)) { e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
     if (e.code === 'Tab') {
@@ -152,7 +163,7 @@ async function basla(): Promise<void> {
     }
     if (e.code === 'Escape') { oyuncu.hedef = null; hud.ganimetAc(null); }
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
-    if (!e.repeat && e.code === 'KeyR') yuruKosDegistir();
+    if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
   });
   addEventListener('keyup', (e) => tuslar.delete(e.code));
 
@@ -205,9 +216,10 @@ async function basla(): Promise<void> {
     oyuncu.savastanBeri += dt;
     if (oyuncu.olu) return;
     // Yenilenme (savaş dışında hızlı)
-    const yenilenme = (oyuncu.savastanBeri > 6 ? 8 : 0.6) * (oyuncu.model?.oturuyor ? 3 : 1);
-    oyuncu.can = Math.min(oyuncu.enCok, oyuncu.can + yenilenme * dt);
-    oyuncu.mana = Math.min(oyuncu.enCokMana, oyuncu.mana + 3 * dt);
+    const oturuyor = !!oyuncu.model?.oturuyor;
+    const yenilenme = oyuncu.savastanBeri > 6 ? 8 : 0.6;
+    oyuncu.can = Math.min(oyuncu.enCok, oyuncu.can + yenilenme * dt + (oturuyor ? oyuncu.enCok * OTURMA_CAN_ORANI * dt : 0));
+    oyuncu.mana = Math.min(oyuncu.enCokMana, oyuncu.mana + 3 * dt + (oturuyor ? oyuncu.enCokMana * OTURMA_MANA_ORANI * dt : 0));
 
     const ileri = kamera.ileriYon();
     const sag = new THREE.Vector2(-ileri.y, ileri.x);
@@ -217,13 +229,20 @@ async function basla(): Promise<void> {
     if (tuslar.has('KeyD')) hareket.add(sag);
     if (tuslar.has('KeyA')) hareket.sub(sag);
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
+    if (hareket.lengthSq() === 0) oyuncu.yuruAcisi = null;
     // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
     if (oyuncu.model?.oturuyor && (hareket.lengthSq() > 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
 
     if (hareket.lengthSq() > 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null;
       hareket.normalize();
-      oyuncu.ilerle(new THREE.Vector2(hareket.x, -hareket.y), hizAl() * dt); // kamera yönü (x, -z) → dünya (x, z)
+      // İstenen yön (kamera yönü (x, -z) → dünya (x, z)); gidiş yönü ona sınırlı hızla döner → yumuşak kavisler.
+      const istenen = Math.atan2(-hareket.y, hareket.x);
+      oyuncu.yuruAcisi = acıyaYaklas(oyuncu.yuruAcisi ?? oyuncu.bakisAcisi, istenen, YURUME_DONUS_HIZI * dt);
+      let fark = Math.abs(istenen - oyuncu.yuruAcisi) % (Math.PI * 2);
+      if (fark > Math.PI) fark = Math.PI * 2 - fark;
+      const hizCarpani = 0.55 + 0.45 * Math.max(0, Math.cos(fark)); // dönerken yavaşlar
+      oyuncu.ilerle(new THREE.Vector2(Math.cos(oyuncu.yuruAcisi), Math.sin(oyuncu.yuruAcisi)), hizAl() * dt * hizCarpani);
       oyuncu.model?.oynat(hareketAnimi());
     } else if (oyuncu.hedef) {
       const h = oyuncu.hedef;
@@ -275,6 +294,7 @@ async function basla(): Promise<void> {
       const hasar = c.guncelle(dt, oyuncu);
       if (hasar > 0) {
         const net = oyuncu.hasarAl(hasar);
+        kalk(); // hasar alınca ayağa kalkılır
         hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
         if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
         else if (!oyuncu.hedef) oyuncu.hedef = c; // karşılık ver

@@ -24,6 +24,16 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] Işınlanma kapıları (Delos, Luferson Castle, El Morad Castle…) okunuyor ama işlevsiz; kapı/kol nesne olayları kullanılmıyor.
 - [ ] Kamera binaların/duvarların içinden geçebiliyor.
 
+**Hareket ve karakter (2026-11-14, ikinci oturum)**
+- [ ] **Oyuncu görünümü:** şimdiki karakter `npc_el_knight` (11610) NPC iskeleti; gerçek oyuncu iskeleti `upc_el_rm` (155 animasyon: SitDown/StandUp/saldırılar…) ile "Complete" zırh seti (ör. look 31137) çok daha güzel görünüyor, ama bu iskelette (ve `npc_patric_upc`) animasyonlar hareket vermiyor (T-poz; `.n3joint` anahtarları doğru okunmuyor, 1,5 MB'lık dosya). Çözülünce oyuncu modeli değiştirilecek ve oturma gerçek `SitDown` animasyonuyla yapılacak.
+- [ ] **Oturma şu an kemik pozu** (kalça −90°, diz +90°, kalça kökü −0,75 m; `KarakterModeli.oturPozu`). Gerçek oturma animasyonu yok; kol pozu normal bekleme.
+- [ ] Oturma yenilenme oranları (can %4, mana %5 / sn) ve "savaştan 4 sn sonra otur" kuralı ilk tahmin; ayarlanacak (`main.ts` sabitleri).
+- [ ] Yürüme hızı koşmanın yarısı (3,25 m/sn); orijinal oyundaki değer bilinmiyor.
+- [ ] Sohbet kutusu yalnızca yerel yankı yapıyor (sunucu yok); sekmeler (Normal/Private/Shout/Party/Knights) işlevsiz, kullanıcı listesi gizli.
+- [ ] Bilgi penceresinin "Merchant Chat" / "Recent Notices" sekmeleri işlevsiz; kaydırma çubukları gizli (fare tekerleği çalışıyor).
+- [ ] Hasar bilgisi mesajları yalnızca bilgi penceresinde; hedef çerçevesi ve ganimet penceresi eski arayüzde.
+- [ ] `animAdi` artık özgün animasyon adlarına bakıyor; 155 animasyonlu modellerde saldırı animasyonları `attack_sword0_A` gibi adlarla duruyor (`saldir0/1` olarak eşlenmedi).
+
 **Orijinal arayüz — eksikler**
 - [ ] Sohbet kutusu (`re_el_chatting_box`), hedef çerçevesi (`re_target_framebar`: 14'ten büyük yeni öğe türleri nedeniyle okunamıyor) ve ganimet penceresi hâlâ eski basit arayüzde.
 - [x] Oturma (C) ve yürü/koş geçişi (R): kemik pozu ile oturma, oturunca 3 kat hızlı yenilenme, yürürken `yuru` animasyonu ve yarı hız. Kalan: görev çubuğundaki Otur/Yürü düğmeleri ekranda görünmüyor (UIF'te başka pencerede olabilir, bulunacak); oyunun gerçek `breath_sit` animasyonu ham modellerde yok.

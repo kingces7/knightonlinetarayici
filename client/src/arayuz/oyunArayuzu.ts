@@ -24,6 +24,8 @@ export interface ArayuzBaglami {
   otur: () => void;
   /** Yürüme ↔ koşma geçişi (görev çubuğu düğmesi ve R tuşu). */
   yuruKos: () => void;
+  /** Görev çubuğu simgeleri için anlık durum. */
+  durum: () => { oturuyor: boolean; kosuyor: boolean };
 }
 
 type Ad = 'durum' | 'beceri' | 'envanter';
@@ -31,6 +33,8 @@ type Ad = 'durum' | 'beceri' | 'envanter';
 export class OyunArayuzu {
   private b: ArayuzBaglami;
   private hpbar!: UiPencere; private gorev!: UiPencere;
+  private sohbet!: UiPencere; private bilgi!: UiPencere;
+  private sohbetGiris!: HTMLInputElement;
   private pencereler = {} as Record<Ad, UiPencere>;
   private acik = new Set<Ad>();
   private z = 10;
@@ -42,32 +46,45 @@ export class OyunArayuzu {
   constructor(b: ArayuzBaglami) { this.b = b; }
 
   async baslat(): Promise<void> {
-    const [hp, gorev, durum, beceri, env, bec] = await Promise.all([
+    const [hp, gorev, durum, beceri, env, sohbet, bilgi, bec] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
+      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
-    this.hpbar = hp; this.gorev = gorev; this.beceriler = Array.isArray(bec) ? bec : [];
+    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.beceriler = Array.isArray(bec) ? bec : [];
     this.pencereler = { durum, beceri, envanter: env };
     this.b.kok.classList.add('orijinal-arayuz');
 
-    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur();
-    this.b.kok.append(this.hpbar.el, this.gorev.el, durum.el, beceri.el, env.el);
+    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur();
+    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.gorev.el, durum.el, beceri.el, env.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
-    const yerles: [Ad, number, number][] = [['durum', 24, 110], ['beceri', 330, 110], ['envanter', Math.max(24, innerWidth - 570), 70]];
-    for (const [ad, x, y] of yerles) {
+    // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan.
+    const sagX = Math.max(24, innerWidth - 570);
+    const yerles: [Ad, number, number, number][] = [['durum', 24, 110, -150], ['beceri', sagX, 70, 150], ['envanter', sagX, 70, 150]];
+    for (const [ad, x, y, kay] of yerles) {
       const p = this.pencereler[ad];
       p.el.style.left = `${x}px`; p.el.style.top = `${y}px`; p.el.style.display = 'none';
+      // 2. kayarak açılma/kapanma (stil.css: .ui-pencere.kayan / .kapali)
+      p.el.classList.add('kayan', 'kapali'); p.el.style.setProperty('--kay', `${kay}px`);
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
     this.gorevYerlestir(); addEventListener('resize', () => this.gorevYerlestir());
   }
 
+
   // ---------------------------------------------------------------- pencere yönetimi
   ac(ad: Ad, acik: boolean): void {
     const p = this.pencereler[ad]; if (!p) return;
-    if (acik) { this.acik.add(ad); p.el.style.display = ''; p.el.style.zIndex = String(++this.z); } else { this.acik.delete(ad); p.el.style.display = 'none'; }
+    if (acik) {
+      this.acik.add(ad); p.el.style.display = ''; p.el.style.zIndex = String(++this.z);
+      void p.el.offsetWidth; // başlangıç konumu işlensin, sonra kayarak gelsin
+      p.el.classList.remove('kapali');
+    } else {
+      this.acik.delete(ad); p.el.classList.add('kapali');
+      setTimeout(() => { if (!this.acik.has(ad)) p.el.style.display = 'none'; }, 300);
+    }
     this.sonEnvanterImza = '';
   }
   degistir(ad: Ad): void { this.ac(ad, !this.acik.has(ad)); }
@@ -77,6 +94,7 @@ export class OyunArayuzu {
     if (kod === 'KeyU') { this.degistir('durum'); return true; }
     if (kod === 'KeyK') { this.degistir('beceri'); return true; }
     if (kod === 'KeyI') { this.degistir('envanter'); return true; }
+    if (kod === 'Enter') { this.sohbetGiris?.focus(); return true; }
     if (kod === 'Escape' && this.acik.size) {
       const son = [...this.acik].sort((a, c) => Number(this.pencereler[a].el.style.zIndex) - Number(this.pencereler[c].el.style.zIndex)).pop()!;
       this.ac(son, false); return true;
@@ -90,6 +108,66 @@ export class OyunArayuzu {
     s.transformOrigin = '0 0'; s.transform = `scale(${ol})`;
     s.left = `${Math.max(0, (innerWidth - this.gorev.boyut[0] * ol) / 2)}px`;
     s.top = `${innerHeight - this.gorev.boyut[1] * ol - 6}px`;
+    // Sohbet (sol) ve bilgi/hasar penceresi (sağ) görev çubuğunun hemen üstünde.
+    const ust = innerHeight - this.gorev.boyut[1] * ol - 6 - 4;
+    this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1]}px`;
+    this.bilgi.el.style.left = `${Math.max(this.sohbet.boyut[0] + 8, innerWidth - this.bilgi.boyut[0])}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1]}px`;
+  }
+
+  // ---------------------------------------------------------------- sohbet ve bilgi (hasar) pencereleri
+  private satirKabi(el: HTMLElement | undefined, boyut: number): HTMLElement {
+    if (!el) throw new Error('metin alanı yok');
+    el.classList.remove('ui-yazi'); el.replaceChildren();
+    Object.assign(el.style, { display: 'block', overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', fontSize: `${boyut}px`, lineHeight: '1.25', color: '#fff', textShadow: '0 1px 2px #000' });
+    el.classList.add('ui-gunluk');
+    return el;
+  }
+
+  private satirEkle(kap: HTMLElement, metin: string, renk: string): void {
+    const sat = document.createElement('div');
+    sat.textContent = metin; sat.style.color = renk;
+    const alttaydi = kap.scrollHeight - kap.scrollTop - kap.clientHeight < 24;
+    kap.appendChild(sat);
+    while (kap.childElementCount > 120) kap.firstElementChild!.remove();
+    if (alttaydi) kap.scrollTop = kap.scrollHeight;
+  }
+
+  private sohbetKur(): void {
+    const p = this.sohbet;
+    p.gizleDesen(/^(base_mapuserlist|BaseChangeChattingMode|base_filter|base_scroll|btn_chatroom|btn_noah_knights|btn_clan$|btn_union$|btn_chat_lock|btn_check_)/);
+    this.satirKabi(p.alan('text0'), 12);
+    const e = p.alan('edit0');
+    if (e) {
+      const g = document.createElement('input');
+      g.type = 'text'; g.maxLength = 120; g.spellcheck = false; g.autocomplete = 'off';
+      Object.assign(g.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', boxSizing: 'border-box', background: 'transparent', border: '0', outline: '0', color: '#fff', font: '12px Segoe UI, Tahoma, sans-serif', padding: '0 6px', pointerEvents: 'auto' });
+      g.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') {
+          const m = g.value.trim(); g.value = '';
+          if (m) this.sohbetYaz(`[Normal] KnightEmpire: ${m}`, '#ffffff');
+          g.blur();
+        } else if (ev.key === 'Escape') { g.value = ''; g.blur(); }
+        ev.stopPropagation();
+      });
+      g.addEventListener('keyup', (ev) => ev.stopPropagation());
+      g.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+      e.appendChild(g); this.sohbetGiris = g;
+    }
+    this.sohbetYaz('Welcome to KnightEmpire! Press Enter to chat.', '#8fd0ff');
+  }
+
+  private bilgiKur(): void {
+    const p = this.bilgi;
+    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|img_sizechange|scroll)/);
+    this.satirKabi(p.alan('text_message'), 12);
+  }
+
+  /** Sohbet penceresine satır ekler. */
+  sohbetYaz(metin: string, renk = '#ffffff'): void { const k = this.sohbet.alan('text0'); if (k) this.satirEkle(k, metin, renk); }
+  /** Bilgi (hasar, ganimet, sistem) penceresine satır ekler. */
+  bilgiMesaji(metin: string, tur: 'bilgi' | 'hasar' | 'odul' | 'sistem' = 'bilgi'): void {
+    const renk = { hasar: '#ff8a7a', odul: '#ffd76b', sistem: '#8fd0ff', bilgi: '#dddddd' }[tur];
+    const k = this.bilgi.alan('text_message'); if (k) this.satirEkle(k, metin, renk);
   }
 
   // ---------------------------------------------------------------- HP çubuğu
@@ -107,8 +185,22 @@ export class OyunArayuzu {
     g.tikla.set('btn_character', () => this.degistir('durum'));
     g.tikla.set('btn_skill', () => this.degistir('beceri'));
     g.tikla.set('btn_camera', () => this.b.kamera.arkayaDon());
-    g.tikla.set('btn_sit', () => this.b.otur());
-    g.tikla.set('btn_walk', () => this.b.yuruKos());
+    // Her çift aynı yerde durur; durumun simgesi gösterilir (guncelle → simgeleriUygula).
+    for (const id of ['btn_stand', 'btn_sit']) g.tikla.set(id, () => this.b.otur());
+    for (const id of ['btn_run', 'btn_walk']) g.tikla.set(id, () => this.b.yuruKos());
+    this.simgeler = null; this.simgeleriUygula();
+  }
+
+  private simgeler: string | null = null;
+  /** Duruyor/oturuyor ve koşuyor/yürüyor simgelerini gösterir. */
+  private simgeleriUygula(): void {
+    const d = this.b.durum();
+    const imza = `${d.oturuyor}|${d.kosuyor}`;
+    if (imza === this.simgeler) return;
+    this.simgeler = imza;
+    const g = this.gorev;
+    g.goster('btn_stand', !d.oturuyor); g.goster('btn_sit', d.oturuyor);
+    g.goster('btn_run', d.kosuyor); g.goster('btn_walk', !d.kosuyor);
   }
 
   // ---------------------------------------------------------------- karakter durumu (U)
@@ -215,6 +307,7 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- her kare
   guncelle(dt: number): void {
     const o = this.b.oyuncu, h = this.hpbar;
+    this.simgeleriUygula();
     this.fpsSayac += dt;
     if (this.fpsSayac > 0.5) { this.fps = Math.round(1 / Math.max(dt, 1e-4)); this.fpsSayac = 0; h.metin('text_fps', `${this.fps} fps`); }
     h.metin('Text_HP', `${Math.ceil(o.can)}/${o.enCok}`); h.metin('Text_MSP', `${Math.ceil(o.mana)}/${o.enCokMana}`);

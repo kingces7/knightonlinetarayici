@@ -54,7 +54,11 @@ export class Hud {
 
   envanterAcKapa(): void { this.envanter.classList.toggle('gizli'); }
 
+  /** Orijinal arayüzdeki bilgi penceresi (varsa) mesajları buradan da alır. */
+  mesajKancasi: ((metin: string, tur: 'bilgi' | 'hasar' | 'odul' | 'sistem') => void) | null = null;
+
   mesaj(metin: string, tur: 'bilgi' | 'hasar' | 'odul' | 'sistem' = 'bilgi'): void {
+    this.mesajKancasi?.(metin, tur);
     const m = $<HTMLDivElement>(`<div class="m ${tur}"></div>`); m.textContent = metin;
     this.mesajlar.appendChild(m);
     while (this.mesajlar.children.length > 60) this.mesajlar.firstChild!.remove();
