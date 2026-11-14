@@ -70,7 +70,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] `misc\river\caust36_*.dxt` (39 dosya) anti-cheat'in oyun çalışırken bıraktığı geçici dosyalar; silinebilir.
 
 **Server ve veritabanı**
-- [ ] **SQL Server 2022 kurulumu** (veritabanı yedeği 2022 ile alınmış; server'ı çalıştırmak için gerekli).
+- [x] **SQL Server 2022** — bilgisayarda zaten kuruluydu (Express, örnek `.\SQLEXPRESS`, Windows girişi). `LILITH_MYKO.bak` **2026-11-14'te `LILITH_MYKO` adıyla geri yüklendi** (229 tablo; dosyalar `C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\DATA\`). `LILITH_LOG.bak` henüz geri yüklenmedi (4,5 GB veri; oyun için gerekmiyor).
+- [ ] **Moradon NPC konumları ile harita uyuşmuyor (karar bekliyor).** `ZONE_INFO1098`: bölge 21 → `1098moradon_0826.smd` (1024 m; şehir meydanı ≈ (815, 440)), `InitX/InitZ` = (815.9, 530.8). Ama `K_NPCPOS1098` bölge 21'deki 114 NPC (Iris, Zarta, Clan Bank, Sanctuary…) hepsi x 31–472, z 45–483'te; `START_POSITION1098` bölge 21 = (264, 302), `K_OBJECTPOS1098` kapıları (282, 374) ve (338, 319). Bu konumlarda yeni Moradon'da vahşi arazi var; eski Moradon'da (`14th_oldmoradon`, 512 m, Old Moradon başlangıcı (312, 402)) ise tam pazar alanı var. NPC dizilimi eski Moradon'a göre. Seçenekler: (A) yeni Moradon + NPC'leri şehre taşımak, (B) eski Moradon'u kullanmak.
 - [ ] `LILITH_MYKO.bak` geri yüklenince `VERSION` tablosundaki **2401 / 2450** kayıtlarının gerçek olup olmadığı kontrol edilecek.
 - [ ] `LILITH_LOG.bak` içeriği incelenecek.
 - [ ] Veritabanındaki eşya / NPC / görev adlarının dili kontrol edilecek — **oyun İngilizce** olacak.
