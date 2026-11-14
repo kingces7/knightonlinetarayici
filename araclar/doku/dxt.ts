@@ -5,6 +5,8 @@
 //   en büyük seviyeden başlayarak mipmap seviyeleri (mipmap yoksa tek seviye)
 //   (ardından ekran kartı DXT desteklemezse diye yarım boyutlu 16 bitlik bir kopya gelir; okumuyoruz)
 
+import crypto from 'node:crypto';
+
 export const BICIM = {
   DXT1: 0x31545844, DXT2: 0x32545844, DXT3: 0x33545844, DXT4: 0x34545844, DXT5: 0x35545844,
   A8R8G8B8: 21, X8R8G8B8: 22, A1R5G5B5: 25, A4R4G4B4: 26,
@@ -39,6 +41,95 @@ export function seviyeBoyu(bicim: number, g: number, y: number): number {
   throw new Error(`Desteklenmeyen doku biçimi: ${bicimAdi(bicim)}`);
 }
 
+// ---------------- Sürüm 7 (şifreli) ----------------
+// Anahtar akışı: RC4, anahtar = SHA-1(PAROLA) ilk 16 bayt (Windows CryptoAPI: CryptCreateHash(0x8004),
+// CryptHashData, CryptDeriveKey(0x6801 = RC4, 128 bit)). Parola KnightOnline.exe içinde
+// "Microsoft Enhanced Cryptographic Provider" yazısının hemen önünde düz metin olarak durur.
+// Oyun her ReadFile çağrısını CryptDecrypt(Final=TRUE) ile çözer; Final=TRUE akışı baştan başlattığı için
+// HER OKUMA anahtar akışının 0. baytından başlar. Okuma sınırları:
+//   - sıkıştırılmış (DXT) ana seviyeler: seviyenin tamamı tek okuma
+//   - sıkıştırılmamış ana seviyeler: satır satır (satır = genişlik * piksel baytı)
+//   - DXT dosyalarındaki yarım boyutlu 16 bit kopya: seviye seviye, satır satır
+// Başlık ("NTF", sürüm, 16 bayt) şifresizdir. Şifreleme XOR olduğundan çözme ile aynı işlemdir.
+export const SURUM7_PAROLA = 'owsd9012%$1as!wpow1033b%!@%12';
+
+let akis = Buffer.alloc(0);
+function anahtarAkisi(n: number): Buffer {
+  if (akis.length >= n) return akis;
+  const anahtar = crypto.createHash('sha1').update(SURUM7_PAROLA, 'latin1').digest().subarray(0, 16);
+  const uzunluk = Math.max(n, 1 << 16);
+  const s = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) s[i] = i;
+  let j = 0;
+  for (let i = 0; i < 256; i++) { j = (j + s[i] + anahtar[i & 15]) & 255; const t = s[i]; s[i] = s[j]; s[j] = t; }
+  const cikti = Buffer.alloc(uzunluk);
+  let a = 0; j = 0;
+  for (let k = 0; k < uzunluk; k++) {
+    a = (a + 1) & 255; j = (j + s[a]) & 255;
+    const t = s[a]; s[a] = s[j]; s[j] = t;
+    cikti[k] = s[(s[a] + s[j]) & 255];
+  }
+  akis = cikti;
+  return akis;
+}
+
+/** Bir dokunun veri bölümündeki (başlıktan sonra) parçalar. `satir`: anahtar akışının yeniden başladığı aralık. */
+export interface Parca { ofset: number; boy: number; satir: number }
+
+function pikselBayti(bicim: number): number {
+  switch (bicim) {
+    case BICIM.A8R8G8B8: case BICIM.X8R8G8B8: return 4;
+    case BICIM.A1R5G5B5: case BICIM.A4R4G4B4: return 2;
+    default: return 0; // DXT
+  }
+}
+
+/** Oyunun yazdığı seviye boyu (D3D'nin blok boyundan farklı olarak genişlik*yükseklik temelli). */
+function seviyeBoyuOyun(bicim: number, g: number, y: number): number {
+  if (bicim === BICIM.DXT1) return (g * y) >> 1;
+  const pb = pikselBayti(bicim);
+  return pb ? g * y * pb : g * y;
+}
+
+/**
+ * Veri bölümünün düzeni. Mipmap zinciri en küçük kenar 4'e inene kadar sürer (4x4 dahil).
+ * DXT biçimlerinde ana zincirin arkasına yarım boyutlu 16 bit (A4R4G4B4 / DXT1 için A1R5G5B5) kopya gelir.
+ */
+export function veriDuzeni(bicim: number, g: number, y: number, mipmap: boolean): { ana: Parca[]; yedek: Parca[]; toplam: number } {
+  const ana: Parca[] = [], yedek: Parca[] = [];
+  let ofset = 0;
+  const pb = pikselBayti(bicim);
+  for (let w = g, h = y; ; w >>= 1, h >>= 1) {
+    const boy = seviyeBoyuOyun(bicim, w, h);
+    ana.push({ ofset, boy, satir: pb ? w * pb : boy });
+    ofset += boy;
+    if (!mipmap || w <= 4 || h <= 4) break;
+  }
+  if (!pb) {
+    const yb = bicim === BICIM.DXT1 ? BICIM.A1R5G5B5 : BICIM.A4R4G4B4;
+    for (let w = g >> 1, h = y >> 1; w > 0 && h > 0; w >>= 1, h >>= 1) {
+      const boy = seviyeBoyuOyun(yb, w, h);
+      yedek.push({ ofset, boy, satir: w * 2 });
+      ofset += boy;
+      if (!mipmap || w <= 4 || h <= 4) break;
+    }
+  }
+  return { ana, yedek, toplam: ofset };
+}
+
+/**
+ * Sürüm 7 veri bölümünü yerinde çözer (ya da şifreler; XOR olduğu için aynı işlem).
+ * `veri`: başlıktan sonraki baytlar. Yalnızca düzenin kapsadığı kısım işlenir; dosya daha kısaysa eldeki kadarı.
+ */
+export function surum7Donustur(veri: Uint8Array, bicim: number, g: number, y: number, mipmap: boolean): void {
+  const d = veriDuzeni(bicim, g, y, mipmap);
+  const k = anahtarAkisi(Math.max(...[...d.ana, ...d.yedek].map((p) => p.satir), 1));
+  for (const p of [...d.ana, ...d.yedek]) {
+    const son = Math.min(p.ofset + p.boy, veri.length);
+    for (let i = p.ofset; i < son; i++) veri[i] ^= k[(i - p.ofset) % p.satir];
+  }
+}
+
 export function dxtOku(dosya: Uint8Array): Doku {
   const b = Buffer.from(dosya.buffer, dosya.byteOffset, dosya.byteLength);
   const adUz = b.readInt32LE(0);
@@ -56,7 +147,39 @@ export function dxtOku(dosya: Uint8Array): Doku {
   const bas = h + 20;
   const boy = seviyeBoyu(bicim, genislik, yukseklik);
   if (bas + boy > b.length) throw new Error('Doku verisi eksik');
-  return { ad, surum: b[h + 3], genislik, yukseklik, bicim, bicimAdi: bicimAdi(bicim), mipmap, veri: b.subarray(bas, bas + boy) };
+  const surum = b[h + 3];
+  let veri: Uint8Array = b.subarray(bas, bas + boy);
+  if (surum === 7) {
+    // Orijinal dosyaya dokunmamak için kopya üzerinde çöz; sadece bu dokunun kapsadığı baytlar işlenir
+    // (.gtt gibi çok dokulu dosyalarda arkası başka dokudur).
+    const d = veriDuzeni(bicim, genislik, yukseklik, mipmap);
+    const kopya = Uint8Array.from(b.subarray(bas, Math.min(b.length, bas + d.toplam)));
+    surum7Donustur(kopya, bicim, genislik, yukseklik, mipmap);
+    veri = kopya.subarray(0, boy);
+  }
+  return { ad, surum, genislik, yukseklik, bicim, bicimAdi: bicimAdi(bicim), mipmap, veri };
+}
+
+/**
+ * `.tct` renk haritası: arka arkaya dizilmiş N×N adet 128×128 A1R5G5B5 doku (her biri ad uzunluğu 0 + "NTF" +
+ * başlık + mipmap zinciri). 4/16/64/256 parça görülüyor. Sürüm 3 ve 7 ikisi de okunur.
+ */
+export function tctOku(dosya: Uint8Array): Doku[] {
+  const b = Buffer.from(dosya.buffer, dosya.byteOffset, dosya.byteLength);
+  const sonuc: Doku[] = [];
+  let o = 0;
+  while (o + 24 <= b.length) {
+    const adUz = b.readInt32LE(o);
+    const h = o + 4 + adUz;
+    if (adUz < 0 || b.toString('latin1', h, h + 3) !== 'NTF') throw new Error(`.tct: ${sonuc.length}. parçada NTF imzası yok`);
+    const g = b.readInt32LE(h + 4), y = b.readInt32LE(h + 8), bc = b.readUInt32LE(h + 12), mm = b.readInt32LE(h + 16) !== 0;
+    const son = h + 20 + veriDuzeni(bc, g, y, mm).toplam;
+    if (son > b.length) throw new Error(`.tct: ${sonuc.length}. parça dosya sonunu aşıyor`);
+    sonuc.push(dxtOku(b.subarray(o, son)));
+    o = son;
+  }
+  if (o !== b.length) throw new Error(`.tct: ${b.length - o} bayt artık var`);
+  return sonuc;
 }
 
 // ---------------- Çözme (RGBA'ya) ----------------

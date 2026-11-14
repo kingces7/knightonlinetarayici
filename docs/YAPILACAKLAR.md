@@ -6,9 +6,10 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 
 ## 🟢 Şu an sıradaki
 
-- [ ] **Sürüm 7 (şifreli) dokuların çözülmesi** — Moradon'un zemini, bütün haritaların renk haritası (`.tct`) ve ~600 doku bunlarla. Anahtar akışı ortak ve ilk 256 baytı yaklaşık bulundu; kesin anahtar gerekiyor (bkz. [formatlar/model.md](formatlar/model.md)).
+- [x] **Sürüm 7 (şifreli) dokuların çözülmesi** — çözüldü (RC4, parola `KnightOnline.exe` içinde); 588 `.dxt`/`.tct` ve `.gtt` içindeki 960 karo dokusu okunuyor. Ayrıntı ve kanıtlar: [formatlar/model.md](formatlar/model.md).
+- [ ] **Harita dönüştürücüyü Moradon için yeniden çalıştırmak:** sürüm 7 artık çözülüyor; `donusturulmus/` çıktıları ve istemcinin gri-yer-tutucu varsayımı (`araclar/harita/cli.ts` içindeki "yaklaşık renk haritası") gerçek `.tct` ile değiştirilecek. Her `.tct` parçasının (128×128) haritanın hangi alanına denk geldiği henüz doğrulanmadı.
 - [ ] **Moradon'u oynanabilir yapmak** (yukarıdakine bağlı). Şu an tek oyunculu mod `new_runawar` haritasında çalışıyor.
-- [ ] **Zeminin birebir görünümü:** geçiş karolarının gerçek karışım kuralı ve karo yön kodlarının anlamı (renk haritası çözülünce).
+- [ ] **Zeminin birebir görünümü:** geçiş karolarının gerçek karışım kuralı ve karo yön kodlarının anlamı (renk haritası artık okunabiliyor, kural araştırılacak).
 - [ ] **Çarpışma:** karakterler şu an binaların/duvarların içinden geçebiliyor. `.opd` ve sunucu `.smd` dosyalarındaki çarpışma üçgenleri kullanılacak.
 
 ## 🎮 Tek oyunculu mod (tarayıcı oyunu)
@@ -33,7 +34,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 
 - [x] `.tbl` oyun tabloları → CSV/JSON ve geri (244/246, bayt bayt kayıpsız)
 - [x] `.hdr` + `.src` paket arşivleri (okuma + yeniden paketleme)
-- [x] `.dxt` / `.gtt` dokular → PNG (16.775/16.814; sürüm 7 şifreli olanlar hariç)
+- [x] `.dxt` / `.gtt` / `.tct` dokular → PNG (sürüm 7 şifreli olanlar dahil; 39 `.dxt` dosyasında "NTF" imzası yok, doku değil)
 - [ ] `.dxt` geri yazıcı (PNG → .dxt)
 - [x] `.n3pmesh`, `.n3shape` statik modeller → glTF
 - [x] `.n3joint`, `.n3cskins`, `.n3cpart`, `.n3anim` karakterler ve animasyonlar → glTF
@@ -79,7 +80,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 **Araçlar ve depo**
 - [ ] `araclar/` için TypeScript **tür denetimi** (`tsc`) eklenecek (istemcide var: `npm run kontrol`).
 - [ ] Git satır sonu uyarıları (LF/CRLF) için `.gitattributes` eklenecek.
-- [ ] `KnightOnline.exe` bir koruma yazılımıyla paketlenmiş; içinden bilgi gerekirse (ör. sürüm 7 doku anahtarı) çalışma anında inceleme gerekebilir.
+- [ ] `KnightOnline.exe` bir koruma yazılımıyla paketlenmiş; ancak sürüm 7 doku parolası paketli dosyada düz metin olarak bulundu (çalıştırmaya gerek kalmadı). Başka bilgiler için gerekirse yine önce düz metin aranmalı.
 - [ ] Çözülmüş/dönüştürülmüş veriler (`donusturulmus/`) sadece bu bilgisayarda; bulut oturumu bunlara erişemez.
 
 **Hukuki**
@@ -94,7 +95,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 
 - [x] Aşama 0 — Keşif
 - [x] Aşama 1 — Tablolar
-- [x] Aşama 2 — Harita ve model okuyucuları, glTF çıktısı (sürüm 7 şifreli dokular hariç)
+- [x] Aşama 2 — Harita ve model okuyucuları, glTF çıktısı (sürüm 7 şifreli dokular sonradan çözüldü)
 - [x] Aşama 3 — İlk görüntü: tarayıcıda harita + yürüyen karakter + kamera (+ tek oyunculu av modu)
 - [ ] Aşama 4 — Sunucu bağlantısı: WebSocket köprüsü, şifreleme, login, karakter seçimi
 - [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler

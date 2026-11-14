@@ -11,7 +11,7 @@ Kaynak: `Launcher-Source/hdr.cpp`. Arşivler: `UI/ui`, `Item/item`, `Object/obje
 ```
 `araclar/ortak/oyunDosyalari.ts` dosyaları gevşek klasörlerden ya da arşiv içinden bulur (büyük/küçük harf duyarsız).
 
-## `.dxt` / `.gtt` — doku ✅ (sürüm 7 hariç)
+## `.dxt` / `.gtt` / `.tct` — doku ✅ (sürüm 7 dahil)
 ```
 metin ad
 "NTF" + sürüm(1 bayt: 3, 4, 7)
@@ -22,10 +22,46 @@ DXT biçimlerde ardından yarım boyutlu 16 bitlik yedek kopya (eski ekran kartl
 Biçimler: DXT1/3/5, 21 = A8R8G8B8, 22 = X8R8G8B8, 25 = A1R5G5B5, 26 = A4R4G4B4.
 `.gtt` = arka arkaya 8 karo dokusu (her biri 128×128 DXT1, 21856 bayt).
 
-**Sürüm 7 = şifreli.** Veri, her `ReadFile` çağrısında baştan başlayan sabit bir anahtar akışıyla XOR'lanmış
-(Windows `CryptDecrypt` + RC4 davranışı). Anahtar akışı bütün dosyalarda aynı; ilk 256 baytı istatistik yöntemle
-yaklaşık bulundu ama tam değil → **çözülmedi** (YAPILACAKLAR). Sürüm 7 olan dokular şimdilik gri gösterilir.
-Etkilenenler: Moradon dahil yeni haritaların zemin karoları, bütün `.tct` renk haritaları, ~600 doku.
+Mipmap zinciri en küçük kenar 4'e inene kadar sürer (4×4 dahil; 2×2 ve 1×1 yok). DXT biçimlerinde ana zincirin
+arkasına yarım boyutlu yedek kopya gelir (DXT1 için A1R5G5B5, diğerleri için A4R4G4B4), o da 4'e kadar mipmaplıdır.
+Seviye boyu oyunun yazdığı gibi: DXT1 = g·y/2, DXT2-5 = g·y, sıkıştırılmamış = g·y·piksel baytı.
+(Kanıt: 588 sürüm 7 `.dxt`/`.tct` dosyasının hepsinde bu düzenin toplamı dosya boyuna tam eşit.)
+
+### Sürüm 7 = şifreli ✅ (çözüldü)
+Başlık (ad, "NTF", sürüm, 16 bayt) **şifresiz**; yalnızca piksel verisi şifreli.
+- **Algoritma:** RC4. Anahtar = SHA-1(parola) ilk 16 bayt (Windows CryptoAPI: `CryptCreateHash(0x8004)`,
+  `CryptHashData`, `CryptDeriveKey(0x6801, 128 bit)`; `CryptDecrypt(Final=TRUE)` akışı her çağrıda baştan başlatır).
+- **Parola:** `owsd9012%$1as!wpow1033b%!@%12` (29 karakter). Kaynak: `KnightOnline.exe` içinde
+  "Microsoft Enhanced Cryptographic Provider v1.0" yazısının hemen önünde düz metin (dosya ofseti 8734750 civarı).
+  Anti-cheat'in `.lilith` (UIF) parolası `(A;dq1DPV…` ayrı bir şey: o da SHA-1 + RC4 ama parolanın **yalnızca ilk 29
+  karakteri** hash'lenir (`CryptHashData(..., 29, …)`); `MessageBox.lilith` ile bu çözüm doğrulandı, doku parolasıyla ilgisi yok.
+  İlk denemelerin başarısız olma nedeni buydu: yanlış parola, ayrıca hash uzunluğunun 29'a kırpılması.
+- **Anahtar akışı her okumada 0. bayttan başlar.** Okuma sınırları (kanıtlı, aşağıya bak):
+  - DXT ana seviyeleri: seviyenin tamamı tek okuma (akış her seviyede yeniden başlar)
+  - sıkıştırılmamış ana seviyeler: satır satır (akış her `genişlik·piksel baytı` baytta yeniden başlar)
+  - DXT'nin yarım boyutlu 16 bit kopyası: seviye seviye, satır satır
+- Şifreleme = XOR olduğu için çözme ile aynı işlem (`surum7Donustur`), yani geri yazma da aynı fonksiyonla olur.
+- Kod: `araclar/doku/dxt.ts` (`dxtOku` sürüm 7'yi kendiliğinden çözer; `veriDuzeni`, `surum7Donustur`, `tctOku`).
+
+**Kanıtlar** (`araclar/doku/dxt.test.ts`):
+1. 37 sürüm 7 dosyanın düz (sürüm 3) kopyası oyunda var (aynı ad, başka klasör). Şifreli ^ düz = anahtar akışı;
+   ilk 32 bayt `904d4f1f13a9e5f3f8de11d1f2981a33cade2324524f0325d68c25b3719f0a2c`, SHA-1 parolasıyla üretilen RC4
+   akışının ilk 32 baytıyla **bire bir aynı**.
+2. Çözülen DXT3 (ana zincir + 16 bit kopya), A8R8G8B8 (satır satır) ve 16×16 DXT3 dokular düz kopyayla bayt bayt aynı.
+3. Görsel kontrol: ağaç yaprağı dokusu, Moradon `.tct` renk haritası düzgün resim veriyor.
+4. Sayım: 588 sürüm 7 `.dxt`/`.tct` dosyasının 588'i hatasız çözülüyor (587'si komşu-piksel ölçütünü de geçiyor;
+   `zones\dungeond.tct` bilerek gürültülü bir renk haritası, görsel olarak doğru). `.gtt` içinde ayrıca 960 sürüm 7 karo
+   dokusu var; hepsi hatasız çözülüyor (görsel ölçüt uygulanmadı).
+- **Doğrulanmadı:** DXT dokularda yarım boyutlu 16 bit kopyanın kendisi (okumuyoruz; düz kopyalarla karşılaştırmada
+  tam tutan örneklerde 2720/2720 bayt aynı, resmi farklı olan çiftlerde elbette farklı). Çok büyük DXT seviyelerinin
+  (>64 KB) tek okuma olduğu varsayımı 128×128 DXT3'e kadar (16 KB) düz kopyayla kanıtlı; daha büyükler görsel olarak doğru
+  ama bayt bayt karşılaştırılacak düz kopya yok.
+
+### `.tct` — renk haritası ✅
+Arka arkaya N×N adet bağımsız doku: her biri `int32 0 (ad boş)` + "NTF" + sürüm + başlık + veri, **128×128 A1R5G5B5,
+mipmaplı** (43704 bayt). 4 / 16 / 64 / 256 parça görülüyor (haritanın boyuna göre; 59 dosya: 22 sürüm 7, 37 sürüm 3). Sürüm 7 toplamı: 566 `.dxt` + 22 `.tct` = 588.
+Parçalar satır-sütun sırasıyla dizilir (sıra düzeni: doğrulanmadı; Moradon'da komşu parçalar görsel olarak birleşiyor).
+Her parça 128×128 pikselin haritadaki hangi alana karşılık geldiği henüz belgelenmedi (YAPILACAKLAR).
 
 ## `.gtd` — arazi ✅
 ```

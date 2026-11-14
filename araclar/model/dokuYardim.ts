@@ -5,15 +5,11 @@ import { pngKodla } from '../ortak/png.ts';
 
 export interface PngDoku { png: Buffer; alfa: 'OPAQUE' | 'MASK' | 'BLEND'; sifreli: boolean }
 
-/** Sürüm 7 dokular şifreli (henüz çözülemedi): yerine düz gri kullanılır. */
+/** Sürüm 7 (şifreli) dokular dxtOku içinde otomatik çözülür; `sifreli` alanı geriye uyumluluk için duruyor. */
 export function dokuPng(od: OyunDosyalari, yol: string, enFazla = 512): PngDoku | null {
   if (!yol || !od.var(yol)) return null;
   let d: Doku;
   try { d = dxtOku(od.oku(yol)); } catch { return null; }
-  if (d.surum === 7) {
-    const g = new Uint8Array(4 * 4 * 4).fill(150);
-    return { png: pngKodla(4, 4, g), alfa: 'OPAQUE', sifreli: true };
-  }
   let rgba = rgbayaCevir(d);
   let g = d.genislik, y = d.yukseklik;
   while (g > enFazla || y > enFazla) { rgba = yariyaIndir(rgba, g, y); g >>= 1; y >>= 1; }

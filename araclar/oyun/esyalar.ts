@@ -34,7 +34,6 @@ function main(): number {
     if (!od.var(yol)) continue;
     try {
       const d = dxtOku(od.oku(yol));
-      if (d.surum === 7) continue;
       fs.writeFileSync(path.join(hedef, 'ikon', `${simge}.png`), pngKodla(d.genislik, d.yukseklik, rgbayaCevir(d)));
     } catch { continue; }
     gorulenAd.add(ad);
