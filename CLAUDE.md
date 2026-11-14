@@ -10,17 +10,26 @@ değiştirilmeden kullanılacak.
 - Kullanıcıyla her zaman **Türkçe** konuş.
 - Kullanıcı yazılımda yeni. Kısa, sade açıklamalar yap ve teknik terimleri ilk geçtiği yerde açıkla.
 - Büyük bir değişiklikten önce ne yapacağını 2-3 cümleyle söyle.
+- Kullanıcı kod yazmıyor. Kodu Claude yazar, çalıştırır ve test eder. Kullanıcıdan sadece
+  karar ve gerekirse basit işlemler (program kurmak, oyunu açıp bakmak gibi) iste; bunları adım adım anlat.
+
+## Kararlar
+- **Myko** sürümüyle çalışılıyor: veritabanı `Myko Database/LILITH_MYKO.bak` (+ `LILITH_LOG.bak`),
+  server kaynağı `Source Files/Myko_Source.rar`. Homeko veritabanı silindi; Homeko kaynak kodu
+  sadece yedek/kıyas amaçlı.
+- Proje **bu bilgisayarda** geliştirilir. GitHub yedek ve bulut oturumu ile paylaşım içindir.
 
 ## Kesin kurallar
-1. **Orijinal oyun dosyaları asla depoya girmez.** Client/server dosyaları, `.tbl`,
-   harita, model, doku ve ses dosyaları `oyun-dosyalari/` klasöründe durur. Bu klasör
-   `.gitignore` ile dışarıda tutulur. Commit atmadan önce `git status` ile kontrol et.
+1. **Orijinal oyun dosyaları asla depoya girmez.** Oyun dosyaları depo klasörünün **dışında**,
+   bir üst klasörde (`E:\Knight Online Browser Project\`) durur — aşağıdaki "Klasör yapısı"na bak.
+   Commit atmadan önce `git status` ile kontrol et.
 2. GitHub 100 MB üstü dosyayı kabul etmez. Büyük dosya, build çıktısı ve dönüştürülmüş
    asset'ler (`build/`, `donusturulmus/`) commit edilmez.
-3. `oyun-dosyalari/` içindeki dosyaları **sadece oku**, değiştirme. Çıktıları ayrı klasöre yaz.
-4. Bu depo hem bu bilgisayardan hem de bir bulut oturumundan (claude.ai) düzenleniyor.
-   Çalışmaya başlamadan önce `git pull`, iş bitince commit + `git push` yap.
-   Commit mesajları Türkçe ve kısa olsun.
+3. Oyun dosyalarını **sadece oku**, değiştirme. Arşivlerden (`.rar`) çıkarılan dosyalar ve
+   üretilen çıktılar depo içinde `.gitignore` ile dışarıda tutulan klasörlere yazılır.
+4. Git akışı: Çalışmaya başlamadan önce `git pull` yap (bulut oturumundan gelen değişiklikleri çekmek için).
+   Commit'ler yerelde atılır. **GitHub'a göndermek (`git push`) gerektiğinde kullanıcıya ne
+   göndereceğini kısaca söyle**, sonra gönder. Commit mesajları Türkçe ve kısa olsun.
 
 ## Mimari
 | Parça | Yaklaşım |
@@ -36,7 +45,7 @@ Başka bir seçim yapılacaksa önce kullanıcıya sor.
 ## Yol haritası
 Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 
-- [x] **Aşama 0 — Keşif:** `oyun-dosyalari/` klasörünü tara. Klasör yapısını, dosya türlerini,
+- [x] **Aşama 0 — Keşif:** Oyun dosyalarını tara. Klasör yapısını, dosya türlerini,
       kaynak kodu (.cpp/.h) olup olmadığını, server türünü ve veritabanını belirle.
       Sonucu `docs/KESIF.md` dosyasına yaz. Neyin elde olduğunu ve neyin eksik olduğunu kullanıcıya özetle.
 - [ ] **Aşama 1 — Tablolar:** `.tbl` okuyucu yaz (item, mob, NPC, skill) ve JSON'a çevir.
@@ -54,11 +63,20 @@ Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 - Her yeni okuyucu için küçük bir test yaz (örnek dosyayı açıp beklenen alanları kontrol eden).
 - Büyük işleri küçük, çalışan adımlara böl. Her adım sonunda bir şey çalıştırılabilir olsun.
 
-## Klasör yapısı (hedef)
+## Klasör yapısı
 ```
-oyun-dosyalari/   # orijinal dosyalar (git'e girmez)
-araclar/          # dönüştürücüler
-client/           # tarayıcı oyunu
-kopru/            # WebSocket <-> TCP proxy
-docs/             # KESIF.md, ILERLEME.md, protokol.md, formatlar/
+E:\Knight Online Browser Project\
+├── SpecialKO\              # orijinal client (sadece oku)
+├── Myko Database\          # LILITH_MYKO.bak, LILITH_LOG.bak (SQL Server 2022 yedeği)
+├── Source Files\           # Myko_Source.rar (kullanılan), HomekoSource.rar, DXSDK, libcurl
+├── Noah-System\            # topluluk araçları (TBL editor, UIE…)
+├── *.rar                   # ham proje arşivi, panel (proje için gerekmiyor)
+└── knightonlinetarayici\   # BU DEPO
+    ├── araclar\            # dönüştürücüler
+    ├── client\             # tarayıcı oyunu
+    ├── kopru\              # WebSocket <-> TCP proxy
+    ├── docs\               # KESIF.md, ILERLEME.md, protokol.md, formatlar/
+    ├── oyun-dosyalari\     # .rar'lardan çıkarılan dosyalar (git'e girmez)
+    └── donusturulmus\      # dönüştürülmüş asset'ler (git'e girmez)
 ```
+Kodda oyun dosyalarına giden yol tek bir ayardan okunmalı (ör. `../SpecialKO`), sabit yazılmamalı.

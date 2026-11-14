@@ -13,7 +13,7 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 | `Source Files/HomekoSource.rar` | 2,4 GB | **Server kaynak kodu** (C++), Launcher, anti-cheat, client kopyası |
 | `Source Files/Myko_Source.rar` | 1,8 GB | Aynı kaynak kodun "Myko" sürümü + `DiabloKO` client kopyası |
 | `Source Files/DXSDK-summ2004.rar`, `libcurl.rar` | 240 MB | Derleme bağımlılıkları (DirectX SDK, curl) |
-| `Homeko Databaase/`, `Myko Database/` | 2 × 183 MB | **MS SQL Server veritabanı yedekleri** (`LILITH_HOMEKO.bak`, `LILITH_MYKO.bak`, `LILITH_LOG.bak`) |
+| `Myko Database/` | 183 MB | **MS SQL Server veritabanı yedekleri** (`LILITH_MYKO.bak`, `LILITH_LOG.bak`). Homeko veritabanı kullanıcı tarafından silindi. |
 | `Noah-System/` | 216 MB | Topluluk araçları: Nero All In One, Pentagram TBL editor, UIE (UI editörü), StudPE |
 | `knight online ham proje.rar` | 8,3 GB | Yukarıdakilerin hepsinin tek arşivi + forum yedeği ve görseller (proje için gerekmiyor) |
 | `servermykosonpanel.rar` | 20 MB | Web paneli (proje için gerekmiyor) |
@@ -95,7 +95,7 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 | Araç | Durum |
 |---|---|
 | WinRAR (UnRAR) | ✅ var |
-| Python | ✅ var (Windows Store kısayolu; gerçekten kurulu mu ilk kullanımda kontrol edilecek) |
+| Python | ❌ yok (sadece Windows Store kısayolu var, kendisi kurulu değil) |
 | Node.js | ❌ yok — client ve köprü için kurulmalı |
 | SQL Server | ❌ yok — server'ı çalıştırmak için gerekli |
 | 7-Zip | ❌ yok (gerekli değil) |
@@ -113,12 +113,18 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 | Model / animasyon / harita okuma kodu | ❌ Yok — hex inceleme gerekli |
 | Client kaynak kodu (oyun mantığı, UI) | ❌ Yok — paketlerin client tarafı server kodundan çıkarılacak |
 
-## 8. Açık sorular / önerilen sonraki adımlar
+## 8. Kararlar ve sonraki adımlar
 
-1. **Klasör düzeni:** CLAUDE.md dosyaların `oyun-dosyalari/` içinde olmasını bekliyor. Seçenekler:
-   (a) dosyaları oraya taşımak, (b) `oyun-dosyalari/` içinde mevcut klasörlere Windows bağlantısı (junction) açmak
-   — taşımadan, yer kaplamadan. (b) önerilir.
-2. **Hangi varyant?** Homeko mu Myko mu kullanılacak? (Client olarak `SpecialKO` = Homeko görünüyor.)
-3. Server kaynak kodunun sadece okunması gereken kısımları (`shared/`, `GameServer/`, `LogInServer/`)
-   `oyun-dosyalari/kaynak/` altına açılmalı ki protokol incelemesi kolay olsun.
-4. Node.js kurulumu (Aşama 3–4 için).
+Kararlar (2026-11-14, kullanıcı):
+- **Myko** ile çalışılacak. Homeko veritabanı silindi.
+- Oyun dosyaları **bulundukları yerde kalacak** (depo klasörünün bir üstü). Taşıma yapılmayacak.
+- Geliştirme bu bilgisayarda yapılacak; GitHub'a gönderim gerektiğinde kullanıcıya haber verilecek.
+
+Sonraki adımlar:
+1. Myko server kaynak kodunun gerekli kısımları (`shared/`, `GameServer/`, `LogInServer/`)
+   depo içindeki `oyun-dosyalari/kaynak/` klasörüne (git'e girmez) çıkarılacak.
+2. Client seçimi: `SpecialKO` Homeko'nun client'ı. Myko arşivinde ayrıca `DiabloKO` client'ı var.
+   Tablolar (`.tbl`) iki client'ta karşılaştırılıp Myko veritabanıyla uyumlu olan seçilecek.
+3. Aşama 1 — Tablolar. (Python bu bilgisayarda gerçekte kurulu değil; dönüştürücü için Node.js/TypeScript
+   veya Python kurulumu gerekecek.)
+4. Node.js kurulumu (Aşama 1/3/4 için), ileride SQL Server 2022 kurulumu (server'ı çalıştırmak için).
