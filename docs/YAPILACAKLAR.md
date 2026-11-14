@@ -25,8 +25,8 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] Kamera binaların/duvarların içinden geçebiliyor.
 
 **Hareket ve karakter (2026-11-14, ikinci oturum)**
-- [ ] **Oyuncu görünümü:** şimdiki karakter `npc_el_knight` (11610) NPC iskeleti; gerçek oyuncu iskeleti `upc_el_rm` (155 animasyon: SitDown/StandUp/saldırılar…) ile "Complete" zırh seti (ör. look 31137) çok daha güzel görünüyor, ama bu iskelette (ve `npc_patric_upc`) animasyonlar hareket vermiyor (T-poz; `.n3joint` anahtarları doğru okunmuyor, 1,5 MB'lık dosya). Çözülünce oyuncu modeli değiştirilecek ve oturma gerçek `SitDown` animasyonuyla yapılacak.
-- [ ] **Oturma şu an kemik pozu** (yerde, dizler yukarıda: kalça −140°, diz +160°, kalça kökü −0,90 m; her karede temiz yeniden kurulur, kayma yok; `KarakterModeli.oturPozu`, kontrol: `client/scripts/oturgor.mjs`). Gerçek oturma animasyonu yok; kol pozu normal bekleme.
+- [x] **Oyuncu görünümü:** `upc_el_rm` iskeleti artık çalışıyor (sorun: bağlanma pozu 0. anahtar karesi olmalıydı — [formatlar/model.md](formatlar/model.md)); oyuncu modeli 31137 (155 animasyon). Kalan: oyuncu zırhı/silahı seçimi (look/Complete setleri), silah türüne göre saldırı/bekleme animasyonları (şimdilik kılıç: `attack_sword0_A/B`), `.n3cplug` ile silah gösterimi.
+- [x] **Oturma** artık oyunun gerçek `SitDown` / `SitDown_Breath` / `StandUp` animasyonlarıyla. Kemik pozu yalnızca bu animasyonları olmayan modeller için yedek.
 - [ ] Oturma yenilenme oranları (can %4, mana %5 / sn) ve "savaştan 4 sn sonra otur" kuralı ilk tahmin; ayarlanacak (`main.ts` sabitleri).
 - [ ] Yürüme hızı koşmanın yarısı (3,25 m/sn); orijinal oyundaki değer bilinmiyor.
 - [ ] Sohbet kutusu yalnızca yerel yankı yapıyor (sunucu yok); sekmeler (Normal/Private/Shout/Party/Knights) işlevsiz, kullanıcı listesi gizli.

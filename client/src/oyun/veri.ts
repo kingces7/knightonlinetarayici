@@ -26,7 +26,7 @@ export const CANAVARLAR: CanavarTuru[] = [
   { model: 500, ad: 'Werewolf', seviye: 8, can: 260, hasar: [12, 20], hiz: 2.8, olcek: 1, adet: 3 },
 ];
 
-export const OYUNCU_MODELI = 11610;
+export const OYUNCU_MODELI = 31137;
 
 /** Seviye atlamak için gereken deneyim. */
 export const gerekenDeneyim = (seviye: number) => 80 + seviye * seviye * 40;

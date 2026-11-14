@@ -47,13 +47,28 @@ export class KarakterModeli {
 
   var(ad: string): boolean { return this.klipler.has(ad); }
 
-  /** Animasyonu oynatır. tekrar=false ise son karede durur. Bitiş süresini (sn) döndürür. */
+  /** Özgün adı olmayan modellerde (oyuncu iskeleti) saldırı animasyonları silah türüne göre adlandırılmıştır; şimdilik kılıç (sword0). */
+  private static readonly YEDEK_AD: Record<string, string> = { saldir0: '33_attack_sword0_A', saldir1: '34_attack_sword0_B' };
+
+  /**
+   * Animasyonu oynatır. tekrar=false ise son karede durur. Bitiş süresini (sn) döndürür.
+   * Oturma animasyonları sürerken 'bekle' çağrıları yok sayılır; başka bir animasyon isteği (yürüme, darbe…) oturmayı bitirir.
+   */
   oynat(ad: string, tekrar = true, gecis = 0.15): number {
-    const klip = this.klipler.get(ad);
+    if (this.oturAsama !== 'yok') {
+      if (ad === 'bekle') return 0;
+      this.oturAsama = 'yok'; this.oturHedef = 0;
+    }
+    return this.calistir(ad, tekrar, gecis);
+  }
+
+  private calistir(ad: string, tekrar: boolean, gecis: number): number {
+    const gercek = this.klipler.has(ad) ? ad : KarakterModeli.YEDEK_AD[ad] ?? ad;
+    const klip = this.klipler.get(gercek);
     if (!klip) return 0;
     if (this.aktifAd === ad && tekrar) return klip.duration;
     const yeni = this.karistirici.clipAction(klip);
-    const hiz = this.hizlar.get(ad) ?? 1;
+    const hiz = this.hizlar.get(gercek) ?? 1;
     yeni.reset();
     yeni.setLoop(tekrar ? THREE.LoopRepeat : THREE.LoopOnce, Infinity);
     yeni.clampWhenFinished = !tekrar;
@@ -64,6 +79,11 @@ export class KarakterModeli {
     this.aktifAd = ad;
     return klip.duration / (yeni.timeScale || 1);
   }
+
+  // ---- Oturma, gerçek animasyonla: oturBasla (SitDown) → otur (SitDown_Breath, döngü) → kalk (StandUp).
+  private oturAsama: 'yok' | 'basla' | 'otur' | 'kalk' = 'yok';
+  private oturSayac = 0;
+  private get gercekOturma(): boolean { return this.klipler.has('oturBasla') && this.klipler.has('otur') && this.klipler.has('kalk'); }
 
   // ---- Oturma: modelde oturma animasyonu yok; animasyonun üstüne yerde oturma pozu (kemik açıları) uygulanır.
   // Ölçüm (scripts/oturgor.mjs): kalça −140°, diz +160° (X ekseni) → dizler yukarıda, baldır geriye eğik, ayaklar yerde; kalça kökü 0,90 m alçalır.
@@ -78,7 +98,12 @@ export class KarakterModeli {
   private static readonly EKSEN_X = new THREE.Vector3(1, 0, 0);
   private readonly oturDonus = new THREE.Quaternion();
 
-  oturPozu(aktif: boolean): void { this.oturHedef = aktif ? 1 : 0; }
+  oturPozu(aktif: boolean): void {
+    this.oturHedef = aktif ? 1 : 0;
+    if (!this.gercekOturma) return;
+    if (aktif && (this.oturAsama === 'yok' || this.oturAsama === 'kalk')) { this.oturAsama = 'basla'; this.oturSayac = this.calistir('oturBasla', false, 0.1); }
+    else if (!aktif && this.oturAsama !== 'yok' && this.oturAsama !== 'kalk') { this.oturAsama = 'kalk'; this.oturSayac = this.calistir('kalk', false, 0.1); }
+  }
   get oturuyor(): boolean { return this.oturHedef === 1; }
 
   guncelle(dt: number): void {
@@ -89,6 +114,14 @@ export class KarakterModeli {
     }
     this.kayit = null;
     this.karistirici.update(dt);
+    if (this.oturAsama !== 'yok') {
+      this.oturSayac -= dt;
+      if (this.oturSayac <= 0) {
+        if (this.oturAsama === 'basla') { this.oturAsama = 'otur'; this.calistir('otur', true, 0.1); }
+        else if (this.oturAsama === 'kalk') this.oturAsama = 'yok';
+      }
+    }
+    if (this.gercekOturma) return; // kemik pozu yalnızca oturma animasyonu olmayan modeller için
     const fark = this.oturHedef - this.oturDeger;
     if (fark !== 0) this.oturDeger += Math.sign(fark) * Math.min(Math.abs(fark), dt * 2.2); // ~0,45 sn
     if (this.oturDeger <= 0.0005) { this.oturDeger = Math.max(0, this.oturDeger); return; }

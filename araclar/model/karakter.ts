@@ -48,6 +48,8 @@ export function eklemDizisi(kok: Eklem): Eklem[] {
 
 // ---------------- .n3cskins ----------------
 export interface Deri {
+  /** Ham köşe konumu (dosyadaki ilk konum) ve bağlanma konumu (köşe başına, indekslenmemiş). */
+  ham?: { konum: Float32Array; baglanma: Float32Array };
   ad: string;
   konum: Float32Array; normal: Float32Array; uv: Float32Array; indeks: Uint32Array;
   kemik: Uint16Array; agirlik: Float32Array; // köşe başına 4
@@ -99,7 +101,7 @@ export function deriOku(b: Buffer): Deri {
     }
     indeks[i] = j;
   }
-  return { ad, konum: new Float32Array(kk), normal: new Float32Array(nn), uv: new Float32Array(uu), indeks, kemik: new Uint16Array(kb), agirlik: new Float32Array(ka) };
+  return { ham: { konum: kon, baglanma }, ad, konum: new Float32Array(kk), normal: new Float32Array(nn), uv: new Float32Array(uu), indeks, kemik: new Uint16Array(kb), agirlik: new Float32Array(ka) };
 }
 
 // ---------------- .n3cpart ----------------

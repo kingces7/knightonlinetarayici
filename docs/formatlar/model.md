@@ -136,6 +136,8 @@ metin ad, vec3 konum, quat dönüş, vec3 ölçek
 4 × animasyon anahtarı (konum vec3, dönüş quat, ölçek vec3, yönelim quat) — oran = anahtar/saniye
 int32 çocuk_sayısı, çocuklar (aynı yapı)
 ```
+**Bağlanma (bind) pozu = anahtar dizisinin 0. karesi** (başlıktaki konum/dönüş değil). NPC iskeletlerinde ikisi aynıdır; oyuncu iskeleti `upc_el_rm`de başlıkta kollar aşağıdadır, deri ise 0. karedeki T-pozda modellenmiştir (deri köşeleri X ±0,87 m yayılır; 0. kare FK ile bileği yana açık verir). Başlık pozu kullanılırsa animasyonlar "T-poz, hareket yok" gibi görünür. Ayrıca `upc_el_rm`de anahtar hızı 15/sn, `.n3anim` kareleri ise 30/sn birimindedir (kare/2 = anahtar indeksi; animasyon sınırları anahtar sıçramalarıyla doğrulandı). Kod: `araclar/model/karakterGlb.ts` → `baglanmaPozu`.
+
 **`.n3cpart`**: `metin ad, int32, malzeme(92), metin doku, metin .n3cskins`
 
 **`.n3cskins`** (deri, 3 ayrıntı seviyesi art arda):

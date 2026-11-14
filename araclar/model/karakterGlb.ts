@@ -68,6 +68,16 @@ function ters(m: M4): M4 {
 const kT = (t: number[]) => [t[0], t[1], -t[2]];
 const kQ = (q: number[]) => [-q[0], -q[1], q[2], q[3]];
 
+/**
+ * Derinin bağlandığı (bind) poz: anahtar dizisinin 0. karesi. Başlıktaki poz (e.konum/e.donus) çoğu NPC iskeletinde buna eşittir,
+ * ama oyuncu iskeletlerinde (upc_el_rm) başlıkta kollar aşağıdadır, deri ise 0. karedeki T-pozda modellenmiştir (kanıt: docs/formatlar/model.md).
+ */
+function baglanmaPozu(e: Eklem): { konum: [number, number, number]; donus: [number, number, number, number]; olcek: [number, number, number] } {
+  const ilk = (k: { deger: Float32Array; bilesen: number } | null) => (k && k.deger.length >= k.bilesen ? Array.from(k.deger.subarray(0, k.bilesen)) : null);
+  const k = ilk(e.kKonum), d = ilk(e.kDonus), o = ilk(e.kOlcek);
+  return { konum: (k ?? e.konum) as [number, number, number], donus: (d ?? e.donus) as [number, number, number, number], olcek: (o ?? e.olcek) as [number, number, number] };
+}
+
 export interface KarakterTanimi { ad: string; iskelet: string; animasyon: string; parcalar: string[] }
 export interface KarakterRaporu {
   kemik: number; parca: number; animasyonlar: string[]; boyut: number;
@@ -83,9 +93,10 @@ export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer
   const dugumNo = new Map<Eklem, number>();
   const dunya = new Map<Eklem, M4>();
   const kur = (e: Eklem, ebeveyn: M4 | null): number => {
-    const yerel = trs(kT(e.konum), kQ(e.donus), e.olcek);
+    const b = baglanmaPozu(e);
+    const yerel = trs(kT(b.konum), kQ(b.donus), b.olcek);
     dunya.set(e, ebeveyn ? carp(ebeveyn, yerel) : yerel);
-    const no = g.dugum({ ad: e.ad, konum: e.konum, donus: e.donus, olcek: e.olcek });
+    const no = g.dugum({ ad: e.ad, konum: b.konum, donus: b.donus, olcek: b.olcek });
     dugumNo.set(e, no);
     const cocuklar = e.cocuklar.map((c) => kur(c, dunya.get(e)!));
     if (cocuklar.length) (g.json.nodes[no] as Record<string, unknown>).children = cocuklar;
