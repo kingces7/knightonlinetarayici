@@ -292,7 +292,9 @@ export class Oyuncu extends Varlik {
     this.can = this.enCok = 120;
   }
 
+  modelNo = 0;
   async modelYukle(no: number): Promise<void> {
+    this.modelNo = no;
     this.model = await KarakterModeli.olustur(`/karakter/${no}.glb`);
     this.grup.add(this.model.kok);
     this.model.oynat('bekle');

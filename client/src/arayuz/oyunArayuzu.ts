@@ -3,6 +3,7 @@
 //   Üstte HP/MP/EXP çubuğu (re_el_hpbar), altta görev çubuğu (re_el_taskbar_main).
 // Pencere düzenleri ve dokular araclar/arayuz ile oyunun kendi dosyalarından çıkarılır (docs/formatlar/uif.md).
 import { UiPencere } from './orijinal';
+import { KarakterOnizleme } from './karakterOnizleme';
 import type { Oyuncu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
@@ -42,6 +43,7 @@ export class OyunArayuzu {
   private cubuk!: UiPencere;
   private cubukBeceri: (number | null)[] = new Array(8).fill(null);
   private cubukImza = '';
+  private onizleme: KarakterOnizleme | null = null;
   private sohbetGiris!: HTMLInputElement;
   private pencereler = {} as Record<Ad, UiPencere>;
   private acik = new Set<Ad>();
@@ -335,6 +337,9 @@ export class OyunArayuzu {
     const p = this.pencereler.envanter;
     p.gizleDesen(/(Destroy|_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^btn_gold$|^base_(inven_notice|bag|LockImg|cos)$)/);
     for (let i = 28; i <= 39; i++) p.goster(String(i), false);
+    // Karakter alanı: animasyonlu oyuncu önizlemesi
+    const kap = p.bul('area_char')[0];
+    if (kap && this.b.oyuncu.modelNo) { this.onizleme = new KarakterOnizleme(kap, this.b.oyuncu.modelNo); void this.onizleme.baslat(); }
   }
 
   /** Çanta yuvaları: kutunun alt yarısındaki 28 alan (kimlik 0..27); ekipman alanları üstte. */
@@ -383,6 +388,6 @@ export class OyunArayuzu {
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
-    if (this.acik.has('envanter')) this.envanterCiz();
+    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt); }
   }
 }

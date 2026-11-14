@@ -67,8 +67,13 @@ Bilinmeyenler (bulunca işaretle):
 - [x] **Oyuncu kuralları orijinale çevrildi:** deneyim eğrisi (sunucu `LEVEL_UP`), başlangıç statüleri/puanı (`NewChrValue.tbl`), can/mana formülü ve seviye atlama (sunucu kaynağı). Ayrıntı: [istemci-kodu.md](istemci-kodu.md).
 - [x] **Savaş formülleri sunucudan:** normal vuruş, canavar vuruşu, isabet tablosu, silah gecikmesi, canavar değerleri (`K_MONSTER`), deneyim ödülü — [istemci-kodu.md](istemci-kodu.md). Kritik vuruş ve eski uydurma formüller kaldırıldı.
 - [ ] **Hâlâ tahmin olanlar:** canavar yürüme/koşma hızları (`bySpeed1/2` birimi), canavar yerleşimi (`K_NPCPOS1098` konumları; şimdi başlangıç çevresine halka), altın/eşya düşme kuralları (`K_MONSTER_ITEM`, `iMoney`), oturunca yenilenme oranı, normal HP/MP yenilenmesi (sunucu), saldırı menzili.
-- [ ] **Başlangıç eşyaları:** `NewChrValue.tbl` sütunları 10-14 (ör. 206001000…) karakterin başlangıçta giydiği eşyalar; şimdi oyuncu silahsız/zırhsız başlıyor.
-- [ ] **Skill kullanımı** (`Skill_Magic_*` + sunucu `MagicInstance.cpp`): MP harcama, hasar, etki.
+- [x] **Başlangıç eşyaları** (`NewChrValue.tbl`): Hepa's Exceptional Raptor + 5 parça Chitin Shell zırhı artık ekipmanda; tam ekipman yuvaları (15) ve çıkarma (yuvaya tıkla). Kalan: eşyaların karakter modelinde görünmesi; eşya eklenti kodları (numaranın son 3 hanesi: 048); sol el/yüzük/küpe gibi yuvalar için eşya yok.
+- [x] **Skill çubuğu ve skill kullanımı:** `re_el_hotkey` penceresi (1-8 tuşları, skill penceresinden sürükle-bırak, sağ tık siler, çift tıkla skill kullan, bekleme sayacı); sunucu kuralları: MP harcama, tekrar kullanım (ReCastTime×90 ms), Type1 hasar (ıskalamaz), Type4 buff (Sprint hızı, Defense savunması, süre).
+- [ ] **Skill eksikleri:** skill efektleri (`fx.tbl`, `.fxb`) ve sesleri yok; skill animasyonları gerçeği bilinmiyor (şimdi saldırı/`magic_heal` kullanılıyor, `MAGIC.t_1` alanı anlamı); aktif buff simgesi yok (yalnızca sohbet mesajı); silah min/maks hasarının skill'e eklenmesi; diğer sınıfların skill sayfaları ve skill puanı harcama; menzil kontrolü sunucuda kapalı (biz yakın dövüş menzili kullanıyoruz).
+- [x] Statü sıfırlama (`btn_reset_stat`): harcanan puanları geri verir (ücretsiz). Sunucuda eşya/altın gerekebilir, bakılacak.
+- [x] Karar: yeni karakter **0 serbest statü puanıyla** başlar (sunucu NewChrValue 10 puan verir; kullanıcı kararıyla kaldırıldı). Seviye atlayınca 3 puan (60'tan sonra 5).
+- [x] W+A / W+D basılıyken 360° sürekli dönüş (direksiyon); tuş bırakılınca yön korunur.
+- [x] Envanterde karakter alanında animasyonlu oyuncu önizlemesi (sürükleyerek döner). Kalan: giyilen eşyaların önizlemede görünmesi.
 - [ ] `Data/DefaultCamera.N3Camera` (453 bayt) ve `Zones/Camera/*.n3camera` okuyucusu: kamera ayarlarını orijinalden al.
 - [ ] **Yöntem 3** (paket açma + tersine mühendislik) — yalnızca gerekirse, kullanıcıya sorarak
 
