@@ -278,6 +278,26 @@ const ACIKLAMA =
 const hex = (b: Uint8Array) => Buffer.from(b).toString('hex');
 const hexten = (s: string) => Uint8Array.from(Buffer.from(s ?? '', 'hex'));
 
+const META_ACIKLAMA =
+  'Bu dosya aynı addaki .csv tablosunun geri yazılması için gereken bilgileri tutar. DEĞİŞTİRMEYİN. ' +
+  'Düzenleme .csv dosyasında yapılır. Geri çevirmek için: npm run tbl-yaz -- <tablo.csv>';
+
+/** CSV'nin yanında duran, satırlar dışındaki her şeyi tutan bilgi dosyası. */
+export function metaOlustur(t: Tablo, kaynak: string, ks: KodSayfasi): Omit<TabloJson, 'satirlar'> {
+  return {
+    _aciklama: META_ACIKLAMA,
+    bicimSurumu: 1,
+    kaynak,
+    sifreleme: t.sifreleme,
+    kodSayfasi: ks,
+    onek: hex(t.onek),
+    sutunTurleri: t.sutunTurleri,
+    satirSayisi: t.satirlar.length,
+    artik: hex(t.artik),
+    kuyruk: hex(t.kuyruk),
+  };
+}
+
 export function jsonaCevir(t: Tablo, kaynak: string, ks: KodSayfasi): string {
   const ust: Omit<TabloJson, 'satirlar'> & { satirlar?: unknown } = {
     _aciklama: ACIKLAMA,

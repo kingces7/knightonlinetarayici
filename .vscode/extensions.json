@@ -1,0 +1,5 @@
+{
+  // Bu projede önerilen VS Code eklentileri.
+  // Edit CSV: tablo (.csv) dosyalarını Excel benzeri bir ızgarada düzenlemek için.
+  "recommendations": ["janisdd.vscode-edit-csv"]
+}

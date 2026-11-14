@@ -23,6 +23,12 @@ değiştirilmeden kullanılacak.
 - Proje **bu bilgisayarda** geliştirilir. GitHub yedek ve bulut oturumu ile paylaşım içindir.
 - **Tam kontrol hedefi:** Oyunun okunamayan bütün dosya türleri için "çöz + geri yaz" aracı yapılacak
   (kayıpsız, testli). Güncel durum ve sıra: `docs/formatlar/README.md`.
+- **Oyun içeriği İngilizce.** Eşya, harita, NPC, skill adları orijinal İngilizce halleriyle kalır
+  (ör. "Raptor", "Iron Bow", "Moradon", "Luferson"); çevrilmez. Client `_us` tablolarını kullanır,
+  `_tk`/`_tr` tabloları kullanılmaz. Arayüzdeki konuşma dili (kullanıcıyla iletişim) Türkçe kalır.
+- **Tablolar CSV olarak düzenlenir** (VS Code + "Edit CSV" eklentisi; bilgisayarda Excel yok).
+- **Yapılacaklar listesi: `docs/YAPILACAKLAR.md`.** "Sonra bakılacak" her konu, açık soru ve
+  kullanıcı kararı bekleyen iş buraya eklenir; biten iş `[x]` yapılır.
 
 ## Kesin kurallar
 1. **Orijinal oyun dosyaları asla depoya girmez.** Oyun dosyaları depo klasörünün **dışında**,

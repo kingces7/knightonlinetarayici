@@ -1,7 +1,7 @@
 # `.tbl` — Oyun tabloları
 
-Durum: ✅ **Çözüldü.** Okunuyor, JSON'a çevriliyor, düzenlenip geri yazılabiliyor.
-Araç: [`araclar/tbl/`](../../araclar/tbl/). 246 tablonun 244'ü çöz → JSON → geri yaz sonrası
+Durum: ✅ **Çözüldü.** Okunuyor, CSV/JSON'a çevriliyor, düzenlenip geri yazılabiliyor.
+Araç: [`araclar/tbl/`](../../araclar/tbl/). 246 tablonun 244'ü çöz → CSV/JSON → geri yaz sonrası
 orijinaliyle **bayt bayt aynı** (`npm run tbl-dogrula`).
 
 ## Nasıl kullanılır
@@ -10,11 +10,24 @@ orijinaliyle **bayt bayt aynı** (`npm run tbl-dogrula`).
 
 | Komut | Ne yapar |
 |---|---|
-| `npm run tbl-coz` | Oyundaki bütün `.tbl` dosyalarını `donusturulmus/tablolar/` altına JSON olarak yazar |
+| `npm run tbl-coz` | Bütün `.tbl` dosyalarını `donusturulmus/tablolar/` altına **CSV + `.meta.json`** olarak yazar |
+| `npm run tbl-coz -- --json` | CSV yerine tek parça JSON üretir |
 | `npm run tbl-coz -- Data/Zones.tbl` | Sadece verilen tabloyu çevirir |
-| `npm run tbl-yaz -- <dosya.json>` | Düzenlenmiş JSON'u `.tbl` yapar → `donusturulmus/tablolar-tbl/` |
-| `npm run tbl-dogrula` | Her tabloyu çöz + geri yaz, orijinaliyle karşılaştır |
+| `npm run tbl-yaz -- <tablo.csv \| tablo.json>` | Düzenlenmiş tabloyu `.tbl` yapar → `donusturulmus/tablolar-tbl/` |
+| `npm run tbl-dogrula` | Her tabloyu çöz + (JSON ve CSV üzerinden) geri yaz, orijinaliyle karşılaştır |
 | `npm test` | Testler |
+
+### Düzenleme (CSV)
+1. VS Code'da `donusturulmus/tablolar/Data/…csv` dosyasını açın.
+2. Sağ üstteki **"Edit as csv"** düğmesine (veya Ctrl+Shift+P → "Edit as csv") basın; tablo ızgara olarak açılır.
+3. Hücreleri değiştirin, satır ekleyin/silin, **Apply and save** ile kaydedin. Sütun eklemeyin/silmeyin.
+4. Aynı addaki `.meta.json` dosyasına dokunmayın; geri yazım için gerekli.
+
+İlk satır başlıktır: `1:DWORD,2:STRING,…` (sütun sırası:türü). Ondalık ayracı noktadır.
+
+### Kod sayfası (metinler)
+Oyun İngilizce olduğu için tablolar `windows-1252` ile açılır; sadece `_tk`/`_tr` tabloları `windows-1254`
+(Türkçe) ile açılır. Seçilen kod sayfası `.meta.json` içine yazılır ve geri yazımda aynısı kullanılır.
 
 Araç orijinal oyun klasörüne (`KnightEmpire/`) **yazmayı reddeder**. Üretilen `.tbl` dosyasını
 oyuna koymak bilinçli olarak elle yapılır.
@@ -86,7 +99,7 @@ satırlar         her satırda N değer, türüne göre art arda
 - 10 (INT64) eski kaynak kodda yok; `Player_experience.tbl`, `Quest_Helper*.tbl`, `SpecialAuction_us.tbl` vb. kullanıyor.
 - İlk sütun her zaman satırın kimliğidir (ID, DWORD). Oyun aynı ID'nin sadece ilkini kullanır.
   (Not: orijinal `Item_Org_us.tbl` içinde de tekrar eden birkaç ID var.)
-- Metinler tek baytlık kod sayfasıyla yazılır. Varsayılan `windows-1254` (Türkçe). Her bayt bir karaktere
+- Metinler tek baytlık kod sayfasıyla yazılır. Varsayılan `windows-1252` (İngilizce), `_tk`/`_tr` için `windows-1254`. Her bayt bir karaktere
   karşılık geldiği için hiçbir bilgi kaybolmaz. Eski Korece metinler (EUC-KR) bozuk görünür ama aynen geri yazılır.
 
 ## JSON dosyası
@@ -97,7 +110,7 @@ satırlar         her satırda N değer, türüne göre art arda
   "bicimSurumu": 1,
   "kaynak": "Data/ACHIEVE_com.tbl",
   "sifreleme": "usko-cift",
-  "kodSayfasi": "windows-1254",
+  "kodSayfasi": "windows-1252",
   "onek": "a54e000707",
   "sutunTurleri": ["DWORD", "BYTE", "INT", "INT"],
   "satirSayisi": 68,

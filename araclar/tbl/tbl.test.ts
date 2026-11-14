@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { OYUN_DIZINI } from '../ortak/yollar.ts';
-import { jsonaCevir, jsondanOku, tbldenOku, tblyeYaz, type Tablo } from './tablo.ts';
+import { jsonaCevir, jsondanOku, metaOlustur, tbldenOku, tblyeYaz, type Tablo } from './tablo.ts';
+import { csvdenTablo, csvyeCevir } from './csv.ts';
+import { varsayilanKodSayfasi } from './kodlama.ts';
 import { desCoz, desSifrele } from './des.ts';
 import type { SifreTuru } from './sifreleme.ts';
 
@@ -54,6 +56,28 @@ test('JSON üzerinde yapılan değişiklik .tbl dosyasına işlenir', () => {
   assert.equal(yeni.satirlar[3][6], 'Eklenen satır');
 });
 
+test('CSV: tırnak, virgül ve satır sonu içeren metinler kayıpsız gidip gelir', () => {
+  const t = ornekTablo('usko-cift');
+  t.satirlar[1][6] = 'virgül, "tırnak"\r\nyeni satır ';
+  const meta = JSON.parse(JSON.stringify(metaOlustur(t, 'deneme.tbl', KS)));
+  const { tablo } = csvdenTablo(csvyeCevir(t), meta);
+  assert.deepEqual(Buffer.from(tblyeYaz(tablo, KS)), Buffer.from(tblyeYaz(t, KS)));
+});
+
+test('CSV: düzenleme işlenir, yanlış sütun sayısı reddedilir', () => {
+  const t = ornekTablo('xor-eski');
+  const meta = JSON.parse(JSON.stringify(metaOlustur(t, 'deneme.tbl', KS)));
+  const csv = csvyeCevir(t).replace('Sarı Ejderhanın Kükremesi', 'Iron Bow');
+  assert.equal(csvdenTablo(csv, meta).tablo.satirlar[0][6], 'Iron Bow');
+  assert.throws(() => csvdenTablo(csv.replace('\n1,', '\n1,9,'), meta), /CSV satır 2/);
+});
+
+test('kod sayfası: İngilizce tablolar 1252, Türkçe tablolar 1254', () => {
+  assert.equal(varsayilanKodSayfasi('Data/Item_Org_us.tbl'), 'windows-1252');
+  assert.equal(varsayilanKodSayfasi('Data/Item_Org_tk.tbl'), 'windows-1254');
+  assert.equal(varsayilanKodSayfasi('Zones/Zones.tbl'), 'windows-1252');
+});
+
 test('hatalı değer anlaşılır bir hata verir', () => {
   const t = ornekTablo('xor-eski');
   t.satirlar[0][2] = 300; // BYTE en fazla 255
@@ -84,6 +108,12 @@ test('gerçek: ACHIEVE_com.tbl (çift şifre) beklenen yapıda', { skip: !oyunVa
 test('gerçek: Player_experience.tbl INT64 sütunu içerir', { skip: !oyunVar && 'oyun klasörü yok' }, () => {
   const t = tbldenOku(oku('Data/Player_experience.tbl'), KS);
   assert.ok(t.sutunTurleri.includes('INT64'));
+});
+
+test('gerçek: Item_Org_us.tbl İngilizce adları içerir (Raptor, Iron Bow)', { skip: !oyunVar && 'oyun klasörü yok' }, () => {
+  const t = tbldenOku(oku('Data/Item_Org_us.tbl'), 'windows-1252');
+  const adlar = new Set(t.satirlar.flat());
+  assert.ok(adlar.has('Raptor') && adlar.has('Iron Bow'));
 });
 
 test('gerçek: npcs.tbl eski XOR, MOB.tbl 0x0418 XOR ile açılır', { skip: !oyunVar && 'oyun klasörü yok' }, () => {

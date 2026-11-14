@@ -1,9 +1,15 @@
 // Tablolardaki metinler tek baytlık Windows kod sayfasıyla yazılmıştır.
 // Burada her bayt tam olarak bir karaktere karşılık gelir (256 ↔ 256), böylece
 // "çöz → düzenle → geri yaz" sırasında hiçbir bayt kaybolmaz.
-// Varsayılan kod sayfası windows-1254 (Türkçe); İngilizce metinler de aynı şekilde görünür.
+// Oyun İngilizce olacak: varsayılan windows-1252. Sadece Türkçe tablolar (_tk, _tr) windows-1254 ile açılır.
+// Not: tablolardaki Korece iç adlar (EUC-KR) her iki kod sayfasında da anlamsız görünür ama bayt bayt korunur.
 
 export type KodSayfasi = 'windows-1254' | 'windows-1252' | 'windows-1250' | 'windows-1251';
+
+/** Dosya adına göre uygun kod sayfası. */
+export function varsayilanKodSayfasi(dosyaAdi: string): KodSayfasi {
+  return /_(tk|tr)\.[^.]+$/i.test(dosyaAdi) ? 'windows-1254' : 'windows-1252';
+}
 
 interface Tablolar { baytToKar: string[]; karToBayt: Map<string, number> }
 const onbellek = new Map<KodSayfasi, Tablolar>();
