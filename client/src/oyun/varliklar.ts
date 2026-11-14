@@ -189,6 +189,29 @@ export class Canavar extends Varlik {
   }
 }
 
+// ---------------------------------------------------------------- NPC
+/** Sunucu veritabanından (K_NPCPOS + K_NPC) gelen dost NPC. Konumlar araclar/sunucu/npc-disa-aktar.ps1 ile dışa aktarılır. */
+export interface NpcTanimi { sid: number; ad: string; x: number; z: number; yon: number; model: number; boyut: number; tur: number; satis: number }
+
+export class Npc extends Varlik {
+  readonly tanim: NpcTanimi;
+  constructor(t: NpcTanimi) {
+    super(0.7, 1.9);
+    this.tanim = t;
+    this.konum.set(t.x, t.z);
+    this.yaricap = 0.5;
+    this.can = this.enCok = 1;
+    this.yon = -(t.yon * Math.PI) / 180 + YON_OFSET; // Knight Online yön açısı (derece); yönün yönü kabaca, ince ayar gerekirse burada
+  }
+  get ad(): string { return this.tanim.ad; }
+  async modelYukle(): Promise<void> {
+    this.model = await KarakterModeli.olustur(`/karakter/${this.tanim.model}.glb`);
+    this.model.kok.scale.setScalar(this.tanim.boyut / 100);
+    this.grup.add(this.model.kok);
+    this.model.oynat('bekle');
+  }
+}
+
 // ---------------------------------------------------------------- Oyuncu
 export class Oyuncu extends Varlik {
   seviye = 1;

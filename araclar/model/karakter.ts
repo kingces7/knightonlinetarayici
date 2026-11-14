@@ -138,3 +138,33 @@ export function animOku(b: Buffer): Animasyon[] {
   }
   return liste;
 }
+
+// ---------------- .n3chr ----------------
+/**
+ * `.n3chr`: bir karakterin "montaj" dosyası. NPC_Looks'ta parça sütunları boşsa ve yerine `.n3chr` yazıyorsa,
+ * gerçek parça listesi bunun içindedir.
+ *   metin ad, dönüşüm başlığı (konum, dönüş, ölçek, anahtar sayıları — sabit boyutlu, burada gerekmez)
+ *   metin iskelet (.n3joint), int32 parça sayısı, parça sayısı × metin (.n3cpart), int32 (0), metin animasyon (.n3anim), …
+ * Başlığın boyu dosyadan dosyaya sabit görünmediği için iskelet adı "uzunluk + .n3joint ile biten metin" örüntüsüyle bulunur.
+ */
+export interface Chr { ad: string; iskelet: string; parcalar: string[]; animasyon: string }
+
+export function chrOku(b: Buffer): Chr {
+  const ad = b.readInt32LE(0) > 0 && b.readInt32LE(0) < 256 ? b.toString('latin1', 4, 4 + b.readInt32LE(0)) : '';
+  for (let o = 4; o + 12 < b.length; o++) {
+    const uz = b.readInt32LE(o);
+    if (uz < 8 || uz > 260 || o + 4 + uz + 4 > b.length) continue;
+    const yol = b.toString('latin1', o + 4, o + 4 + uz);
+    if (!/\.n3joint$/i.test(yol) || /[^\x20-\x7e]/.test(yol)) continue;
+    const r = new Okuyucu(b, o + 4 + uz);
+    const n = r.i32();
+    if (n < 0 || n > 32) continue;
+    const parcalar: string[] = [];
+    for (let i = 0; i < n; i++) parcalar.push(r.str(260));
+    let animasyon = '';
+    try { r.i32(); animasyon = r.str(260); } catch { /* animasyon adı yok */ }
+    if (!/\.n3anim$/i.test(animasyon)) animasyon = '';
+    return { ad, iskelet: yol, parcalar, animasyon };
+  }
+  throw new Error('.n3chr: iskelet adı bulunamadı');
+}

@@ -8,6 +8,7 @@ import { CIKTI_DIZINI } from '../ortak/yollar.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { tbldenOku } from '../tbl/tablo.ts';
 import { karakterGlb } from './karakterGlb.ts';
+import { chrOku } from './karakter.ts';
 
 function tablo(od: OyunDosyalari, yol: string) {
   return tbldenOku(od.oku(yol), 'windows-1252').satirlar;
@@ -37,7 +38,9 @@ function main(argv: string[]): number {
     const s = gorunum.get(no);
     if (!s) { console.log(`! ${a}: NPC_Looks içinde yok`); continue; }
     const ad = adlar.get(no) ?? `npc_${no}`;
-    const { glb, rapor } = karakterGlb(od, { ad, iskelet: String(s[2]), animasyon: String(s[3]), parcalar: s.slice(4, 17).map(String) });
+    // Parça sütununda .n3chr varsa gerçek parçalar onun içindedir.
+    const parcalar = s.slice(4, 17).map(String).flatMap((p) => p.toLowerCase().endsWith(".n3chr") ? chrOku(od.oku(p)).parcalar : [p]);
+    const { glb, rapor } = karakterGlb(od, { ad, iskelet: String(s[2]), animasyon: String(s[3]), parcalar });
     fs.writeFileSync(path.join(hedef, `${no}.glb`), glb);
     dizin[no] = { ad, dosya: `${no}.glb`, animasyonlar: rapor.animBilgi };
     console.log(`${no} ${ad}: ${rapor.kemik} kemik, ${rapor.parca} parça, ${rapor.animasyonlar.length} animasyon (${rapor.animasyonlar.slice(0, 8).join(', ')}…), ${(rapor.boyut / 1024).toFixed(0)} KB`);

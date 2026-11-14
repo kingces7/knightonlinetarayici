@@ -119,6 +119,14 @@ Kanıtlar: (1) çökme kayıtlarının toplamı tam köşe ve indeks sayısına 
 3, +1, +3 köşe ekliyor; (3) ölçüm: Moradon'un 1091 modelinde kullanılmayan köşe 7599 → 0, UV'si çökmüş yüzey %18,6 → %0,18
 (eski Moradon: 2654 → 0, %14,6 → %0,49). Test: `araclar/model/pmesh.test.ts`.
 
+## `.n3chr` — karakter montaj dosyası ✅
+NPC_Looks'ta parça sütunları boşsa ve yerine `.n3chr` yazıyorsa gerçek parça listesi bunun içindedir (çoğu NPC: Moradon esnafı).
+```
+metin ad, dönüşüm başlığı (konum, dönüş, ölçek, anahtar sayıları)
+metin iskelet (.n3joint), int32 parça_sayısı, parça_sayısı × metin (.n3cpart), int32 (0), metin animasyon (.n3anim) …
+```
+İskelet adı "uzunluk + .n3joint ile biten metin" örüntüsüyle bulunur. Kod: `araclar/model/karakter.ts` → `chrOku`, test `chr.test.ts`.
+
 ## Karakter / canavar ✅
 `NPC_Looks.tbl` her model için: iskelet (.n3joint), animasyon (.n3anim), 13 parça (.n3cpart).
 

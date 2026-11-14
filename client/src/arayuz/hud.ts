@@ -2,7 +2,7 @@
 // Oyun içeriği İngilizce olduğu için arayüz yazıları da İngilizce.
 import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
-import type { Canavar, GanimetKutusu, Oyuncu } from '../oyun/varliklar';
+import type { Canavar, GanimetKutusu, Npc, Oyuncu } from '../oyun/varliklar';
 
 const $ = <T extends HTMLElement>(html: string): T => {
   const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild as T;
@@ -29,6 +29,7 @@ export class Hud {
   private yardim = $<HTMLDivElement>(`<div class="yardim">WASD / Left click: move · Click monster: attack · Right drag: camera · Wheel: zoom · Tab: next target · I: inventory</div>`);
   private etiketler = document.createElement('div');
   private etiketHaritasi = new Map<Canavar, HTMLDivElement>();
+  private npcEtiketHaritasi = new Map<Npc, HTMLDivElement>();
 
   /** Ganimet penceresinde "al" tıklanınca çağrılır. */
   ganimetAl: (kutu: GanimetKutusu, i: number | 'altin' | 'hepsi') => void = () => {};
@@ -129,6 +130,21 @@ export class Hud {
   }
 
   /** Canavarların üstündeki ad ve can çubukları (ekrana izdüşüm). */
+  /** NPC isim etiketleri (can çubuğu yok). */
+  npcEtiketGuncelle(npcler: Npc[], izdusum: (n: Npc) => { x: number; y: number; gorunur: boolean }): void {
+    for (const n of npcler) {
+      let el = this.npcEtiketHaritasi.get(n);
+      if (!el) {
+        el = $<HTMLDivElement>('<div class="etiket npc"><span></span></div>');
+        el.querySelector('span')!.textContent = n.ad;
+        this.etiketler.appendChild(el); this.npcEtiketHaritasi.set(n, el);
+      }
+      const p = izdusum(n);
+      el.style.display = p.gorunur ? '' : 'none';
+      if (p.gorunur) el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%)`;
+    }
+  }
+
   etiketGuncelle(canavarlar: Canavar[], izdusum: (c: Canavar) => { x: number; y: number; gorunur: boolean }, hedef: Canavar | null): void {
     for (const c of canavarlar) {
       let el = this.etiketHaritasi.get(c);

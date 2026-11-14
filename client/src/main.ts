@@ -5,7 +5,7 @@ import { nesneleriYukle } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
-import { Canavar, GanimetKutusu, Oyuncu, Varlik } from './oyun/varliklar';
+import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { CANAVARLAR, OYUNCU_MODELI, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
 
@@ -64,6 +64,18 @@ async function basla(): Promise<void> {
   }
   const kutular: GanimetKutusu[] = [];
 
+  // NPC'ler: sunucu veritabanından dışa aktarılan npc.json (yoksa NPC olmaz)
+  const npcler: Npc[] = [];
+  try {
+    const yanit = await fetch(`/harita/${HARITA}/npc.json`);
+    const tanimlar = ((await yanit.json()) as { npc: NpcTanimi[] }).npc;
+    await Promise.all(tanimlar.map(async (t) => {
+      const n = new Npc(t);
+      try { await n.modelYukle(); } catch (e) { console.warn('NPC modeli yüklenemedi', t.ad, t.model, e); return; }
+      sahne.add(n.grup); npcler.push(n);
+    }));
+  } catch { /* bu haritada NPC verisi yok */ }
+
   const kamera = new TakipKamerasi(tuval);
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
@@ -121,6 +133,13 @@ async function basla(): Promise<void> {
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
+    const npcVurus = isin.intersectObjects(npcler.map((n) => n.secimKutusu))[0];
+    if (npcVurus) {
+      const n = npcler.find((x) => x.secimKutusu === npcVurus.object)!;
+      oyuncu.hedef = null; oyuncu.yuruHedef = n.konum.clone(); acilacakKutu = null;
+      hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
+      return;
+    }
     const kutuVurus = isin.intersectObjects(kutular.map((k) => k.secimKutusu))[0];
     if (kutuVurus) {
       const k = kutular.find((x) => x.secimKutusu === kutuVurus.object)!;
@@ -249,10 +268,12 @@ async function basla(): Promise<void> {
     }
   };
 
-  const izdusum = (c: Canavar) => {
-    const p = c.grup.position.clone(); p.y += 2.3 * c.tur.olcek;
+  const npcleriGuncelle = (dt: number) => { for (const n of npcler) { n.model?.guncelle(dt); n.sahneyeYerlestir(arazi); } };
+
+  const izdusum = (c: Canavar | Npc) => {
+    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : 2.3 * c.tur.olcek;
     const ekran = p.project(kamera.kamera);
-    return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < 45 };
+    return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
   };
 
   const saat = new THREE.Clock();
@@ -261,13 +282,15 @@ async function basla(): Promise<void> {
     const dt = Math.min(saat.getDelta(), 0.1);
     oyuncuGuncelle(dt);
     canavarlariGuncelle(dt);
+    npcleriGuncelle(dt);
     oyuncu.sahneyeYerlestir(arazi);
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z));
     hud.guncelle(oyuncu, oyuncu.hedef);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
+    hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });
