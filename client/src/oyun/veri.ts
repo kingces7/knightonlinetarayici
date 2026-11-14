@@ -3,7 +3,7 @@
 
 export interface EsyaTanimi {
   no: number; ad: string; aciklama: string; simge: string;
-  tur: 'silah' | 'zirh'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
+  tur: 'silah' | 'zirh'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
 }
 
 export interface CanavarTuru {
@@ -52,9 +52,12 @@ export interface OyuncuKurallari {
   katsayi: Record<string, { hp: number; mp: number; sp: number; ac: number; isabet: number; kacis: number; kisaKilic: number; jamadar: number; kilic: number; balta: number; sopa: number; mizrak: number; mace: number; asa: number; yay: number }>;
   hasarAyar: { mondef: number; canavarHasarCarpani: number; rdamage: number };
   canavar: { sid: number; ad: string; model: number; boyut: number; seviye: number; hp: number; ac: number; isabet: number; kacis: number; hasar: number; gecikme: number; exp: number; para: number; adet: number }[];
-  yeniKarakter: Record<string, { ad: string; str: number; sta: number; dex: number; int: number; cha: number; puan: number }>;
+  yeniKarakter: Record<string, { ad: string; str: number; sta: number; dex: number; int: number; cha: number; puan: number; esyalar: number[] }>;
 }
 export let kurallar: OyuncuKurallari | null = null;
+/** Yeni karakter satırı (NewChrValue.tbl): 110201 = Human Warrior. */
+export const YENI_KARAKTER = '110201';
+export const esyaBul = (no: number): EsyaTanimi | undefined => esyalar.find((e) => e.no === no);
 export async function kurallariYukle(): Promise<void> {
   try { kurallar = await (await fetch('/oyun/oyuncu.json')).json() as OyuncuKurallari; } catch { kurallar = null; }
 }
@@ -76,8 +79,9 @@ export async function esyalariYukle(): Promise<EsyaTanimi[]> {
 /** Canavar seviyesine göre ganimet: altın + 0-2 eşya (ucuz eşyalar daha sık). */
 export function ganimetUret(seviye: number): { altin: number; esyalar: EsyaTanimi[] } {
   const altin = rastgeleTam(5 * seviye, 18 * seviye);
-  const uygun = esyalar.filter((e) => e.fiyat <= 1500 * seviye * seviye);
-  const havuz = uygun.length ? uygun : esyalar;
+  const adaylar = esyalar.filter((e) => !e.baslangic);
+  const uygun = adaylar.filter((e) => e.fiyat <= 1500 * seviye * seviye);
+  const havuz = uygun.length ? uygun : adaylar;
   const sonuc: EsyaTanimi[] = [];
   const adet = Math.random() < 0.55 ? 1 : Math.random() < 0.4 ? 2 : 0;
   for (let i = 0; i < adet && havuz.length; i++) sonuc.push(havuz[Math.floor(Math.random() * havuz.length)]);

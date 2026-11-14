@@ -55,6 +55,7 @@ async function basla(): Promise<void> {
   const hud = new Hud();
   const oyuncu = new Oyuncu();
   oyuncu.kurallariUygula();
+  oyuncu.baslangicEsyalariVer();
   Varlik.arazi = arazi;
   const baslangic = new THREE.Vector2(...(ayar.baslangic ?? [arazi.genislik / 2, arazi.genislik / 2]));
   oyuncu.isinla(baslangic.x, baslangic.y, arazi);
@@ -107,6 +108,7 @@ async function basla(): Promise<void> {
   const hizAl = () => (kosuyor ? OYUNCU_HIZI : OYUNCU_HIZI * 0.5);
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
 
+  let esyaCikar: (p: number) => void = () => {};
   // Orijinal arayüz (oyunun kendi UIF pencereleri); yüklenemezse eski basit arayüz kalır.
   let arayuz: OyunArayuzu | null = null;
   try {
@@ -114,7 +116,7 @@ async function basla(): Promise<void> {
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(),
+      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -127,11 +129,16 @@ async function basla(): Promise<void> {
   const envanterYenile = () => hud.envanterCiz(oyuncu);
   envanterYenile();
   hud.esyaKusan = (i) => {
-    const e = oyuncu.envanter[i];
-    if (!e) return;
-    if (e.tur === 'silah') { oyuncu.envanter[i] = oyuncu.silah; oyuncu.silah = e; }
-    else { oyuncu.envanter[i] = oyuncu.zirh; oyuncu.zirh = e; }
+    const e = oyuncu.esyaKusan(i);
+    if (!e) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
     hud.mesaj(`You equipped ${e.ad}.`, 'sistem');
+    envanterYenile();
+  };
+  esyaCikar = (p) => {
+    const e = oyuncu.ekipman[p];
+    if (!e) return;
+    if (!oyuncu.esyaCikar(p)) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
+    hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
     envanterYenile();
   };
   hud.ganimetAl = (k, secim) => {

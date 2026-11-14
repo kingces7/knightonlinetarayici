@@ -24,6 +24,8 @@ export interface ArayuzBaglami {
   otur: () => void;
   /** Yürüme ↔ koşma geçişi (görev çubuğu düğmesi ve R tuşu). */
   yuruKos: () => void;
+  /** Ekipman yuvasındaki eşyayı çantaya al. */
+  esyaCikar: (yuva: number) => void;
   /** Görev çubuğu simgeleri için anlık durum. */
   durum: () => { oturuyor: boolean; kosuyor: boolean };
 }
@@ -213,6 +215,11 @@ export class OyunArayuzu {
     p.tikla.set('btn_str', harca('str')); p.tikla.set('btn_sta', harca('sta'));
     p.tikla.set('btn_Dex', harca('dex')); p.tikla.set('btn_Int', harca('int'));
     p.tikla.set('btn_Magic', harca('int'));
+    p.tikla.set('btn_reset_stat', () => {
+      const iade = this.b.oyuncu.statSifirla();
+      this.b.statDegisti(); this.durumCiz();
+      this.b.mesaj(iade > 0 ? `Stat points reset: ${iade} points returned.` : 'There are no stat points to reset.');
+    });
   }
 
   private durumCiz(): void {
@@ -285,7 +292,7 @@ export class OyunArayuzu {
 
   private envanterCiz(): void {
     const o = this.b.oyuncu, p = this.pencereler.envanter;
-    const imza = `${o.envanter.map((e) => e?.no ?? 0).join(',')}|${o.silah?.no ?? 0}|${o.zirh?.no ?? 0}|${o.altin}`;
+    const imza = `${o.envanter.map((e) => e?.no ?? 0).join(',')}|${o.ekipman.map((e) => e?.no ?? 0).join(',')}|${o.altin}`;
     if (imza === this.sonEnvanterImza) return;
     this.sonEnvanterImza = imza;
     const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null, tikla?: () => void) => {
@@ -296,9 +303,10 @@ export class OyunArayuzu {
       el.onclick = tikla ?? null;
     };
     this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, o.envanter[i] ? () => this.b.esyaKusan(i) : undefined));
-    const silah = this.ekipman(6), zirh = this.ekipman(4);
-    if (silah) yuvaCiz(silah, o.silah);
-    if (zirh) yuvaCiz(zirh, o.zirh);
+    for (let yuva = 0; yuva < 15; yuva++) {
+      const el = this.ekipman(yuva);
+      if (el) yuvaCiz(el, o.ekipman[yuva], o.ekipman[yuva] ? () => this.b.esyaCikar(yuva) : undefined);
+    }
     p.metin('text_gold', o.altin.toLocaleString('en-US'));
     p.metin('text_weight', `${o.envanter.filter(Boolean).length} / 28`);
   }

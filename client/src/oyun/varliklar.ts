@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { KarakterModeli } from '../dunya/karakter';
 import type { Arazi } from '../dunya/arazi';
-import { type CanavarTuru, type EsyaTanimi, kurallar, rastgele } from './veri';
+import { type CanavarTuru, type EsyaTanimi, YENI_KARAKTER, esyaBul, kurallar, rastgele } from './veri';
 import { type SavasOyuncusu, toplamSavunma, toplamVurus } from './savas';
 
 /** Modellerin "ileri" yönü için düzeltme (radyan). Knight Online modelleri sahnede -z'ye bakıyor. */
@@ -249,8 +249,36 @@ export class Oyuncu extends Varlik {
   altin = 0;
   mana = 100; enCokMana = 100;
   envanter: (EsyaTanimi | null)[] = new Array(28).fill(null);
-  silah: EsyaTanimi | null = null;
-  zirh: EsyaTanimi | null = null;
+  /**
+   * Ekipman: Knight Online yuva numaraları (0 sağ küpe, 1 kask, 2 sol küpe, 3 kolye, 4 gövde, 5 omuz, 6 sağ el, 7 bel, 8 sol el,
+   * 9 sağ yüzük, 10 bacak, 11 sol yüzük, 12 eldiven, 13 bot, 14 pelerin). Arayüzdeki ızgarayla aynı sıra.
+   */
+  ekipman: (EsyaTanimi | null)[] = new Array(15).fill(null);
+  get silah(): EsyaTanimi | null { return this.ekipman[6]; }
+  get zirh(): EsyaTanimi | null { return this.ekipman[4]; }
+  /** Eşya tablosundaki yuva kodu → ekipman yuvası (sunucu ItemSlot sırası). */
+  private static readonly YUVA_HARITASI = [6, 6, 8, 6, 8, 4, 10, 1, 12, 13, 0, 3, 9, 5, 7];
+  static ekipmanYuvasi(e: EsyaTanimi): number { return Oyuncu.YUVA_HARITASI[e.yuva] ?? -1; }
+  /** Çantadaki i. eşyayı giyer (eski eşya çantaya döner). Giyilemezse null. */
+  esyaKusan(i: number): EsyaTanimi | null {
+    const e = this.envanter[i]; if (!e) return null;
+    const p = Oyuncu.ekipmanYuvasi(e); if (p < 0) return null;
+    this.envanter[i] = this.ekipman[p]; this.ekipman[p] = e;
+    if (e.yuva === 3 && this.ekipman[8]) { const sol = this.ekipman[8]!; if (this.esyaEkle(sol)) this.ekipman[8] = null; } // iki elli silah sol eli boşaltır
+    return e;
+  }
+  /** Ekipman yuvasındaki eşyayı çantaya alır. Yer yoksa false. */
+  esyaCikar(p: number): boolean {
+    const e = this.ekipman[p]; if (!e || !this.esyaEkle(e)) return false;
+    this.ekipman[p] = null; return true;
+  }
+  /** Yeni karakter satırındaki başlangıç eşyalarını giydirir (NewChrValue.tbl). */
+  baslangicEsyalariVer(): void {
+    for (const no of kurallar?.yeniKarakter[YENI_KARAKTER]?.esyalar ?? []) {
+      const e = esyaBul(no); if (!e) continue;
+      const p = Oyuncu.ekipmanYuvasi(e); if (p >= 0) this.ekipman[p] = e;
+    }
+  }
   hedef: Canavar | null = null;
   yuruHedef: THREE.Vector2 | null = null;
   /** Klavyeyle yürürken gidiş yönü (Knight Online x,z düzleminde radyan); null = duruyor. Yön hedefe yumuşakça döner. */
@@ -274,11 +302,15 @@ export class Oyuncu extends Varlik {
   /** Sınıf numarası: 201 = El Morad Savaşçı (Warrior). Başlangıç statüleri NewChrValue.tbl'den, katsayılar sunucu COEFFICIENT tablosundan. */
   sinif = 201;
   stat = { str: 65, sta: 65, dex: 60, int: 50, cha: 50 };
-  bonusPuan = 10;
+  bonusPuan = 0;
+  /** Statü sıfırlama için başlangıç değerleri. */
+  baslangicStat = { ...this.stat };
   /** Kuralları (varsa) uygular: başlangıç statüleri ve can/mana. Oyun başında bir kez. */
   kurallariUygula(): void {
-    const y = kurallar?.yeniKarakter[String(this.sinif)];
-    if (y) { this.stat = { str: y.str, sta: y.sta, dex: y.dex, int: y.int, cha: y.cha }; this.bonusPuan = y.puan; }
+    const y = kurallar?.yeniKarakter[YENI_KARAKTER];
+    // Sunucu yeni karaktere 10 serbest puan verir (NewChrValue); bu projede karar gereği 0 ile başlanır, puanlar seviye atlayınca kazanılır.
+    if (y) { this.stat = { str: y.str, sta: y.sta, dex: y.dex, int: y.int, cha: y.cha }; this.bonusPuan = 0; }
+    this.baslangicStat = { ...this.stat };
     this.canManaHesapla(true);
   }
   /**
@@ -295,6 +327,14 @@ export class Oyuncu extends Varlik {
     this.can = doldur ? this.enCok : Math.min(this.can, this.enCok);
     this.mana = doldur ? this.enCokMana : Math.min(this.mana, this.enCokMana);
   }
+  /** Harcanan tüm statü puanlarını geri alır (başlangıç değerlerine döner); iade edilen puanı döndürür. */
+  statSifirla(): number {
+    let iade = 0;
+    for (const k of ['str', 'sta', 'dex', 'int', 'cha'] as const) { iade += this.stat[k] - this.baslangicStat[k]; this.stat[k] = this.baslangicStat[k]; }
+    this.bonusPuan += iade;
+    this.canManaHesapla();
+    return iade;
+  }
   /** Bir statü puanı harcar (STR/STA/DEX/INT/CHA). Harcanamazsa false. */
   statArtir(ad: 'str' | 'sta' | 'dex' | 'int' | 'cha'): boolean {
     if (this.bonusPuan <= 0) return false;
@@ -303,7 +343,7 @@ export class Oyuncu extends Varlik {
     return true;
   }
   /** Savaş formüllerine (savas.ts) verilen oyuncu görüntüsü. */
-  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, zirh: this.zirh }; }
+  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, esyaSavunma: this.ekipman.reduce((t, e) => t + (e?.savunma ?? 0), 0) }; }
   /** Toplam vuruş gücü (sunucu m_sTotalHit) ve toplam savunma (m_sTotalAc). */
   toplamVurus(): number { return toplamVurus(this.savasVeri); }
   savunma(): number { return toplamSavunma(this.savasVeri); }

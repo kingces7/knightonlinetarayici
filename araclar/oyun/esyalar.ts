@@ -37,8 +37,24 @@ function main(): number {
       fs.writeFileSync(path.join(hedef, 'ikon', `${simge}.png`), pngKodla(d.genislik, d.yukseklik, rgbayaCevir(d)));
     } catch { continue; }
     gorulenAd.add(ad);
-    secilen.push({ no, ad, aciklama: aciklama.replace(/\|\s*/g, ' '), simge: `ikon/${simge}.png`, tur: silah ? 'silah' : 'zirh', tip: tur, hasar, gecikme, savunma, fiyat });
+    secilen.push({ no, ad, aciklama: aciklama.replace(/\|\s*/g, ' '), simge: `ikon/${simge}.png`, tur: silah ? 'silah' : 'zirh', tip: tur, yuva: Number(s[12]), hasar, gecikme, savunma, fiyat });
     if (secilen.length >= 120) break;
+  }
+  // Başlangıç eşyaları (NewChrValue.tbl, Human Warrior 110201): sütun 8-9 silah, 10-14 zırh parçaları. Numara = tablodaki tam numara
+  // (son 3 hane eklenti/yükseltme kodu olabilir; eşya satırı numaranın bin altındaki tabanından bulunur).
+  const yeni = tbldenOku(od.oku('Data/NewChrValue.tbl'), 'windows-1252').satirlar.find((x) => Number(x[0]) === 110201);
+  const baslangic = (yeni ? [8, 9, 10, 11, 12, 13, 14].map((i) => Number(yeni[i])).filter((n) => n > 0) : []);
+  for (const id of baslangic) {
+    const s = satirlar.find((x) => Number(x[0]) === id) ?? satirlar.find((x) => Number(x[0]) === id - (id % 1000));
+    if (!s) { console.log(`! başlangıç eşyası ${id} tabloda yok`); continue; }
+    const simge = Number(s[7]), tur = Number(s[10]);
+    const yol = simgeYolu(simge);
+    if (!od.var(yol)) { console.log(`! başlangıç eşyası ${id}: simge yok`); continue; }
+    const d = dxtOku(od.oku(yol));
+    fs.writeFileSync(path.join(hedef, 'ikon', `${simge}.png`), pngKodla(d.genislik, d.yukseklik, rgbayaCevir(d)));
+    const mevcut = secilen.findIndex((e) => e.no === id);
+    if (mevcut >= 0) secilen.splice(mevcut, 1);
+    secilen.push({ no: id, ad: String(s[2]), aciklama: String(s[3]).replace(/\|\s*/g, ' '), simge: `ikon/${simge}.png`, tur: SILAH.has(tur) ? 'silah' : 'zirh', tip: tur, yuva: Number(s[12]), hasar: Number(s[15]), gecikme: Number(s[16]), savunma: Number(s[22]), fiyat: Number(s[20]), baslangic: true });
   }
   fs.writeFileSync(path.join(hedef, 'esyalar.json'), JSON.stringify(secilen, null, 1));
   console.log(`${secilen.length} eşya -> ${hedef}`);

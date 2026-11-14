@@ -38,7 +38,9 @@ function silahKatsayisi(sinif: number, silah: EsyaTanimi | null): number {
 export interface SavasOyuncusu {
   sinif: number; seviye: number;
   stat: { str: number; sta: number; dex: number; int: number; cha: number };
-  silah: EsyaTanimi | null; zirh: EsyaTanimi | null;
+  silah: EsyaTanimi | null;
+  /** Giyilen tüm eşyaların savunma toplamı (sunucu m_sItemAc). */
+  esyaSavunma: number;
 }
 
 /** SetUserAbility: toplam vuruş gücü (m_sTotalHit), STR tabanlı (haydut hariç). Silahsızken güç en az 3. */
@@ -53,7 +55,7 @@ export function toplamVurus(o: SavasOyuncusu): number {
 /** SetUserAbility: toplam savunma (m_sTotalAc) — sınıf AC katsayısı × (seviye + eşya savunması); STA 100'ü aşarsa fazlası eklenir. */
 export function toplamSavunma(o: SavasOyuncusu): number {
   const k = kurallar?.katsayi[String(o.sinif)];
-  let ac = Math.trunc((k?.ac ?? 1) * (o.seviye + (o.zirh?.savunma ?? 0)));
+  let ac = Math.trunc((k?.ac ?? 1) * (o.seviye + o.esyaSavunma));
   if (o.stat.sta > 100) ac += o.stat.sta - 100;
   return ac;
 }

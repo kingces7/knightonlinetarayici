@@ -13,7 +13,10 @@ const json = JSON.parse(fs.readFileSync(yol, 'utf8').replace(/^\uFEFF/, ''));
 const od = new OyunDosyalari();
 const yeni: Record<string, unknown> = {};
 for (const s of tbldenOku(od.oku('Data/NewChrValue.tbl'), 'windows-1252').satirlar) {
-  yeni[String(s[0])] = { ad: String(s[1]), str: Number(s[2]), sta: Number(s[3]), dex: Number(s[4]), int: Number(s[5]), cha: Number(s[6]), puan: Number(s[7]) };
+  yeni[String(s[0])] = {
+    ad: String(s[1]), str: Number(s[2]), sta: Number(s[3]), dex: Number(s[4]), int: Number(s[5]), cha: Number(s[6]), puan: Number(s[7]),
+    esyalar: [8, 9, 10, 11, 12, 13, 14].map((i) => Number(s[i])).filter((n) => n > 0), // başlangıç eşyaları (silahlar, zırh parçaları)
+  };
 }
 od.kapat();
 json.yeniKarakter = yeni;
