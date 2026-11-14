@@ -22,10 +22,10 @@ Sayılar `KnightEmpire/` client klasöründen (2026-11-14).
 | 4 | `.uif` / `.lilith` | 1 / 201 | Arayüz pencere tanımları; `.lilith` bu sunucuya özel şifreli sürüm (anahtar `xCODE/uif.ini`'de) | 🟡 | |
 | 5 | `.n3pmesh`, `.n3shape` | ~11.700 | Statik modeller → glTF | ✅ | [model.md](model.md) |
 | 6 | `.n3joint`, `.n3cskins`, `.n3cpart`, `.n3anim` (+ `.n3chr` ✅ okunuyor, `.n3cplug` ⬜) | ~8.000 | Karakterler, iskelet, animasyon → glTF | ✅ | [model.md](model.md) |
-| 7 | `.gtd` ✅ · `.tct` ✅ (doku olarak okunuyor; haritaya yerleşimi ⬜), `.tlt`, `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd` ⬜ | ~600 | Harita/arazi verisi | 🟡 | [model.md](model.md) |
+| 7 | `.gtd` ✅ · `.tct` ✅ (renk haritası, haritaya yerleşimi ölçülerek bulundu), `.tlt`, `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd` ⬜ | ~600 | Harita/arazi verisi | 🟡 | [model.md](model.md) |
 | 8 | `.opd` ✅ · `.opdext`, `.opdsub`, `.evt`, `.evtsub` ⬜ | ~200 | Haritadaki nesne ve olay listeleri | 🟡 | [model.md](model.md) |
 | 9 | `.n3scene`, `.n3scenex`, `.n3camera`, `.n3light`, `.n3sky`, `.n3fxplug`, `.fx` | ~440 | Sahne, kamera, ışık, gökyüzü, efektler | ⬜ | |
-| 10 | `.mob` | 36 | Harita başına yaratık yerleşimi (server tarafında da var) | ⬜ | |
+| 10 | `.mob` | 36 | Harita başına yüklenecek NPC/yaratık **numara listesi** (`21.mob`: 141 adet int32; konum içermez — konumlar veritabanında `K_NPCPOS1098`) | 🟡 | |
 | 11 | `.navimesh`, `.rvr`, `.wap`, `.wal`, `.tsd`, `.trn`, `.tld`, `.tcm`, `.sdt`, `.pvr`, `.grs`, `.tgx`, `.swal`, `.dtx`, `.mcn`, `.gea`, `.n3m`, `.n3pp`, `.n3me_lightmap` | az sayıda | Çeşitli harita/editör dosyaları | ⬜ | |
 | – | `.ogg`, `.png`, `.bmp`, `.tga`, `.ttf`, `.swf`, `.ini`, `.lst` | ~560 | Ses, resim, yazı tipi, ayar | ➖ | |
 
