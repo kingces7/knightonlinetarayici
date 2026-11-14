@@ -82,6 +82,11 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 - Server türü: **OpenKO / KO açık kaynak server tabanlı**, "LILITH" adıyla özelleştirilmiş,
   1098/2369 sürüm hedefli bir **Myko** (eski tarz) server. İki varyant var: **Homeko** ve **Myko**.
   Kaynak kodlar büyük ölçüde aynı.
+- **Myko veritabanı sürümü** (`LILITH_MYKO.bak` ham baytlarından okundu):
+  - Yedek **SQL Server 2022** (`MSSQL16`) ile alınmış. Geri yüklemek için SQL Server 2022 veya daha yenisi gerekli.
+  - `VERSION` (yama) tablosunda 1097–1114 arası yama kayıtları görünüyor (ayrıca 2401, 2450 izleri var;
+    bunlar silinmiş eski kayıtlar olabilir, SQL Server'a yüklenince kesinleşecek).
+  - Myko server kaynak kodu da client protokol sürümü olarak **2369** kullanıyor; `LogInServer.ini` başlığı "v1098 Myko Server".
 - Veritabanı: **Microsoft SQL Server** (`.bak` yedekleri). Bu bilgisayarda SQL Server **kurulu değil**.
   Server'ı çalıştırmak için SQL Server (ücretsiz Express/Developer sürümü) kurup yedeği geri yüklemek gerekecek.
 
