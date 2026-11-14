@@ -13,6 +13,7 @@
     "test": "node --test",
     "paket-coz": "node paket/cli.ts coz",
     "paket-yaz": "node paket/cli.ts yaz",
-    "paket-dogrula": "node paket/cli.ts dogrula"
+    "paket-dogrula": "node paket/cli.ts dogrula",
+    "harita": "node harita/cli.ts"
   }
 }
