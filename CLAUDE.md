@@ -36,7 +36,7 @@ Başka bir seçim yapılacaksa önce kullanıcıya sor.
 ## Yol haritası
 Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 
-- [ ] **Aşama 0 — Keşif:** `oyun-dosyalari/` klasörünü tara. Klasör yapısını, dosya türlerini,
+- [x] **Aşama 0 — Keşif:** `oyun-dosyalari/` klasörünü tara. Klasör yapısını, dosya türlerini,
       kaynak kodu (.cpp/.h) olup olmadığını, server türünü ve veritabanını belirle.
       Sonucu `docs/KESIF.md` dosyasına yaz. Neyin elde olduğunu ve neyin eksik olduğunu kullanıcıya özetle.
 - [ ] **Aşama 1 — Tablolar:** `.tbl` okuyucu yaz (item, mob, NPC, skill) ve JSON'a çevir.
