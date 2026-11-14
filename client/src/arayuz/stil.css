@@ -1,8 +1,56 @@
-html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; font-family: 'Segoe UI', Tahoma, sans-serif; color: #eee; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; font-family: 'Segoe UI', Tahoma, sans-serif; color: #eee; user-select: none; }
 #oyun { display: block; width: 100vw; height: 100vh; }
-#arayuz { position: fixed; inset: 0; pointer-events: none; }
+#arayuz { position: fixed; inset: 0; pointer-events: none; font-size: 13px; }
+#arayuz .panel, #arayuz button, #arayuz .yuva, #arayuz .satir { pointer-events: auto; }
 #yukleniyor {
   position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
   background: radial-gradient(#1d2430, #07090c); font-size: 42px; letter-spacing: 6px; color: #e6c27a; text-shadow: 0 2px 12px #000;
 }
 #yukleniyor small { font-size: 14px; letter-spacing: 1px; color: #aab; margin-top: 12px; }
+
+.gizli { display: none !important; }
+.panel { position: absolute; background: linear-gradient(#1b1f27ee, #0f1217ee); border: 1px solid #6b5a32; border-radius: 4px; box-shadow: 0 2px 10px #000a; }
+.ad { color: #f0d48a; font-weight: 600; margin-bottom: 4px; }
+.sev { color: #ccc; font-weight: 400; margin-left: 6px; }
+
+.cubuk { position: relative; height: 15px; background: #000a; border: 1px solid #333; margin-top: 3px; border-radius: 2px; overflow: hidden; }
+.cubuk i { position: absolute; inset: 0 auto 0 0; display: block; transition: width .15s; }
+.cubuk b { position: relative; display: block; text-align: center; font-size: 11px; line-height: 15px; font-weight: 500; text-shadow: 0 1px 2px #000; }
+.cubuk.can i { background: linear-gradient(#e0473e, #8a1c17); }
+.cubuk.mana i { background: linear-gradient(#4f7fe8, #1d3d8a); }
+.cubuk.exp i { background: linear-gradient(#e8c94f, #8a6d17); }
+
+.durum { left: 14px; top: 14px; width: 240px; padding: 8px 10px; }
+.hedef { left: 50%; top: 14px; transform: translateX(-50%); width: 260px; padding: 6px 10px; text-align: center; }
+.mesajlar { left: 14px; bottom: 34px; width: 380px; height: 150px; padding: 6px 8px; overflow-y: auto; font-size: 12px; background: #000a; border-color: #333; }
+.mesajlar .m { margin: 1px 0; text-shadow: 0 1px 1px #000; }
+.mesajlar .hasar { color: #ff8a7a; } .mesajlar .odul { color: #ffd76b; } .mesajlar .sistem { color: #8fd0ff; } .mesajlar .bilgi { color: #ddd; }
+.yardim { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); font-size: 12px; color: #ccc; text-shadow: 0 1px 2px #000; }
+
+.pencere { width: 300px; padding: 0 10px 10px; }
+.pencere .baslik { margin: 0 -10px 8px; padding: 6px 10px; background: #2a2416; border-bottom: 1px solid #6b5a32; color: #f0d48a; font-weight: 600; display: flex; justify-content: space-between; }
+.pencere .baslik button { background: none; border: 0; color: #ccc; cursor: pointer; font-size: 14px; }
+.envanter { right: 20px; top: 120px; }
+.ganimet { left: 50%; top: 40%; transform: translate(-50%, -50%); width: 240px; }
+.izgara { display: grid; grid-template-columns: repeat(7, 38px); gap: 3px; }
+.yuva { width: 38px; height: 38px; background: #0008 center/cover no-repeat; border: 1px solid #4a4230; border-radius: 2px; cursor: pointer; }
+.yuva:hover { border-color: #f0d48a; }
+.yuva.noah { background: radial-gradient(#ffe48a, #a07a10); }
+.kusanilan { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.kusanilan .istat { font-size: 12px; color: #ccc; margin-left: 6px; }
+.altin { margin-top: 8px; text-align: right; color: #ffd76b; }
+.liste .satir { display: flex; align-items: center; gap: 8px; padding: 3px; cursor: pointer; border-radius: 2px; }
+.liste .satir:hover { background: #ffffff14; }
+.dugme { margin-top: 8px; width: 100%; padding: 6px; background: linear-gradient(#5a4a22, #3a2f14); color: #f5e3b0; border: 1px solid #8a7340; border-radius: 3px; cursor: pointer; }
+.dugme:hover { filter: brightness(1.2); }
+.ipucu { padding: 8px 10px; max-width: 260px; pointer-events: none !important; }
+.ipucu .st { color: #9fe39f; } .ipucu .ac { color: #bbb; font-size: 12px; margin: 4px 0; } .ipucu .fi { color: #ffd76b; font-size: 12px; }
+
+.olum { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #400a0a88; font-size: 32px; color: #ffb3a7; text-shadow: 0 2px 8px #000; pointer-events: auto; }
+.olum .dugme { width: 160px; font-size: 16px; }
+
+.etiketler { position: absolute; inset: 0; overflow: hidden; }
+.etiket { position: absolute; left: 0; top: 0; text-align: center; font-size: 12px; color: #ffe9a8; text-shadow: 0 1px 2px #000, 0 0 2px #000; white-space: nowrap; }
+.etiket .mini { width: 60px; height: 4px; margin: 2px auto 0; background: #000a; border: 1px solid #0008; }
+.etiket .mini i { display: block; height: 100%; background: #e0473e; }
+.etiket.secili span { color: #ff8a7a; }

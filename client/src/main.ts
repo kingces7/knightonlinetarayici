@@ -1,12 +1,18 @@
-// KnightEmpire — tarayıcı istemcisi giriş noktası.
+// KnightEmpire — tarayıcı istemcisi giriş noktası (tek oyunculu mod).
 import * as THREE from 'three';
 import { Arazi } from './dunya/arazi';
 import { nesneleriYukle } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
-import { KarakterModeli } from './dunya/karakter';
+import { animBilgisiYukle } from './dunya/karakter';
+import { Hud } from './arayuz/hud';
+import { Canavar, GanimetKutusu, Oyuncu } from './oyun/varliklar';
+import { CANAVARLAR, OYUNCU_MODELI, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
 
-const HARITA = new URLSearchParams(location.search).get('harita') ?? 'new_runawar';
+const parametre = new URLSearchParams(location.search);
+const HARITA = parametre.get('harita') ?? 'new_runawar';
 const SIS = new THREE.Color(0x9fb4c8);
+const SALDIRI_MENZILI = 2.6;
+const OYUNCU_HIZI = 6.5;
 
 function durum(metin: string): void {
   const el = document.getElementById('yukleme-durum');
@@ -29,78 +35,236 @@ async function basla(): Promise<void> {
   const arazi = await Arazi.yukle(`/harita/${HARITA}`);
   arazi.sisAyarla(SIS, 150, 600);
   sahne.add(arazi.mesh);
-
   durum('Loading objects…');
   try { sahne.add(await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`)); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
+  durum('Loading characters…');
+  await Promise.all([animBilgisiYukle(), esyalariYukle()]);
 
-  // Geçici oyuncu (karakter modeli gelene kadar)
-  const oyuncu = new THREE.Mesh(new THREE.CapsuleGeometry(0.45, 1.0, 4, 12), new THREE.MeshLambertMaterial({ color: 0xc8a050 }));
-  const konum = new THREE.Vector2(arazi.genislik / 2, arazi.genislik / 2); // Knight Online (x, z)
-  const yukseklik = (x: number, zSahne: number) => arazi.yukseklikAl(x, -zSahne);
-  sahne.add(oyuncu);
+  const hud = new Hud();
+  const oyuncu = new Oyuncu();
+  const baslangic = new THREE.Vector2(arazi.genislik / 2, arazi.genislik / 2);
+  oyuncu.konum.copy(baslangic);
+  await oyuncu.modelYukle(OYUNCU_MODELI);
+  sahne.add(oyuncu.grup);
 
-  // Deneme: canavar modelleri (?model=100,200 ile değiştirilebilir)
-  const denemeler: KarakterModeli[] = [];
-  const modelParam = new URLSearchParams(location.search).get('model');
-  const animParam = new URLSearchParams(location.search).get('anim') ?? 'walk';
-  for (const [i, no] of (modelParam ?? '100,200').split(',').entries()) {
-    try {
-      const m = await KarakterModeli.olustur(`/karakter/${no}.glb`);
-      const x = konum.x + 3 + i * 3, z = konum.y + 2;
-      m.kok.position.set(x, arazi.yukseklikAl(x, z), -z);
-      m.oynat(animParam);
-      sahne.add(m.kok);
-      denemeler.push(m);
-    } catch (e) { console.warn('model yüklenemedi', no, e); }
+  // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere
+  const canavarlar: Canavar[] = [];
+  for (const [i, tur] of CANAVARLAR.entries()) {
+    const aci = (i / CANAVARLAR.length) * Math.PI * 2;
+    const merkez = new THREE.Vector2(baslangic.x + Math.cos(aci) * (22 + i * 9), baslangic.y + Math.sin(aci) * (22 + i * 9));
+    for (let k = 0; k < tur.adet; k++) {
+      const c = new Canavar(tur, merkez.x + rastgele(-10, 10), merkez.y + rastgele(-10, 10));
+      try { await c.modelYukle(); } catch (e) { console.warn('Canavar modeli yüklenemedi', tur.ad, e); continue; }
+      sahne.add(c.grup);
+      canavarlar.push(c);
+    }
   }
+  const kutular: GanimetKutusu[] = [];
 
   const kamera = new TakipKamerasi(tuval);
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
 
-  // Kontroller: WASD + sol tık ile yürüme
+  hud.mesaj('Welcome to KnightEmpire!', 'sistem');
+  hud.mesaj('Hunt monsters, open the chests they drop and level up.', 'sistem');
+
+  // ---------------- Olaylar ----------------
+  const envanterYenile = () => hud.envanterCiz(oyuncu);
+  envanterYenile();
+  hud.esyaKusan = (i) => {
+    const e = oyuncu.envanter[i];
+    if (!e) return;
+    if (e.tur === 'silah') { oyuncu.envanter[i] = oyuncu.silah; oyuncu.silah = e; }
+    else { oyuncu.envanter[i] = oyuncu.zirh; oyuncu.zirh = e; }
+    hud.mesaj(`You equipped ${e.ad}.`, 'sistem');
+    envanterYenile();
+  };
+  hud.ganimetAl = (k, secim) => {
+    const al = (i: number): boolean => {
+      const e = k.esyalar[i];
+      if (!oyuncu.esyaEkle(e)) { hud.mesaj('Your inventory is full.', 'sistem'); return false; }
+      hud.mesaj(`You obtained ${e.ad}.`, 'odul'); k.esyalar.splice(i, 1); return true;
+    };
+    if (secim === 'altin' || secim === 'hepsi') {
+      if (k.altin > 0) { oyuncu.altin += k.altin; hud.mesaj(`You obtained ${k.altin} Noah.`, 'odul'); k.altin = 0; }
+    }
+    if (secim === 'hepsi') { while (k.esyalar.length && al(0)) { /* hepsini al */ } }
+    else if (typeof secim === 'number') al(secim);
+    envanterYenile();
+    if (k.bos) { k.omur = 0; hud.ganimetAc(null); } else hud.ganimetAc(k);
+  };
+  hud.yenidenDog = () => {
+    oyuncu.konum.copy(baslangic); oyuncu.can = oyuncu.enCok; oyuncu.mana = oyuncu.enCokMana;
+    oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.model?.oynat('bekle');
+    hud.mesaj('You have been revived.', 'sistem');
+  };
+
   const tuslar = new Set<string>();
-  addEventListener('keydown', (e) => tuslar.add(e.code));
+  addEventListener('keydown', (e) => {
+    tuslar.add(e.code);
+    if (e.code === 'KeyI') hud.envanterAcKapa();
+    if (e.code === 'Tab') {
+      e.preventDefault();
+      const yakin = canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40 && c !== oyuncu.hedef)
+        .sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum))[0];
+      if (yakin) oyuncu.hedef = yakin;
+    }
+    if (e.code === 'Escape') { oyuncu.hedef = null; hud.ganimetAc(null); }
+  });
   addEventListener('keyup', (e) => tuslar.delete(e.code));
-  let hedef: THREE.Vector2 | null = null;
+
   const isin = new THREE.Raycaster();
+  let acilacakKutu: GanimetKutusu | null = null;
   tuval.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
-    const h = isin.intersectObject(arazi.mesh)[0];
-    if (h) hedef = new THREE.Vector2(h.point.x, -h.point.z);
+    const kutuVurus = isin.intersectObjects(kutular.map((k) => k.secimKutusu))[0];
+    if (kutuVurus) {
+      const k = kutular.find((x) => x.secimKutusu === kutuVurus.object)!;
+      acilacakKutu = k; oyuncu.hedef = null; oyuncu.yuruHedef = k.konum.clone();
+      return;
+    }
+    const canavarVurus = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu))[0];
+    if (canavarVurus) {
+      oyuncu.hedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null;
+      oyuncu.yuruHedef = null; acilacakKutu = null;
+      return;
+    }
+    const zemin = isin.intersectObject(arazi.mesh)[0];
+    if (zemin) { oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; }
   });
 
-  const HIZ = 6; // m/sn (koşu)
-  const saat = new THREE.Clock();
-  document.getElementById('yukleniyor')?.remove();
-  cizici.setAnimationLoop(() => {
-    const dt = Math.min(saat.getDelta(), 0.1);
-    for (const m of denemeler) m.guncelle(dt);
-    const ileri = kamera.ileriYon(); // sahne (x, z)
+  // ---------------- Oyun kuralları ----------------
+  const deneyimKazan = (miktar: number) => {
+    oyuncu.deneyim += miktar;
+    hud.mesaj(`You gained ${miktar} experience.`, 'odul');
+    while (oyuncu.deneyim >= gerekenDeneyim(oyuncu.seviye)) {
+      oyuncu.deneyim -= gerekenDeneyim(oyuncu.seviye);
+      oyuncu.seviye++;
+      oyuncu.enCok += 25; oyuncu.can = oyuncu.enCok;
+      oyuncu.enCokMana += 10; oyuncu.mana = oyuncu.enCokMana;
+      hud.mesaj(`Level up! You are now level ${oyuncu.seviye}.`, 'sistem');
+      envanterYenile();
+    }
+  };
+
+  const vurusZamanlayici: { kalan: number; hedef: Canavar }[] = [];
+  const oyuncuGuncelle = (dt: number) => {
+    oyuncu.model?.guncelle(dt);
+    oyuncu.savastanBeri += dt;
+    if (oyuncu.olu) return;
+    // Yenilenme (savaş dışında hızlı)
+    const yenilenme = oyuncu.savastanBeri > 6 ? 8 : 0.6;
+    oyuncu.can = Math.min(oyuncu.enCok, oyuncu.can + yenilenme * dt);
+    oyuncu.mana = Math.min(oyuncu.enCokMana, oyuncu.mana + 3 * dt);
+
+    const ileri = kamera.ileriYon();
     const sag = new THREE.Vector2(-ileri.y, ileri.x);
     const hareket = new THREE.Vector2();
     if (tuslar.has('KeyW')) hareket.add(ileri);
     if (tuslar.has('KeyS')) hareket.sub(ileri);
     if (tuslar.has('KeyD')) hareket.add(sag);
     if (tuslar.has('KeyA')) hareket.sub(sag);
+    if (oyuncu.hedef?.olu) oyuncu.hedef = null;
+
     if (hareket.lengthSq() > 0) {
-      hedef = null;
-      hareket.normalize().multiplyScalar(HIZ * dt);
-      konum.x += hareket.x; konum.y -= hareket.y; // sahne z = -KO z
-    } else if (hedef) {
-      const fark = hedef.clone().sub(konum);
-      const d = fark.length();
-      if (d < 0.2) hedef = null; else konum.add(fark.multiplyScalar(Math.min(1, (HIZ * dt) / d)));
+      oyuncu.yuruHedef = null; acilacakKutu = null;
+      hareket.normalize().multiplyScalar(OYUNCU_HIZI * dt);
+      const hedefNokta = new THREE.Vector2(oyuncu.konum.x + hareket.x, oyuncu.konum.y - hareket.y);
+      oyuncu.yuru(hedefNokta, OYUNCU_HIZI * dt);
+      oyuncu.model?.oynat('kos');
+    } else if (oyuncu.hedef) {
+      const h = oyuncu.hedef;
+      if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) {
+        oyuncu.yuru(h.konum, OYUNCU_HIZI * dt, SALDIRI_MENZILI - 0.3);
+        oyuncu.model?.oynat('kos');
+      } else {
+        oyuncu.bak(h.konum);
+        oyuncu.saldiriSayaci -= dt;
+        if (oyuncu.saldiriSayaci <= 0) {
+          oyuncu.saldiriSayaci = 1.2;
+          oyuncu.savastanBeri = 0;
+          oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
+          vurusZamanlayici.push({ kalan: 0.45, hedef: h });
+        } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('savun');
+      }
+    } else if (oyuncu.yuruHedef) {
+      if (oyuncu.yuru(oyuncu.yuruHedef, OYUNCU_HIZI * dt, acilacakKutu ? 1.5 : 0)) {
+        oyuncu.yuruHedef = null;
+        if (acilacakKutu && kutular.includes(acilacakKutu)) hud.ganimetAc(acilacakKutu);
+        acilacakKutu = null;
+        oyuncu.model?.oynat('bekle');
+      } else oyuncu.model?.oynat('kos');
+    } else if (oyuncu.saldiriSayaci <= 0.4 || !oyuncu.model?.aktifAd.startsWith('saldir')) {
+      oyuncu.model?.oynat('bekle');
     }
-    konum.x = THREE.MathUtils.clamp(konum.x, 1, arazi.genislik - 1);
-    konum.y = THREE.MathUtils.clamp(konum.y, 1, arazi.genislik - 1);
-    const y = arazi.yukseklikAl(konum.x, konum.y);
-    oyuncu.position.set(konum.x, y + 0.95, -konum.y);
-    kamera.guncelle(new THREE.Vector3(konum.x, y, -konum.y), yukseklik);
+    oyuncu.konum.x = THREE.MathUtils.clamp(oyuncu.konum.x, 2, arazi.genislik - 2);
+    oyuncu.konum.y = THREE.MathUtils.clamp(oyuncu.konum.y, 2, arazi.genislik - 2);
+  };
+
+  const canavarlariGuncelle = (dt: number) => {
+    for (let i = vurusZamanlayici.length - 1; i >= 0; i--) {
+      const v = vurusZamanlayici[i];
+      v.kalan -= dt;
+      if (v.kalan > 0) continue;
+      vurusZamanlayici.splice(i, 1);
+      if (v.hedef.olu || oyuncu.olu) continue;
+      const [h0, h1] = oyuncu.hasarAraligi();
+      const kritik = Math.random() < 0.1;
+      const hasar = Math.round(rastgeleTam(h0, h1) * (kritik ? 1.8 : 1));
+      v.hedef.hasarAl(hasar);
+      hud.mesaj(`${kritik ? 'Critical! ' : ''}You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
+      if (v.hedef.olu) {
+        hud.mesaj(`${v.hedef.tur.ad} has been defeated.`, 'sistem');
+        deneyimKazan(v.hedef.tur.seviye * 18 + rastgeleTam(0, 6));
+      }
+    }
+    for (const c of canavarlar) {
+      const hasar = c.guncelle(dt, oyuncu);
+      if (hasar > 0) {
+        const net = oyuncu.hasarAl(hasar);
+        hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
+        if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
+        else if (!oyuncu.hedef) oyuncu.hedef = c; // karşılık ver
+      }
+      if (c.olu) {
+        if (!c.ganimetBirakildi && c.oluSuresi > 1.2) {
+          c.ganimetBirakildi = true;
+          const g = ganimetUret(c.tur.seviye);
+          const k = new GanimetKutusu(c.konum.x, c.konum.y, g.altin, g.esyalar);
+          kutular.push(k); sahne.add(k.grup);
+        }
+        if (c.oluSuresi > 5) c.grup.visible = false;
+        if (c.oluSuresi > 25) c.yenidenDog();
+      }
+      c.sahneyeYerlestir(arazi);
+    }
+    for (let i = kutular.length - 1; i >= 0; i--) {
+      const k = kutular[i];
+      k.guncelle(dt, arazi);
+      if (k.omur <= 0) { sahne.remove(k.grup); kutular.splice(i, 1); }
+    }
+  };
+
+  const izdusum = (c: Canavar) => {
+    const p = c.grup.position.clone(); p.y += 2.3 * c.tur.olcek;
+    const ekran = p.project(kamera.kamera);
+    return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < 45 };
+  };
+
+  const saat = new THREE.Clock();
+  document.getElementById('yukleniyor')?.remove();
+  cizici.setAnimationLoop(() => {
+    const dt = Math.min(saat.getDelta(), 0.1);
+    oyuncuGuncelle(dt);
+    canavarlariGuncelle(dt);
+    oyuncu.sahneyeYerlestir(arazi);
+    kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z));
+    hud.guncelle(oyuncu, oyuncu.hedef);
+    hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { oyun: unknown }).oyun = { sahne, kamera, konum, arazi };
+  (window as unknown as { ke: unknown }).ke = { sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

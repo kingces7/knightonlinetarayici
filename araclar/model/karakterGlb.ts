@@ -5,6 +5,8 @@ import { dokuPng } from './dokuYardim.ts';
 import { animOku, deriOku, eklemDizisi, eklemOku, parcaOku, type Eklem } from './karakter.ts';
 
 const KARE_HIZI = 30; // Knight Online animasyon kare birimi (kare/sn)
+/** .n3anim kayıt sırası her modelde aynı; özgün adlar modele göre değiştiği için standart adlar verilir. */
+const ROLLER = ['bekle', 'yuru', 'kos', 'geri', 'saldir0', 'saldir1', 'darbe0', 'darbe1', 'darbe2', 'savun', 'olum0', 'olum1', 'konus0', 'konus1', 'konus2', 'konus3', 'buyu0', 'buyu1'];
 
 // ---- 4x4 matris (sütun öncelikli, glTF düzeni) ----
 type M4 = Float64Array;
@@ -42,7 +44,10 @@ const kT = (t: number[]) => [t[0], t[1], -t[2]];
 const kQ = (q: number[]) => [-q[0], -q[1], q[2], q[3]];
 
 export interface KarakterTanimi { ad: string; iskelet: string; animasyon: string; parcalar: string[] }
-export interface KarakterRaporu { kemik: number; parca: number; animasyonlar: string[]; boyut: number }
+export interface KarakterRaporu {
+  kemik: number; parca: number; animasyonlar: string[]; boyut: number;
+  animBilgi: Record<string, { hiz: number; vurus: number | null; sure: number }>;
+}
 
 export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer; rapor: KarakterRaporu } {
   const kok = eklemOku(od.oku(t.iskelet));
@@ -88,7 +93,8 @@ export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer
   const animlar = od.var(t.animasyon) ? animOku(od.oku(t.animasyon)) : [];
   g.json.animations = [];
   const adlar: string[] = [];
-  for (const a of animlar) {
+  const hizlar: Record<string, { hiz: number; vurus: number | null; sure: number }> = {};
+  for (const [sira, a] of animlar.entries()) {
     const t0 = a.bas / KARE_HIZI, t1 = Math.max(a.son, a.bas) / KARE_HIZI;
     const kanallar: Record<string, unknown>[] = [], ornekleyiciler: Record<string, unknown>[] = [];
     for (const e of eklemler) {
@@ -108,9 +114,11 @@ export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer
       }
     }
     if (!kanallar.length) continue;
-    g.json.animations.push({ name: a.ad, channels: kanallar, samplers: ornekleyiciler, extras: { hiz: a.hiz / KARE_HIZI, vurus: a.vurus > a.bas ? (a.vurus - a.bas) / KARE_HIZI : null } });
-    adlar.push(a.ad);
+    const ad = ROLLER[sira] ?? `${sira}_${a.ad}`;
+    g.json.animations.push({ name: ad, channels: kanallar, samplers: ornekleyiciler, extras: { ozgunAd: a.ad, hiz: a.hiz / KARE_HIZI, vurus: a.vurus > a.bas ? (a.vurus - a.bas) / KARE_HIZI : null } });
+    adlar.push(ad);
+    hizlar[ad] = { hiz: a.hiz / KARE_HIZI, vurus: a.vurus > a.bas ? (a.vurus - a.bas) / KARE_HIZI : null, sure: (Math.max(a.son, a.bas) - a.bas) / KARE_HIZI };
   }
   const glb = g.glb();
-  return { glb, rapor: { kemik: eklemler.length, parca: primitifler.length, animasyonlar: adlar, boyut: glb.length } };
+  return { glb, rapor: { kemik: eklemler.length, parca: primitifler.length, animasyonlar: adlar, animBilgi: hizlar, boyut: glb.length } };
 }

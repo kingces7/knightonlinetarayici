@@ -39,7 +39,7 @@ function main(argv: string[]): number {
     const ad = adlar.get(no) ?? `npc_${no}`;
     const { glb, rapor } = karakterGlb(od, { ad, iskelet: String(s[2]), animasyon: String(s[3]), parcalar: s.slice(4, 17).map(String) });
     fs.writeFileSync(path.join(hedef, `${no}.glb`), glb);
-    dizin[no] = { ad, dosya: `${no}.glb`, animasyonlar: rapor.animasyonlar };
+    dizin[no] = { ad, dosya: `${no}.glb`, animasyonlar: rapor.animBilgi };
     console.log(`${no} ${ad}: ${rapor.kemik} kemik, ${rapor.parca} parça, ${rapor.animasyonlar.length} animasyon (${rapor.animasyonlar.slice(0, 8).join(', ')}…), ${(rapor.boyut / 1024).toFixed(0)} KB`);
   }
   fs.writeFileSync(dizinYolu, JSON.stringify(dizin, null, 2));

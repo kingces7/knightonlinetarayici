@@ -61,8 +61,8 @@ Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
       Sonucu `docs/KESIF.md` dosyasına yaz. Neyin elde olduğunu ve neyin eksik olduğunu kullanıcıya özetle.
 - [x] **Aşama 1 — Tablolar:** `.tbl` okuyucu yaz (item, mob, NPC, skill) ve JSON'a çevir.
       Formatı `docs/formatlar/` altında belgele.
-- [ ] **Aşama 2 — Harita ve model:** Arazi (terrain), nesne ve karakter modeli okuyucuları ile glTF çıktısı.
-- [ ] **Aşama 3 — İlk görüntü:** Tarayıcıda bir harita, üzerinde yürüyen bir karakter ve kamera kontrolü.
+- [x] **Aşama 2 — Harita ve model:** Arazi (terrain), nesne ve karakter modeli okuyucuları ile glTF çıktısı.
+- [x] **Aşama 3 — İlk görüntü:** Tarayıcıda bir harita, üzerinde yürüyen bir karakter ve kamera kontrolü.
 - [ ] **Aşama 4 — Sunucu bağlantısı:** WebSocket köprüsü, paket şifreleme/sıkıştırma, login,
       karakter seçimi, oyuna giriş. Paketleri `docs/protokol.md` dosyasında belgele.
 - [ ] **Aşama 5 — Oyun sistemleri:** Diğer oyuncuları ve mob'ları gösterme, hareket senkronu,

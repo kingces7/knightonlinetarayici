@@ -62,7 +62,8 @@ function atlasYap(karolar: Uint8Array[]): { png: Buffer; satir: number } {
 function tabanRenk(a: Arazi, karolar: Uint8Array[]): Buffer {
   const ort = karolar.map((k) => {
     let r = 0, g = 0, b = 0, w = 0;
-    for (let i = 0; i < k.length; i += 4) { const al = k[i + 3] / 255; if (al < 0.9) continue; r += k[i]; g += k[i + 1]; b += k[i + 2]; w++; }
+    // Geçiş karolarının siyah kısmı ortalamaya katılmaz
+    for (let i = 0; i < k.length; i += 4) { if (Math.max(k[i], k[i + 1], k[i + 2]) < 45) continue; r += k[i]; g += k[i + 1]; b += k[i + 2]; w++; }
     return w ? [r / w, g / w, b / w, 1] : [0, 0, 0, 0];
   });
   const k = a.boyut - 1;

@@ -6,51 +6,84 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 
 ## 🟢 Şu an sıradaki
 
-- [ ] **Paket arşivleri (`.hdr` + `.src`) çözücüsü** — `UI/ui`, `Item/item`, `Object/object`. Arayüz, eşya ve nesne modellerinin çoğu bunların içinde.
-- [ ] **Doku (`.dxt`) → PNG** çevirici ve geri yazıcı (ipucu: `N3Texture.cpp` elimizde).
+- [ ] **Sürüm 7 (şifreli) dokuların çözülmesi** — Moradon'un zemini, bütün haritaların renk haritası (`.tct`) ve ~600 doku bunlarla. Anahtar akışı ortak ve ilk 256 baytı yaklaşık bulundu; kesin anahtar gerekiyor (bkz. [formatlar/model.md](formatlar/model.md)).
+- [ ] **Moradon'u oynanabilir yapmak** (yukarıdakine bağlı). Şu an tek oyunculu mod `new_runawar` haritasında çalışıyor.
+- [ ] **Zeminin birebir görünümü:** geçiş karolarının gerçek karışım kuralı ve karo yön kodlarının anlamı (renk haritası çözülünce).
+- [ ] **Çarpışma:** karakterler şu an binaların/duvarların içinden geçebiliyor. `.opd` ve sunucu `.smd` dosyalarındaki çarpışma üçgenleri kullanılacak.
+
+## 🎮 Tek oyunculu mod (tarayıcı oyunu)
+
+- [x] Harita: arazi + karo dokuları + binalar/ağaçlar
+- [x] Kamera: takip, döndürme, yakınlaştırma
+- [x] Oyuncu karakteri (El Morad şövalyesi modeli, animasyonlu), WASD ve tıklayarak yürüme
+- [x] Canavarlar: Worm, Bandicoot, Kecoon, Bulcan, Gavolt, Werewolf — gezinme, kovalama, saldırı, ölüm, yeniden doğma
+- [x] Savaş, deneyim, seviye atlama, ölüm ve yeniden doğma
+- [x] Ganimet sandıkları, Noah (altın), eşyalar (oyunun İngilizce adları ve simgeleri), envanter, silah/zırh kuşanma
+- [ ] Canavar değerleri (can, hasar, seviye) şu an elle verildi → sunucu veritabanındaki gerçek değerler kullanılacak
+- [ ] Canavarların harita üzerindeki gerçek yerleşimi (`.mob` / sunucu `K_NPCPOS`) kullanılacak
+- [ ] Kuşanılan eşyanın karakter üzerinde görünmesi (`.n3cplug`, `.n3cpart` değişimi)
+- [ ] Skill'ler, iksirler, NPC'ler, mağaza
+- [ ] Gökyüzü (`.n3sky`), efektler (`.fxb`), sesler (`.ogg`), su
+- [ ] Oyunun arayüz grafiklerinin (`.uif` + UI dokuları) kullanılması (şu an kendi basit arayüzümüz var)
+- [ ] Performans: dokuların sıkıştırılması (KTX2), uzak nesnelerin sadeleştirilmesi, büyük haritaların parça parça yüklenmesi
 
 ## 📦 Dosya formatlarını çözme (tam kontrol hedefi)
 
 Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 
 - [x] `.tbl` oyun tabloları → CSV/JSON ve geri (244/246, bayt bayt kayıpsız)
-- [ ] `.hdr` + `.src` paket arşivleri
-- [ ] `.dxt` dokular
-- [ ] `.uif` / `.lilith` arayüz dosyaları (`.lilith` şifre anahtarı `xCODE/uif.ini` içinde)
-- [ ] `.n3pmesh`, `.n3shape`, `.n3vmesh` statik modeller → glTF
-- [ ] `.n3chr`, `.n3cpart`, `.n3cskins`, `.n3cplug`, `.n3joint`, `.n3anim` karakterler ve animasyonlar → glTF
-- [ ] `.gtd`, `.gtt`, `.tct`, `.tlt`, `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd` harita / arazi
-- [ ] `.opd`, `.opdext`, `.opdsub`, `.evt`, `.evtsub` harita nesneleri ve olayları
-- [ ] `.n3scene`, `.n3camera`, `.n3light`, `.n3sky`, `.n3fxplug`, `.fx` sahne, ışık, gökyüzü, efektler
+- [x] `.hdr` + `.src` paket arşivleri (okuma + yeniden paketleme)
+- [x] `.dxt` / `.gtt` dokular → PNG (16.775/16.814; sürüm 7 şifreli olanlar hariç)
+- [ ] `.dxt` geri yazıcı (PNG → .dxt)
+- [x] `.n3pmesh`, `.n3shape` statik modeller → glTF
+- [x] `.n3joint`, `.n3cskins`, `.n3cpart`, `.n3anim` karakterler ve animasyonlar → glTF
+- [ ] `.n3chr`, `.n3cplug`, `.n3chrplug`, `.n3vmesh`, `.n3mesh`
+- [x] `.gtd` arazi (çoğu harita; bazı haritaların başlığı farklı, okunamıyor)
+- [x] `.opd` harita nesneleri (kayıtlar arasındaki bilinmeyen ek alan atlanıyor)
+- [ ] `.tct` (renk haritası, şifreli), `.tlt` (ışık haritası), `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd`
+- [ ] `.opdext`, `.opdsub`, `.evt`, `.evtsub` harita nesne ekleri ve olayları
+- [ ] `.uif` / `.lilith` arayüz dosyaları (`.lilith`: SHA-1 + RC4, parola `xCODE/uif.ini`'de, 32 baytlık bloklar)
+- [ ] `.n3scene`, `.n3camera`, `.n3light`, `.n3sky`, `.n3fxplug`, `.fxb` sahne, ışık, gökyüzü, efektler
 - [ ] `.mob` yaratık yerleşimleri
 - [ ] Diğer küçük harita dosyaları (`.navimesh`, `.rvr`, `.wap`, `.wal`, `.tsd`, `.trn`, `.tld`, `.tcm`, `.sdt`, `.pvr`, `.grs`, `.tgx`, `.swal`, `.dtx`, `.mcn`, `.gea`, `.n3m`, `.n3pp`, `.n3me_lightmap`)
-- [ ] Server tarafı formatlar: `.smd` harita dosyaları, Lua script'leri
+- [ ] Server tarafı formatlar: `.smd` harita dosyaları (yükseklik + çarpışma okunabiliyor), Lua script'leri
 
 ## 🔍 Sonra dönüp bakılacaklar (açık sorular)
 
 **Tablolar**
 - [ ] `Data/modify_us.tbl` hiçbir bilinen yöntemle açılmıyor — sunucuya özel şifre olabilir. Oyunun bu dosyayı kullanıp kullanmadığı da kontrol edilecek.
 - [ ] Çift şifreli tabloların başındaki **5 baytlık önekin** anlamı bilinmiyor (şimdilik aynen korunuyor).
-- [ ] CSV başlıklarında sadece sütun türü var (`1:DWORD`…). **Gerçek sütun adları** (ör. "Ad", "Fiyat", "Hasar") kaynak koddaki yapılardan (`GameDef.h` → `TABLE_ITEM_BASIC` vb.) çıkarılıp eklenecek.
+- [ ] CSV başlıklarında sadece sütun türü var (`1:DWORD`…). **Gerçek sütun adları** kaynak koddaki yapılardan (`GameDef.h` → `TABLE_ITEM_BASIC` vb.) çıkarılıp eklenecek.
 - [ ] `Item_Org_us.tbl` içinde **tekrar eden ID'ler** var (261001000, 261002000… — oyun sadece ilkini kullanıyor). İncelenecek.
-- [ ] Tablolardaki **Korece iç adlar** anlamsız karakterler olarak görünüyor. Zararsız (baytlar korunuyor); istenirse ayrı bir "Korece göster" seçeneği eklenebilir.
-- [ ] Oyunun hangi tabloyu okuduğu netleştirilecek: `_us` olmayan 82 tablonun hangileri İngilizce sürümü olmadığı için doğrudan kullanılıyor.
+- [ ] Tablolardaki **Korece iç adlar** anlamsız karakterler olarak görünüyor. Zararsız (baytlar korunuyor).
+- [ ] Oyunun hangi tabloyu okuduğu netleştirilecek: `_us` olmayan 82 tablonun hangileri doğrudan kullanılıyor.
 - [ ] `Slander_us.tbl` boş (0 bayt) — oyunun buna ihtiyacı var mı?
-- [ ] Edit CSV eklentisi çok büyük tablolarda yavaşlarsa alternatif düzenleyici (ör. tarayıcıda kendi tablo editörümüz) düşünülecek.
+- [ ] Edit CSV eklentisi çok büyük tablolarda yavaşlarsa alternatif düzenleyici düşünülecek.
+
+**Modeller ve haritalar**
+- [ ] `.n3anim` kayıtlarının başındaki 2 bayt ve bazı float alanların anlamı (şimdilik başlangıç/bitiş/hız/vuruş kullanılıyor).
+- [ ] `.opd` nesne listesinde kayıt işareti (1051 / 5147) ve nadir ek alanın anlamı.
+- [ ] Bazı `.gtd` dosyaları farklı başlıkta (ör. `clanfight`, `freezone`, `moradon_xmas`, `war_a`).
+- [ ] 30 deri ve 11 iskelet dosyası özel durumlar nedeniyle okunamıyor (çok kemikli / çok çocuklu).
+- [ ] `misc\river\caust36_*.dxt` (39 dosya) anti-cheat'in oyun çalışırken bıraktığı geçici dosyalar; silinebilir.
 
 **Server ve veritabanı**
 - [ ] **SQL Server 2022 kurulumu** (veritabanı yedeği 2022 ile alınmış; server'ı çalıştırmak için gerekli).
 - [ ] `LILITH_MYKO.bak` geri yüklenince `VERSION` tablosundaki **2401 / 2450** kayıtlarının gerçek olup olmadığı kontrol edilecek.
-- [ ] `LILITH_LOG.bak` içeriği incelenecek (sadece kayıt/log veritabanı mı?).
+- [ ] `LILITH_LOG.bak` içeriği incelenecek.
 - [ ] Veritabanındaki eşya / NPC / görev adlarının dili kontrol edilecek — **oyun İngilizce** olacak.
 - [ ] Server'daki görünen adlar (**MykoNetwork → KnightEmpire**) server kurulurken güncellenecek (kullanıcıya sorularak).
-- [ ] `LogInServer.ini` içindeki eski yama/indirme adresi ve client `Server.ini` içindeki eski sunucu adresi (`lilith-acs.diabloko.com`) değiştirilecek.
-- [ ] Server'ın **anti-cheat** (LilithACS / Pearl Guard) bekleyip beklemediği kontrol edilecek. Tarayıcı client'ında bu program olmayacak; server tarafında kapatılması gerekebilir.
+- [ ] `LogInServer.ini` içindeki eski yama adresi ve client `Server.ini` içindeki eski sunucu adresi (`lilith-acs.diabloko.com`) değiştirilecek.
+- [ ] Server'ın **anti-cheat** (LilithACS / Pearl Guard) bekleyip beklemediği kontrol edilecek. Tarayıcıda bu program olmayacak.
 
 **Araçlar ve depo**
-- [ ] TypeScript **tür denetimi** (`tsc`) eklenecek; şu an Node.js kodu denetimsiz çalıştırıyor.
+- [ ] `araclar/` için TypeScript **tür denetimi** (`tsc`) eklenecek (istemcide var: `npm run kontrol`).
 - [ ] Git satır sonu uyarıları (LF/CRLF) için `.gitattributes` eklenecek.
-- [ ] `KnightOnline.exe` bir koruma yazılımıyla paketlenmiş; içinden bilgi gerekirse (ör. şifre anahtarı) çalışma anında inceleme gerekebilir.
+- [ ] `KnightOnline.exe` bir koruma yazılımıyla paketlenmiş; içinden bilgi gerekirse (ör. sürüm 7 doku anahtarı) çalışma anında inceleme gerekebilir.
+- [ ] Çözülmüş/dönüştürülmüş veriler (`donusturulmus/`) sadece bu bilgisayarda; bulut oturumu bunlara erişemez.
+
+**Hukuki**
+- [ ] Knight Online'ın hak sahibi Mgame, 10 Kasım 2026'da GitHub'daki açık kaynak KO projesini (OpenKO) telif şikâyetiyle kaldırttı. Oyunu herkese açmadan önce telif durumu değerlendirilmeli. Depo şu an orijinal oyun dosyası içermiyor; sadece kendi kodumuz ve belgeler var.
 
 ## 🙋 Kararı sizde olanlar
 
@@ -61,10 +94,10 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 
 - [x] Aşama 0 — Keşif
 - [x] Aşama 1 — Tablolar
-- [ ] Aşama 2 — Harita ve model okuyucuları, glTF çıktısı
-- [ ] Aşama 3 — İlk görüntü: tarayıcıda harita + yürüyen karakter + kamera
+- [x] Aşama 2 — Harita ve model okuyucuları, glTF çıktısı (sürüm 7 şifreli dokular hariç)
+- [x] Aşama 3 — İlk görüntü: tarayıcıda harita + yürüyen karakter + kamera (+ tek oyunculu av modu)
 - [ ] Aşama 4 — Sunucu bağlantısı: WebSocket köprüsü, şifreleme, login, karakter seçimi
-- [ ] Aşama 5 — Oyun sistemleri: oyuncular, mob'lar, chat, envanter, savaş, skill'ler
+- [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler
 
 ---
 
@@ -77,3 +110,5 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] `.tbl` şifresi çözüldü (USKO çift şifre + iki XOR çeşidi) — [formatlar/tbl.md](formatlar/tbl.md)
 - [x] Tablolar CSV olarak VS Code'da düzenlenebilir (Edit CSV eklentisi kuruldu)
 - [x] Oyun dili İngilizce kararı: `_us` tabloları kullanılıyor
+- [x] Paket arşivleri, dokular, arazi, nesneler, karakterler ve animasyonlar çözüldü — [formatlar/model.md](formatlar/model.md)
+- [x] Tarayıcıda tek oyunculu av modu (harita, karakter, canavar, savaş, ganimet, envanter) — nasıl açılacağı [README](../README.md)'de

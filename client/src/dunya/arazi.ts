@@ -109,19 +109,22 @@ export class Arazi {
           vec4 b2 = texelFetch(bilgi2, karo, 0) * 255.0;
           // Türevleri karo sınırında sıçramasın diye sürekli koordinattan al
           vec2 dx = dFdx(ko), dy = dFdy(ko);
-          // Geçiş karoları ters yönlerde kararır; iki karonun rengi TOPLANARAK birleşir.
+          // Geçiş karoları kenarlarında kararır (rengi saydamlıkla önceden çarpılmış gibi).
+          // Karanlığı saydamlık olarak kullanıp katmanları alttan üste bindiriyoruz:
+          // taban renk (yaklaşık renk haritası) -> 1. karo -> 2. karo.
+          // Not: Oyunun birebir karışım kuralı şifreli renk haritası çözülünce uygulanacak.
+          vec3 c = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
           vec2 uv1 = yonUv(b1.z, yerel);
-          vec3 c = textureGrad(karolar, vec3(uv1, b1.x + b1.y * 256.0), dx, dy).rgb;
+          vec3 t1 = textureGrad(karolar, vec3(uv1, b1.x + b1.y * 256.0), dx, dy).rgb;
+          float a1 = smoothstep(0.02, 0.22, max(t1.r, max(t1.g, t1.b)));
+          c = mix(c, t1 / max(a1, 0.35), a1);
           if (b2.w > 0.5) {
             vec2 uv2 = yonUv(b2.z, yerel);
-            c = min(c + textureGrad(karolar, vec3(uv2, b2.x + b2.y * 256.0), dx, dy).rgb, vec3(1.0));
+            vec3 t2 = textureGrad(karolar, vec3(uv2, b2.x + b2.y * 256.0), dx, dy).rgb;
+            float a2 = smoothstep(0.02, 0.22, max(t2.r, max(t2.g, t2.b)));
+            c = mix(c, t2 / max(a2, 0.35), a2 * 0.85);
           }
-          // Tek karonun karanlık kalan kısmını yaklaşık renk haritasıyla doldur
-          if (b2.w < 0.5) {
-            vec3 tb = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
-            float parlak = max(c.r, max(c.g, c.b));
-            c = mix(tb, c, smoothstep(0.02, 0.2, parlak));
-          }
+          c = min(c, vec3(1.0));
           float isik = 0.45 + 0.75 * max(dot(normalize(vNormal), gunesYonu), 0.0);
           vec3 r = c * isik;
           float sis = smoothstep(sisYakin, sisUzak, vDerinlik);

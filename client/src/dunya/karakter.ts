@@ -4,6 +4,13 @@ import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as iskeletKopyala } from 'three/addons/utils/SkeletonUtils.js';
 
 const onbellek = new Map<string, Promise<GLTF>>();
+type AnimBilgisi = Record<string, { animasyonlar: Record<string, { hiz: number; vurus: number | null; sure: number }> }>;
+let animBilgisi: AnimBilgisi = {};
+
+/** karakterler.json: her model için animasyon hızları (bir kez yüklenir). */
+export async function animBilgisiYukle(): Promise<void> {
+  try { animBilgisi = await (await fetch('/karakter/karakterler.json')).json(); } catch { animBilgisi = {}; }
+}
 
 function yukle(url: string): Promise<GLTF> {
   let p = onbellek.get(url);
@@ -32,7 +39,10 @@ export class KarakterModeli {
 
   static async olustur(url: string): Promise<KarakterModeli> {
     const g = await yukle(url);
-    return new KarakterModeli(iskeletKopyala(g.scene), g.animations);
+    const m = new KarakterModeli(iskeletKopyala(g.scene), g.animations);
+    const no = /\/(\d+)\.glb$/.exec(url)?.[1];
+    for (const [ad, b] of Object.entries(no ? animBilgisi[no]?.animasyonlar ?? {} : {})) if (b.hiz > 0) m.hizlar.set(ad, b.hiz);
+    return m;
   }
 
   var(ad: string): boolean { return this.klipler.has(ad); }
