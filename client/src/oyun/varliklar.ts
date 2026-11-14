@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { KarakterModeli } from '../dunya/karakter';
 import type { Arazi } from '../dunya/arazi';
-import { type CanavarTuru, type EsyaTanimi, rastgele, rastgeleTam } from './veri';
+import { type CanavarTuru, type EsyaTanimi, kurallar, rastgele, rastgeleTam } from './veri';
 
 /** Modellerin "ileri" yönü için düzeltme (radyan). Knight Online modelleri sahnede -z'ye bakıyor. */
 export const YON_OFSET = Math.PI;
@@ -270,20 +270,41 @@ export class Oyuncu extends Varlik {
   }
 
   /** Statüler (Knight Online savaşçı başlangıç değerleri) ve harcanmamış statü puanı. */
-  stat = { str: 60, sta: 60, dex: 30, int: 30 };
-  bonusPuan = 0;
-  /** Bir statü puanı harcar: STR saldırı, STA can, INT mana, DEX kritik şansı. Harcanamazsa false. */
-  statArtir(ad: 'str' | 'sta' | 'dex' | 'int'): boolean {
+  /** Sınıf numarası: 201 = El Morad Savaşçı (Warrior). Başlangıç statüleri NewChrValue.tbl'den, katsayılar sunucu COEFFICIENT tablosundan. */
+  sinif = 201;
+  stat = { str: 65, sta: 65, dex: 60, int: 50, cha: 50 };
+  bonusPuan = 10;
+  /** Kuralları (varsa) uygular: başlangıç statüleri ve can/mana. Oyun başında bir kez. */
+  kurallariUygula(): void {
+    const y = kurallar?.yeniKarakter[String(this.sinif)];
+    if (y) { this.stat = { str: y.str, sta: y.sta, dex: y.dex, int: y.int, cha: y.cha }; this.bonusPuan = y.puan; }
+    this.canManaHesapla(true);
+  }
+  /**
+   * En çok can/mana: sunucu kaynağı (UserHealtMagicSpSystem.cpp SetMaxHp / SetMaxMp). Eşya ve perk bonusları şimdilik yok.
+   * Savaşçının MP katsayısı 0 olduğu için SP katsayısı kullanılır.
+   */
+  canManaHesapla(doldur = false): void {
+    const k = kurallar?.katsayi[String(this.sinif)];
+    if (!k) return;
+    const L = this.seviye, sta = this.stat.sta;
+    this.enCok = Math.floor(k.hp * L * L * sta + 0.1 * L * sta + sta / 5 + 20);
+    if (k.mp !== 0) { const it = this.stat.int + 30; this.enCokMana = Math.floor(k.mp * L * L * it + 0.1 * L * 2 * it + it / 5 + 20); }
+    else this.enCokMana = Math.floor(k.sp * L * L * sta + 0.1 * L * sta + sta / 5);
+    this.can = doldur ? this.enCok : Math.min(this.can, this.enCok);
+    this.mana = doldur ? this.enCokMana : Math.min(this.mana, this.enCokMana);
+  }
+  /** Bir statü puanı harcar (STR/STA/DEX/INT/CHA). Harcanamazsa false. */
+  statArtir(ad: 'str' | 'sta' | 'dex' | 'int' | 'cha'): boolean {
     if (this.bonusPuan <= 0) return false;
     this.bonusPuan--; this.stat[ad]++;
-    if (ad === 'sta') { this.enCok += 5; this.can += 5; }
-    if (ad === 'int') { this.enCokMana += 3; this.mana += 3; }
+    this.canManaHesapla();
     return true;
   }
-  get kritikSansi(): number { return 0.1 + (this.stat.dex - 30) * 0.002; }
+  get kritikSansi(): number { return 0.1 + (this.stat.dex - 60) * 0.002; }
 
   hasarAraligi(): [number, number] {
-    const taban = 6 + this.seviye * 3 + Math.floor((this.stat.str - 60) / 2), ek = this.silah ? Math.round(this.silah.hasar * 0.6) : 0;
+    const taban = 6 + this.seviye * 3 + Math.floor((this.stat.str - 65) / 2), ek = this.silah ? Math.round(this.silah.hasar * 0.6) : 0;
     return [taban + ek, taban + ek + 6 + this.seviye];
   }
   savunma(): number { return this.seviye * 2 + (this.zirh ? Math.round(this.zirh.savunma * 0.5) : 0); }

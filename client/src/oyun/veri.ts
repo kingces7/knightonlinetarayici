@@ -28,8 +28,22 @@ export const CANAVARLAR: CanavarTuru[] = [
 
 export const OYUNCU_MODELI = 31137;
 
-/** Seviye atlamak için gereken deneyim. */
-export const gerekenDeneyim = (seviye: number) => 80 + seviye * seviye * 40;
+/**
+ * Oyuncu kuralları (sunucu veritabanı + NewChrValue.tbl; araclar: sunucu/oyuncu-disa-aktar.ps1 + npm run oyuncu).
+ * Yüklenemezse eski tahmini değerler kullanılır.
+ */
+export interface OyuncuKurallari {
+  deneyim: Record<string, number>;
+  katsayi: Record<string, { hp: number; mp: number; sp: number }>;
+  yeniKarakter: Record<string, { ad: string; str: number; sta: number; dex: number; int: number; cha: number; puan: number }>;
+}
+export let kurallar: OyuncuKurallari | null = null;
+export async function kurallariYukle(): Promise<void> {
+  try { kurallar = await (await fetch('/oyun/oyuncu.json')).json() as OyuncuKurallari; } catch { kurallar = null; }
+}
+
+/** Seviye atlamak için gereken deneyim (sunucu LEVEL_UP tablosu). */
+export const gerekenDeneyim = (seviye: number): number => kurallar?.deneyim[String(seviye)] ?? 80 + seviye * seviye * 40;
 
 export function rastgele(a: number, b: number): number { return a + Math.random() * (b - a); }
 export function rastgeleTam(a: number, b: number): number { return Math.floor(rastgele(a, b + 1)); }

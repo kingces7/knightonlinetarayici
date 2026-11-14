@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { CANAVARLAR, OYUNCU_MODELI, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
+import { CANAVARLAR, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
 
 const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? 'new_runawar';
@@ -48,10 +48,11 @@ async function basla(): Promise<void> {
   durum('Loading objects…');
   try { sahne.add(await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`)); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
-  await Promise.all([animBilgisiYukle(), esyalariYukle()]);
+  await Promise.all([animBilgisiYukle(), esyalariYukle(), kurallariYukle()]);
 
   const hud = new Hud();
   const oyuncu = new Oyuncu();
+  oyuncu.kurallariUygula();
   Varlik.arazi = arazi;
   const baslangic = new THREE.Vector2(...(ayar.baslangic ?? [arazi.genislik / 2, arazi.genislik / 2]));
   oyuncu.isinla(baslangic.x, baslangic.y, arazi);
@@ -202,9 +203,8 @@ async function basla(): Promise<void> {
     while (oyuncu.deneyim >= gerekenDeneyim(oyuncu.seviye)) {
       oyuncu.deneyim -= gerekenDeneyim(oyuncu.seviye);
       oyuncu.seviye++;
-      oyuncu.enCok += 25; oyuncu.can = oyuncu.enCok;
-      oyuncu.enCokMana += 10; oyuncu.mana = oyuncu.enCokMana;
-      oyuncu.bonusPuan += 3; // her seviyede 3 statü puanı (U penceresinde harcanır)
+      oyuncu.bonusPuan += oyuncu.seviye > 60 ? 5 : 3; // sunucu: 60. seviyeye kadar 3, sonrası 5 statü puanı (U penceresinde harcanır)
+      oyuncu.canManaHesapla(true); // sunucu: seviye atlayınca can ve mana tamamen dolar
       hud.mesaj(`Level up! You are now level ${oyuncu.seviye}.`, 'sistem');
       envanterYenile();
     }

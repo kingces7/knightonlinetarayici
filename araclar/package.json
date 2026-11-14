@@ -19,6 +19,7 @@
     "esyalar": "node oyun/esyalar.ts",
     "web-hazirla": "node harita/cli.ts new_runawar && node model/cli.ts 11610 100 200 300 500 700 800 && node oyun/esyalar.ts",
     "arayuz": "node arayuz/cli.ts",
-    "beceriler": "node oyun/beceriler.ts"
+    "beceriler": "node oyun/beceriler.ts",
+    "oyuncu": "node oyun/oyuncu.ts"
   }
 }
