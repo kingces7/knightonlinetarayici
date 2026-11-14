@@ -26,7 +26,7 @@ function main(): number {
   const gorulenAd = new Set<string>();
   for (const s of satirlar) {
     const [no, , ad, aciklama] = s as [number, number, string, string];
-    const simge = Number(s[7]), tur = Number(s[10]), hasar = Number(s[15]), fiyat = Number(s[20]), savunma = Number(s[22]);
+    const simge = Number(s[7]), tur = Number(s[10]), hasar = Number(s[15]), fiyat = Number(s[20]), savunma = Number(s[22]), gecikme = Number(s[16]);
     const silah = SILAH.has(tur), zirh = ZIRH.has(tur);
     if (!(silah || zirh) || !/^[\x20-\x7e]+$/.test(ad) || gorulenAd.has(ad)) continue;
     if (fiyat <= 0 || fiyat > 60000) continue;
@@ -37,7 +37,7 @@ function main(): number {
       fs.writeFileSync(path.join(hedef, 'ikon', `${simge}.png`), pngKodla(d.genislik, d.yukseklik, rgbayaCevir(d)));
     } catch { continue; }
     gorulenAd.add(ad);
-    secilen.push({ no, ad, aciklama: aciklama.replace(/\|\s*/g, ' '), simge: `ikon/${simge}.png`, tur: silah ? 'silah' : 'zirh', hasar, savunma, fiyat });
+    secilen.push({ no, ad, aciklama: aciklama.replace(/\|\s*/g, ' '), simge: `ikon/${simge}.png`, tur: silah ? 'silah' : 'zirh', tip: tur, hasar, gecikme, savunma, fiyat });
     if (secilen.length >= 120) break;
   }
   fs.writeFileSync(path.join(hedef, 'esyalar.json'), JSON.stringify(secilen, null, 1));

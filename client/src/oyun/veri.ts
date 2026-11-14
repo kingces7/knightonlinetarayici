@@ -3,7 +3,7 @@
 
 export interface EsyaTanimi {
   no: number; ad: string; aciklama: string; simge: string;
-  tur: 'silah' | 'zirh'; hasar: number; savunma: number; fiyat: number;
+  tur: 'silah' | 'zirh'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
 }
 
 export interface CanavarTuru {
@@ -11,20 +11,35 @@ export interface CanavarTuru {
   ad: string;
   seviye: number;
   can: number;
-  hasar: [number, number];
-  hiz: number; // m/sn (yürüme)
+  hasar: number; // sunucu sDamage (formülde toplam vuruş gücü)
+  ac: number; isabet: number; kacis: number; // sunucu sAc / sHitRate / sEvadeRate
+  gecikme: number; // sunucu sAttackDelay (ms)
+  exp: number; para: number; // sunucu iExp / iMoney
+  hiz: number; // m/sn (yürüme) — henüz tahmin
   olcek: number;
-  adet: number; // haritadaki sayı
+  adet: number; // haritadaki sayı (burada)
 }
 
-export const CANAVARLAR: CanavarTuru[] = [
-  { model: 700, ad: 'Worm', seviye: 1, can: 45, hasar: [2, 5], hiz: 1.6, olcek: 1, adet: 6 },
-  { model: 800, ad: 'Bandicoot', seviye: 2, can: 65, hasar: [3, 7], hiz: 2.0, olcek: 1, adet: 6 },
-  { model: 100, ad: 'Kecoon', seviye: 3, can: 90, hasar: [5, 9], hiz: 2.2, olcek: 1, adet: 6 },
-  { model: 200, ad: 'Bulcan', seviye: 5, can: 140, hasar: [7, 12], hiz: 2.4, olcek: 1, adet: 4 },
-  { model: 300, ad: 'Gavolt', seviye: 6, can: 180, hasar: [9, 15], hiz: 2.4, olcek: 1, adet: 4 },
-  { model: 500, ad: 'Werewolf', seviye: 8, can: 260, hasar: [12, 20], hiz: 2.8, olcek: 1, adet: 3 },
+/**
+ * Tek oyunculu modda gösterilen canavar ailesi → sunucu K_MONSTER kaydı (Moradon bölgesi canavarları, araclar/sunucu/oyuncu-disa-aktar.ps1).
+ * Her ailenin en düşük seviyeli üyesi alınır. Yürüme hızı ve adet henüz tahmin; konumlar için K_NPCPOS1098 ileride kullanılacak.
+ */
+const AILELER: { sid: number; hiz: number; adet: number }[] = [
+  { sid: 750, hiz: 1.6, adet: 6 }, // Worm
+  { sid: 850, hiz: 2.0, adet: 6 }, // Bandicoot
+  { sid: 150, hiz: 2.2, adet: 6 }, // Kecoon
+  { sid: 250, hiz: 2.4, adet: 4 }, // Bulcan
+  { sid: 350, hiz: 2.4, adet: 4 }, // Gavolt
+  { sid: 550, hiz: 2.8, adet: 3 }, // Werewolf
 ];
+export function canavarTurleri(): CanavarTuru[] {
+  const tur: CanavarTuru[] = [];
+  for (const a of AILELER) {
+    const m = kurallar?.canavar.find((x) => x.sid === a.sid);
+    if (m) tur.push({ model: m.model, ad: m.ad, seviye: m.seviye, can: m.hp, hasar: m.hasar, ac: m.ac, isabet: m.isabet, kacis: m.kacis, gecikme: m.gecikme, exp: m.exp, para: m.para, hiz: a.hiz, olcek: m.boyut / 100, adet: a.adet });
+  }
+  return tur;
+}
 
 export const OYUNCU_MODELI = 31137;
 
@@ -34,7 +49,9 @@ export const OYUNCU_MODELI = 31137;
  */
 export interface OyuncuKurallari {
   deneyim: Record<string, number>;
-  katsayi: Record<string, { hp: number; mp: number; sp: number }>;
+  katsayi: Record<string, { hp: number; mp: number; sp: number; ac: number; isabet: number; kacis: number; kisaKilic: number; jamadar: number; kilic: number; balta: number; sopa: number; mizrak: number; mace: number; asa: number; yay: number }>;
+  hasarAyar: { mondef: number; canavarHasarCarpani: number; rdamage: number };
+  canavar: { sid: number; ad: string; model: number; boyut: number; seviye: number; hp: number; ac: number; isabet: number; kacis: number; hasar: number; gecikme: number; exp: number; para: number; adet: number }[];
   yeniKarakter: Record<string, { ad: string; str: number; sta: number; dex: number; int: number; cha: number; puan: number }>;
 }
 export let kurallar: OyuncuKurallari | null = null;

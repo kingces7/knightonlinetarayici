@@ -217,12 +217,11 @@ export class OyunArayuzu {
 
   private durumCiz(): void {
     const p = this.pencereler.durum, o = this.b.oyuncu;
-    const [h0, h1] = o.hasarAraligi();
     p.metin('Text_Id', 'KnightEmpire'); p.metin('Text_Nation', 'El Morad'); p.metin('Text_Class', 'Warrior'); p.metin('Text_Race', 'Human');
     p.metin('Text_Level', o.seviye);
     p.metin('Text_Exp', `${o.deneyim} / ${gerekenDeneyim(o.seviye)}`);
     p.metin('Text_HP', `${Math.ceil(o.can)} / ${o.enCok}`); p.metin('Text_MP', `${Math.ceil(o.mana)} / ${o.enCokMana}`);
-    p.metin('Text_AP', Math.round((h0 + h1) / 2)); p.metin('Text_GP', o.savunma());
+    p.metin('Text_AP', o.toplamVurus()); p.metin('Text_GP', o.savunma());
     p.metin('Text_Weight', `${o.envanter.filter(Boolean).length} / 28`);
     p.metin('Text_BonusPoint', o.bonusPuan);
     p.metin('Text_Strength', o.stat.str); p.metin('Text_Stamina', o.stat.sta); p.metin('Text_Dexterity', o.stat.dex);

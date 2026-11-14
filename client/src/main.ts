@@ -8,7 +8,9 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { CANAVARLAR, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele, rastgeleTam } from './oyun/veri';
+import { canavarTurleri, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
+import * as savas from './oyun/savas';
+import { canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
 const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? 'new_runawar';
@@ -61,8 +63,9 @@ async function basla(): Promise<void> {
 
   // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere (güvenli şehirlerde yok)
   const canavarlar: Canavar[] = [];
-  for (const [i, tur] of (ayar.canavar ? CANAVARLAR : []).entries()) {
-    const aci = (i / CANAVARLAR.length) * Math.PI * 2;
+  const turler = ayar.canavar ? canavarTurleri() : [];
+  for (const [i, tur] of turler.entries()) {
+    const aci = (i / turler.length) * Math.PI * 2;
     const merkez = new THREE.Vector2(baslangic.x + Math.cos(aci) * (22 + i * 9), baslangic.y + Math.sin(aci) * (22 + i * 9));
     for (let k = 0; k < tur.adet; k++) {
       const c = new Canavar(tur, merkez.x + rastgele(-10, 10), merkez.y + rastgele(-10, 10));
@@ -261,7 +264,7 @@ async function basla(): Promise<void> {
         oyuncu.bak(h.konum);
         oyuncu.saldiriSayaci -= dt;
         if (oyuncu.saldiriSayaci <= 0) {
-          oyuncu.saldiriSayaci = 1.2;
+          oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
           oyuncu.savastanBeri = 0;
           oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
           vurusZamanlayici.push({ kalan: 0.45, hedef: h });
@@ -288,20 +291,22 @@ async function basla(): Promise<void> {
       if (v.kalan > 0) continue;
       vurusZamanlayici.splice(i, 1);
       if (v.hedef.olu || oyuncu.olu) continue;
-      const [h0, h1] = oyuncu.hasarAraligi();
-      const kritik = Math.random() < oyuncu.kritikSansi;
-      const hasar = Math.round(rastgeleTam(h0, h1) * (kritik ? 1.8 : 1));
+      const vurus = oyuncuVurusu(oyuncu.savasVeri, v.hedef.tur); // sunucu formülü (savas.ts)
+      if (vurus.sonuc === 'iska') { hud.mesaj(`You missed ${v.hedef.tur.ad}.`, 'bilgi'); continue; }
+      const hasar = vurus.hasar;
       v.hedef.hasarAl(hasar);
-      hud.mesaj(`${kritik ? 'Critical! ' : ''}You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
+      hud.mesaj(`You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
       if (v.hedef.olu) {
         hud.mesaj(`${v.hedef.tur.ad} has been defeated.`, 'sistem');
-        deneyimKazan(v.hedef.tur.seviye * 18 + rastgeleTam(0, 6));
+        deneyimKazan(v.hedef.tur.exp); // sunucu iExp (tek başına: tamamı, seviye çarpanı 1)
       }
     }
     for (const c of canavarlar) {
-      const hasar = c.guncelle(dt, oyuncu);
-      if (hasar > 0) {
-        const net = oyuncu.hasarAl(hasar);
+      const saldirdi = c.guncelle(dt, oyuncu);
+      const vurus = saldirdi ? canavarVurusu(c.tur, oyuncu.savasVeri) : null; // sunucu formülü (savas.ts)
+      if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); if (!oyuncu.hedef) oyuncu.hedef = c; }
+      if (vurus && vurus.hasar > 0) {
+        const net = oyuncu.hasarAl(vurus.hasar);
         kalk(); // hasar alınca ayağa kalkılır
         hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
         if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
@@ -349,7 +354,7 @@ async function basla(): Promise<void> {
     hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

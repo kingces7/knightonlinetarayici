@@ -22,3 +22,12 @@ Araç: `araclar/exe/dizeler.ts` (52 153 dize). Çıkanlar:
 
 ## Uygulanan (2026-11-14)
 Oyuncu kuralları artık orijinalden: deneyim eğrisi (sunucu `LEVEL_UP`), başlangıç statüleri 65/65/60/50/50 + 10 serbest puan (`NewChrValue.tbl`; toplamın 297+3×seviye kuralıyla tutarlılığı sunucu kaynağından doğrulandı), seviye başına 3 puan (60'tan sonra 5), seviye atlayınca can/mana dolar, en çok can/mana sunucu formülüyle (`SetMaxHp`/`SetMaxMp`; savaşçıda SP katsayısı). Veri: `araclar/sunucu/oyuncu-disa-aktar.ps1` + `npm run oyuncu` → `donusturulmus/web/oyun/oyuncu.json`. İstemci: `client/src/oyun/veri.ts` (`kurallar`), `varliklar.ts` (`canManaHesapla`).
+
+## Savaş formülleri (2026-11-14) — `client/src/oyun/savas.ts`
+Sunucu kaynağından birebir (`Unit.cpp` CUser::GetDamage / CNpc::GetDamage / GetHitRate; `UserAbilityHandler.cpp` SetCoefficient + SetUserAbility):
+- **Toplam vuruş** = floor(0,005·güç·(STR+40) + silah katsayısı·güç·seviye·STR + 3) (güç = silah hasarı, silahsızken 3; katsayı sınıf+silah türüne göre `COEFFICIENT` tablosundan). **Savunma** = AC katsayısı·(seviye + zırh savunması). **İsabet/kaçış** = 1 + katsayı·seviye·DEX.
+- **Oyuncu → canavar:** hitB = (vuruş·100·2/100)/(canavar AC + 240); isabet zarı (`GetHitRate` eşik tablosu, oran = isabet/kaçış + 1); hasar = 0,75·hitB + 0,3·rastgele(0..hitB); seviye > 30 ise ×0,2 (`rdamage`); canavara ×2,5 (`montakedamage`) — DB `DAMAGE_SETTINGS`. Kritik vuruş yok (isabet sonucu `buyuk` normal hasar verir).
+- **Canavar → oyuncu:** hitB = (sDamage·100·2/100)/(oyuncu savunma + 240); hasar = 0,3·rastgele(0..hitB) + 0,85·hitB (büyük başarıda ×1,5), üst sınır 2,6·sDamage.
+- Vuruş aralığı: silah gecikmesi/100 sn (eşya tablosu sütun 16; silahsızken 1 sn). Canavar: `sAttackDelay` ms. Deneyim: canavarın `iExp` değeri (tek başına tamamı).
+- Canavar değerleri `K_MONSTER` (Moradon bölgesi, `K_NPCPOS1098` ile eşleşen 30 tür) → `oyuncu.json` içindeki `canavar`.
+- **Henüz yok:** skill vuruşları, elementel eşya hasarı, perk/buff çarpanları, savaşçı pasif savunma becerileri, canavar yürüme hızları, altın/eşya düşme kuralları.

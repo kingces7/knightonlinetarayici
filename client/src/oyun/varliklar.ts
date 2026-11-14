@@ -3,7 +3,8 @@
 import * as THREE from 'three';
 import { KarakterModeli } from '../dunya/karakter';
 import type { Arazi } from '../dunya/arazi';
-import { type CanavarTuru, type EsyaTanimi, kurallar, rastgele, rastgeleTam } from './veri';
+import { type CanavarTuru, type EsyaTanimi, kurallar, rastgele } from './veri';
+import { type SavasOyuncusu, toplamSavunma, toplamVurus } from './savas';
 
 /** Modellerin "ileri" yönü için düzeltme (radyan). Knight Online modelleri sahnede -z'ye bakıyor. */
 export const YON_OFSET = Math.PI;
@@ -175,10 +176,10 @@ export class Canavar extends Varlik {
     this.model?.oynat('bekle');
   }
 
-  /** Yapay zekâ. Saldırı yapılırsa verilen hasarı döndürür. */
-  guncelle(dt: number, oyuncu: Oyuncu): number {
+  /** Yapay zekâ. Bu karede saldırı yaptıysa true döner (hasarı savas.ts hesaplar). */
+  guncelle(dt: number, oyuncu: Oyuncu): boolean {
     this.model?.guncelle(dt);
-    if (this.olu) { this.oluSuresi += dt; return 0; }
+    if (this.olu) { this.oluSuresi += dt; return false; }
     const uzaklik = this.konum.distanceTo(oyuncu.konum);
     const dogumdan = this.konum.distanceTo(this.dogum);
     if (oyuncu.olu || dogumdan > 30) { this.kizgin = false; }
@@ -194,13 +195,13 @@ export class Canavar extends Varlik {
         this.bak(oyuncu.konum);
         this.saldiriSayaci -= dt;
         if (this.saldiriSayaci <= 0) {
-          this.saldiriSayaci = 1.8;
+          this.saldiriSayaci = this.tur.gecikme / 1000; // sunucu sAttackDelay (ms)
           this.model?.oynat('saldir0', false, 0.1);
-          return rastgeleTam(this.tur.hasar[0], this.tur.hasar[1]);
+          return true;
         }
-        if (this.saldiriSayaci < 1.0 && this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
+        if (this.saldiriSayaci < this.tur.gecikme / 1000 - 0.8 && this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
       }
-      return 0;
+      return false;
     }
     // Gezinme
     this.durum = 'gez';
@@ -214,7 +215,7 @@ export class Canavar extends Varlik {
         this.gezHedef = new THREE.Vector2(this.dogum.x + Math.cos(a) * r, this.dogum.y + Math.sin(a) * r);
       }
     }
-    return 0;
+    return false;
   }
 }
 
@@ -301,20 +302,18 @@ export class Oyuncu extends Varlik {
     this.canManaHesapla();
     return true;
   }
-  get kritikSansi(): number { return 0.1 + (this.stat.dex - 60) * 0.002; }
+  /** Savaş formüllerine (savas.ts) verilen oyuncu görüntüsü. */
+  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, zirh: this.zirh }; }
+  /** Toplam vuruş gücü (sunucu m_sTotalHit) ve toplam savunma (m_sTotalAc). */
+  toplamVurus(): number { return toplamVurus(this.savasVeri); }
+  savunma(): number { return toplamSavunma(this.savasVeri); }
 
-  hasarAraligi(): [number, number] {
-    const taban = 6 + this.seviye * 3 + Math.floor((this.stat.str - 65) / 2), ek = this.silah ? Math.round(this.silah.hasar * 0.6) : 0;
-    return [taban + ek, taban + ek + 6 + this.seviye];
-  }
-  savunma(): number { return this.seviye * 2 + (this.zirh ? Math.round(this.zirh.savunma * 0.5) : 0); }
-
+  /** Alınan hasar zaten sunucu formülüyle hesaplanmıştır (savas.ts canavarVurusu). */
   hasarAl(miktar: number): number {
-    const net = Math.max(1, miktar - Math.floor(this.savunma() / 4));
-    this.can = Math.max(0, this.can - net);
+    this.can = Math.max(0, this.can - miktar);
     this.savastanBeri = 0;
     if (this.can <= 0) this.model?.oynat('olum0', false);
-    return net;
+    return miktar;
   }
 
   /** Boş envanter yuvasına koyar; yer yoksa false. */

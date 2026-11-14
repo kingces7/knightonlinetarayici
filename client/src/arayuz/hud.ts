@@ -89,8 +89,7 @@ export class Hud {
     o.envanter.forEach((e, i) => this.yuvaCiz(yuvalar[i], e));
     this.yuvaCiz(this.envanter.querySelector('.kusanilan .silah')!, o.silah);
     this.yuvaCiz(this.envanter.querySelector('.kusanilan .zirh')!, o.zirh);
-    const [h0, h1] = o.hasarAraligi();
-    this.envanter.querySelector('.istat')!.textContent = `Attack ${h0}-${h1} · Defense ${o.savunma()}`;
+    this.envanter.querySelector('.istat')!.textContent = `Attack ${o.toplamVurus()} · Defense ${o.savunma()}`;
     this.envanter.querySelector('.altin')!.textContent = `${o.altin.toLocaleString('en-US')} Noah`;
   }
 

@@ -65,7 +65,10 @@ Bilinmeyenler (bulunca işaretle):
 - [ ] **Yöntem 1** (veriden çıkarım) — sürekli uygulanır
 - [x] **Yöntem 2** (`.exe` düz metin taraması) yapıldı: bulgular [istemci-kodu.md](istemci-kodu.md). Çıkan en önemli sonuç: istemcinin okuduğu 45 tablo, kuralların çoğunu veri olarak taşıyor.
 - [x] **Oyuncu kuralları orijinale çevrildi:** deneyim eğrisi (sunucu `LEVEL_UP`), başlangıç statüleri/puanı (`NewChrValue.tbl`), can/mana formülü ve seviye atlama (sunucu kaynağı). Ayrıntı: [istemci-kodu.md](istemci-kodu.md).
-- [ ] **Hâlâ tahmin olanlar:** vuruş hasarı/savunma/kritik formülleri (sunucu `AttackHandler.cpp` + `COEFFICIENT` silah katsayıları ile değiştirilecek), canavar değerleri (K_NPC), ganimet kuralları, oturunca yenilenme oranı, normal yenilenme (HP/MP regen sunucuda), adım sesleri (`Move_Sound.tbl`), skill verileri (`Skill_Magic_*`).
+- [x] **Savaş formülleri sunucudan:** normal vuruş, canavar vuruşu, isabet tablosu, silah gecikmesi, canavar değerleri (`K_MONSTER`), deneyim ödülü — [istemci-kodu.md](istemci-kodu.md). Kritik vuruş ve eski uydurma formüller kaldırıldı.
+- [ ] **Hâlâ tahmin olanlar:** canavar yürüme/koşma hızları (`bySpeed1/2` birimi), canavar yerleşimi (`K_NPCPOS1098` konumları; şimdi başlangıç çevresine halka), altın/eşya düşme kuralları (`K_MONSTER_ITEM`, `iMoney`), oturunca yenilenme oranı, normal HP/MP yenilenmesi (sunucu), saldırı menzili.
+- [ ] **Başlangıç eşyaları:** `NewChrValue.tbl` sütunları 10-14 (ör. 206001000…) karakterin başlangıçta giydiği eşyalar; şimdi oyuncu silahsız/zırhsız başlıyor.
+- [ ] **Skill kullanımı** (`Skill_Magic_*` + sunucu `MagicInstance.cpp`): MP harcama, hasar, etki.
 - [ ] `Data/DefaultCamera.N3Camera` (453 bayt) ve `Zones/Camera/*.n3camera` okuyucusu: kamera ayarlarını orijinalden al.
 - [ ] **Yöntem 3** (paket açma + tersine mühendislik) — yalnızca gerekirse, kullanıcıya sorarak
 
