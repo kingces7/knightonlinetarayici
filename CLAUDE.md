@@ -15,8 +15,11 @@ değiştirilmeden kullanılacak.
 
 ## Kararlar
 - **Myko** sürümüyle çalışılıyor: veritabanı `Myko Database/LILITH_MYKO.bak` (+ `LILITH_LOG.bak`),
-  server kaynağı `Source Files/Myko_Source.rar`, client `DiabloKO/` (Myko arşivinden çıkarıldı).
+  server kaynağı `Source Files/Myko_Source.rar`, client `KnightEmpire/` (Myko arşivindeki `DiabloKO` klasöründen çıkarılıp yeniden adlandırıldı).
   Homeko'ya ait her şey (veritabanı, kaynak kodu, `SpecialKO` client'ı) silindi; yedeği `knight online ham proje.rar` içinde.
+- **Oyunun adı: KnightEmpire.** Tarayıcı client'ında (başlık, giriş ekranı vb.) bu ad kullanılır.
+  Orijinal dosyalardaki eski adlar (DiabloKO, MykoNetwork, Lilith) değiştirilmez; server ayarlarındaki
+  görünen adlar server kurulurken kullanıcıya sorularak güncellenebilir.
 - Proje **bu bilgisayarda** geliştirilir. GitHub yedek ve bulut oturumu ile paylaşım içindir.
 
 ## Kesin kurallar
@@ -66,7 +69,7 @@ Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 ## Klasör yapısı
 ```
 E:\Knight Online Browser Project\
-├── DiabloKO              # Myko client'ı, Myko_Source.rar'dan çıkarıldı (sadece oku)
+├── KnightEmpire           # Myko client'ı, Myko_Source.rar'dan çıkarıldı (sadece oku)
 ├── Myko Database\          # LILITH_MYKO.bak, LILITH_LOG.bak (SQL Server 2022 yedeği)
 ├── Source Files\           # Myko_Source.rar, DXSDK, libcurl
 ├── Noah-System\            # topluluk araçları (TBL editor, UIE…)
@@ -79,4 +82,4 @@ E:\Knight Online Browser Project\
     ├── oyun-dosyalari\     # .rar'lardan çıkarılan dosyalar (git'e girmez)
     └── donusturulmus\      # dönüştürülmüş asset'ler (git'e girmez)
 ```
-Kodda oyun dosyalarına giden yol tek bir ayardan okunmalı (ör. `../DiabloKO`), sabit yazılmamalı.
+Kodda oyun dosyalarına giden yol tek bir ayardan okunmalı (ör. `../KnightEmpire`), sabit yazılmamalı.

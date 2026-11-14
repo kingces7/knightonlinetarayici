@@ -9,8 +9,8 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 
 | Klasör / dosya | Boyut | İçerik |
 |---|---|---|
-| `DiabloKO/` | 2,9 GB | **Myko client'ı** (KnightOnline.exe + tüm veri dosyaları). `Myko_Source.rar` içinden çıkarıldı. `Server.ini` sürümü: 1098 |
-| `Source Files/Myko_Source.rar` | 1,8 GB | **Server kaynak kodu** (C++), Launcher, anti-cheat, `DiabloKO` client'ı |
+| `KnightEmpire/` | 2,9 GB | **Myko client'ı** (KnightOnline.exe + tüm veri dosyaları). `Myko_Source.rar` içindeki `DiabloKO` klasöründen çıkarılıp yeniden adlandırıldı. `Server.ini` sürümü: 1098 |
+| `Source Files/Myko_Source.rar` | 1,8 GB | **Server kaynak kodu** (C++), Launcher, anti-cheat, client (arşivde `DiabloKO` adıyla) |
 | ~~`SpecialKO/`, `Source Files/HomekoSource.rar`~~ | – | Homeko'ya aitti, silindi (yedeği `knight online ham proje.rar` içinde) |
 | `Source Files/DXSDK-summ2004.rar`, `libcurl.rar` | 240 MB | Derleme bağımlılıkları (DirectX SDK, curl) |
 | `Myko Database/` | 183 MB | **MS SQL Server veritabanı yedekleri** (`LILITH_MYKO.bak`, `LILITH_LOG.bak`). Homeko veritabanı kullanıcı tarafından silindi. |
@@ -21,10 +21,10 @@ Oyun dosyaları depo içindeki `oyun-dosyalari/` klasöründe **değil**, depo i
 > Not: `.rar` arşivleri açılmadı, sadece içerikleri listelendi. İncelenen birkaç kaynak dosyası
 > geçici klasöre çıkarıldı. Orijinal dosyalara dokunulmadı.
 
-## 2. Client (`DiabloKO/`)
+## 2. Client (`KnightEmpire/`)
 
 > İlk tarama Homeko client'ı `SpecialKO/` üzerinde yapıldı ve kaynak kod da Homeko arşivinden okundu.
-> Yerine geçen Myko client'ı `DiabloKO/` ve Myko kaynak kodu aynı yapıda (aynı klasörler,
+> Yerine geçen Myko client'ı `KnightEmpire/` ve Myko kaynak kodu aynı yapıda (aynı klasörler,
 > ~6.000 dosya, aynı dosya türleri, aynı `__VERSION 2369`).
 
 - Client sürümü: **2369** (`version.h` → `__VERSION 2369`). Server ayarı `Server.ini`: `127.0.0.1:15107`.
@@ -127,7 +127,7 @@ Kararlar (2026-11-14, kullanıcı):
 Sonraki adımlar:
 1. Myko server kaynak kodunun gerekli kısımları (`shared/`, `GameServer/`, `LogInServer/`)
    depo içindeki `oyun-dosyalari/kaynak/` klasörüne (git'e girmez) çıkarılacak.
-2. ✅ Client seçildi: `DiabloKO/` (Myko). Homeko'ya ait her şey silindi.
+2. ✅ Client seçildi: `KnightEmpire/` (Myko). Homeko'ya ait her şey silindi.
 3. Aşama 1 — Tablolar. (Python bu bilgisayarda gerçekte kurulu değil; dönüştürücü için Node.js/TypeScript
    veya Python kurulumu gerekecek.)
 4. Node.js kurulumu (Aşama 1/3/4 için), ileride SQL Server 2022 kurulumu (server'ı çalıştırmak için).
