@@ -10,6 +10,9 @@
     "tbl-coz": "node tbl/cli.ts coz",
     "tbl-yaz": "node tbl/cli.ts yaz",
     "tbl-dogrula": "node tbl/cli.ts dogrula",
-    "test": "node --test"
+    "test": "node --test",
+    "paket-coz": "node paket/cli.ts coz",
+    "paket-yaz": "node paket/cli.ts yaz",
+    "paket-dogrula": "node paket/cli.ts dogrula"
   }
 }
