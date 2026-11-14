@@ -63,7 +63,9 @@ Bilinmeyenler (bulunca işaretle):
 
 İlerleme:
 - [ ] **Yöntem 1** (veriden çıkarım) — sürekli uygulanır
-- [ ] **Yöntem 2** (`.exe` düz metin/sabit taraması: kısayollar, animasyon adları, sabitler) — sıradaki iş
+- [x] **Yöntem 2** (`.exe` düz metin taraması) yapıldı: bulgular [istemci-kodu.md](istemci-kodu.md). Çıkan en önemli sonuç: istemcinin okuduğu 45 tablo, kuralların çoğunu veri olarak taşıyor.
+- [ ] **Uydurma değerleri orijinal tablolarla değiştir:** deneyim eğrisi → `Player_experience.tbl` (şimdi yanlış formül), başlangıç statüleri/eşyaları → `NewChrValue.tbl`, adım sesleri → `Move_Sound.tbl`, skill verileri → `Skill_Magic_*`.
+- [ ] `Data/DefaultCamera.N3Camera` (453 bayt) ve `Zones/Camera/*.n3camera` okuyucusu: kamera ayarlarını orijinalden al.
 - [ ] **Yöntem 3** (paket açma + tersine mühendislik) — yalnızca gerekirse, kullanıcıya sorarak
 
 ---
