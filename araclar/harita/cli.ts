@@ -6,7 +6,7 @@ import path from 'node:path';
 import { CIKTI_DIZINI, SUNUCU_HARITA_DIZINI, oyunDisindaOlmali } from '../ortak/yollar.ts';
 import { smdOku } from './smd.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
-import { dxtOku, rgbayaCevir } from '../doku/dxt.ts';
+import { dxtOku, rgbayaCevir, tctOku } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
 import { gtdOku, dokuKonumu, type Arazi } from './arazi.ts';
 import { nesneleriDisaAktar } from './nesneler.ts';
@@ -121,6 +121,27 @@ function onizleme(a: Arazi, karolar: Uint8Array[], pxKaro: number): Buffer {
   return pngKodla(boy, boy, rgba);
 }
 
+/**
+ * Gerçek renk haritası (.tct): N×N parça, her biri 128×128 piksel (yaklaşık 1 piksel/metre).
+ * Düzen, yaklaşık taban renge göre 128 olası düzen arasından ölçülerek seçildi (Moradon r=0,83; eski Moradon r=0,86;
+ * ikinci en iyi 0,48 / 0,40): parça i, x-parçası = ⌊i/N⌋, z-parçası = i mod N; parça içinde satırlar z ekseninde ters.
+ * Çıktı: ham RGBA, satır = z, sütun = x (S×S).
+ */
+export function renkHaritasi(parcalar: Uint8Array[]): { rgba: Uint8Array; boyut: number } {
+  const N = Math.round(Math.sqrt(parcalar.length)), P = 128, S = N * P;
+  if (N * N !== parcalar.length) throw new Error(`.tct parça sayısı kare değil (${parcalar.length})`);
+  const rgba = new Uint8Array(S * S * 4);
+  parcalar.forEach((p, i) => {
+    const cx = Math.floor(i / N), cz = i % N;
+    for (let y = 0; y < P; y++) {
+      const hedefSatir = cz * P + (P - 1 - y);
+      rgba.set(p.subarray(y * P * 4, (y + 1) * P * 4), (hedefSatir * S + cx * P) * 4);
+    }
+  });
+  for (let i = 3; i < rgba.length; i += 4) rgba[i] = 255; // A1R5G5B5 saydamlığı renk haritasında anlamsız
+  return { rgba, boyut: S };
+}
+
 /** İstemci haritası → sunucu haritası (.smd) eşleşmesi. İstemci adıyla aynı olmayanlar burada. */
 const SUNUCU_HARITASI: Record<string, string> = { moradon: '1098moradon_0826.smd', '14th_oldmoradon': 'old_moradon.smd' };
 
@@ -163,9 +184,17 @@ function main(argv: string[]): number {
   Buffer.from(a.yon2).copy(bin, o);
   fs.writeFileSync(path.join(hedef, 'arazi.bin'), bin);
   fs.writeFileSync(path.join(hedef, 'taban.bin'), tabanRenk(a, karolar));
+  let renk: { dosya: string; boyut: number } | null = null;
+  try {
+    const r = renkHaritasi(tctOku(od.oku(`Zones/${harita}.tct`)).map((d) => rgbayaCevir(d)));
+    fs.writeFileSync(path.join(hedef, 'renk.bin'), r.rgba);
+    renk = { dosya: 'renk.bin', boyut: r.boyut };
+    console.log(`  renk haritası: ${r.boyut}×${r.boyut}`);
+  } catch (e) { console.log(`  renk haritası (.tct) okunamadı, yaklaşık taban kullanılacak: ${(e as Error).message}`); }
   fs.writeFileSync(path.join(hedef, 'arazi.json'), JSON.stringify({
     ad: a.ad, boyut: a.boyut, birim: a.birim, karoSayisi: a.karolar.length,
     atlas: { dosya: 'karolar.png', kolon: ATLAS_KOLON, satir, karoPx: KARO_PX },
+    renk,
     ikili: { dosya: 'arazi.bin', duzen: 'float32 yukseklik[N*N], uint16 doku1[N*N], uint16 doku2[N*N], uint8 yon1[N*N], uint8 yon2[N*N]; sira x*N+z' },
   }, null, 2));
   console.log(`  -> ${hedef}`);

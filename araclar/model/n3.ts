@@ -28,14 +28,27 @@ export interface Mesh {
   indeks: Uint16Array; // üçgenler (D3D: saat yönü ön yüz)
 }
 
-/** En ayrıntılı seviyeyi okur (ilerleyen ayrıntı / LOD verisi atlanır). */
+/**
+ * Kademeli ağ (progressive mesh). Dosyadaki indeks dizisi **tüm çökmeler uygulanmış** durumdadır (kanıt: her çökmenin
+ * değiştirdiği indeks yerlerinde hedef köşe numarası duruyor, kaybolan köşe değil). Kayıtlar en düşükten en ayrıntıya
+ * (bölme) sırasındadır: her kayıtta köşe sayısı kaybolanKöşe kadar artar ve kaydın değiştirdiği yerlere yeni doğan
+ * köşenin numarası (= o andaki köşe sayısı − 1) yazılır. Kanıt: ilk üçgenler 0 2 1, 1 3 2, 4 6 5 … ve kayıtlar
+ * sırasıyla 3, +1, +3 köşe ekliyor.
+ *
+ *   başlık: int32 çökmeSayısı, int32 indeksDeğişimSayısı, int32 enÇokKöşe, int32 enÇokİndeks, int32 enAzKöşe, int32 enAzİndeks
+ *   enÇokKöşe × { vec3 konum, vec3 normal, float u, float v }   (32 bayt)
+ *   enÇokİndeks × uint16
+ *   çökmeSayısı × { int32 kaybolanİndeks, int32 değişenİndeks, int32 kaybolanKöşe, int32 değişimBaşlangıcı, int32 hedefKöşe, float değer }
+ *   indeksDeğişimSayısı × uint32 (indeks dizisindeki yerler)
+ *   LOD kontrol değerleri (atlanır)
+ */
 export function pmeshOku(b: Buffer): Mesh {
   const r = new Okuyucu(b);
   const ad = r.str();
-  r.i32(); r.i32(); // çökme sayısı, indeks değişim sayısı
+  const cokme = r.i32(), degisim = r.i32();
   const kose = r.i32(), indeks = r.i32();
   r.i32(); r.i32(); // en az köşe / indeks
-  if (kose < 0 || kose > 65536 || indeks < 0 || indeks > 1_000_000) throw new Error(`pmesh başlığı geçersiz (${kose}, ${indeks})`);
+  if (kose < 0 || kose > 65536 || indeks < 0 || indeks > 1_000_000 || cokme < 0 || degisim < 0) throw new Error(`pmesh başlığı geçersiz (${kose}, ${indeks})`);
   const konum = new Float32Array(kose * 3), normal = new Float32Array(kose * 3), uv = new Float32Array(kose * 2);
   for (let i = 0; i < kose; i++) {
     konum[i * 3] = r.f32(); konum[i * 3 + 1] = r.f32(); konum[i * 3 + 2] = r.f32();
@@ -44,6 +57,17 @@ export function pmeshOku(b: Buffer): Mesh {
   }
   const ind = new Uint16Array(indeks);
   for (let i = 0; i < indeks; i++) ind[i] = r.u16();
+  if (cokme > 0 && r.o + cokme * 24 + degisim * 4 <= b.length) {
+    const c: { nch: number; vlose: number; off: number }[] = [];
+    for (let i = 0; i < cokme; i++) { r.i32(); const nch = r.i32(), vlose = r.i32(), off = r.i32(); r.i32(); r.i32(); c.push({ nch, vlose, off }); }
+    const yer = new Uint32Array(degisim);
+    for (let i = 0; i < degisim; i++) yer[i] = r.i32() >>> 0;
+    let sayi = kose - c.reduce((t, x) => t + x.vlose, 0); // en düşük ayrıntıdaki köşe sayısı (genelde 0)
+    for (let i = 0; i < cokme; i++) { // kayıtlar bölme sırasında: en düşükten en ayrıntıya
+      sayi += c[i].vlose;
+      for (let k = 0; k < c[i].nch; k++) { const p = yer[c[i].off + k]; if (p < indeks) ind[p] = sayi - 1; }
+    }
+  }
   return { ad, konum, normal, uv, indeks: ind };
 }
 

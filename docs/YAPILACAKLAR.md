@@ -8,7 +8,8 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 
 - [x] **Sürüm 7 (şifreli) dokuların çözülmesi** — çözüldü (RC4, parola `KnightOnline.exe` içinde); 588 `.dxt`/`.tct` ve `.gtt` içindeki 960 karo dokusu okunuyor. Ayrıntı ve kanıtlar: [formatlar/model.md](formatlar/model.md).
 - [x] **Harita dönüştürücüyü Moradon için yeniden çalıştırmak** — yapıldı (430 doku, şifreli/gri doku kalmadı).
-- [ ] **Zeminde gerçek renk haritası (`.tct`):** istemci zemini hâlâ "yaklaşık renk haritası" (`araclar/harita/cli.ts` → `tabanRenk`) ile çiziyor; Moradon zemini bu yüzden koyu lekeli görünüyor. `.tct` okunuyor ama her 128×128 parçanın haritanın hangi alanına denk geldiği henüz doğrulanmadı.
+- [x] **Zeminde gerçek renk haritası (`.tct`)** — yerleşim düzeni ölçülerek bulundu (r=0,83/0,86) ve istemci zemini artık bununla çiziyor. Kalan: geçiş karolarının birebir karışım kuralı (şimdi: renk haritası + parlaklığa göre karo katmanları).
+- [x] **Görüntü kalitesi ("yırtık" görünüm)** — kök neden: `.n3pmesh` kademeli ağ verisi yanlış okunuyordu (çökmeler uygulanmıyordu). Düzeltildi; ayrıca anizotropik filtre. Ayrıntı: [formatlar/model.md](formatlar/model.md).
 - [x] **Moradon'u oynanabilir yapmak** — `?harita=moradon`: şehir meydanında doğma, çarpışma, köprü/kat zemini, güvenli şehir (canavar yok). Ayar: `client/src/oyun/haritalar.ts`. Gerçek başlangıç noktası ve NPC/canavar yerleşimi sunucu veritabanından gelecek.
 - [ ] **Zeminin birebir görünümü:** geçiş karolarının gerçek karışım kuralı ve karo yön kodlarının anlamı (renk haritası artık okunabiliyor, kural araştırılacak).
 - [x] **Çarpışma** — sunucu `.smd` çarpışma üçgenleriyle duvarlar, zemin yüksekliği ve dik yamaç sınırı uygulanıyor (Moradon). Belge: [formatlar/smd.md](formatlar/smd.md). Kalan: `new_runawar` için sunucu `.smd` eşleşmesi, kapıların/kolların işlevi, kameranın duvardan geçmesi.

@@ -60,8 +60,9 @@ Başlık (ad, "NTF", sürüm, 16 bayt) **şifresiz**; yalnızca piksel verisi ş
 ### `.tct` — renk haritası ✅
 Arka arkaya N×N adet bağımsız doku: her biri `int32 0 (ad boş)` + "NTF" + sürüm + başlık + veri, **128×128 A1R5G5B5,
 mipmaplı** (43704 bayt). 4 / 16 / 64 / 256 parça görülüyor (haritanın boyuna göre; 59 dosya: 22 sürüm 7, 37 sürüm 3). Sürüm 7 toplamı: 566 `.dxt` + 22 `.tct` = 588.
-Parçalar satır-sütun sırasıyla dizilir (sıra düzeni: doğrulanmadı; Moradon'da komşu parçalar görsel olarak birleşiyor).
-Her parça 128×128 pikselin haritadaki hangi alana karşılık geldiği henüz belgelenmedi (YAPILACAKLAR).
+**Haritaya yerleşim (ölçülerek bulundu):** N×N parçadan oluşan görüntü haritayla 1 piksel = 1 metre örtüşür. Parça i, x-parçası = ⌊i/N⌋,
+z-parçası = i mod N; parça içinde satırlar z ekseninde ters. 128 olası düzen, yaklaşık taban renkle karşılaştırıldı: Moradon r=0,83,
+eski Moradon r=0,86; ikinci en iyi 0,48 / 0,40. Kod: `araclar/harita/cli.ts` → `renkHaritasi`, çıktı `renk.bin` (ham RGBA, satır=z, sütun=x).
 
 ## `.gtd` — arazi ✅
 ```
@@ -105,9 +106,18 @@ Parça dünya konumu = pivot, sonra nesnenin konum/dönüş/ölçeği.
 metin ad
 int32 çökme_sayısı, int32 indeks_değişim_sayısı, int32 köşe, int32 indeks, int32 en_az_köşe, int32 en_az_indeks
 köşe × { vec3 konum, vec3 normal, vec2 uv }   (32 bayt)
-indeks × uint16
-(ayrıntı seviyesi verisi: çökmeler, indeks değişimleri, LOD tablosu — en ayrıntılı seviye için gerekmez)
+indeks × uint16                              ← TÜM ÇÖKMELER UYGULANMIŞ (en düşük ayrıntı) durumdaki indeksler
+çökme_sayısı × { int32 kaybolan_indeks, int32 değişen_indeks, int32 kaybolan_köşe, int32 değişim_başlangıcı, int32 hedef_köşe, float değer }
+indeks_değişim_sayısı × uint32               (indeks dizisindeki yerler)
+int32 sayı, sayı × { float uzaklık, int32 köşe }   (LOD kontrol değerleri)
 ```
+**Tam ayrıntılı ağı elde etmek için çökmeler uygulanmalıdır** (önceki sürümde "gerekmez" sanılıyordu; bu yüzden binalar,
+kayalar, direkler parçalanmış ve dokuları çizgi çizgi uzamış görünüyordu). Kayıtlar en düşükten en ayrıntıya (bölme)
+sırasındadır: köşe sayısı 0'dan başlar; her kayıtta `kaybolan_köşe` kadar artar ve kaydın değiştirdiği indeks yerlerine
+yeni doğan köşenin numarası (= o andaki köşe sayısı − 1) yazılır.
+Kanıtlar: (1) çökme kayıtlarının toplamı tam köşe ve indeks sayısına eşit; (2) ilk üçgenler `0 2 1, 1 3 2, 4 6 5` ve kayıtlar
+3, +1, +3 köşe ekliyor; (3) ölçüm: Moradon'un 1091 modelinde kullanılmayan köşe 7599 → 0, UV'si çökmüş yüzey %18,6 → %0,18
+(eski Moradon: 2654 → 0, %14,6 → %0,49). Test: `araclar/model/pmesh.test.ts`.
 
 ## Karakter / canavar ✅
 `NPC_Looks.tbl` her model için: iskelet (.n3joint), animasyon (.n3anim), 13 parça (.n3cpart).

@@ -6,6 +6,8 @@ import { Carpisma } from './carpisma';
 export interface AraziBilgisi {
   ad: string; boyut: number; birim: number; karoSayisi: number;
   atlas: { dosya: string; kolon: number; satir: number; karoPx: number };
+  /** Gerçek renk haritası (.tct) varsa: ham RGBA, boyut×boyut, satır = z, sütun = x. */
+  renk?: { dosya: string; boyut: number } | null;
 }
 
 export class Arazi {
@@ -47,10 +49,18 @@ export class Arazi {
       const t = new THREE.DataTexture(v, k, k, THREE.RGBAFormat, THREE.UnsignedByteType);
       t.magFilter = t.minFilter = THREE.NearestFilter; t.needsUpdate = true; return t;
     };
-    // Yaklaşık renk haritası (karo başına renk, yumuşak geçişli)
-    const tabanVeri = new Uint8Array(await (await fetch(`${klasor}/taban.bin`)).arrayBuffer());
-    const taban = new THREE.DataTexture(tabanVeri, k, k, THREE.RGBAFormat, THREE.UnsignedByteType);
-    taban.magFilter = taban.minFilter = THREE.LinearFilter; taban.colorSpace = THREE.SRGBColorSpace; taban.needsUpdate = true;
+    // Taban renk: gerçek renk haritası (.tct, ~1 piksel/metre) varsa o; yoksa karo ortalamalarından yaklaşık harita.
+    let taban: THREE.DataTexture;
+    if (bilgi.renk) {
+      const r = bilgi.renk, veri = new Uint8Array(await (await fetch(`${klasor}/${r.dosya}`)).arrayBuffer());
+      taban = new THREE.DataTexture(veri, r.boyut, r.boyut, THREE.RGBAFormat, THREE.UnsignedByteType);
+      taban.minFilter = THREE.LinearMipmapLinearFilter; taban.generateMipmaps = true; taban.anisotropy = 8;
+    } else {
+      const tabanVeri = new Uint8Array(await (await fetch(`${klasor}/taban.bin`)).arrayBuffer());
+      taban = new THREE.DataTexture(tabanVeri, k, k, THREE.RGBAFormat, THREE.UnsignedByteType);
+      taban.minFilter = THREE.LinearFilter;
+    }
+    taban.magFilter = THREE.LinearFilter; taban.colorSpace = THREE.SRGBColorSpace; taban.needsUpdate = true;
 
     // Geometri: köşe başına bir nokta
     const geo = new THREE.BufferGeometry();
@@ -73,7 +83,7 @@ export class Arazi {
       glslVersion: THREE.GLSL3,
       uniforms: {
         karolar: { value: karolar }, bilgi1: { value: veriDokusu(v1) }, bilgi2: { value: veriDokusu(v2) }, taban: { value: taban },
-        birim: { value: bilgi.birim }, karoSayisi: { value: k },
+        birim: { value: bilgi.birim }, karoSayisi: { value: k }, detay: { value: 1.0 },
         gunesYonu: { value: new THREE.Vector3(0.4, 0.8, 0.3).normalize() },
         sisRengi: { value: new THREE.Color(0x9fb4c8) }, sisYakin: { value: 150 }, sisUzak: { value: 600 },
       },
@@ -90,7 +100,7 @@ export class Arazi {
         layout(location = 0) out highp vec4 pc_fragColor;
         #define gl_FragColor pc_fragColor
         uniform sampler2DArray karolar; uniform sampler2D bilgi1; uniform sampler2D bilgi2; uniform sampler2D taban;
-        uniform float birim; uniform float karoSayisi; uniform vec3 gunesYonu;
+        uniform float birim; uniform float karoSayisi; uniform float detay; uniform vec3 gunesYonu;
         uniform vec3 sisRengi; uniform float sisYakin; uniform float sisUzak;
         in vec3 vDunya; in vec3 vNormal; in float vDerinlik;
         vec2 yonUv(float yon, vec2 uv) {
@@ -120,12 +130,12 @@ export class Arazi {
           vec2 uv1 = yonUv(b1.z, yerel);
           vec3 t1 = textureGrad(karolar, vec3(uv1, b1.x + b1.y * 256.0), dx, dy).rgb;
           float a1 = smoothstep(0.02, 0.22, max(t1.r, max(t1.g, t1.b)));
-          c = mix(c, t1 / max(a1, 0.35), a1);
+          c = mix(c, t1 / max(a1, 0.35), a1 * detay);
           if (b2.w > 0.5) {
             vec2 uv2 = yonUv(b2.z, yerel);
             vec3 t2 = textureGrad(karolar, vec3(uv2, b2.x + b2.y * 256.0), dx, dy).rgb;
             float a2 = smoothstep(0.02, 0.22, max(t2.r, max(t2.g, t2.b)));
-            c = mix(c, t2 / max(a2, 0.35), a2 * 0.85);
+            c = mix(c, t2 / max(a2, 0.35), a2 * 0.85 * detay);
           }
           c = min(c, vec3(1.0));
           float isik = 0.45 + 0.75 * max(dot(normalize(vNormal), gunesYonu), 0.0);
@@ -171,7 +181,7 @@ async function karoDizisi(url: string, bilgi: AraziBilgisi): Promise<THREE.DataA
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter;
-  t.generateMipmaps = true; t.anisotropy = 4;
+  t.generateMipmaps = true; t.anisotropy = 8;
   t.needsUpdate = true;
   return t;
 }

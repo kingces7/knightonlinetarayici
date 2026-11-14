@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-export async function nesneleriYukle(url: string): Promise<THREE.Group> {
+export async function nesneleriYukle(url: string, anizotropi = 8): Promise<THREE.Group> {
   const gltf = await new GLTFLoader().loadAsync(url);
   gltf.scene.updateMatrixWorld(true);
   const gruplar = new Map<THREE.Material, THREE.BufferGeometry[]>();
@@ -31,6 +31,7 @@ export async function nesneleriYukle(url: string): Promise<THREE.Group> {
     const birlesik = mergeGeometries(geos, false);
     if (!birlesik) continue;
     const std = mat as THREE.MeshStandardMaterial;
+    if (std.map) std.map.anisotropy = anizotropi; // eğik bakılan yüzeylerde (zemin, duvar) dokular bulanıklaşmasın
     const yeni = new THREE.MeshLambertMaterial({
       map: std.map ?? null, transparent: std.transparent, alphaTest: std.alphaTest || (std.map && !std.transparent ? 0 : 0),
       side: std.side, depthWrite: !std.transparent,
