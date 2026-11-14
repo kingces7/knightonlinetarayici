@@ -1,8 +1,8 @@
 // Harita nesneleri (binalar, ağaçlar…): araclar/harita ile üretilen nesneler.glb.
 // Çizim sayısını azaltmak için aynı malzemeyi kullanan sabit parçalar birleştirilir.
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 export async function nesneleriYukle(url: string): Promise<THREE.Group> {
   const gltf = await new GLTFLoader().loadAsync(url);

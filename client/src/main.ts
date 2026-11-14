@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Arazi } from './dunya/arazi';
 import { nesneleriYukle } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
+import { KarakterModeli } from './dunya/karakter';
 
 const HARITA = new URLSearchParams(location.search).get('harita') ?? 'new_runawar';
 const SIS = new THREE.Color(0x9fb4c8);
@@ -38,6 +39,21 @@ async function basla(): Promise<void> {
   const yukseklik = (x: number, zSahne: number) => arazi.yukseklikAl(x, -zSahne);
   sahne.add(oyuncu);
 
+  // Deneme: canavar modelleri (?model=100,200 ile değiştirilebilir)
+  const denemeler: KarakterModeli[] = [];
+  const modelParam = new URLSearchParams(location.search).get('model');
+  const animParam = new URLSearchParams(location.search).get('anim') ?? 'walk';
+  for (const [i, no] of (modelParam ?? '100,200').split(',').entries()) {
+    try {
+      const m = await KarakterModeli.olustur(`/karakter/${no}.glb`);
+      const x = konum.x + 3 + i * 3, z = konum.y + 2;
+      m.kok.position.set(x, arazi.yukseklikAl(x, z), -z);
+      m.oynat(animParam);
+      sahne.add(m.kok);
+      denemeler.push(m);
+    } catch (e) { console.warn('model yüklenemedi', no, e); }
+  }
+
   const kamera = new TakipKamerasi(tuval);
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
@@ -60,6 +76,7 @@ async function basla(): Promise<void> {
   document.getElementById('yukleniyor')?.remove();
   cizici.setAnimationLoop(() => {
     const dt = Math.min(saat.getDelta(), 0.1);
+    for (const m of denemeler) m.guncelle(dt);
     const ileri = kamera.ileriYon(); // sahne (x, z)
     const sag = new THREE.Vector2(-ileri.y, ileri.x);
     const hareket = new THREE.Vector2();

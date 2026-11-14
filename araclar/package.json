@@ -14,6 +14,7 @@
     "paket-coz": "node paket/cli.ts coz",
     "paket-yaz": "node paket/cli.ts yaz",
     "paket-dogrula": "node paket/cli.ts dogrula",
-    "harita": "node harita/cli.ts"
+    "harita": "node harita/cli.ts",
+    "karakter": "node model/cli.ts"
   }
 }
