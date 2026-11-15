@@ -7,6 +7,8 @@ export class TakipKamerasi {
   aci = Math.PI * 0.75; // yatay açı
   egim = 0.55; // dikey açı (radyan)
   uzaklik = 14;
+  /** Fareyle girilmiş ama henüz uygulanmamış dönüş (rad); her karede kademeli uygulanır. */
+  private bekleyenDonus = 0;
   /** Yakınlaştırma/uzaklaştırma sınırları (m). En uzak = oyunun varsayılan kamerası (DefaultCamera.N3Camera: göz–hedef mesafesi ≈ 21,8 m). */
   enYakin = 3; enUzak = 21.8;
   private surukleniyor = false;
@@ -28,8 +30,8 @@ export class TakipKamerasi {
     tuval.addEventListener('pointerup', (e) => { if (e.button === 2) this.surukleniyor = false; });
     tuval.addEventListener('pointermove', (e) => {
       if (!this.surukleniyor) return;
-      this.aci -= e.movementX * 0.006;
-      this.egim = THREE.MathUtils.clamp(this.egim + e.movementY * 0.004, 0.08, 1.35);
+      // Sağ tuşla sürükleme: yalnızca yatay dönüş (yukarı/aşağı eğim kapalı); yavaş ve yumuşak
+      this.bekleyenDonus -= e.movementX * 0.0032;
     });
     tuval.addEventListener('wheel', (e) => {
       this.uzaklik = THREE.MathUtils.clamp(this.uzaklik * (e.deltaY > 0 ? 1.1 : 0.9), this.enYakin, this.enUzak);
@@ -68,6 +70,7 @@ export class TakipKamerasi {
       this.aci = this.donusBaslangic + (this.donusHedefi - this.donusBaslangic) * e;
       if (t >= 1) { this.aci = this.donusHedefi; this.donusHedefi = null; }
     }
+    if (this.bekleyenDonus !== 0) { const adim = this.bekleyenDonus * (1 - Math.exp(-9 * dt)); this.aci += adim; this.bekleyenDonus -= adim; if (Math.abs(this.bekleyenDonus) < 1e-5) this.bekleyenDonus = 0; }
     const yatay = Math.cos(this.egim) * this.uzaklik;
     const k = new THREE.Vector3(
       hedef.x + Math.sin(this.aci) * yatay,

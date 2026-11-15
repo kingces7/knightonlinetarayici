@@ -280,6 +280,7 @@ async function basla(): Promise<void> {
     oyuncu.altin -= e.fiyat;
     hud.mesaj(`You bought ${e.ad} for ${e.fiyat.toLocaleString('en-US')} Noah.`, 'odul');
   };
+  const sol = { basili: false, x: 0, y: 0 };
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
@@ -303,8 +304,12 @@ async function basla(): Promise<void> {
       return;
     }
     const zemin = isin.intersectObject(arazi.mesh)[0];
-    if (zemin) { oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
+    if (zemin) { oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; }
   });
+  // Sol tuş basılı tutulup sürüklenince karakter imlecin gösterdiği yöne yürür (her karede yeniden hedeflenir) ve oraya döner
+  addEventListener('pointermove', (e) => { if (sol.basili) { sol.x = e.clientX; sol.y = e.clientY; } });
+  addEventListener('pointerup', (e) => { if (e.button === 0) sol.basili = false; });
+  addEventListener('blur', () => { sol.basili = false; });
 
   // ---------------- Oyun kuralları ----------------
   const deneyimKazan = (miktar: number) => {
@@ -342,6 +347,11 @@ async function basla(): Promise<void> {
 
     // Klavye (Knight Online gibi): A/D karakteri döndürür (basılı kaldıkça 360° sürekli), W karakterin baktığı yöne ilerler, S geri gider.
     // Kamera karakterle birlikte döner ve ilerlerken yavaşça karakterin arkasına geçer.
+    if (sol.basili && !oyuncu.olu) {
+      isin.setFromCamera(new THREE.Vector2((sol.x / innerWidth) * 2 - 1, -(sol.y / innerHeight) * 2 + 1), kamera.kamera);
+      const z = isin.intersectObject(arazi.mesh)[0];
+      if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
+    }
     const donus = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
     const ilerigeri = (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0);
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
@@ -465,6 +475,7 @@ async function basla(): Promise<void> {
 
   const izdusum = (c: Canavar | Npc | Oyuncu) => {
     const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu ? 2.1 : c.boy + 0.1; // canavar adı isabet alanının hemen üstünde
+    kamera.kamera.updateMatrixWorld(); // bu karenin kamera konumuna göre (önceki kareye göre kayma/gecikme olmasın)
     const ekran = p.project(kamera.kamera);
     return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
   };
@@ -485,6 +496,7 @@ async function basla(): Promise<void> {
     hud.guncelle(oyuncu, oyuncu.hedef);
     arayuz?.guncelle(dt);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
+    kamera.kamera.updateMatrixWorld(); // etiketler bu karenin kamera konumuna göre hesaplanır (gecikme/kayma olmasın)
     hud.npcEtiketGuncelle(npcler, izdusum);
     hud.oyuncuEtiketGuncelle('KnightEmpire', izdusum(oyuncu), oyuncu.partide);
     // Hedef (agro) halkası: oyunun kendi yeşil halka resmi (Misc/target_symbol_plane), seçili canavarın ayağında
