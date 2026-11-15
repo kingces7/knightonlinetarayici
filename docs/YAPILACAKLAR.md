@@ -234,3 +234,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Skill animasyonu skill tablosundaki iSelfAnimID1 numarasından (oyuncu iskeletinde doğrudan animasyon numarası: 153 dribble, 154 shoot, 24 magic4…). 26 (yakın dövüş skill'lerinde yazılı, adı Shoot_Arrow_A) yay animasyonu olduğundan silahın saldırı animasyonu kullanılıyor (varsayım). Skill efektleri (`fx.tbl`/.fxb) hâlâ yok.
 - [x] Oyunun fare imleci (cursorel01/02 normal/tıklanmış, cursorattack canavar üstünde). Karus imleçleri ve tamir imleci kullanılmıyor.
 - [x] Çubuk: seviyesi yetmeyen skill konamaz; skill penceresinde sağ tık = ilk boş yuvaya koy; çubukta sol tuşla sürükleyip bırakmak yuvaları değiştirir; çubukta sağ tık skill'i kaldırır.
+
+**Savaş/arayüz iyileştirmeleri (2026-11-15, 7. tur)**
+- [x] Sol+sağ tuş birlikte: karakter baktığı yönde düz ilerler (A/D ile çevrilir); çubuktan dışarı sürüklenen skill atılır.
+- [x] Skill penceresindeki P kutuları kaldırıldı. Canavar: doğduğu yere dönüş ve 200 m sınırı. Yığınlanan eşyalar (adet, ok 20, satış). Kamera açısı PageUp/PageDown. Mini harita (oyunun kendi resmi, oyuncu noktası, yakınlaştırma).
+- [ ] Skill efektleri (.fxb): çözülemedi, bulgular `formatlar/fxb.md`. Mini harita: NPC listesi/ışınlanma işaretleri yok. Boş kalan pencereler (parti, dost listesi sunucusu, klan, görev…) sunucu ile gelecek.

@@ -13,3 +13,7 @@ ve `N3AnimatedTexures.h` başlıkları var). Aşağıdakiler ikili dosyalardan g
 
 Not: Haritadaki **animasyonlu dokular** (ateş, duman, ışınlanma işareti) `.fxb` kullanmaz; nesne parçasının `doku listesi + fps` alanından gelir ve oyuna eklendi
 (`araclar/harita/nesneler.ts`, `client/src/dunya/nesneler.ts`).
+
+## Ek bulgu (2026-11-15, ikinci inceleme)
+- Kayıtlar **hizasızdır** (4 bayta oturmaz). Tek parçalı dosyalarda (`Ability_cast0_1.fxb` 583 bayt, `ability_cast1_1.fxb` 459 bayt) 0x54 konumunda bir bayt (0x41) ve ardından **256 baytlık sabit uzunluklu yol tamponu** (`fx\particle\0711ab_cast\0711ab_cast`) başlıyor; tampon 0x155'te biter, sonra parçaya özgü sayılar (parçacık sayısı, ömür, hız, renk anahtarları…) gelir. Bu sayıların alan sırası ve anlamı (N3FXPartParticles/N3FXPartBase) kaynak olmadan doğrulanamadı; tahminle efekt çizmek "kural icat etmeme" ilkesine aykırı olacağından yapılmadı.
+- Sonraki adım: aynı parçacık parçasının farklı efektlerde değişen sayılarını karşılaştırıp alanları tek tek eşlemek (ör. `Ability_cast0_1`…`ability_cast6_3` ailesi yalnızca renk/ölçekte farklı).
