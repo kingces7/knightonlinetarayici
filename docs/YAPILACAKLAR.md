@@ -149,8 +149,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] Server'ın **anti-cheat** (LilithACS / Pearl Guard) bekleyip beklemediği kontrol edilecek. Tarayıcıda bu program olmayacak.
 
 **Araçlar ve depo**
-- [ ] `araclar/` için TypeScript **tür denetimi** (`tsc`) eklenecek (istemcide var: `npm run kontrol`).
-- [ ] Git satır sonu uyarıları (LF/CRLF) için `.gitattributes` eklenecek.
+- [x] `araclar/` için TypeScript tür denetimi: `npm run kontrol` (araclar klasöründe), 37 dosya hatasız.
+- [x] `.gitattributes` eklendi (LF); satır sonu uyarıları kalktı.
 - [ ] `KnightOnline.exe` bir koruma yazılımıyla paketlenmiş; ancak sürüm 7 doku parolası paketli dosyada düz metin olarak bulundu (çalıştırmaya gerek kalmadı). Başka bilgiler için gerekirse yine önce düz metin aranmalı.
 - [ ] Çözülmüş/dönüştürülmüş veriler (`donusturulmus/`) sadece bu bilgisayarda; bulut oturumu bunlara erişemez.
 
