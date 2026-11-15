@@ -188,7 +188,7 @@ export class Canavar extends Varlik {
     if (this.kizgin && !oyuncu.olu) {
       if (uzaklik > 2.2) {
         this.durum = 'kovala';
-        this.yuru(oyuncu.konum, this.tur.hiz * 1.6 * dt, 1.8);
+        this.yuru(oyuncu.konum, this.tur.hizKovala * dt, 1.8);
         this.model?.oynat('kos');
       } else {
         this.durum = 'saldir';
@@ -206,7 +206,7 @@ export class Canavar extends Varlik {
     // Gezinme
     this.durum = 'gez';
     if (this.gezHedef) {
-      if (this.yuru(this.gezHedef, this.tur.hiz * dt)) { this.gezHedef = null; this.bekle = rastgele(2, 6); this.model?.oynat('bekle'); }
+      if (this.yuru(this.gezHedef, this.tur.hizGez * dt)) { this.gezHedef = null; this.bekle = rastgele(2, 6); this.model?.oynat('bekle'); }
       else this.model?.oynat('yuru');
     } else {
       this.bekle -= dt;
