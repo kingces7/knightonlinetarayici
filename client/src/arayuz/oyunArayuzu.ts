@@ -46,6 +46,8 @@ export class OyunArayuzu {
   private cubukBeceri: (number | null)[] = new Array(8).fill(null);
   private cubukImza = '';
   private onizleme: KarakterOnizleme | null = null;
+  /** Hedef çerçevesi (re_target_framebar): seçili canavarın adı ve canı; renk çubuğu seviye farkına göre. */
+  private hedefCubugu!: UiPencere;
   private magazaSayfalar: EsyaTanimi[][] = [];
   private magazaSayfa = 0;
   private magazaAdi = '';
@@ -64,18 +66,18 @@ export class OyunArayuzu {
   constructor(b: ArayuzBaglami) { this.b = b; }
 
   async baslat(): Promise<void> {
-    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, bec] = await Promise.all([
+    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, hedefCubugu, bec] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
-      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'),
+      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
-    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.beceriler = Array.isArray(bec) ? bec : [];
+    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.beceriler = Array.isArray(bec) ? bec : [];
     this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
-    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur(); this.depoKur();
-    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
+    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur(); this.depoKur(); this.hedefKur();
+    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.hedefCubugu.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
     // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
     const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150], ['depo', -150]];
@@ -159,6 +161,28 @@ export class OyunArayuzu {
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
     this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
     this.cubuk.el.style.top = `${ust - 62 * hol}px`;
+    // Hedef çerçevesi: üstte ortada
+    this.hedefCubugu.olcekAyarla(hol);
+    this.hedefCubugu.el.style.left = `${Math.max(350 * hol, (innerWidth - 353 * hol) / 2)}px`; this.hedefCubugu.el.style.top = `${4 * hol}px`;
+  }
+
+  // ---------------------------------------------------------------- hedef çerçevesi (re_target_framebar)
+  private hedefKur(): void {
+    const h = this.hedefCubugu;
+    h.gizleDesen(/^(frame_[1-9][0-9]?|base_mon_hp_level_long|base_player_hp_state|base_cover|Button_Board|mark_pos)$/); // yalnız frame_0 (sade çerçeve) kullanılır
+    h.el.style.display = 'none'; h.el.style.zIndex = '4';
+  }
+  private hedefCiz(): void {
+    const h = this.hedefCubugu, hd = this.b.oyuncu.hedef;
+    if (!hd || hd.olu) { if (h.el.style.display !== 'none') h.el.style.display = 'none'; return; }
+    h.el.style.display = '';
+    // Seviye farkına göre renk çubuğu (grpg_level_0..3); eşikler tahmin: orijinal kural bilinmiyor
+    const fark = hd.tur.seviye - this.b.oyuncu.seviye;
+    const k = fark <= -5 ? 0 : fark <= 1 ? 1 : fark <= 5 ? 2 : 3;
+    for (let i = 0; i < 4; i++) h.goster(`grpg_level_${i}`, i === k);
+    h.metin('name', hd.tur.ad);
+    h.metin('Text_Health', `${Math.ceil(hd.can)} / ${hd.enCok}`);
+    for (let i = 0; i < 4; i++) h.ilerleme(`grpg_level_${i}`, hd.can / hd.enCok);
   }
 
   // ---------------------------------------------------------------- banka (re_el_warehouse)
@@ -513,6 +537,7 @@ export class OyunArayuzu {
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
+    this.hedefCiz();
     if (this.acik.has('magaza')) this.magazaCiz();
     if (this.acik.has('depo')) this.depoCiz();
     if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0); }

@@ -31,11 +31,12 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [x] Hız sabitleri sunucudan: oyuncu koşusu 4,5 m/sn (sunucu hız sınırı 45 → savaşçıda 67 = 45×1,5 Sprint; birim 0,1 m/sn), canavar gezinme/kovalama hızı `bySpeed1/2` (m/sn). Kalan belirsizlik: yürüme hızı (şimdi koşunun yarısı) orijinalden doğrulanmadı; bazı canavarlarda `bySpeed2` (kovalama) `bySpeed1`'den küçük (veri böyle, aynen uygulandı).
 - [ ] Sohbet kutusu yalnızca yerel yankı yapıyor (sunucu yok); sekmeler (Normal/Private/Shout/Party/Knights) işlevsiz, kullanıcı listesi gizli.
 - [ ] Bilgi penceresinin "Merchant Chat" / "Recent Notices" sekmeleri işlevsiz; kaydırma çubukları gizli (fare tekerleği çalışıyor).
-- [ ] Hasar bilgisi mesajları yalnızca bilgi penceresinde; hedef çerçevesi ve ganimet penceresi eski arayüzde.
+- [ ] Hasar bilgisi mesajları yalnızca bilgi penceresinde; ganimet penceresi eski arayüzde.
+- [x] Hedef çerçevesi orijinal `re_target_framebar` ile (isim, can çubuğu/yazısı, seviye farkı rengi). Kalan: `frame_N` hedef türüne göre çerçeve seçimi ve renk eşikleri orijinalden bilinmiyor (şimdi sade çerçeve + tahmin eşikleri).
 - [ ] `animAdi` artık özgün animasyon adlarına bakıyor; 155 animasyonlu modellerde saldırı animasyonları `attack_sword0_A` gibi adlarla duruyor (`saldir0/1` olarak eşlenmedi).
 
 **Orijinal arayüz — eksikler**
-- [ ] Sohbet kutusu (`re_el_chatting_box`), hedef çerçevesi (`re_target_framebar`: 14'ten büyük yeni öğe türleri nedeniyle okunamıyor) ve ganimet penceresi hâlâ eski basit arayüzde.
+- [ ] Ganimet penceresi hâlâ eski basit arayüzde (orijinal pencere dosyası araştırılacak: `re_droppeditem`).
 - [x] Otur (C) ve yürü/koş (T): tuşlar ve görev çubuğundaki düğmeler çalışıyor (ayrı bir düğme yapılmayacak).
 - [ ] Görev çubuğunun çoğu düğmesi işlevsiz (Map, Control, Invite, Option, Exit); ortadaki 4 simge (`re_el_hotkey` hızlı çubuk) bağlı değil.
 - [ ] Skill penceresi: yalnızca "Basic Skill" sekmesi ve El Morad Savaşçı temel skilleri listeleniyor; skill **kullanılamıyor** (MP harcama, hasar, etki yok). Sınıf sekmeleri ve skill puanı harcama yok; üstteki "P" (premium) düğmeleri gizlenemedi.
@@ -184,3 +185,4 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Oyun dili İngilizce kararı: `_us` tabloları kullanılıyor
 - [x] Paket arşivleri, dokular, arazi, nesneler, karakterler ve animasyonlar çözüldü — [formatlar/model.md](formatlar/model.md)
 - [x] Tarayıcıda tek oyunculu av modu (harita, karakter, canavar, savaş, ganimet, envanter) — nasıl açılacağı [README](../README.md)'de
+

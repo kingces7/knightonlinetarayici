@@ -24,7 +24,7 @@ export class UiPencere {
   readonly ad: string;
   readonly boyut: [number, number];
   private idler = new Map<string, HTMLElement[]>();
-  private ilerlemeler = new Map<string, HTMLElement>();
+  private ilerlemeler = new Map<string, HTMLElement[]>();
   private dugmeler = new Map<string, { el: HTMLElement; durumlar: Map<number, HTMLElement>; pasif: boolean }>();
   private veri: PencereVeri;
   private alanlar: HTMLElement[] = [];
@@ -76,7 +76,7 @@ export class UiPencere {
     if (n.t === 9) this.alanlar.push(el);
     this.kaydet(n.id, el);
     if (n.t === 1) { this.dugmeKur(el, n, kendi); ustEl.appendChild(el); return; }
-    if (n.t === 3) { this.ilerlemeKur(el, n, kendi); ustEl.appendChild(el); return; }
+    if (n.t === 3 || n.t === 17) { this.ilerlemeKur(el, n, kendi); ustEl.appendChild(el); return; } // 17: kademeli ilerleme çubuğu (hedef çerçevesi)
     ustEl.appendChild(el);
     this.cocuklariKur(n, el, kendi);
   }
@@ -145,7 +145,8 @@ export class UiPencere {
       const ic = document.createElement('div'); ic.className = 'ui-dugum ui-t4';
       ic.style.left = '0'; ic.style.top = '0'; ic.style.width = `${c.k[2] - c.k[0]}px`; ic.style.height = `${c.k[3] - c.k[1]}px`;
       this.resimCiz(ic, c); kap.appendChild(ic); el.appendChild(kap);
-      if ((c.r ?? 0) === 1 && n.id) { this.ilerlemeler.set(n.id, kap); kap.style.width = `${w}px`; }
+      // r1 = dolu kısım (kademeli çubukta r2 = geriden gelen katman); aynı kimlikte birden çok çubuk olabilir
+      if (((c.r ?? 0) === 1 || (n.t === 17 && c.r === 2)) && n.id) { (this.ilerlemeler.get(n.id) ?? this.ilerlemeler.set(n.id, []).get(n.id)!).push(kap); kap.style.width = `${w}px`; kap.dataset.tam = String(w); }
     }
   }
 
@@ -160,9 +161,7 @@ export class UiPencere {
   /** Kimliği düzenli ifadeyle eşleşen düğümleri gizler/gösterir. */
   gizleDesen(desen: RegExp, gizli = true): void { for (const [id, l] of this.idler) if (desen.test(id)) for (const el of l) el.style.display = gizli ? 'none' : ''; }
   ilerleme(id: string, oran: number): void {
-    const kap = this.ilerlemeler.get(id); if (!kap) return;
-    const toplam = this.bul(id)[0]?.clientWidth ?? 0;
-    kap.style.width = `${Math.max(0, Math.min(1, oran)) * toplam}px`;
+    for (const kap of this.ilerlemeler.get(id) ?? []) kap.style.width = `${Math.max(0, Math.min(1, oran)) * Number(kap.dataset.tam ?? 0)}px`;
   }
   dugmePasif(id: string, pasif: boolean): void {
     const d = this.dugmeler.get(id); if (!d) return;

@@ -50,3 +50,6 @@ Kısayol tuşlarını (U, K, I) oyunun istemci dosyalarında bulamadık (varsay�
 ## Skill verisi
 `npm run beceriler` → `Data/SkillMagicTable_us.tbl` (sütun 0 numara, 2 ad, 3 açıklama, 15 gereken seviye, 16 sayfa kodu, 17 MP).
 Simge: `UI/skillicon_<numaranın son 2 hanesi>_<sayfa kodu>.dxt`. El Morad Savaşçı temel sayfası = 2010.
+
+## Tür 17 (kademeli ilerleme çubuğu)
+`re_target_framebar`da görülen arayüz türü 17 (RTTI: `CN3UIGradualProgress`) **ek alan taşımaz** (temel alanlar + çocuklar; çocuk resimleri `r` durumlarıyla: 0 arka, 1 dolu kısım, 2 geriden gelen katman). 15, 16, 18-20 türleri henüz görülmedi. Kanıt: tür 17 ek alansız okununca dosya baytı baytına tükeniyor (test: `uif.test.ts`). Hedef çerçevesi: `frame_0..11` hedef türü çerçeveleri, `grpg_level_0..3` seviye farkı renkleri (eşikler tahmin), `name`, `Text_Health`.

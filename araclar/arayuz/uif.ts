@@ -3,7 +3,7 @@
 import { Okuyucu } from '../model/n3.ts';
 import { lilithOtomatikCoz } from './lilith.ts';
 
-export const UI_TUR = { base: 0, button: 1, static: 2, progress: 3, image: 4, scrollbar: 5, string: 6, trackbar: 7, edit: 8, area: 9, tooltip: 10, icon: 11, iconManager: 12, iconSlot: 13, list: 14 } as const;
+export const UI_TUR = { base: 0, button: 1, static: 2, progress: 3, image: 4, scrollbar: 5, string: 6, trackbar: 7, edit: 8, area: 9, tooltip: 10, icon: 11, iconManager: 12, iconSlot: 13, list: 14, gradualProgress: 17 } as const; // 15-20: Myko/Lilith eklentileri; yalnız 17 (kademeli ilerleme çubuğu, re_target_framebar) görüldü, ek alanı yok
 export type Kutu = [number, number, number, number]; // sol, üst, sağ, alt
 
 export interface UiDugum {
@@ -69,13 +69,13 @@ function dugumOku2(r: Okuyucu, tur: number): UiDugum {
       d.yazi = { font, boy, bayrak: (kalin ? 1 : 0) | (italik ? 2 : 0), renk, metin: '' }; break;
     }
     case UI_TUR.area: d.alanTuru = r.i32(); break;
-    default: break; // base, progress, scrollbar, trackbar: ek alan yok
+    default: break; // base, progress, scrollbar, trackbar, kademeli ilerleme (17): ek alan yok
   }
   return d;
 }
 
 function cocukTuru(t: number, ofset = -1): number {
-  if (t < 0 || t > 14) throw new Error(`UIF: bilinmeyen arayüz türü ${t} (ofset ${ofset})`);
+  if (t < 0 || t > 20) throw new Error(`UIF: bilinmeyen arayüz türü ${t} (ofset ${ofset})`);
   return t;
 }
 

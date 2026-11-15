@@ -42,3 +42,11 @@ test('uif: .lilith dosyalarının büyük çoğunluğu dosya sonuna kadar tutarl
   for (const f of dosyalar) { try { lilithOku(fs.readFileSync(path.join(dizin, f))); tamam++; } catch { /* 14'ten büyük (yeni) öğe türleri */ } }
   assert.ok(tamam >= dosyalar.length - 4, `${tamam}/${dosyalar.length}`);
 });
+
+test('uif: hedef çerçevesi (tür 17 = kademeli ilerleme çubuğu, ek alansız) tam okunuyor', { skip: atla }, () => {
+  const k = lilithOku(fs.readFileSync(path.join(dizin, 're_target_framebar.lilith')));
+  assert.ok(bul(k, 'name'), 'hedef adı yazısı');
+  assert.ok(bul(k, 'Text_Health'), 'can yazısı');
+  const cubuk = bul(k, 'grpg_level_0');
+  assert.equal(cubuk?.tur, UI_TUR.gradualProgress);
+});
