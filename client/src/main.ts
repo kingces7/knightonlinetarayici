@@ -58,6 +58,7 @@ async function basla(): Promise<void> {
   arazi.sisAyarla(SIS, 150, 600);
   sahne.add(arazi.mesh);
   durum('Loading objects…');
+  void GanimetKutusu.modelYukle();
   let dokuAnimlari: DokuAnimasyonu[] = [];
   try { const n = await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`); dokuAnimlari = n.animlar ?? []; sahne.add(n); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
@@ -230,11 +231,17 @@ async function basla(): Promise<void> {
     if (e.target instanceof HTMLInputElement) return; // sohbet yazarken oyun tuşları çalışmasın
     tuslar.add(e.code);
     if (!e.repeat && arayuz?.tus(e.code)) { e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
-    if (e.code === 'Tab') {
+    // Hedef seçimi: Z en yakın canavar, Q ve Tab bir sonraki yakın canavar (yalnızca seçer); R seçili hedefe temel saldırıyı başlatır
+    const yakinlar = () => canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40).sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum));
+    if (!e.repeat && (e.code === 'KeyZ' || e.code === 'KeyQ' || e.code === 'Tab')) {
       e.preventDefault();
-      const yakin = canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40 && c !== oyuncu.hedef)
-        .sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum))[0];
-      if (yakin) oyuncu.hedef = yakin;
+      const l = yakinlar();
+      const yeni = e.code === 'KeyZ' ? l[0] : (l.find((c) => c !== oyuncu.hedef && (!oyuncu.hedef || c.konum.distanceTo(oyuncu.konum) >= oyuncu.hedef.konum.distanceTo(oyuncu.konum))) ?? l[0]);
+      if (yeni && yeni !== oyuncu.hedef) { oyuncu.hedef = yeni; oyuncu.saldiriyor = false; }
+    }
+    if (!e.repeat && e.code === 'KeyR') {
+      if (!oyuncu.hedef || oyuncu.hedef.olu) { const y = yakinlar()[0]; if (y) oyuncu.hedef = y; }
+      if (oyuncu.hedef && !oyuncu.hedef.olu) { oyuncu.saldiriyor = true; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; }
     }
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
@@ -286,7 +293,7 @@ async function basla(): Promise<void> {
     }
     const canavarVurus = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu))[0];
     if (canavarVurus) {
-      oyuncu.hedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null;
+      oyuncu.hedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null; oyuncu.saldiriyor = true;
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       return;
     }
@@ -333,6 +340,7 @@ async function basla(): Promise<void> {
     const donus = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
     const ilerigeri = (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0);
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
+    if (!oyuncu.hedef) oyuncu.saldiriyor = false;
     oyuncu.yuruAcisi = null;
     // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
     if (oyuncu.model?.oturuyor && (donus !== 0 || ilerigeri !== 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
@@ -342,7 +350,6 @@ async function basla(): Promise<void> {
       const dh = donus * DIREKSIYON_HIZI * dt;
       const h = oyuncu.bakisAcisi + dh;
       oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h)));
-      kamera.aci -= dh;
     }
 
     if (ilerigeri !== 0) {
@@ -350,12 +357,11 @@ async function basla(): Promise<void> {
       const h = oyuncu.bakisAcisi;
       const yon = new THREE.Vector2(Math.cos(h), Math.sin(h));
       if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), hizAl() * 0.6 * dt);
-      kamera.arkayaHizala(h, dt);
       oyuncu.model?.oynat(hareketAnimi());
     } else if (donus !== 0 && !oyuncu.hedef) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       oyuncu.model?.oynat('bekle');
-    } else if (oyuncu.hedef) {
+    } else if (oyuncu.hedef && oyuncu.saldiriyor) {
       const h = oyuncu.hedef;
       if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) {
         oyuncu.yuru(h.konum, hizAl() * dt, SALDIRI_MENZILI - 0.3);
@@ -422,14 +428,14 @@ async function basla(): Promise<void> {
       const saldirdi = c.guncelle(dt, oyuncu);
       const vurus = saldirdi ? canavarVurusu(c.tur, oyuncu.savasVeri) : null; // sunucu formülü (savas.ts)
       if (saldirdi) ses.modelSesi(c.tur.model, 'saldir', c.konum);
-      if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); if (!oyuncu.hedef) oyuncu.hedef = c; }
+      if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } }
       if (vurus && vurus.hasar > 0) {
         const net = oyuncu.hasarAl(vurus.hasar);
         ses.modelSesi(OYUNCU_SES_MODELI, oyuncu.olu ? 'olum' : 'darbe');
         kalk(); // hasar alınca ayağa kalkılır
         hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
         if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
-        else if (!oyuncu.hedef) oyuncu.hedef = c; // karşılık ver
+        else if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } // karşılık ver
       }
       if (c.olu) {
         if (!c.ganimetBirakildi && c.oluSuresi > 1.2) {

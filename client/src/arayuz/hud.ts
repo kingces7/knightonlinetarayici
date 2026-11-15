@@ -167,7 +167,7 @@ export class Hud {
       const goster = p.gorunur && !c.olu;
       el.style.display = goster ? '' : 'none';
       if (!goster) continue;
-      el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%)`;
+      el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%) translateY(16px)`;
       el.classList.toggle('secili', c === hedef);
     }
   }

@@ -14,6 +14,8 @@ export interface SerbestAyar {
   /** En çok büyüme (ölçeksiz piksel). */
   enCokDw: number; enCokDh: number;
   /** Top (kilit) simgesi: doku adı (/arayuz/doku/<ad>.png), doku boyutu ve UV [u0,v0,u1,v1]. */
+  /** Kilit topunu sol alta koy (varsayılan sağ alt). */
+  topSol?: boolean;
   top: { doku: string; w: number; h: number; uv: [number, number, number, number] };
 }
 
@@ -87,7 +89,7 @@ export class SerbestPencere {
     const sw = (u[2] - u[0]) * t.w, sh = (u[3] - u[1]) * t.h;
     this.top = document.createElement('div');
     Object.assign(this.top.style, {
-      position: 'absolute', right: '1px', bottom: '1px', width: `${sw}px`, height: `${sh}px`, zIndex: '9', cursor: 'pointer',
+      position: 'absolute', [this.ayar.topSol ? 'left' : 'right']: '1px', bottom: '1px', width: `${sw}px`, height: `${sh}px`, zIndex: '9', cursor: 'pointer',
       backgroundImage: `url(/arayuz/doku/${t.doku}.png)`, backgroundSize: `${t.w}px ${t.h}px`, backgroundPosition: `${-u[0] * t.w}px ${-u[1] * t.h}px`, backgroundRepeat: 'no-repeat', pointerEvents: 'auto',
     });
     this.top.addEventListener('click', () => { this.k.kilit = !this.k.kilit; this.kilitGoster(); this.kaydetDisk(); });
@@ -125,8 +127,8 @@ export class SerbestPencere {
     };
     mk({ left: '0', top: '0', width: `${T}px`, height: `${T}px` }, 'nwse-resize', buyut(true, true));
     mk({ right: '0', top: '0', width: `${T}px`, height: `${T}px` }, 'nesw-resize', buyut(false, true));
-    mk({ left: '0', bottom: '0', width: `${T}px`, height: `${T}px` }, 'nesw-resize', buyut(true, false));
-    mk({ right: '0', bottom: '22px', width: `${T}px`, height: `${T}px` }, 'nwse-resize', buyut(false, false)); // sağ alt köşede top var: tutamaç biraz yukarıda
+    mk({ left: '0', bottom: this.ayar.topSol ? '22px' : '0', width: `${T}px`, height: `${T}px` }, 'nesw-resize', buyut(true, false));
+    mk({ right: '0', bottom: this.ayar.topSol ? '0' : '22px', width: `${T}px`, height: `${T}px` }, 'nwse-resize', buyut(false, false)); // sağ alt köşede top var: tutamaç biraz yukarıda
     // Üst kenar: taşıma
     mk({ left: `${T}px`, right: `${T}px`, top: '0', height: '9px' }, 'move', (dx, dy, b) => {
       const w = (this.w0 + this.k.dw) * this.ol, h = (this.h0 + this.k.dh) * this.ol;

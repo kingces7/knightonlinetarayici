@@ -1,6 +1,7 @@
 // Oyun varlıkları: oyuncu, canavar ve ganimet kutusu.
 // Konumlar Knight Online koordinatında tutulur: (x, z). Sahnede (x, y, -z) olarak çizilir.
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KarakterModeli } from '../dunya/karakter';
 import type { Arazi } from '../dunya/arazi';
 import { type CanavarTuru, type EsyaTanimi, YENI_KARAKTER, esyaBul, kurallar, rastgele } from './veri';
@@ -291,6 +292,8 @@ export class Oyuncu extends Varlik {
     }
   }
   hedef: Canavar | null = null;
+  /** Hedefe temel saldırı sürüyor mu? Fareyle tıklama/R başlatır; Z/Q/Tab yalnızca hedef seçer. */
+  saldiriyor = false;
   yuruHedef: THREE.Vector2 | null = null;
   /** Klavyeyle yürürken gidiş yönü (Knight Online x,z düzleminde radyan); null = duruyor. Yön hedefe yumuşakça döner. */
   yuruAcisi: number | null = null;
@@ -400,9 +403,24 @@ export class GanimetKutusu {
   readonly secimKutusu: THREE.Mesh;
   private zaman = 0;
 
+  /** Oyunun kendi eşya kutusu modeli (Misc/itembox.n3shape → /esya/itembox.glb). Yüklenemezse basit kutu çizilir. */
+  private static model: THREE.Object3D | null = null;
+  static async modelYukle(): Promise<void> {
+    try { GanimetKutusu.model = (await new GLTFLoader().loadAsync('/esya/itembox.glb')).scene; } catch { GanimetKutusu.model = null; }
+  }
+
   constructor(x: number, z: number, altin: number, esyalar: EsyaTanimi[]) {
     this.konum = new THREE.Vector2(x, z);
     this.altin = altin; this.esyalar = esyalar;
+    if (GanimetKutusu.model) {
+      const m = GanimetKutusu.model.clone(true);
+      m.traverse((o) => { const me = o as THREE.Mesh; if (me.isMesh) { const mat = (me.material as THREE.MeshStandardMaterial).clone(); mat.emissive = new THREE.Color(0x553300); mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.6; me.material = mat; } });
+      m.scale.setScalar(1.8); // orijinal model küçük (≈0,4 m); uzaktan seçilebilsin diye biraz büyütülür
+      this.grup.add(m);
+      this.secimKutusu = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshBasicMaterial({ visible: false }));
+      this.secimKutusu.position.y = 0.5; this.grup.add(this.secimKutusu);
+      return;
+    }
     const tahta = new THREE.MeshLambertMaterial({ color: 0x6b4423 });
     const metal = new THREE.MeshLambertMaterial({ color: 0xd4a640, emissive: 0x3a2a05 });
     const govde = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.45, 0.55), tahta); govde.position.y = 0.23;

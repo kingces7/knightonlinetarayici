@@ -43,12 +43,16 @@ export interface ArayuzBaglami {
 
 /** Eşya simgeleri 64×64 dokunun sol üst 45×45'ine çizilir; yuvayı tam doldurmak için büyütülür. */
 /** Kısayol tuşu → orijinal pencere (M ses için ayrıldı). */
-const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyQ: 're_el_page_quest', KeyL: 're_el_clan_window', KeyN: 're_el_notice', KeyO: 're_el_various_frame' };
+const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyL: 're_el_clan_window', KeyN: 're_el_notice', KeyO: 're_el_various_frame' };
 /** Görev çubuğu düğmesi → orijinal pencere (eşleşme pencerenin metinlerinden tahmin edildi). */
 const GOREV_PENCERELERI: Record<string, string> = {
   btn_map: 're_minimap', btn_exit: 're_exitmenu', btn_command: 're_el_cmdlist', btn_invite: 're_el_party', btn_option: 're_el_various_frame',
   btn_menu: 're_minimenu', btn_question: 're_seed_helper', btn_rank: 're_el_dailyoverallrank', btn_trade: 're_el_personaltrade', btn_powerup: 're_powerupstore',
 };
+/** Sohbette sistem iletilerinin rengi (oyundaki ### ... ### satırları sarı). */
+/** Bilgi penceresi arka planı sohbet penceresiyle aynı saydamlıkta. */
+const ARKA_PLAN_SAYDAMLIK = 0.55;
+const SISTEM_SARI = '#e8e84a';
 const ESYA_SIMGE = '142.22% 142.22%';
 type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza' | 'depo';
 
@@ -98,7 +102,7 @@ export class OyunArayuzu {
     const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, hedefCubugu, ganimetPencere, bec] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
-      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
+      UiPencere.yukle('el_chat_us'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
     this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.beceriler = Array.isArray(bec) ? bec : [];
@@ -134,7 +138,7 @@ export class OyunArayuzu {
     });
     const topAyari = { doku: 'co_show_icon', w: 512, h: 512, uv: [0.678, 0.178, 0.711, 0.213] as [number, number, number, number] };
     this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari }, () => this.gorevYerlestir());
-    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari }, () => this.gorevYerlestir());
+    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, topSol: true }, () => this.gorevYerlestir());
     this.pencereYerlestir(true); this.gorevYerlestir();
     addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
   }
@@ -180,6 +184,8 @@ export class OyunArayuzu {
     if (kod === 'KeyK') { this.degistir('beceri'); return true; }
     if (kod === 'KeyI') { this.degistir('envanter'); return true; }
     if (kod === 'Enter') { this.sohbetGiris?.focus(); return true; }
+    const fSayfa = /^F([1-8])$/.exec(kod);
+    if (fSayfa) { this.cubukSayfa = Number(fSayfa[1]) - 1; this.cubukSayfaDegistir(0); return true; }
     const rakam = /^Digit([1-8])$/.exec(kod);
     if (rakam) { this.cubukKullan(Number(rakam[1]) - 1); return true; }
     const genelTus = GENEL_TUSLAR[kod]; if (genelTus) { void this.genel.degistir(genelTus); return true; }
@@ -259,8 +265,8 @@ export class OyunArayuzu {
       const alan = g.alan(String(i)); if (!alan) continue;
       const e = altinVar ? (i === 0 ? null : k.esyalar[i - 1]) : k.esyalar[i];
       const noah = altinVar && i === 0;
-      alan.style.backgroundImage = noah ? 'radial-gradient(circle at 35% 30%, #fff2a8, #d4a640 55%, #7a5a14)' : e?.simge ? `url(${e.simge})` : '';
-      alan.style.backgroundSize = noah ? '60% 60%' : ESYA_SIMGE; alan.style.backgroundPosition = noah ? 'center' : '0 0';
+      alan.style.backgroundImage = noah ? 'url(/esya/noah.png)' : e?.simge ? `url(${e.simge})` : ''; // Noah simgesi oyunun eşya tablosundan (Coin, 90001000)
+      alan.style.backgroundSize = ESYA_SIMGE; alan.style.backgroundPosition = '0 0';
       alan.style.cursor = noah || e ? 'pointer' : 'default';
       alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; alan.onmouseleave = () => this.b.ipucuGizle();
       g.metin(String(i), noah ? k.altin.toLocaleString('en-US') : '');
@@ -381,7 +387,7 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- skill çubuğu
   private cubukKur(): void {
     const c = this.cubuk;
-    c.gizleDesen(/^(btn_open|btn_close|img_front2)$/);
+    c.gizleDesen(/^(btn_open|btn_close|img_front2|btn_lock|strpage[0-9])$/); // sayfa numarası görünmez; kilit ve yön düğmeleri aşağıda kendi simgeleriyle kurulur
     // Zemin resmi iki ok plakası çiziyor: ikincisi (kilit satırı) gizlenir, yerine gerçek kilit düğmesi görünür
     for (const e of c.el.querySelectorAll<HTMLElement>('.ui-t4')) if (e.style.top === '349px' && e.style.left === '2px') e.style.display = 'none';
     for (const id of ['btn_up', 'btn_down']) for (const e of c.bul(id)) for (const dd of e.querySelectorAll<HTMLElement>('.ui-durum')) dd.style.opacity = '0'; // oklar zemin resminde çizili; düğme yalnızca tıklama alanı
@@ -389,7 +395,7 @@ export class OyunArayuzu {
     c.el.style.overflow = 'visible'; c.el.style.zIndex = '5'; c.el.style.pointerEvents = 'none';
     try { this.cubukDikey = localStorage.getItem('ke_skillcubugu_yon') !== 'yatay'; } catch { /* kayıt yok */ }
     try { this.cubukKilitli = localStorage.getItem('ke_skillcubugu_kilit') === '1'; } catch { /* kayıt yok */ }
-    c.tikla.set('btn_lock', () => { this.cubukKilitli = !this.cubukKilitli; try { localStorage.setItem('ke_skillcubugu_kilit', this.cubukKilitli ? '1' : '0'); } catch { /* depolama kapalı */ } this.cubukKilitGoster(); });
+    this.cubukDugmeleriKur();
     // Üstteki top: basılı tutup sürükleyince çubuk taşınır (kilitliyse taşınmaz); çift tıklama yönü (dikey/yatay) değiştirir
     for (const top of c.bul('btn_change')) {
       top.style.touchAction = 'none';
@@ -401,7 +407,6 @@ export class OyunArayuzu {
         const bitir = () => { top.removeEventListener('pointermove', tasi); top.removeEventListener('pointerup', bitir); try { localStorage.setItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay', JSON.stringify([parseFloat(c.el.style.left), parseFloat(c.el.style.top)])); } catch { /* depolama kapalı */ } };
         top.addEventListener('pointermove', tasi); top.addEventListener('pointerup', bitir);
       });
-      top.addEventListener('dblclick', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
     }
     this.cubukKilitGoster();
     this.cubukYonUygula(); this.cubukSayfaDegistir(0);
@@ -436,7 +441,27 @@ export class OyunArayuzu {
   /** Çubuğun ekrandaki (ölçekli) boyutu. */
   private cubukKutu(): [number, number] { const o = this.cubuk.olcek; return this.cubukDikey ? [74 * o, 393 * o] : [356 * o, 60 * o]; }
   private cubukSayfaDegistir(d: number): void { this.cubukSayfa = (this.cubukSayfa + d + 8) % 8; this.cubuk.metin('strpage0', this.cubukSayfa + 1); this.cubuk.metin('strpage1', this.cubukSayfa + 1); }
-  private cubukKilitGoster(): void { for (const e of this.cubuk.bul('btn_lock')) { e.style.opacity = this.cubukKilitli ? '1' : '0.55'; e.title = this.cubukKilitli ? 'Locked: the bar cannot be moved' : 'Unlocked: drag the ball to move the bar'; } }
+  private cubukKilitDugmeleri: HTMLElement[] = [];
+  /** Kilit ve yön (dikey/yatay) düğmeleri: oyunun kendi simge sayfasından (knight1.dxt) çizilir; iki çubuk yönünde de görünür. */
+  private cubukDugmeleriKur(): void {
+    const yap = (x: number, y: number, u: number, hazirla: (e: HTMLElement) => void): HTMLElement => {
+      const e = document.createElement('div');
+      Object.assign(e.style, { position: 'absolute', left: `${x}px`, top: `${y}px`, width: '41px', height: '12px', cursor: 'pointer', pointerEvents: 'auto', backgroundImage: 'url(/arayuz/doku/knight1.png)', backgroundSize: '512px 512px', backgroundPosition: `${-u}px -336px`, backgroundRepeat: 'no-repeat' });
+      hazirla(e); return e;
+    };
+    const gruplar: [string, number, number, number, number][] = [['Hotkey_vertical', 5, 353, 5, 369], ['Hotkey_Horizontal', 250, 64, 298, 64]];
+    for (const [ad, kx, ky, yx, yy] of gruplar) {
+      const g = this.cubuk.bul(ad)[0]; if (!g) continue;
+      const kilit = yap(kx, ky, 191, (e) => e.addEventListener('click', () => { this.cubukKilitli = !this.cubukKilitli; try { localStorage.setItem('ke_skillcubugu_kilit', this.cubukKilitli ? '1' : '0'); } catch { /* depolama kapalı */ } this.cubukKilitGoster(); }));
+      const yon = yap(yx, yy, 236, (e) => {
+        e.title = 'Switch the bar between vertical and horizontal';
+        e.addEventListener('pointerenter', () => { e.style.backgroundPositionY = '-348px'; }); e.addEventListener('pointerleave', () => { e.style.backgroundPositionY = '-336px'; });
+        e.addEventListener('click', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
+      });
+      g.append(kilit, yon); this.cubukKilitDugmeleri.push(kilit);
+    }
+  }
+  private cubukKilitGoster(): void { for (const e of this.cubukKilitDugmeleri) { e.style.backgroundPositionY = `${-(this.cubukKilitli ? 360 : 336)}px`; e.title = this.cubukKilitli ? 'Locked: the bar cannot be moved (click to unlock)' : 'Unlocked: drag the ball to move the bar (click to lock)'; } }
   private cubukKaydet(): void { try { localStorage.setItem('ke_skillcubugu', JSON.stringify(this.cubukBeceri)); } catch { /* depolama kapalı */ } }
   private cubukKullan(i: number): void { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
   private cubukCiz(): void {
@@ -478,8 +503,9 @@ export class OyunArayuzu {
 
   private sohbetKur(): void {
     const p = this.sohbet;
-    p.gizleDesen(/^(base_mapuserlist|BaseChangeChattingMode|base_filter|base_scroll|btn_chatroom|btn_noah_knights|btn_clan$|btn_union$|btn_chat_lock|btn_check_)/);
-    this.satirKabi(p.alan('text0'), 12);
+    p.gizleDesen(/^(btn_check_|btn_off|text_notice_title)/);
+    this.satirKabi(p.alan('text0'), 14);
+    for (const el of p.el.querySelectorAll<HTMLElement>('.ui-yazi span')) if (el.textContent === 'Knights') el.textContent = 'Clan'; // oyundaki sekme adı
     const e = p.alan('edit0');
     if (e) {
       const g = document.createElement('input');
@@ -497,12 +523,14 @@ export class OyunArayuzu {
       g.addEventListener('pointerdown', (ev) => ev.stopPropagation());
       e.appendChild(g); this.sohbetGiris = g;
     }
-    this.sohbetYaz('Welcome to KnightEmpire! Press Enter to chat.', '#8fd0ff');
+    this.sohbetYaz('### Welcome to KnightEmpire! Press Enter to chat. ###', SISTEM_SARI);
   }
 
   private bilgiKur(): void {
     const p = this.bilgi;
-    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|img_sizechange|scroll)/);
+    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|scroll)/);
+    for (const e of p.bul('img_sizechange')) e.style.pointerEvents = 'none'; // köşe tutamağı: büyütme SerbestPencere'de
+    for (const id of ['img_background', 'img_background2']) for (const e of p.bul(id)) e.style.opacity = String(ARKA_PLAN_SAYDAMLIK);
     this.satirKabi(p.alan('text_message'), 12);
     p.el.style.zIndex = '1'; this.sohbet.el.style.zIndex = '1'; // pencerelerin (z ≥ 11) altında kalsın
   }

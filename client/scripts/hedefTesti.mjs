@@ -1,0 +1,20 @@
+// Geliştirme aracı: Z/Q hedef seçer (saldırmaz), R saldırıyı başlatır; A/D kamerayı döndürmez.
+import { chromium } from 'playwright-core';
+const [klasor = '.'] = process.argv.slice(2);
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1366, height: 768 } });
+const hatalar = []; s.on('pageerror', (e) => hatalar.push(e.message));
+await s.goto('http://localhost:5173/'); await s.evaluate(() => localStorage.clear()); await s.reload();
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(2500);
+const d = () => s.evaluate(() => ({ hedef: window.ke.oyuncu.hedef?.tur.ad ?? null, saldiriyor: window.ke.oyuncu.saldiriyor, kam: window.ke.kamera.aci, h: window.ke.oyuncu.bakisAcisi }));
+const r = {};
+await s.keyboard.press('KeyZ'); await s.waitForTimeout(300); r.z = await d();
+await s.keyboard.press('KeyQ'); await s.waitForTimeout(300); r.q = await d();
+await s.keyboard.press('KeyR'); await s.waitForTimeout(600); r.rSonra = await d();
+const k0 = (await d()).kam;
+await s.keyboard.down('KeyA'); await s.waitForTimeout(700); await s.keyboard.up('KeyA'); r.aSonra = await d(); r.kameraDegisim = r.aSonra.kam - k0;
+r.hataTumu = hatalar;
+console.log(JSON.stringify(r, null, 1));
+await s.evaluate(() => { const a = window.ke.arayuz(); a.cubukDikey = false; a.cubukYonUygula(); a.gorevYerlestir(); });
+await s.waitForTimeout(500); await s.screenshot({ path: `${klasor}/yatay.png` });
+await t.close();

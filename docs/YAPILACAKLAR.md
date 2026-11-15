@@ -203,3 +203,10 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Durum penceresi üstünde Character / Clan / Friends sekmeleri; dost listesi yerel (kırmızı partide, yeşil çevrimiçi, gri çevrimdışı). Sunucu olmadığı için eklenen dostlar çevrimdışı (gri) görünür; durum sunucudan gelecek. Klan sekmesi şimdilik boş ("No Clan").
 - [x] Canavar/NPC adları oyunun kendi yazı tipiyle (\`fonts/mg basic.ttf\`, \`npm run yazitipi\`), can çubukları kaldırıldı.
 - [ ] Dost listesindeki renk açıklamasının yanındaki küçük nokta simgeleri hâlâ orijinal renkte (mavi/yeşil/gri); yazı renkleri düzeltildi.
+
+**İstemci düzenlemeleri (2026-11-15, 3. tur)**
+- [x] Skill çubuğu: top yalnızca sürükleme; yön düğmesi (►►►) ve kilit düğmesi oyunun \`knight1.dxt\` simgelerinden, iki yönde de görünür; F1–F8 sayfa tuşları, sayfa numarası gizli.
+- [x] Sohbet penceresi oyunun \`el_chat_us\` düzeniyle (Chat/Normal/Private/Shout/Party/Clan/Ally), iletiler 14 px, sistem iletileri sarı. Bilgi penceresi arka planı sohbetle aynı saydamlıkta (0,55 elle ayarlandı, orijinal değer ölçülmedi), köşe tutamağı görünür, kilit topu sol altta.
+- [x] Z (en yakın) / Q / Tab hedef seçer, R temel saldırıyı başlatır (fareyle tıklama eskisi gibi saldırtır). Q artık görev penceresi kısayolu değil. A/D kamerayı döndürmez.
+- [x] Canavar adları 16 px aşağıda, hepsi seçili-renk (#ff8a7a). Orijinal client kaynağı olmadığından orijinal ad rengi/konumu doğrulanamadı.
+- [x] Düşen kutu oyunun \`Misc/itembox.n3shape\` modeli, Noah simgesi eşya tablosundaki "Coin" (90001000) (\`npm run itembox\`). Düşen paranın ayrı bir yer modeli bulunamadı; tek kutu kullanılıyor.

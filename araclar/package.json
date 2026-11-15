@@ -17,6 +17,7 @@
     "harita": "node harita/cli.ts",
     "karakter": "node model/cli.ts",
     "esyalar": "node oyun/esyalar.ts && node oyun/yazitipi.ts",
+    "itembox": "node oyun/itembox.ts",
     "yazitipi": "node oyun/yazitipi.ts",
     "web-hazirla": "node harita/cli.ts 14th_oldmoradon && node model/cli.ts 11610 100 200 300 500 700 800 && node oyun/esyalar.ts && node oyun/yazitipi.ts",
     "arayuz": "node arayuz/cli.ts",
