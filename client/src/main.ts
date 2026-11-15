@@ -1,7 +1,7 @@
 // KnightEmpire — tarayıcı istemcisi giriş noktası (tek oyunculu mod).
 import * as THREE from 'three';
 import { Arazi } from './dunya/arazi';
-import { nesneleriYukle } from './dunya/nesneler';
+import { nesneleriYukle, nesneAnimasyonunuIlerlet, type DokuAnimasyonu } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
@@ -58,7 +58,8 @@ async function basla(): Promise<void> {
   arazi.sisAyarla(SIS, 150, 600);
   sahne.add(arazi.mesh);
   durum('Loading objects…');
-  try { sahne.add(await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`)); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
+  let dokuAnimlari: DokuAnimasyonu[] = [];
+  try { const n = await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`); dokuAnimlari = n.animlar ?? []; sahne.add(n); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
   await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle()]);
 
@@ -473,6 +474,7 @@ async function basla(): Promise<void> {
     npcleriGuncelle(dt);
     oyuncu.sahneyeYerlestir(arazi);
     gokyuzu?.guncelle(kamera.kamera.position);
+    nesneAnimasyonunuIlerlet(dokuAnimlari, performance.now() / 1000);
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);

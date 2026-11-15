@@ -200,8 +200,12 @@ function main(argv: string[]): number {
   console.log(`  -> ${hedef}`);
   sunucuVerisiniYaz(harita, hedef);
   if (!argv.includes('--nesnesiz')) {
-    const { glb, rapor } = nesneleriDisaAktar(od, harita);
+    const { glb, rapor, kareler } = nesneleriDisaAktar(od, harita);
     fs.writeFileSync(path.join(hedef, 'nesneler.glb'), glb);
+    fs.rmSync(path.join(hedef, 'anim'), { recursive: true, force: true });
+    if (kareler.size) fs.mkdirSync(path.join(hedef, 'anim'), { recursive: true });
+    for (const [ad, png] of kareler) fs.writeFileSync(path.join(hedef, 'anim', `${ad}.png`), png);
+    if (rapor.animli) console.log(`  animasyonlu doku: ${rapor.animli} parça, ${kareler.size} kare`);
     console.log(`  nesneler: ${rapor.nesne} nesne (${rapor.atlanan} atlandı), ${rapor.model} model (${rapor.eksikModel} okunamadı), ` +
       `${rapor.doku} doku (${rapor.sifreliDoku} şifreli → gri), ${(rapor.boyut / 1048576).toFixed(1)} MB`);
   }

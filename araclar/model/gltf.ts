@@ -83,8 +83,9 @@ export class GlbYazici {
   }
 
   /** Düğüm ekler. konum/donus Knight Online koordinatlarında verilir. */
-  dugum(d: { ad?: string; mesh?: number; konum?: number[]; donus?: number[]; olcek?: number[]; cocuklar?: number[]; skin?: number }, kok = false): number {
+  dugum(d: { ad?: string; mesh?: number; konum?: number[]; donus?: number[]; olcek?: number[]; cocuklar?: number[]; skin?: number; ekstra?: Json }, kok = false): number {
     const n: Json = {};
+    if (d.ekstra) n.extras = d.ekstra;
     if (d.ad) n.name = d.ad;
     if (d.mesh !== undefined) n.mesh = d.mesh;
     if (d.skin !== undefined) n.skin = d.skin;

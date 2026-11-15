@@ -73,7 +73,7 @@ export function pmeshOku(b: Buffer): Mesh {
 }
 
 // ---------------- .n3shape ----------------
-export interface ShapeParca { pivot: [number, number, number]; mesh: string; dokular: string[] }
+export interface ShapeParca { pivot: [number, number, number]; mesh: string; dokular: string[]; /** Animasyonlu doku hızı (kare/sn); 0 = sabit. */ fps: number }
 export interface Shape {
   ad: string;
   konum: [number, number, number];
@@ -103,11 +103,11 @@ export function shapeOkuR(r: Okuyucu, kuyruk = true): Shape {
     const pivot = r.v3();
     const mesh = r.str();
     r.atla(68 + 24); // D3DMATERIAL9 + renk/karışım ayarları
-    const tc = r.i32(); r.f32();
+    const tc = r.i32(); const fps = r.f32();
     if (tc < 0 || tc > 1024) throw new Error(`doku sayısı geçersiz ${tc}`);
     const dokular: string[] = [];
     for (let t = 0; t < tc; t++) dokular.push(r.str());
-    parcalar.push({ pivot, mesh, dokular });
+    parcalar.push({ pivot, mesh, dokular, fps });
   }
   if (kuyruk) r.atla(20); // belong, eventID, eventType, npcID, npcStatus
   return { ad, konum, donus, olcek, parcalar };

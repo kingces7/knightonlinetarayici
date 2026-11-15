@@ -94,7 +94,7 @@ Bilinmeyenler (bulunca işaretle):
 - [ ] Skill'ler, iksirler, NPC'ler, mağaza
 - [x] Sesler: karakter/canavar saldırı-darbe-ölüm sesleri (NPC_Looks sütun 23-27 → sound.tbl), oyuncu adım sesleri (Move_Sound), bölge müziği (`Snd/21_moradon.ogg`), M tuşu ile kapat/aç — `araclar/oyun/ses.ts` (`npm run ses`), `client/src/oyun/ses.ts`. Kalan: yürüme sesi canavar/NPC için, zemin türüne göre adım, skill/eşya/arayüz sesleri, NPC sesleri, adım aralığı (orijinal değer bilinmiyor).
 - [~] Gökyüzü: `.n3sky` biçimi çözüldü (10 doku yolu + 43 anahtarlı gün döngüsü: şafak/öğle/gün batımı/gece × gökyüzü, sis, güneş, parıltı, bulut, ışık renkleri; testli, `npm run gokyuzu`). Oyunda gökyüzü kubbesi, sis, ışıklar ve güneş yönü gün saatine göre değişir; oyun saati = gerçek yerel saat (sunucu `m_sHour` gibi), `?saat=12` ile zorlanır. Kalan: güneş/ay diski, parıltı, bulut katmanları ve yıldız dokuları (`misc/sky/*.bmp/tga`), anahtar zamanlarının (öğle=06:00?) yorumu doğrulanmadı, hava hep açık.
-- [ ] Efektler (`.fxb`), su (nehir/gölet)
+- [~] Efektler ve su: **animasyonlu dokular** (ateş, duman, ışınlanma işareti; nesne parçasındaki doku listesi + fps) oyunda çalışıyor. **Su:** `14th_oldmoradon` verisinde nehir/gölet yok (`.rvr`/`N3River` verisi bulunmadı; çeşme normal nesne), bu yüzden su yüzeyi çizilecek bir şey yok. Beceri efektleri (`.fxb`, 1219 dosya) çözülmedi: bulgular [formatlar/fxb.md](formatlar/fxb.md).
 - [x] Ufukta uzun yeşil şeritler: incelendi, hata değil görünüyor — kaynak `obj_el_treea` ağaç modeli (52 örnek, ölçekler normal 0,4–1,2; ağ kenarları ≤17 m); kameraya yakın büyük bir ağacın yaprak kartları kenardan görününce ince şerit gibi duruyor. Düzeltme gerekmez.
 - [x] Oyunun orijinal arayüzü: HP çubuğu, görev çubuğu, durum (U), skill (K), envanter (I) pencereleri oyunun kendi UIF/doku dosyalarından ([formatlar/uif.md](formatlar/uif.md)). Kalanlar: "Eksikler ve sonraki işler".
 - [ ] Performans: dokuların sıkıştırılması (KTX2), uzak nesnelerin sadeleştirilmesi, büyük haritaların parça parça yüklenmesi
@@ -188,3 +188,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Paket arşivleri, dokular, arazi, nesneler, karakterler ve animasyonlar çözüldü — [formatlar/model.md](formatlar/model.md)
 - [x] Tarayıcıda tek oyunculu av modu (harita, karakter, canavar, savaş, ganimet, envanter) — nasıl açılacağı [README](../README.md)'de
 
+
+**Arayüz — tüm pencereler (2026-11-15)**
+- [x] Oyundaki bütün arayüz pencereleri dışa aktarıldı (`npm run arayuz -- hepsi`: 980 dosya; 25'i eski sürüm biçiminde olduğu için okunamadı: `ka_*` ırk-eski seti, `co_login`, `re_auction_register`, `re_powerup_store`). Oyun `re_*`/`re_el_*` pencerelerini kullanıyor; 289'unun hepsi hatasız açılıyor (`client/scripts/pencereTesti.mjs`).
+- [x] Genel pencere yöneticisi (`client/src/arayuz/genelPencereler.ts`): sürükleme, öne gelme, kapatma düğmesi, sekme düğmeleri, Esc. Görev çubuğu düğmeleri ve kısayollar (P parti, F dost, Q görev, L klan, N duyuru, O çerçeve, Esc çıkış menüsü) bağlandı. Eşleşmeler pencere metinlerinden tahmin edildi.
+- [ ] Çoğu pencere şimdilik **kabuk** (görünür, kapanır; içeriği boş): veri bağlama gerekiyor (parti/dost/klan/görev/harita/mektup…). Sunucu bağlantısı (Aşama 4–5) gelince bağlanacak. Sıra: minimap (gerçek harita + oyuncu noktası), görev sayfası, komut listesi, çıkış menüsü seçenekleri.
+- [ ] `ka_*` ve `co_login` için eski UIF sürümü okuyucusu (şimdilik gerekmiyor).
