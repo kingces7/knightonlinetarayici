@@ -194,10 +194,11 @@ export class Canavar extends Varlik {
     const uzaklik = this.konum.distanceTo(oyuncu.konum);
     const dogumdan = this.konum.distanceTo(this.dogum);
     // Sunucu: doğduğu yerden izleme menzilinden fazla uzaklaşınca kovalamayı bırakır; saldırgan canavar arama menzilinde oyuncuyu fark eder.
-    if (oyuncu.olu || dogumdan > (this.tur.izleme || 30)) { this.kizgin = false; }
-    if (!oyuncu.olu && (this.kizgin || (!this.pasif && uzaklik < Math.max(this.tur.arama, 3)))) this.kizgin = true;
+    const gorunmez = oyuncu.olu || oyuncu.blinkli; // göz kırpan oyuncuyu yapay zekâ görmez (sunucu BlinkStart: INVIS_DISPEL_ON_ATTACK)
+    if (gorunmez || dogumdan > (this.tur.izleme || 30)) { this.kizgin = false; }
+    if (!gorunmez && (this.kizgin || (!this.pasif && uzaklik < Math.max(this.tur.arama, 3)))) this.kizgin = true;
 
-    if (this.kizgin && !oyuncu.olu) {
+    if (this.kizgin && !gorunmez) {
       if (uzaklik > 2.2) {
         this.durum = 'kovala';
         this.yuru(oyuncu.konum, this.tur.hizKovala * dt, 1.8);
@@ -295,6 +296,9 @@ export class Oyuncu extends Varlik {
     }
   }
   hedef: Canavar | null = null;
+  /** Yeniden doğunca 10 sn (sunucu BLINK_TIME) göz kırpma: canavarlar fark etmez, skill kullanılamaz; saldırınca biter. Zaman: performance.now()/1000. */
+  blinkBitis = 0;
+  get blinkli(): boolean { return performance.now() / 1000 < this.blinkBitis; }
   /** Partide mi? (parti sistemi sunucu ile gelecek; partideyse ad sarı görünür.) */
   partide = false;
   /** Hedefe temel saldırı sürüyor mu? Fareyle tıklama/R başlatır; Z/Q/Tab yalnızca hedef seçer. */

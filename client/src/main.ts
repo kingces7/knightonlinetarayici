@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -65,7 +65,7 @@ async function basla(): Promise<void> {
   let dokuAnimlari: DokuAnimasyonu[] = [];
   try { const n = await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`); dokuAnimlari = n.animlar ?? []; sahne.add(n); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
-  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle()]);
+  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle(), ganimetYukle()]);
 
   const hud = new Hud();
   const ses = new Ses();
@@ -146,6 +146,7 @@ async function basla(): Promise<void> {
   const beceriKullan = (no: number) => {
     const v = kurallar?.beceri[String(no)];
     if (!v || oyuncu.olu) return;
+    if (oyuncu.blinkli) { hud.mesaj('You cannot use skills while blinking.', 'sistem'); return; } // sunucu: m_bCanUseSkills = false (10 sn)
     if (oyuncu.seviye < v.seviye) { hud.mesaj(`${v.ad} requires level ${v.seviye}.`, 'sistem'); return; }
     const hazir = oyuncu.beceriBekleme.get(no) ?? 0;
     if (hazir > simdiSn()) { hud.mesaj(`${v.ad} is not ready yet.`, 'sistem'); return; }
@@ -223,9 +224,26 @@ async function basla(): Promise<void> {
     envanterYenile();
     if (k.bos) { k.omur = 0; hud.ganimetAc(null); } else hud.ganimetAc(k);
   };
+  /**
+   * Ölümde deneyim kaybı (sunucu OnDeathKilledNpc + ExpChange): bölgede ExpLost varsa ve seviye ≥ 6 ise seviyenin en çok deneyiminin 1/20'si gider.
+   * Deneyim sıfırın altına inerse seviye düşer: yeni seviyenin tavanı alınır, kalan ondan çıkarılır (sunucudaki hesapla aynı).
+   */
+  const deneyimKaybet = (kayip: number): void => {
+    if (oyuncu.seviye < 6 || kayip <= 0) return;
+    if (oyuncu.deneyim - kayip >= 0) { oyuncu.deneyim -= kayip; return; }
+    const eski = oyuncu.deneyim;
+    oyuncu.seviye--;
+    const fark = eski + Math.floor(gerekenDeneyim(oyuncu.seviye) / 20);
+    oyuncu.deneyim = gerekenDeneyim(oyuncu.seviye);
+    oyuncu.canManaHesapla(true); // seviye değişince can/mana yeniden hesaplanıp dolar
+    hud.mesaj(`You have lost a level. You are now level ${oyuncu.seviye}.`, 'hasar');
+    deneyimKaybet(fark);
+  };
   hud.yenidenDog = () => {
-    oyuncu.isinla(baslangic.x, baslangic.y, arazi); oyuncu.can = oyuncu.enCok; oyuncu.mana = oyuncu.enCokMana;
+    // Sunucu Regene: START_POSITION (bölge 21: 264,302 + 0..3 rastgele), canı tam doldurur (mana değişmez), 10 sn göz kırpma
+    oyuncu.isinla(baslangic.x + Math.floor(Math.random() * 4), baslangic.y + Math.floor(Math.random() * 4), arazi); oyuncu.can = oyuncu.enCok;
     oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.buflar = []; kalk(); oyuncu.model?.oynat('bekle');
+    oyuncu.blinkBitis = simdiSn() + 10;
     hud.mesaj('You have been revived.', 'sistem');
   };
 
@@ -332,6 +350,7 @@ async function basla(): Promise<void> {
     oyuncu.animKilidi = Math.max(0, oyuncu.animKilidi - dt);
     ses.dinleyici.copy(oyuncu.konum);
     // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
+    oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
     oyuncu.model?.giyimAyarla(oyuncu.ekipman);
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
     void oyuncu.model?.plugTak('sol', oyuncu.ekipman[8]?.no ?? 0);
@@ -385,6 +404,7 @@ async function basla(): Promise<void> {
         oyuncu.bak(h.konum);
         oyuncu.saldiriSayaci -= dt;
         if (oyuncu.saldiriSayaci <= 0) {
+          oyuncu.blinkBitis = 0; // saldırınca göz kırpma biter
           oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
           oyuncu.savastanBeri = 0;
           oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
@@ -449,13 +469,16 @@ async function basla(): Promise<void> {
         ses.modelSesi(OYUNCU_SES_MODELI, oyuncu.olu ? 'olum' : 'darbe');
         kalk(); // hasar alınca ayağa kalkılır
         hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
-        if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
+        if (oyuncu.olu) {
+          hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null;
+          if (ayar.deneyimKaybi && oyuncu.seviye >= 6) { const kayip = Math.floor(gerekenDeneyim(oyuncu.seviye) / 20); deneyimKaybet(kayip); hud.mesaj(`You lost ${kayip.toLocaleString('en-US')} experience.`, 'hasar'); }
+        }
         else if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } // karşılık ver
       }
       if (c.olu) {
         if (!c.ganimetBirakildi && c.oluSuresi > 1.2) {
           c.ganimetBirakildi = true;
-          const g = ganimetUret(c.tur.seviye);
+          const g = ganimetUret(c.tur);
           const k = new GanimetKutusu(c.konum.x, c.konum.y, g.altin, g.esyalar);
           kutular.push(k); sahne.add(k.grup);
         }
@@ -505,7 +528,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

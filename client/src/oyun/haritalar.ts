@@ -7,13 +7,15 @@ export interface HaritaAyari {
   canavar: boolean;
   /** Sunucu bölge numarası (bölge müziği: Snd/<bölge>_<ad>.ogg). */
   bolge?: number;
+  /** Ölünce deneyim kaybı var mı? (sunucu ZONE_INFO.ExpLost) */
+  deneyimKaybi?: boolean;
 }
 
 export const HARITALAR: Record<string, HaritaAyari> = {
   // Şehir meydanı (oval alan) — kuşbakışı önizlemeye ve sunucudaki kapı olaylarına (x≈800-840, z≈526) göre.
-  moradon: { baslangic: [815, 440], canavar: false, bolge: 21 },
+  moradon: { baslangic: [815, 440], canavar: false, bolge: 21, deneyimKaybi: true },
   // Sunucu NPC dizilimi, başlangıç noktası (START_POSITION1098 bölge 21 = 264, 302) ve kapılar bu haritaya uyuyor.
-  '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21 },
+  '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21, deneyimKaybi: true },
 };
 
 export const VARSAYILAN_AYAR: HaritaAyari = { baslangic: null, canavar: true };

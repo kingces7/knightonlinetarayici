@@ -218,3 +218,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Karakter adı başın üstünde (partideyse sarı, değilse beyaz: \`re_el_hpbar\` ad rengi). O tuşu oyuncu adlarını açıp kapatır (O artık çerçeve penceresi kısayolu değil). Parti sistemi henüz yok (\`oyuncu.partide\`).
 - [x] Canavar adı seçim kutusunun hemen üstünde (kutu üstü + 4 px).
 - [x] Sohbet/bilgi pencereleri sekme yazısından (Chat / Information) tutulup taşınır; kilit topu sohbette solda, bilgide sağda. Durum penceresi sekmeleri 4 eşit parçalı (Character/Clan/Friends/Title) ve pencere genişliğine oturuyor.
+
+**Orijinal savaş kuralları (2026-11-15)**
+- [x] Ölüm: bölgede ExpLost varsa ve seviye ≥ 6 ise seviyenin en çok deneyiminin 1/20'si kaybolur; deneyim sıfırın altına inerse seviye düşer (sunucudaki hesapla). Yeniden doğma: START_POSITION (264..267, 302..305), can tam dolar (mana değişmez), 10 sn göz kırpma (canavarlar fark etmez, skill kullanılamaz, saldırınca biter). Kaynak: `Npc.cpp`, `UserHealtMagicSpSystem.cpp`, `AttackHandler.cpp` (Regene), `User.cpp` (BlinkStart).
+- [x] Ganimet: canavar başına sunucu tablosu (K_MONSTER_ITEM + MAKE_ITEM_GROUP) ve para (iMoney × %70–100, en çok 32000); `npm run ganimet`. Ölçümle doğrulandı (Worm: para 15–22, eşya oranları tablodaki yüzdelere uygun).
+- [ ] Ganimette yığın adedi (ok 20 adet, iksir) yok; her eşya bir yuva. Ganimet yalnızca son vuran/en çok hasar veren içindir (tek oyuncuda fark yok).
+- [ ] Sıradaki: skill türleri (MAGIC_TYPE 2-9), buff/direnç, canavar yapay zekâsı.

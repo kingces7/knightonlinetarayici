@@ -115,13 +115,34 @@ export function magazaSayfalari(grup: number): EsyaTanimi[][] | null {
 }
 
 /** Canavar seviyesine göre ganimet: altın + 0-2 eşya (ucuz eşyalar daha sık). */
-export function ganimetUret(seviye: number): { altin: number; esyalar: EsyaTanimi[] } {
-  const altin = rastgeleTam(5 * seviye, 18 * seviye);
-  const adaylar = esyalar.filter((e) => !e.baslangic);
-  const uygun = adaylar.filter((e) => e.fiyat <= 1500 * seviye * seviye);
-  const havuz = uygun.length ? uygun : adaylar;
+/**
+ * Canavar ganimeti (sunucu Npc.cpp CNpc::GiveNpcHaveItem): para = iMoney × rastgele(70..100)/100 (en çok 32000);
+ * K_MONSTER_ITEM'in her yuvası için rastgele(0..10000) ≤ yüzde ise eşya düşer. Eşya numarası 100000000'dan küçükse bir eşya GRUBUdur
+ * (içinden rastgele biri seçilir), değilse doğrudan eşyadır. Veri: araclar `npm run ganimet` (ganimet.json). Yığın adedi (ok 20 adet) henüz yok.
+ */
+interface GanimetVerisi { canavar: Record<string, { para: number; ogeler: { no: number; yuzde: number }[] }>; gruplar: Record<string, number[]>; esyalar: Record<string, EsyaTanimi> }
+let ganimetVeri: GanimetVerisi | null = null;
+export async function ganimetYukle(): Promise<void> {
+  try {
+    const g = await (await fetch('/oyun/ganimet.json')).json() as GanimetVerisi;
+    for (const e of Object.values(g.esyalar)) e.simge = e.simge ? `/esya/${e.simge}` : '';
+    ganimetVeri = g;
+  } catch { ganimetVeri = null; }
+}
+export function ganimetUret(tur: CanavarTuru): { altin: number; esyalar: EsyaTanimi[] } {
+  const g = ganimetVeri?.canavar[String(tur.sid)];
+  if (!g || !ganimetVeri) { // ganimet verisi yoksa (dosya üretilmediyse) yalnızca para
+    return { altin: Math.floor(tur.para * rastgeleTam(70, 100) / 100), esyalar: [] };
+  }
+  let altin = Math.floor(g.para * rastgeleTam(70, 100) / 100);
+  if (altin >= 32767) altin = 32000;
   const sonuc: EsyaTanimi[] = [];
-  const adet = Math.random() < 0.55 ? 1 : Math.random() < 0.4 ? 2 : 0;
-  for (let i = 0; i < adet && havuz.length; i++) sonuc.push(havuz[Math.floor(Math.random() * havuz.length)]);
+  for (const o of g.ogeler) {
+    if (rastgeleTam(0, 10000) > o.yuzde) continue;
+    let no = o.no;
+    if (no < 100000000) { const grup = ganimetVeri.gruplar[String(no)]; if (!grup?.length) continue; no = grup[Math.floor(Math.random() * grup.length)]; }
+    const e = ganimetVeri.esyalar[String(no)];
+    if (e) sonuc.push(e);
+  }
   return { altin, esyalar: sonuc };
 }
