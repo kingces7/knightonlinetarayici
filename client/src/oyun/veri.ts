@@ -7,6 +7,7 @@ export interface EsyaTanimi {
 }
 
 export interface CanavarTuru {
+  sid: number; // sunucu K_MONSTER numarası
   model: number; // NPC_Looks numarası (/karakter/<model>.glb)
   ad: string;
   seviye: number;
@@ -15,6 +16,7 @@ export interface CanavarTuru {
   ac: number; isabet: number; kacis: number; // sunucu sAc / sHitRate / sEvadeRate
   gecikme: number; // sunucu sAttackDelay (ms)
   exp: number; para: number; // sunucu iExp / iMoney
+  arama: number; izleme: number; // sunucu bySearchRange (saldırgan canavarın fark etme menzili) / byTracingRange (doğduğu yerden en çok ne kadar kovalar), m
   hizGez: number; hizKovala: number; // m/sn: sunucu bySpeed1 (rastgele gezinme, RandomMove) ve bySpeed2 (kovalama/saldırı, NpcTracing)
   olcek: number;
   adet: number; // haritadaki sayı (burada)
@@ -32,11 +34,17 @@ const AILELER: { sid: number; adet: number }[] = [
   { sid: 350, adet: 4 }, // Gavolt
   { sid: 550, adet: 3 }, // Werewolf
 ];
+/** Sunucu K_MONSTER numarasından canavar türü (yerleşim kayıtları için). */
+export function canavarTuruSid(sid: number, adet = 1): CanavarTuru | null {
+  const m = kurallar?.canavar.find((x) => x.sid === sid);
+  if (!m) return null;
+  return { sid: m.sid, arama: m.arama, izleme: m.izleme, model: m.model, ad: m.ad, seviye: m.seviye, can: m.hp, hasar: m.hasar, ac: m.ac, isabet: m.isabet, kacis: m.kacis, gecikme: m.gecikme, exp: m.exp, para: m.para, hizGez: m.hizGez, hizKovala: m.hizKovala, olcek: m.boyut / 100, adet };
+}
 export function canavarTurleri(): CanavarTuru[] {
   const tur: CanavarTuru[] = [];
   for (const a of AILELER) {
     const m = kurallar?.canavar.find((x) => x.sid === a.sid);
-    if (m) tur.push({ model: m.model, ad: m.ad, seviye: m.seviye, can: m.hp, hasar: m.hasar, ac: m.ac, isabet: m.isabet, kacis: m.kacis, gecikme: m.gecikme, exp: m.exp, para: m.para, hizGez: m.hizGez, hizKovala: m.hizKovala, olcek: m.boyut / 100, adet: a.adet });
+    if (m) tur.push({ sid: m.sid, arama: m.arama, izleme: m.izleme, model: m.model, ad: m.ad, seviye: m.seviye, can: m.hp, hasar: m.hasar, ac: m.ac, isabet: m.isabet, kacis: m.kacis, gecikme: m.gecikme, exp: m.exp, para: m.para, hizGez: m.hizGez, hizKovala: m.hizKovala, olcek: m.boyut / 100, adet: a.adet });
   }
   return tur;
 }
@@ -63,7 +71,7 @@ export interface OyuncuKurallari {
   deneyim: Record<string, number>;
   katsayi: Record<string, { hp: number; mp: number; sp: number; ac: number; isabet: number; kacis: number; kisaKilic: number; jamadar: number; kilic: number; balta: number; sopa: number; mizrak: number; mace: number; asa: number; yay: number }>;
   hasarAyar: { mondef: number; canavarHasarCarpani: number; rdamage: number };
-  canavar: { sid: number; ad: string; model: number; boyut: number; seviye: number; hp: number; ac: number; isabet: number; kacis: number; hasar: number; gecikme: number; exp: number; para: number; hizGez: number; hizKovala: number; adet: number }[];
+  canavar: { sid: number; ad: string; model: number; boyut: number; seviye: number; hp: number; ac: number; isabet: number; kacis: number; hasar: number; gecikme: number; exp: number; para: number; hizGez: number; hizKovala: number; arama: number; izleme: number; adet: number }[];
   yeniKarakter: Record<string, { ad: string; str: number; sta: number; dex: number; int: number; cha: number; puan: number; esyalar: number[] }>;
 }
 export let kurallar: OyuncuKurallari | null = null;

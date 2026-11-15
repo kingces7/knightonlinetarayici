@@ -140,6 +140,10 @@ export class Canavar extends Varlik {
   oluSuresi = 0;
   ganimetBirakildi = false;
   kizgin = false;
+  /** Sunucu yerleşim kaydı (K_NPCPOS): gezinme alanı, yeniden doğuş süresi (sn), davranış (ActType 1-2 pasif, 3-4 pasif + yardımlaşan, diğerleri saldırgan). */
+  yerlesim: { alan: number; dogus: number; davranis: number; grup: Canavar[] } | null = null;
+  get dogusSure(): number { return this.yerlesim?.dogus ?? 25; }
+  private get pasif(): boolean { return this.yerlesim ? this.yerlesim.davranis >= 1 && this.yerlesim.davranis <= 4 : this.tur.seviye < 3; }
 
   constructor(tur: CanavarTuru, x: number, z: number) {
     super(0.8, 1.8);
@@ -182,8 +186,9 @@ export class Canavar extends Varlik {
     if (this.olu) { this.oluSuresi += dt; return false; }
     const uzaklik = this.konum.distanceTo(oyuncu.konum);
     const dogumdan = this.konum.distanceTo(this.dogum);
-    if (oyuncu.olu || dogumdan > 30) { this.kizgin = false; }
-    if (!oyuncu.olu && (this.kizgin || (uzaklik < 6 && this.tur.seviye >= 3))) this.kizgin = true;
+    // Sunucu: doğduğu yerden izleme menzilinden fazla uzaklaşınca kovalamayı bırakır; saldırgan canavar arama menzilinde oyuncuyu fark eder.
+    if (oyuncu.olu || dogumdan > (this.tur.izleme || 30)) { this.kizgin = false; }
+    if (!oyuncu.olu && (this.kizgin || (!this.pasif && uzaklik < Math.max(this.tur.arama, 3)))) this.kizgin = true;
 
     if (this.kizgin && !oyuncu.olu) {
       if (uzaklik > 2.2) {
@@ -211,7 +216,7 @@ export class Canavar extends Varlik {
     } else {
       this.bekle -= dt;
       if (this.bekle <= 0) {
-        const a = rastgele(0, Math.PI * 2), r = rastgele(2, 9);
+        const a = rastgele(0, Math.PI * 2), r = rastgele(1, Math.max(2, this.yerlesim?.alan ?? 9));
         this.gezHedef = new THREE.Vector2(this.dogum.x + Math.cos(a) * r, this.dogum.y + Math.sin(a) * r);
       }
     }

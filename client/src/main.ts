@@ -10,6 +10,7 @@ import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYakl
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
 import * as savas from './oyun/savas';
+import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
 const parametre = new URLSearchParams(location.search);
@@ -81,6 +82,13 @@ async function basla(): Promise<void> {
       canavarlar.push(c);
     }
   }
+  // Sunucu yerleşimi (K_NPCPOS) varsa canavarlar oradan, yaklaşınca doğurulur; yoksa yukarıdaki eski halka yerleşimi kullanılır.
+  let yonetici: CanavarYoneticisi | null = null;
+  try {
+    const yanit = await fetch(`/harita/${HARITA}/canavar.json`);
+    const kayitlar = ((await yanit.json()) as { yerlesim: YerlesimKaydi[] }).yerlesim;
+    if (kayitlar?.length) yonetici = new CanavarYoneticisi(kayitlar, sahne, canavarlar, oyuncu);
+  } catch { /* bu haritada yerleşim verisi yok */ }
   const kutular: GanimetKutusu[] = [];
 
   // NPC'ler: sunucu veritabanından dışa aktarılan npc.json (yoksa NPC olmaz)
@@ -166,7 +174,7 @@ async function basla(): Promise<void> {
     hud.mesajKancasi = (m, t) => a.bilgiMesaji(m, t);
   } catch (e) { console.warn('Orijinal arayüz yüklenemedi, basit arayüz kullanılacak', e); }
   hud.mesaj('Welcome to KnightEmpire!', 'sistem');
-  hud.mesaj(ayar.canavar ? 'Hunt monsters, open the chests they drop and level up.' : 'You are in a safe town. Explore with WASD or by clicking the ground.', 'sistem');
+  hud.mesaj(ayar.canavar || yonetici ? 'Hunt monsters, open the chests they drop and level up.' : 'You are in a safe town. Explore with WASD or by clicking the ground.', 'sistem');
 
   // ---------------- Olaylar ----------------
   const envanterYenile = () => hud.envanterCiz(oyuncu);
@@ -384,7 +392,7 @@ async function basla(): Promise<void> {
           kutular.push(k); sahne.add(k.grup);
         }
         if (c.oluSuresi > 5) c.grup.visible = false;
-        if (c.oluSuresi > 25) c.yenidenDog();
+        if (c.oluSuresi > c.dogusSure) c.yenidenDog(); // sunucu RegTime
       }
       c.sahneyeYerlestir(arazi);
     }
@@ -408,6 +416,7 @@ async function basla(): Promise<void> {
   cizici.setAnimationLoop(() => {
     const dt = Math.min(saat.getDelta(), 0.1);
     oyuncuGuncelle(dt);
+    yonetici?.guncelle(dt);
     canavarlariGuncelle(dt);
     npcleriGuncelle(dt);
     oyuncu.sahneyeYerlestir(arazi);
@@ -419,7 +428,7 @@ async function basla(): Promise<void> {
     hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

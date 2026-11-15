@@ -19,7 +19,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 **NPC ve dünya**
 - [ ] NPC konuşmaları ve işlevleri: `Depo/Quests/*.lua` görev/konuşma dosyaları, mağaza (K_NPC `iSellingGroup` → ITEM_SELLTABLE), banka, Sanctuary. Şimdi tıklayınca "(conversation is not available yet)" yazıyor.
 - [x] NPC bakış yönü (`byDirection`, derece; 0 = yön verilmemiş): 751 dost NPC içinden yönü verilmiş 170'i ve 17 haritanın çarpışma verisiyle 8 yorum sınandı; bakış vektörü (cos θ, −sin θ) en iyi çıktı (önü arkasından açık: 19'a 4; eski yorum 3'e 9). Güven orta (çarpışma verisi seyrek, ±90° belirsizliği tam kapanmadı). Araçlar: `client/scripts/npcyonAnaliz.mjs`, `araclar/sunucu/npc-tum-disa-aktar.ps1`.
-- [ ] Moradon şehir dışı canavarları: K_NPCPOS1098 bölge 21'de ~90 canavar kaydı (Bandicoot, Kecoon, Bulcan, Werewolf…) gerçek değerlerle (K_NPC) eklenecek.
+- [x] Moradon canavarları sunucu yerleşiminden: 84 kayıt / 436 canavar (K_NPCPOS1098 bölge 21 + K_MONSTER), her kayıt kendi alanında doğar, sunucu RegTime ile yeniden doğar, oyuncu 90 m yaklaşınca doğurulur / 130 m uzaklaşınca kaldırılır (`client/src/oyun/yerlesim.ts`, `araclar/sunucu/canavar-disa-aktar.ps1`). Pasif canavarlar (ActType 1) yalnız saldırılınca kovalar; izleme menzili sunucudan. Kalan: ActType 3-4 yardımlaşma, saldırgan canavar arama menzili test edilmedi (Moradon'da hepsi pasif), yer/duvar içine doğma kontrolü yok.
 - [ ] Zemin geçişlerinin birebir karışım kuralı bilinmiyor (şimdi: renk haritası + parlaklığa göre karo katmanları).
 - [ ] Işınlanma kapıları (Delos, Luferson Castle, El Morad Castle…) okunuyor ama işlevsiz; kapı/kol nesne olayları kullanılmıyor.
 - [x] Kamera duvar/tavan çarpışması: kamera ile oyuncu başı arasındaki doğru parçası sunucu `.smd` üçgenleriyle kesiştirilir; engelde kamera anında yaklaşır, engel kalkınca yavaşça açılır (`Carpisma.dogruKesisimi`, kontrol: `client/scripts/kameraduvar.mjs`). Görünmez çarpışma yüzeyleri varsa kamera beklenmedik yaklaşabilir.
@@ -88,7 +88,7 @@ Bilinmeyenler (bulunca işaretle):
 - [x] Savaş, deneyim, seviye atlama, ölüm ve yeniden doğma
 - [x] Ganimet sandıkları, Noah (altın), eşyalar (oyunun İngilizce adları ve simgeleri), envanter, silah/zırh kuşanma
 - [ ] Canavar değerleri (can, hasar, seviye) şu an elle verildi → sunucu veritabanındaki gerçek değerler kullanılacak
-- [ ] Canavarların harita üzerindeki gerçek yerleşimi (`.mob` / sunucu `K_NPCPOS`) kullanılacak
+- [x] Canavarların gerçek yerleşimi (Moradon): bkz. yukarıda. Diğer haritalar için `canavar-disa-aktar.ps1 -Bolge N -Harita ad` çalıştırılır.
 - [ ] Kuşanılan eşyanın karakter üzerinde görünmesi (`.n3cplug`, `.n3cpart` değişimi)
 - [ ] Skill'ler, iksirler, NPC'ler, mağaza
 - [ ] Gökyüzü (`.n3sky`), efektler (`.fxb`), sesler (`.ogg`), su
@@ -140,7 +140,6 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] **Moradon haritası kararı:** sunucu NPC dizilimi (K_NPCPOS1098 bölge 21), başlangıç noktası (264, 302) ve kapılar **eski Moradon**a (`14th_oldmoradon.gtd`, 512 m) uyuyor; Sanctuary kristali tam NPC bölgesinde çıktı. Oyunda Moradon = `?harita=14th_oldmoradon`, sunucu eşi `old_moradon.smd` (1098moradon_0826.smd 1024 m'lik başka bir haritadır, NPC'ler ona uymuyor). `moradon_xmas` aynı yeni Moradon'un kış sürümü.
 - [x] **Eski Moradon'da NPC'leri göstermek** — veritabanındaki 26 dost NPC (esnaf, rahip, Sanctuary, Clan Bank, Iron Scarecrow…) modelleriyle yerlerinde. Dışa aktarma: `araclar/sunucu/npc-disa-aktar.ps1` (SQL Server'dan `npc.json`). Tıklayınca yürür ve adını yazar.
 - [ ] **NPC konuşmaları ve işlevleri:** `.lua` görev/konuşma dosyaları (`Depo/Quests`), mağaza (K_NPC `iSellingGroup` → ITEM_SELLTABLE), banka, Sanctuary. NPC'lerin bakış yönü (`byDirection`) kabaca ayarlandı; doğrulanacak.
-- [ ] **Moradon'daki canavarlar:** K_NPCPOS1098 bölge 21'de ~90 canavar kaydı (Bandicoot, Kecoon, Bulcan, Werewolf…) şehir dışı bölgelerde; gerçek değerlerle (K_NPC) eklenecek.
 - [ ] `LILITH_MYKO.bak` geri yüklenince `VERSION` tablosundaki **2401 / 2450** kayıtlarının gerçek olup olmadığı kontrol edilecek.
 - [ ] `LILITH_LOG.bak` içeriği incelenecek.
 - [ ] Veritabanındaki eşya / NPC / görev adlarının dili kontrol edilecek — **oyun İngilizce** olacak.
