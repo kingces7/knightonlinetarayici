@@ -118,9 +118,11 @@ export class KarakterModeli {
     if (this.aktifAd === 'bekle') { this.aktifAd = ''; this.calistir('bekle', true, 0.2); }
   }
   /** Fiziksel skill animasyonu: silah türüne özgü skill hareketi (A ya da B), yoksa büyü hareketi. Süreyi döndürür. */
-  beceriOynat(): number {
-    const a = this.aile && this.klipNo(Math.random() < 0.5 ? this.aile[3] : this.aile[4]);
-    return a ? this.oynat(a, false, 0.08) : this.oynatRastgele('saldir', 2, false, 0.08);
+  beceriOynat(animNo?: number): number {
+    // Skill tablosundaki animasyon numarası (iSelfAnimID1) oyuncu iskeletinde doğrudan animasyon numarasıdır (153 dribble, 154 shoot, 24 magic4…).
+    // 26 (Shoot_Arrow_A) yakın dövüş skill'lerinde de yazılı: yay animasyonu silahla uyuşmaz, bu yüzden silahın saldırı animasyonu kullanılır (varsayım).
+    if (animNo && animNo !== 26) { const ad = this.klipNo(animNo); if (ad) return this.oynat(ad, false, 0.08); }
+    return this.oynatRastgele('saldir', 2, false, 0.08);
   }
   /** `onek0..onek(adet-1)` animasyonlarından var olan birini rastgele oynatır (ör. darbe0-2, olum0-1, saldir0-1). */
   oynatRastgele(onek: string, adet: number, tekrar = false, gecis = 0.1): number {

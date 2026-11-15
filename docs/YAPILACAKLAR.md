@@ -229,3 +229,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Oyuncu animasyonları silah türüne göre (bekleme, saldırı A/B, skill A/B; silahsızken yumruk); S = geri yürüme (`geri`); canavar/oyuncu darbe ve ölüm animasyon çeşitleri rastgele. Silah türü → animasyon eşleşmesi adlardan çıkarıldı (varsayım): `client/src/dunya/karakter.ts SILAH_AILESI`. İki silahlı (dual) ve oyuncu skill'lerinde silah dışı hareketler (selamlama, savaş çığlığı, balık tutma, kanat…) henüz tetiklenmiyor.
 - [x] Kamera: varsayılan açı ve mesafe `DefaultCamera.N3Camera` dosyasından (eğim ≈ 13°, mesafe ≈ 21,8 m). Bu dosyanın oyun içi takip kamerası olduğu doğrulanamadı.
 - [x] Sohbet/bilgi pencereleri: alt sekme şeridi esnemez; yalnızca yazı alanı büyür (`serbestPencere.ts` seritY).
+
+**Skill çubuğu, imleç, skill animasyonu (2026-11-15, 6. tur)**
+- [x] Skill animasyonu skill tablosundaki iSelfAnimID1 numarasından (oyuncu iskeletinde doğrudan animasyon numarası: 153 dribble, 154 shoot, 24 magic4…). 26 (yakın dövüş skill'lerinde yazılı, adı Shoot_Arrow_A) yay animasyonu olduğundan silahın saldırı animasyonu kullanılıyor (varsayım). Skill efektleri (`fx.tbl`/.fxb) hâlâ yok.
+- [x] Oyunun fare imleci (cursorel01/02 normal/tıklanmış, cursorattack canavar üstünde). Karus imleçleri ve tamir imleci kullanılmıyor.
+- [x] Çubuk: seviyesi yetmeyen skill konamaz; skill penceresinde sağ tık = ilk boş yuvaya koy; çubukta sol tuşla sürükleyip bırakmak yuvaları değiştirir; çubukta sağ tık skill'i kaldırır.

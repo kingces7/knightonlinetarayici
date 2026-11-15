@@ -1,6 +1,7 @@
 // Skill penceresi (K) için El Morad Savaşçı'nın temel skillerini ve simgelerini çıkarır.
 //   npm run beceriler   -> donusturulmus/web/beceri/beceriler.json + ikon/<no>.png
 // Kaynak: Data/SkillMagicTable_us.tbl (sütunlar: 0 numara, 2 ad, 3 açıklama, 15 gereken seviye, 16 skill sayfası kodu, 17 MP).
+// Animasyon: tablonun 5. sütunu (iSelfAnimID1) = oyuncu iskeletindeki animasyon numarası (ör. 153 = dribble, 154 = shoot, 24 = magic4).
 // Simge: UI/skillicon_<simge no>_<sayfa kodu>.dxt; simge no = tablonun 33. sütunu (32. indeks, ör. 101002) son 2 hanesi. Numaranın son 2 hanesi DEĞİL:
 // Stroke (201001) tablodaki 101002 → kılıç simgesi, Sprint (201002) 101001 → koşan figür. Aynı sayı skill penceresindeki sırayı da verir.
 import fs from 'node:fs';
@@ -39,7 +40,7 @@ function main(): number {
       } catch { /* sonraki aday */ }
     }
     const ad = String(s[2] || s[1]).trim();
-    liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, simge });
+    liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[4]), simge });
   }
   liste.sort((a, b) => Number(a.sira) - Number(b.sira) || Number(a.no) - Number(b.no));
   fs.writeFileSync(path.join(hedef, 'beceriler.json'), JSON.stringify(liste, null, 1));

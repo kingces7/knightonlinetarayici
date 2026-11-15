@@ -73,3 +73,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .ui-gunluk { scrollbar-width: thin; scrollbar-color: #8a7340 #0004; user-select: text; }
 .orijinal-arayuz .mesajlar { display: none !important; }
 .orijinal-arayuz .yardim { display: none; }
+
+/* ---- Oyunun kendi fare imleci (arayuz/doku/cursor*.png; ilk dosya normal, ikincisi tıklanmış, kılıç = saldırılabilir canavarın üstünde) ---- */
+html, html *, body * { cursor: url('/arayuz/doku/cursorel01.png') 2 2, auto !important; }
+body.imlec-basili, body.imlec-basili * { cursor: url('/arayuz/doku/cursorel02.png') 2 2, auto !important; }
+body.imlec-saldir, body.imlec-saldir * { cursor: url('/arayuz/doku/cursorattack.png') 3 3, auto !important; }

@@ -11,7 +11,7 @@ import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
-export interface Beceri { no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null }
+export interface Beceri { no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number }
 
 export interface ArayuzBaglami {
   kok: HTMLElement;
@@ -414,7 +414,7 @@ export class OyunArayuzu {
     this.cubukKilitGoster();
     this.cubukYonUygula(); this.cubukSayfaDegistir(0);
     try { const k = JSON.parse(localStorage.getItem('ke_skillcubugu') ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
-    if (!this.cubukBeceri.some((x) => x !== null)) this.cubukBeceri = [201001, 201002, 201003, 201005, 201007, 201009, null, null, ...new Array(56).fill(null)]; // ilk açılışta temel skill'ler sırayla
+    if (!this.cubukBeceri.some((x) => x !== null)) this.cubukBeceri = [201001, 201002, ...new Array(62).fill(null)]; // yalnızca 1. seviyede kullanılabilen skill'ler; ilk açılışta temel skill'ler sırayla
     for (const alan of this.cubukYuvalari()) {
       const i = this.cubukSira(alan);
       alan.style.overflow = 'hidden';
@@ -423,14 +423,34 @@ export class OyunArayuzu {
       bek.className = 'cubuk-bekleme'; alan.appendChild(bek);
       alan.addEventListener('click', () => this.cubukKullan(i));
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[this.cubukSayfa * 8 + i] = null; this.cubukKaydet(); });
+      // Çubuktaki skill sol tuşla sürüklenip başka yuvaya bırakılınca iki yuva yer değiştirir
+      alan.draggable = true;
+      alan.addEventListener('dragstart', (e) => { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no === null || no === undefined) { e.preventDefault(); return; } e.dataTransfer?.setData('text/plain', String(no)); e.dataTransfer?.setData('application/x-ke-yuva', String(this.cubukSayfa * 8 + i)); });
       alan.addEventListener('dragover', (e) => e.preventDefault());
       alan.addEventListener('drop', (e) => {
         e.preventDefault();
-        const no = Number(e.dataTransfer?.getData('text/plain'));
-        if (this.beceriler.some((b) => b.no === no)) { this.cubukBeceri[this.cubukSayfa * 8 + i] = no; this.cubukKaydet(); }
+        const hedef = this.cubukSayfa * 8 + i;
+        const kaynak = e.dataTransfer?.getData('application/x-ke-yuva');
+        if (kaynak) { const k = Number(kaynak); const t = this.cubukBeceri[hedef]; this.cubukBeceri[hedef] = this.cubukBeceri[k]; this.cubukBeceri[k] = t; this.cubukKaydet(); return; }
+        this.cubugaKoy(Number(e.dataTransfer?.getData('text/plain')), hedef);
       });
     }
   }
+  /** Skill'i çubuğun belirtilen yuvasına koyar; seviyesi yetmiyorsa koymaz. Koyduysa true. */
+  private cubugaKoy(no: number, yuva: number): boolean {
+    const b = this.beceriler.find((x) => x.no === no); if (!b) return false;
+    if (this.b.oyuncu.seviye < b.seviye) { this.b.mesaj(`${b.ad} requires level ${b.seviye}.`); return false; }
+    this.cubukBeceri[yuva] = no; this.cubukKaydet(); return true;
+  }
+  /** Skill penceresinde sağ tık: skill, çubukta (bu sayfadan başlayarak) ilk boş yuvaya konur. */
+  private hizliKoy(no: number): void {
+    const b = this.beceriler.find((x) => x.no === no); if (!b) return;
+    if (this.cubukBeceri.includes(no)) { this.b.mesaj(`${b.ad} is already on the skill bar.`); return; }
+    for (let k = 0; k < 64; k++) { const y = (this.cubukSayfa * 8 + k) % 64; if (this.cubukBeceri[y] === null || this.cubukBeceri[y] === undefined) { this.cubugaKoy(no, y); return; } }
+    this.b.mesaj('The skill bar is full.');
+  }
+  /** Skill'in oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1). */
+  beceriAnimNo(no: number): number | undefined { return this.beceriler.find((x) => x.no === no)?.anim; }
   /** Çubuktaki 16 yuva: yatay 10..17, dikey 0..7 (orijinal arayüzde iki ayrı grup). */
   private cubukYuvalari(): HTMLElement[] {
     const yuva = (id: string) => this.cubuk.bul(id).filter((e) => e.classList.contains('ui-t9'));
@@ -694,6 +714,7 @@ export class OyunArayuzu {
       alan.draggable = true;
       alan.addEventListener('dragstart', (e) => { if (this.beceriler[i]) e.dataTransfer?.setData('text/plain', String(this.beceriler[i].no)); else e.preventDefault(); });
       alan.addEventListener('click', () => { if (this.beceriler[i]) { this.seciliBeceri = i; this.beceriCiz(); } });
+      alan.addEventListener('contextmenu', (e) => { e.preventDefault(); if (this.beceriler[i]) this.hizliKoy(this.beceriler[i].no); });
       alan.addEventListener('dblclick', () => { if (this.beceriler[i]) this.b.beceriKullan(this.beceriler[i].no); });
     }
     p.metin('string_page', 1);

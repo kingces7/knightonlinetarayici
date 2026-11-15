@@ -163,12 +163,12 @@ async function basla(): Promise<void> {
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
     if (v.tip === 1 && hedef) {
       oyuncu.bak(hedef.konum);
-      oyuncu.animKilidi = oyuncu.model?.beceriOynat() || 0.8; // silah türüne özgü skill hareketi
+      oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; // skill tablosundaki animasyon
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
     } else if (v.tip4) {
-      oyuncu.animKilidi = oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
+      oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
       oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
       hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
@@ -298,6 +298,15 @@ async function basla(): Promise<void> {
     oyuncu.altin -= e.fiyat;
     hud.mesaj(`You bought ${e.ad} for ${e.fiyat.toLocaleString('en-US')} Noah.`, 'odul');
   };
+  // Oyun imleci: tıklayınca ikinci resim, canavarın üstünde kılıç resmi (stil.css .imlec-*)
+  addEventListener('pointerdown', () => document.body.classList.add('imlec-basili'));
+  addEventListener('pointerup', () => document.body.classList.remove('imlec-basili'));
+  tuval.addEventListener('pointermove', (e) => {
+    isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
+    const ustunde = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu)).length > 0;
+    document.body.classList.toggle('imlec-saldir', ustunde);
+  });
+  tuval.addEventListener('pointerleave', () => document.body.classList.remove('imlec-saldir'));
   const sol = { basili: false, x: 0, y: 0 };
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
