@@ -43,7 +43,7 @@ export interface ArayuzBaglami {
 
 /** Eşya simgeleri 64×64 dokunun sol üst 45×45'ine çizilir; yuvayı tam doldurmak için büyütülür. */
 /** Kısayol tuşu → orijinal pencere (M ses için ayrıldı). */
-const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyL: 're_el_clan_window', KeyN: 're_el_notice', KeyO: 're_el_various_frame' };
+const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyL: 're_el_clan_window', KeyN: 're_el_notice', };
 /** Görev çubuğu düğmesi → orijinal pencere (eşleşme pencerenin metinlerinden tahmin edildi). */
 const GOREV_PENCERELERI: Record<string, string> = {
   btn_map: 're_minimap', btn_exit: 're_exitmenu', btn_command: 're_el_cmdlist', btn_invite: 're_el_party', btn_option: 're_el_various_frame',
@@ -130,6 +130,7 @@ export class OyunArayuzu {
       p.metin('text_clan_name', 'No Clan'); p.metin('text_clan_grade', '-'); p.metin('text_clan_duty', '-');
       p.metin('text_clan_member_count', 'Total users: 0'); p.metin('text_current_member_count', 'Current Connections: 0 users');
     });
+    this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
     this.genel.davranis.set('re_exitmenu', (p, kapat) => {
       p.tikla.set('btn_exit', () => { this.b.mesaj('Close this browser tab to leave the game.'); kapat(); });
@@ -137,8 +138,8 @@ export class OyunArayuzu {
       p.tikla.set('btn_cancel', kapat);
     });
     const topAyari = { doku: 'co_show_icon', w: 512, h: 512, uv: [0.678, 0.178, 0.711, 0.213] as [number, number, number, number] };
-    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari }, () => this.gorevYerlestir());
-    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, topSol: true }, () => this.gorevYerlestir());
+    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari, topSol: true, tasi: { sol: 20, genislik: 76, yukseklik: 24 } }, () => this.gorevYerlestir());
+    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, tasi: { sag: 20, genislik: 85, yukseklik: 22 } }, () => this.gorevYerlestir());
     this.pencereYerlestir(true); this.gorevYerlestir();
     addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
   }
@@ -580,21 +581,26 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- karakter durumu (U)
   // ---------------------------------------------------------------- Character / Clan / Friends sekmeleri
   /** Pencerenin üstüne (nick satırının üstüne) Character / Clan / Friends sekme şeridi koyar. */
-  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'klan' | 'dost'): void {
+  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'klan' | 'dost' | 'baslik'): void {
     const sirit = document.createElement('div');
-    Object.assign(sirit.style, { position: 'absolute', left: '0', top: '-24px', display: 'flex', gap: '2px', zIndex: '3' });
-    const adlar: [typeof aktif, string][] = [['durum', 'Character'], ['klan', 'Clan'], ['dost', 'Friends']];
+    const w = p.boyut[0] - 6;
+    Object.assign(sirit.style, { position: 'absolute', left: '3px', top: '-31px', width: `${w}px`, display: 'flex', gap: '2px', zIndex: '3' });
+    const adlar: [typeof aktif, string][] = [['durum', 'Character'], ['klan', 'Clan'], ['dost', 'Friends'], ['baslik', 'Title']];
     for (const [kod, yazi] of adlar) {
       const b = document.createElement('div'); b.textContent = yazi;
-      Object.assign(b.style, { width: '92px', height: '22px', lineHeight: '20px', textAlign: 'center', font: 'bold 12px Segoe UI, Tahoma, sans-serif', color: kod === aktif ? '#fff2b8' : '#b8a36a', cursor: 'pointer', border: '1px solid #8a7340', borderRadius: '3px 3px 0 0', background: kod === aktif ? 'linear-gradient(#4a4230,#2a2418)' : 'linear-gradient(#262a35,#12151c)', boxSizing: 'border-box', textShadow: '0 1px 1px #000' });
+      Object.assign(b.style, {
+        flex: '1', height: '29px', lineHeight: '25px', textAlign: 'center', font: '600 13px Segoe UI, Tahoma, sans-serif', color: '#fff', cursor: 'pointer', boxSizing: 'border-box',
+        border: kod === aktif ? '2px solid #e9d9a4' : '2px solid #b9955a', borderRadius: '7px', textShadow: '0 1px 2px #000',
+        background: kod === aktif ? 'linear-gradient(#5b6478,#2b3144 55%,#1c2030)' : 'linear-gradient(#3d4457,#1b1f2c 55%,#10131c)', boxShadow: 'inset 0 0 0 1px #0008, 0 1px 3px #000a',
+      });
       b.addEventListener('click', () => { if (kod !== aktif) void this.sekmeGit(kod, p); });
       sirit.appendChild(b);
     }
     p.el.appendChild(sirit);
   }
-  private static readonly SEKME_PENCERE = { klan: 're_el_clan_window', dost: 're_el_page_friend' } as const;
+  private static readonly SEKME_PENCERE = { klan: 're_el_clan_window', dost: 're_el_page_friend', baslik: 're_title_window' } as const;
   /** Sekme değiştirir: yeni pencere aynı yerde açılır, eskisi kapanır. */
-  private async sekmeGit(hedef: 'durum' | 'klan' | 'dost', kaynak: UiPencere): Promise<void> {
+  private async sekmeGit(hedef: 'durum' | 'klan' | 'dost' | 'baslik', kaynak: UiPencere): Promise<void> {
     const sol = kaynak.el.style.left, ust = kaynak.el.style.top, ol = kaynak.olcek;
     let yeni: UiPencere | undefined;
     if (hedef === 'durum') { this.ac('durum', true); yeni = this.pencereler.durum; }

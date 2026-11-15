@@ -7,6 +7,8 @@ export class TakipKamerasi {
   aci = Math.PI * 0.75; // yatay açı
   egim = 0.55; // dikey açı (radyan)
   uzaklik = 14;
+  /** Yakınlaştırma/uzaklaştırma sınırları (m). En uzak = oyunun varsayılan kamerası (DefaultCamera.N3Camera: göz–hedef mesafesi ≈ 21,8 m). */
+  enYakin = 3; enUzak = 21.8;
   private surukleniyor = false;
   /** Hızlı dönüş: ulaşılacak yatay açı (null = dönüş yok). */
   private donusHedefi: number | null = null;
@@ -30,7 +32,7 @@ export class TakipKamerasi {
       this.egim = THREE.MathUtils.clamp(this.egim + e.movementY * 0.004, 0.08, 1.35);
     });
     tuval.addEventListener('wheel', (e) => {
-      this.uzaklik = THREE.MathUtils.clamp(this.uzaklik * (e.deltaY > 0 ? 1.1 : 0.9), 3, 60);
+      this.uzaklik = THREE.MathUtils.clamp(this.uzaklik * (e.deltaY > 0 ? 1.1 : 0.9), this.enYakin, this.enUzak);
     }, { passive: true });
   }
 
@@ -87,7 +89,8 @@ export class TakipKamerasi {
   }
 
   /** Oyunun varsayılan kamera ayarı (Data/DefaultCamera.N3Camera → /oyun/kamera.json): görüş açısı (rad), yakın ve uzak düzlem. */
-  ayarUygula(a: { fov: number; yakin: number; uzak: number }): void {
+  ayarUygula(a: { fov: number; yakin: number; uzak: number; goz?: number[]; bak?: number[] }): void {
+    if (a.goz && a.bak) { this.enUzak = Math.hypot(a.goz[0] - a.bak[0], a.goz[1] - a.bak[1], a.goz[2] - a.bak[2]); this.uzaklik = Math.min(this.uzaklik, this.enUzak); }
     this.kamera.fov = (a.fov * 180) / Math.PI; this.kamera.near = a.yakin; this.kamera.far = a.uzak;
     this.kamera.updateProjectionMatrix();
   }

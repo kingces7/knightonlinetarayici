@@ -30,6 +30,18 @@ export class Hud {
   private etiketler = document.createElement('div');
   private etiketHaritasi = new Map<Canavar, HTMLDivElement>();
   private npcEtiketHaritasi = new Map<Npc, HTMLDivElement>();
+  private oyuncuEtiketi: HTMLDivElement | null = null;
+  private nickAcik = true;
+  /** O tuşu: oyuncu adlarını (kendimiz ve diğer oyuncular) açar/kapatır; yeni durumu döndürür. */
+  nickDegistir(): boolean { this.nickAcik = !this.nickAcik; return this.nickAcik; }
+  /** Karakterin üstündeki ad: partideyse sarı, değilse oyundaki ad rengi (beyaz; re_el_hpbar text_Nick). */
+  oyuncuEtiketGuncelle(ad: string, p: { x: number; y: number; gorunur: boolean }, partide: boolean): void {
+    if (!this.oyuncuEtiketi) { this.oyuncuEtiketi = $<HTMLDivElement>('<div class="etiket oyuncu"><span></span></div>'); this.oyuncuEtiketi.querySelector('span')!.textContent = ad; this.etiketler.appendChild(this.oyuncuEtiketi); }
+    const el = this.oyuncuEtiketi;
+    el.style.display = this.nickAcik && p.gorunur ? '' : 'none';
+    el.classList.toggle('parti', partide);
+    el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%) translateY(-2px)`;
+  }
 
   /** Ganimet penceresinde "al" tıklanınca çağrılır. */
   ganimetAl: (kutu: GanimetKutusu, i: number | 'altin' | 'hepsi') => void = () => {};
@@ -167,7 +179,7 @@ export class Hud {
       const goster = p.gorunur && !c.olu;
       el.style.display = goster ? '' : 'none';
       if (!goster) continue;
-      el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%) translateY(16px)`;
+      el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%) translateY(-4px)`;
       el.classList.toggle('secili', c === hedef);
     }
   }

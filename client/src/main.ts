@@ -59,6 +59,9 @@ async function basla(): Promise<void> {
   sahne.add(arazi.mesh);
   durum('Loading objects…');
   void GanimetKutusu.modelYukle();
+  const halkaDoku = new THREE.TextureLoader().load('/esya/hedef_halka.png'); halkaDoku.colorSpace = THREE.SRGBColorSpace;
+  const halka = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: halkaDoku, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false }));
+  halka.visible = false; halka.renderOrder = 2; sahne.add(halka);
   let dokuAnimlari: DokuAnimasyonu[] = [];
   try { const n = await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`); dokuAnimlari = n.animlar ?? []; sahne.add(n); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
@@ -117,7 +120,7 @@ async function basla(): Promise<void> {
   const gokyuzu = await Gokyuzu.yukle(`/harita/${HARITA}/gokyuzu.json`, sahne, hemi, gunes, (r) => arazi.sisAyarla(r, 150, (sahne.fog as THREE.Fog).far), saatParam !== null ? Number(saatParam) : null);
   // Orijinal kamera ayarı (Data/DefaultCamera.N3Camera): 55° görüş açısı, yakın 0,7, uzak 512; sis de uzak düzlemde biter.
   try {
-    const ka = await (await fetch('/oyun/kamera.json')).json() as { fov: number; yakin: number; uzak: number };
+    const ka = await (await fetch('/oyun/kamera.json')).json() as { fov: number; yakin: number; uzak: number; goz: number[]; bak: number[] };
     if (ka.uzak > 150) { kamera.ayarUygula(ka); (sahne.fog as THREE.Fog).far = ka.uzak; arazi.sisAyarla(SIS, 150, ka.uzak); }
   } catch { /* dosya yoksa kendi değerlerimiz kalır */ }
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
@@ -246,6 +249,7 @@ async function basla(): Promise<void> {
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
+    if (!e.repeat && e.code === 'KeyO') hud.mesaj(hud.nickDegistir() ? 'Player names are shown.' : 'Player names are hidden.', 'sistem'); // O: oyuncu adlarını aç/kapat
     if (!e.repeat && e.code === 'KeyM') hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem');
   });
   addEventListener('keyup', (e) => tuslar.delete(e.code));
@@ -458,8 +462,8 @@ async function basla(): Promise<void> {
 
   const npcleriGuncelle = (dt: number) => { for (const n of npcler) { n.model?.guncelle(dt); n.sahneyeYerlestir(arazi); } };
 
-  const izdusum = (c: Canavar | Npc) => {
-    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : 2.3 * c.tur.olcek;
+  const izdusum = (c: Canavar | Npc | Oyuncu) => {
+    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu ? 2.1 : c.boy + 0.1; // canavar adı isabet alanının hemen üstünde
     const ekran = p.project(kamera.kamera);
     return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
   };
@@ -481,6 +485,11 @@ async function basla(): Promise<void> {
     arayuz?.guncelle(dt);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
     hud.npcEtiketGuncelle(npcler, izdusum);
+    hud.oyuncuEtiketGuncelle('KnightEmpire', izdusum(oyuncu), oyuncu.partide);
+    // Hedef (agro) halkası: oyunun kendi yeşil halka resmi (Misc/target_symbol_plane), seçili canavarın ayağında
+    const th = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
+    halka.visible = !!th;
+    if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
   (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz };

@@ -35,7 +35,10 @@ export abstract class Varlik {
   readonly grup = new THREE.Group();
   /** Tıklama için görünmez çarpışma kapsülü. */
   readonly secimKutusu: THREE.Mesh;
+  /** Seçim kutusunun (isabet alanı) yarıçapı ve boyu: ad etiketi bunun hemen üstüne konur, hedef halkası buna göre ölçeklenir. */
+  readonly secimYaricapi: number; readonly boy: number;
   constructor(yaricap = 0.7, boy = 1.8) {
+    this.secimYaricapi = yaricap; this.boy = boy;
     this.secimKutusu = new THREE.Mesh(new THREE.CylinderGeometry(yaricap, yaricap, boy, 8), new THREE.MeshBasicMaterial({ visible: false }));
     this.secimKutusu.position.y = boy / 2;
     this.grup.add(this.secimKutusu);
@@ -292,6 +295,8 @@ export class Oyuncu extends Varlik {
     }
   }
   hedef: Canavar | null = null;
+  /** Partide mi? (parti sistemi sunucu ile gelecek; partideyse ad sarı görünür.) */
+  partide = false;
   /** Hedefe temel saldırı sürüyor mu? Fareyle tıklama/R başlatır; Z/Q/Tab yalnızca hedef seçer. */
   saldiriyor = false;
   yuruHedef: THREE.Vector2 | null = null;
@@ -415,7 +420,6 @@ export class GanimetKutusu {
     if (GanimetKutusu.model) {
       const m = GanimetKutusu.model.clone(true);
       m.traverse((o) => { const me = o as THREE.Mesh; if (me.isMesh) { const mat = (me.material as THREE.MeshStandardMaterial).clone(); mat.emissive = new THREE.Color(0x553300); mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.6; me.material = mat; } });
-      m.scale.setScalar(1.8); // orijinal model küçük (≈0,4 m); uzaktan seçilebilsin diye biraz büyütülür
       this.grup.add(m);
       this.secimKutusu = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.2, 1.2), new THREE.MeshBasicMaterial({ visible: false }));
       this.secimKutusu.position.y = 0.5; this.grup.add(this.secimKutusu);
@@ -437,8 +441,7 @@ export class GanimetKutusu {
 
   guncelle(dt: number, arazi: Arazi): void {
     this.zaman += dt; this.omur -= dt;
-    this.grup.position.set(this.konum.x, arazi.yukseklikAl(this.konum.x, this.konum.y) + Math.sin(this.zaman * 2) * 0.05, -this.konum.y);
-    this.grup.rotation.y = this.zaman * 0.4;
+    this.grup.position.set(this.konum.x, arazi.yukseklikAl(this.konum.x, this.konum.y), -this.konum.y); // yerde durur (orijinalde kutu dönmez/zıplamaz)
   }
   get bos(): boolean { return this.altin <= 0 && this.esyalar.length === 0; }
 }

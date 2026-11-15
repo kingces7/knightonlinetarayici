@@ -1,0 +1,20 @@
+// Geliştirme aracı: hedef halkası, oyuncu adı, canavar adı konumu, sekmeler, kutu, yakınlaştırma sınırı.
+import { chromium } from 'playwright-core';
+const [klasor = '.'] = process.argv.slice(2);
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1366, height: 768 } });
+const hatalar = []; s.on('pageerror', (e) => hatalar.push(e.message));
+await s.goto('http://localhost:5173/'); await s.evaluate(() => localStorage.clear()); await s.reload();
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(2500);
+await s.mouse.move(683, 300); for (let i = 0; i < 30; i++) await s.mouse.wheel(0, 300);
+await s.waitForTimeout(300);
+const uzak = await s.evaluate(() => window.ke.kamera.uzaklik);
+await s.keyboard.press('KeyZ'); await s.waitForTimeout(500);
+await s.screenshot({ path: `${klasor}/t11a.png` });
+await s.keyboard.press('KeyO'); await s.waitForTimeout(200);
+const nick = await s.evaluate(() => [...document.querySelectorAll('.etiket.oyuncu')].map((e) => e.style.display));
+await s.keyboard.press('KeyO');
+await s.keyboard.press('KeyU'); await s.waitForTimeout(700);
+await s.screenshot({ path: `${klasor}/t11b.png`, clip: { x: 0, y: 60, width: 420, height: 420 } });
+console.log(JSON.stringify({ uzak, nickKapali: nick, hatalar }));
+await t.close();

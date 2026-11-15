@@ -16,6 +16,8 @@ export interface SerbestAyar {
   /** Top (kilit) simgesi: doku adı (/arayuz/doku/<ad>.png), doku boyutu ve UV [u0,v0,u1,v1]. */
   /** Kilit topunu sol alta koy (varsayılan sağ alt). */
   topSol?: boolean;
+  /** Taşıma tutamağı: alt sekme şeridindeki yazının üstü (sol ya da sağ kenardan uzaklık, ölçeksiz piksel). */
+  tasi: { sol?: number; sag?: number; genislik: number; yukseklik: number };
   top: { doku: string; w: number; h: number; uv: [number, number, number, number] };
 }
 
@@ -98,7 +100,7 @@ export class SerbestPencere {
   private kilitGoster(): void {
     this.top.style.opacity = this.k.kilit ? '1' : '0.6';
     this.top.style.filter = this.k.kilit ? 'drop-shadow(0 0 3px #ffd76b)' : '';
-    this.top.title = this.k.kilit ? 'Locked: this window cannot be moved or resized (click to unlock)' : 'Unlocked: drag the top edge to move, the corners to resize (click to lock)';
+    this.top.title = this.k.kilit ? 'Locked: this window cannot be moved or resized (click to unlock)' : 'Unlocked: drag the tab label to move, the corners to resize (click to lock)';
     for (const t of this.tutamaclar) t.style.display = this.k.kilit ? 'none' : '';
   }
 
@@ -129,8 +131,9 @@ export class SerbestPencere {
     mk({ right: '0', top: '0', width: `${T}px`, height: `${T}px` }, 'nesw-resize', buyut(false, true));
     mk({ left: '0', bottom: this.ayar.topSol ? '22px' : '0', width: `${T}px`, height: `${T}px` }, 'nesw-resize', buyut(true, false));
     mk({ right: '0', bottom: this.ayar.topSol ? '0' : '22px', width: `${T}px`, height: `${T}px` }, 'nwse-resize', buyut(false, false)); // sağ alt köşede top var: tutamaç biraz yukarıda
-    // Üst kenar: taşıma
-    mk({ left: `${T}px`, right: `${T}px`, top: '0', height: '9px' }, 'move', (dx, dy, b) => {
+    // Taşıma: sekme yazısının (Chat / Information) üstünden tutulur
+    const ts = this.ayar.tasi;
+    mk({ ...(ts.sol !== undefined ? { left: `${ts.sol}px` } : { right: `${ts.sag ?? 0}px` }), bottom: '0', width: `${ts.genislik}px`, height: `${ts.yukseklik}px` }, 'move', (dx, dy, b) => {
       const w = (this.w0 + this.k.dw) * this.ol, h = (this.h0 + this.k.dh) * this.ol;
       this.kok.style.left = `${Math.max(0, Math.min(innerWidth - w, b.l + dx))}px`; this.kok.style.top = `${Math.max(0, Math.min(innerHeight - h, b.t + dy))}px`;
     });

@@ -210,3 +210,11 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Z (en yakın) / Q / Tab hedef seçer, R temel saldırıyı başlatır (fareyle tıklama eskisi gibi saldırtır). Q artık görev penceresi kısayolu değil. A/D kamerayı döndürmez.
 - [x] Canavar adları 16 px aşağıda, hepsi seçili-renk (#ff8a7a). Orijinal client kaynağı olmadığından orijinal ad rengi/konumu doğrulanamadı.
 - [x] Düşen kutu oyunun \`Misc/itembox.n3shape\` modeli, Noah simgesi eşya tablosundaki "Coin" (90001000) (\`npm run itembox\`). Düşen paranın ayrı bir yer modeli bulunamadı; tek kutu kullanılıyor.
+
+**İstemci düzenlemeleri (2026-11-15, 4. tur)**
+- [x] Hedef halkası: oyunun \`Misc/target_symbol_plane.dxt\` (yeşil halka) resmi, seçili canavarın ayağında (toplamalı karışım); \`npm run itembox\` resimleri üretir. Baş üstü işareti (\`target_symbol.dxt\`) henüz çizilmiyor.
+- [x] Kamera uzaklığı 3 m ile varsayılan kamera mesafesi arasında (≈21,8 m, \`DefaultCamera.N3Camera\`). Orijinalin gerçek yakınlaştırma sınırları okunabilir veride bulunamadı; bu değer türetilmiştir.
+- [x] Düşen kutu yerde sabit (zıplama/dönme kaldırıldı), orijinal boyutta.
+- [x] Karakter adı başın üstünde (partideyse sarı, değilse beyaz: \`re_el_hpbar\` ad rengi). O tuşu oyuncu adlarını açıp kapatır (O artık çerçeve penceresi kısayolu değil). Parti sistemi henüz yok (\`oyuncu.partide\`).
+- [x] Canavar adı seçim kutusunun hemen üstünde (kutu üstü + 4 px).
+- [x] Sohbet/bilgi pencereleri sekme yazısından (Chat / Information) tutulup taşınır; kilit topu sohbette solda, bilgide sağda. Durum penceresi sekmeleri 4 eşit parçalı (Character/Clan/Friends/Title) ve pencere genişliğine oturuyor.
