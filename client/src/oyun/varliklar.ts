@@ -216,6 +216,15 @@ export class Canavar extends Varlik {
       }
       return false;
     }
+    // Sunucu NpcTracing: doğduğu yerden NPC_MAX_MOVE_RANGE2 (200 m) ya da daha uzaktaysa doğduğu yere geri alınır
+    if (dogumdan >= 200) { this.konum.copy(this.dogum); this.gezHedef = null; return false; }
+    // Sunucu NpcBack: kovalamayı bırakan canavar yerleşim alanının dışındaysa koşarak doğduğu yere döner, sonra gezinmeye devam eder
+    const alanYari = Math.max(3, this.yerlesim?.alan ?? 9);
+    if (!this.kizgin && dogumdan > alanYari + 2) {
+      this.durum = 'gez'; this.gezHedef = null;
+      if (this.yuru(this.dogum, this.tur.hizKovala * dt, alanYari * 0.5)) this.model?.oynat('bekle'); else this.model?.oynat('kos');
+      return false;
+    }
     // Gezinme
     this.durum = 'gez';
     if (this.gezHedef) {
