@@ -35,7 +35,7 @@ export interface ArayuzBaglami {
   durum: () => { oturuyor: boolean; kosuyor: boolean };
 }
 
-type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza';
+type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza' | 'depo';
 
 export class OyunArayuzu {
   private b: ArayuzBaglami;
@@ -50,6 +50,8 @@ export class OyunArayuzu {
   private magazaSayfa = 0;
   private magazaAdi = '';
   private magazaImza = '';
+  private depoSayfa = 0;
+  private depoImza = '';
   private sohbetGiris!: HTMLInputElement;
   private pencereler = {} as Record<Ad, UiPencere>;
   private acik = new Set<Ad>();
@@ -62,21 +64,21 @@ export class OyunArayuzu {
   constructor(b: ArayuzBaglami) { this.b = b; }
 
   async baslat(): Promise<void> {
-    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, bec] = await Promise.all([
+    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, bec] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
-      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'),
+      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
     this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.beceriler = Array.isArray(bec) ? bec : [];
-    this.pencereler = { durum, beceri, envanter: env, magaza };
+    this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
-    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur();
-    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el);
+    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur(); this.depoKur();
+    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
     // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
-    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150]];
+    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150], ['depo', -150]];
     for (const [ad, kay] of yerles) {
       const p = this.pencereler[ad];
       p.el.style.display = 'none';
@@ -95,14 +97,14 @@ export class OyunArayuzu {
    */
   private pencereYerlestir(ilk: boolean): void {
     const altBos = this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14;
-    for (const ad of ['durum', 'beceri', 'envanter', 'magaza'] as Ad[]) {
+    for (const ad of ['durum', 'beceri', 'envanter', 'magaza', 'depo'] as Ad[]) {
       const p = this.pencereler[ad];
       const [w, h] = p.boyut;
       const ol = Math.max(0.45, Math.min(1, (innerWidth - 16) / w, (innerHeight - altBos - 8) / h));
       p.olcekAyarla(ol);
       const gw = w * ol, gh = h * ol;
-      let x = ilk ? (ad === 'durum' || ad === 'magaza' ? 24 : innerWidth - gw - 35) : parseFloat(p.el.style.left) || 0;
-      let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : 70) : parseFloat(p.el.style.top) || 0;
+      let x = ilk ? (ad === 'durum' || ad === 'magaza' || ad === 'depo' ? 24 : innerWidth - gw - 35) : parseFloat(p.el.style.left) || 0;
+      let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : ad === 'depo' ? 20 : 70) : parseFloat(p.el.style.top) || 0;
       x = Math.max(0, Math.min(x, innerWidth - gw)); y = Math.max(0, Math.min(y, innerHeight - altBos - gh));
       p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
     }
@@ -157,6 +159,54 @@ export class OyunArayuzu {
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
     this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
     this.cubuk.el.style.top = `${ust - 62 * hol}px`;
+  }
+
+  // ---------------------------------------------------------------- banka (re_el_warehouse)
+  /** Bankayı açar: üstte depo sayfası (6×4), altta çanta; yuvaya tıklayınca eşya öbür tarafa geçer. */
+  depoAc(): void { this.depoSayfa = 0; this.depoImza = ''; this.ac('depo', true); }
+  private depoUst(): HTMLElement[] { return this.pencereler.depo.tumAlanlar().filter((a) => a.offsetTop < 300 && /^\d+$/.test(a.dataset.id ?? '')).sort((a, c) => Number(a.dataset.id) - Number(c.dataset.id)); }
+  private depoAlt(): HTMLElement[] { return this.pencereler.depo.tumAlanlar().filter((a) => a.offsetTop >= 340 && /^\d+$/.test(a.dataset.id ?? '')).sort((a, c) => Number(a.dataset.id) - Number(c.dataset.id)); }
+  private depoKur(): void {
+    const p = this.pencereler.depo, o = this.b.oyuncu;
+    p.gizleDesen(/^(Edt_search|Btn_search)$/);
+    p.tikla.set('btn_close', () => this.ac('depo', false));
+    const sayfaDegistir = (d: number) => { this.depoSayfa = (this.depoSayfa + d + 8) % 8; this.depoImza = ''; };
+    p.tikla.set('btn_page_up', () => sayfaDegistir(-1)); p.tikla.set('btn_page_down', () => sayfaDegistir(1));
+    // Noah: çantadaki tüm Noah'yı yatır / depodakinin tamamını çek
+    p.tikla.set('btn_gold', () => { if (o.altin > 0) { o.depoAltin += o.altin; this.b.mesaj(`${o.altin.toLocaleString('en-US')} Noah deposited.`); o.altin = 0; this.depoImza = ''; } });
+    p.tikla.set('btn_gold_warehouse', () => { if (o.depoAltin > 0) { o.altin += o.depoAltin; this.b.mesaj(`${o.depoAltin.toLocaleString('en-US')} Noah withdrawn.`); o.depoAltin = 0; this.depoImza = ''; } });
+    // Yuva tıklamaları pencere düzeyinde ve tıklama anında çözülür (yuvalar pencere gizliyken konumlanmamış olur).
+    p.el.addEventListener('click', (ev) => {
+      const el = (ev.target as HTMLElement).closest('.ui-t9') as HTMLElement | null; if (!el) return;
+      const ust = this.depoUst().indexOf(el);
+      if (ust >= 0) {
+        const j = this.depoSayfa * 24 + ust, e = o.depo[j]; if (!e) return;
+        if (!o.esyaEkle(e)) { this.b.mesaj('Your inventory is full.'); return; }
+        o.depo[j] = null; this.depoImza = ''; return;
+      }
+      const alt = this.depoAlt().indexOf(el);
+      if (alt >= 0) {
+        const e = o.envanter[alt]; if (!e) return;
+        const bos = o.depo.indexOf(null);
+        if (bos < 0) { this.b.mesaj('Your warehouse is full.'); return; }
+        o.depo[bos] = e; o.envanter[alt] = null; this.depoImza = '';
+      }
+    });
+  }
+  private depoCiz(): void {
+    const p = this.pencereler.depo, o = this.b.oyuncu;
+    const imza = `${this.depoSayfa}|${o.altin}|${o.depoAltin}|${o.depo.map((e) => e?.no ?? 0).join(',')}|${o.envanter.map((e) => e?.no ?? 0).join(',')}`;
+    if (imza === this.depoImza) return;
+    this.depoImza = imza;
+    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => {
+      el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = '100% 100%';
+      el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; el.onmouseleave = () => this.b.ipucuGizle();
+    };
+    this.depoUst().forEach((el, i) => yuvaCiz(el, o.depo[this.depoSayfa * 24 + i] ?? null));
+    this.depoAlt().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null));
+    p.metin('string_page', this.depoSayfa + 1);
+    p.metin('string_item_name', o.altin.toLocaleString('en-US')); p.metin('string_wareitem_name', o.depoAltin.toLocaleString('en-US'));
+    p.metin('text_weight', `${o.envanter.filter(Boolean).length} / 28`);
   }
 
   // ---------------------------------------------------------------- NPC mağazası (re_tradeinventory)
@@ -464,6 +514,7 @@ export class OyunArayuzu {
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
     if (this.acik.has('magaza')) this.magazaCiz();
+    if (this.acik.has('depo')) this.depoCiz();
     if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0); }
   }
 }

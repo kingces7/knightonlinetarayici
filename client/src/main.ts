@@ -242,6 +242,7 @@ async function basla(): Promise<void> {
   const npcEtkilesim = (n: Npc) => {
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
     if (sayfalar && arayuz) { arayuz.magazaAc(n.ad, sayfalar); return; }
+    if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
     hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
   };
   /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */

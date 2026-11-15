@@ -337,6 +337,9 @@ export class Oyuncu extends Varlik {
     this.can = doldur ? this.enCok : Math.min(this.can, this.enCok);
     this.mana = doldur ? this.enCokMana : Math.min(this.mana, this.enCokMana);
   }
+  /** Banka (depo): 8 sayfa × 24 yuva ve depodaki Noah. Şimdilik yalnızca bu oturumda tutulur. */
+  depo: (EsyaTanimi | null)[] = new Array(24 * 8).fill(null);
+  depoAltin = 0;
   /** Skill tekrar kullanım bitişleri (skill no → performans saati, sn) ve aktif buff'lar (sunucu Type4). */
   /** Skill/büyü animasyonu sürerken (sn) boşta animasyonu araya girmez. */
   animKilidi = 0;
