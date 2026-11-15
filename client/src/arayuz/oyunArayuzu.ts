@@ -425,7 +425,10 @@ export class OyunArayuzu {
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[this.cubukSayfa * 8 + i] = null; this.cubukKaydet(); });
       // Çubuktaki skill sol tuşla sürüklenip başka yuvaya bırakılınca iki yuva yer değiştirir
       alan.draggable = true;
-      alan.addEventListener('dragstart', (e) => { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no === null || no === undefined) { e.preventDefault(); return; } e.dataTransfer?.setData('text/plain', String(no)); e.dataTransfer?.setData('application/x-ke-yuva', String(this.cubukSayfa * 8 + i)); });
+      let surukleYuva = -1;
+      alan.addEventListener('dragstart', (e) => { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no === null || no === undefined) { e.preventDefault(); return; } surukleYuva = this.cubukSayfa * 8 + i; e.dataTransfer?.setData('text/plain', String(no)); e.dataTransfer?.setData('application/x-ke-yuva', String(surukleYuva)); });
+      // Çubuktan sürüklenip çubuk dışına (geçerli bir yuva olmayan yere) bırakılan skill çubuktan atılır
+      alan.addEventListener('dragend', (e) => { if (surukleYuva >= 0 && e.dataTransfer?.dropEffect === 'none') { this.cubukBeceri[surukleYuva] = null; this.cubukKaydet(); } surukleYuva = -1; });
       alan.addEventListener('dragover', (e) => e.preventDefault());
       alan.addEventListener('drop', (e) => {
         e.preventDefault();
