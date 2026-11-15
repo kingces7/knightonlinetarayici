@@ -24,7 +24,8 @@
     "kontrol": "tsc --noEmit",
     "kamera": "node oyun/kamera.ts",
     "ses": "node oyun/ses.ts",
-    "silahlar": "node oyun/silahlar.ts"
+    "silahlar": "node oyun/silahlar.ts",
+    "magaza": "node oyun/magaza.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

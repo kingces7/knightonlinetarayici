@@ -27,13 +27,15 @@ export interface ArayuzBaglami {
   yuruKos: () => void;
   /** Ekipman yuvasındaki eşyayı çantaya al. */
   esyaCikar: (yuva: number) => void;
+  /** NPC mağazasından eşya satın al. */
+  magazaSatinAl: (e: EsyaTanimi) => void;
   /** Skill kullan (skill numarası). */
   beceriKullan: (no: number) => void;
   /** Görev çubuğu simgeleri için anlık durum. */
   durum: () => { oturuyor: boolean; kosuyor: boolean };
 }
 
-type Ad = 'durum' | 'beceri' | 'envanter';
+type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza';
 
 export class OyunArayuzu {
   private b: ArayuzBaglami;
@@ -44,6 +46,10 @@ export class OyunArayuzu {
   private cubukBeceri: (number | null)[] = new Array(8).fill(null);
   private cubukImza = '';
   private onizleme: KarakterOnizleme | null = null;
+  private magazaSayfalar: EsyaTanimi[][] = [];
+  private magazaSayfa = 0;
+  private magazaAdi = '';
+  private magazaImza = '';
   private sohbetGiris!: HTMLInputElement;
   private pencereler = {} as Record<Ad, UiPencere>;
   private acik = new Set<Ad>();
@@ -56,21 +62,21 @@ export class OyunArayuzu {
   constructor(b: ArayuzBaglami) { this.b = b; }
 
   async baslat(): Promise<void> {
-    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, bec] = await Promise.all([
+    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, bec] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
-      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'),
+      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
     this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.beceriler = Array.isArray(bec) ? bec : [];
-    this.pencereler = { durum, beceri, envanter: env };
+    this.pencereler = { durum, beceri, envanter: env, magaza };
     this.b.kok.classList.add('orijinal-arayuz');
 
-    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur();
-    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.gorev.el, durum.el, beceri.el, env.el);
+    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur();
+    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
     // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
-    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150]];
+    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150]];
     for (const [ad, kay] of yerles) {
       const p = this.pencereler[ad];
       p.el.style.display = 'none';
@@ -89,14 +95,14 @@ export class OyunArayuzu {
    */
   private pencereYerlestir(ilk: boolean): void {
     const altBos = this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14;
-    for (const ad of ['durum', 'beceri', 'envanter'] as Ad[]) {
+    for (const ad of ['durum', 'beceri', 'envanter', 'magaza'] as Ad[]) {
       const p = this.pencereler[ad];
       const [w, h] = p.boyut;
       const ol = Math.max(0.45, Math.min(1, (innerWidth - 16) / w, (innerHeight - altBos - 8) / h));
       p.olcekAyarla(ol);
       const gw = w * ol, gh = h * ol;
-      let x = ilk ? (ad === 'durum' ? 24 : innerWidth - gw - 35) : parseFloat(p.el.style.left) || 0;
-      let y = ilk ? (ad === 'durum' ? 110 : 70) : parseFloat(p.el.style.top) || 0;
+      let x = ilk ? (ad === 'durum' || ad === 'magaza' ? 24 : innerWidth - gw - 35) : parseFloat(p.el.style.left) || 0;
+      let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : 70) : parseFloat(p.el.style.top) || 0;
       x = Math.max(0, Math.min(x, innerWidth - gw)); y = Math.max(0, Math.min(y, innerHeight - altBos - gh));
       p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
     }
@@ -151,6 +157,50 @@ export class OyunArayuzu {
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
     this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
     this.cubuk.el.style.top = `${ust - 62 * hol}px`;
+  }
+
+  // ---------------------------------------------------------------- NPC mağazası (re_tradeinventory)
+  /** Mağazayı açar (envanterle birlikte). Sayfalar: satış grubunun sayfaları. */
+  magazaAc(npcAdi: string, sayfalar: EsyaTanimi[][]): void {
+    this.magazaAdi = npcAdi; this.magazaSayfalar = sayfalar; this.magazaSayfa = 0; this.magazaImza = '';
+    this.ac('magaza', true); this.ac('envanter', true);
+  }
+  private magazaKur(): void {
+    const p = this.pencereler.magaza;
+    p.gizleDesen(/^(edit_message|btn_ok|at[0-9]+)$/); // at0-at11: öne çıkan eşya alanı (kullanılmıyor)
+    p.tikla.set('btn_cancel', () => this.ac('magaza', false));
+    for (let i = 0; i < 28; i++) {
+      const alan = p.alan(`a${i}`); if (!alan) continue;
+      alan.addEventListener('click', () => { const e = this.magazaSayfalar[this.magazaSayfa]?.[i]; if (e) this.b.magazaSatinAl(e); });
+    }
+    // Sayfa değiştirme: sayfa yazısına sol tık = sonraki, sağ tık = önceki
+    const sayfaEl = p.bul('text_sell_money')[0];
+    if (sayfaEl) {
+      sayfaEl.style.pointerEvents = 'auto'; sayfaEl.style.cursor = 'pointer';
+      const don = (d: number) => { const n = this.magazaSayfalar.length || 1; this.magazaSayfa = (this.magazaSayfa + d + n) % n; this.magazaImza = ''; };
+      sayfaEl.addEventListener('click', () => don(1));
+      sayfaEl.addEventListener('contextmenu', (ev) => { ev.preventDefault(); don(-1); });
+    }
+  }
+  private magazaCiz(): void {
+    const p = this.pencereler.magaza, o = this.b.oyuncu;
+    const imza = `${this.magazaSayfa}|${o.altin}|${this.magazaAdi}`;
+    if (imza === this.magazaImza) return;
+    this.magazaImza = imza;
+    const sayfa = this.magazaSayfalar[this.magazaSayfa] ?? [];
+    for (let i = 0; i < 28; i++) {
+      const alan = p.alan(`a${i}`); if (!alan) continue;
+      const e = sayfa[i] ?? null;
+      alan.style.backgroundImage = e?.simge ? `url(${e.simge})` : '';
+      alan.style.backgroundSize = '100% 100%';
+      alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
+      alan.onmouseleave = () => this.b.ipucuGizle();
+      alan.style.opacity = e && o.altin < e.fiyat ? '0.55' : '1';
+      p.metin(String(200 + i), e ? e.fiyat.toLocaleString('en-US') : '');
+    }
+    p.metin('text_money', o.altin.toLocaleString('en-US'));
+    p.metin('text_sell_KnightCash', this.magazaAdi);
+    p.metin('text_sell_money', `Page ${this.magazaSayfa + 1}/${this.magazaSayfalar.length || 1}`);
   }
 
   // ---------------------------------------------------------------- skill çubuğu
@@ -413,6 +463,7 @@ export class OyunArayuzu {
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
+    if (this.acik.has('magaza')) this.magazaCiz();
     if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0); }
   }
 }

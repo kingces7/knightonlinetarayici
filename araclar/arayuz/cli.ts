@@ -7,7 +7,7 @@ import path from 'node:path';
 import { CIKTI_DIZINI, OYUN_DIZINI } from '../ortak/yollar.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dokuPng } from '../model/dokuYardim.ts';
-import { lilithOku, type UiDugum } from './uif.ts';
+import { lilithOku, uifOku, type UiDugum } from './uif.ts';
 
 const VARSAYILAN = ['re_el_hpbar', 're_el_taskbar_main', 're_el_page_state', 're_el_skill', 're_el_inventory', 're_el_chatting_box', 're_el_information_box'];
 
@@ -43,10 +43,12 @@ function main(argv: string[]): number {
   fs.mkdirSync(path.join(hedef, 'doku'), { recursive: true });
   const yazilan = new Map<string, { w: number; h: number }>();
   for (const pencere of liste) {
+    // Önce LilithACS/<ad>.lilith (şifreli), yoksa paket içindeki ui/<ad>.uif (düz)
     const dosya = path.join(OYUN_DIZINI, 'LilithACS', `${pencere}.lilith`);
-    if (!fs.existsSync(dosya)) { console.log(`! ${pencere}: dosya yok`); continue; }
+    const duzYol = `ui/${pencere}.uif`;
+    if (!fs.existsSync(dosya) && !od.var(duzYol)) { console.log(`! ${pencere}: dosya yok`); continue; }
     const dokular = new Set<string>();
-    const kok = sadeLestir(lilithOku(fs.readFileSync(dosya)), dokular);
+    const kok = sadeLestir(fs.existsSync(dosya) ? lilithOku(fs.readFileSync(dosya)) : uifOku(od.oku(duzYol)), dokular);
     const boyutlar: Record<string, { w: number; h: number }> = {};
     for (const dk of dokular) {
       if (!yazilan.has(dk)) {

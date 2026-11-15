@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
@@ -58,7 +58,7 @@ async function basla(): Promise<void> {
   durum('Loading objects…');
   try { sahne.add(await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`)); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
-  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle()]);
+  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle()]);
 
   const hud = new Hud();
   const ses = new Ses();
@@ -172,7 +172,7 @@ async function basla(): Promise<void> {
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no),
+      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -237,14 +237,28 @@ async function basla(): Promise<void> {
 
   const isin = new THREE.Raycaster();
   let acilacakKutu: GanimetKutusu | null = null;
+  let acilacakNpc: Npc | null = null;
+  /** NPC'ye tıklayınca: satış grubu olan tüccar mağaza açar; diğer NPC işlevleri henüz yok. */
+  const npcEtkilesim = (n: Npc) => {
+    const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
+    if (sayfalar && arayuz) { arayuz.magazaAc(n.ad, sayfalar); return; }
+    hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
+  };
+  /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */
+  const magazaSatinAl = (e: EsyaTanimi) => {
+    if (oyuncu.altin < e.fiyat) { hud.mesaj('You do not have enough Noah.', 'sistem'); return; }
+    if (!oyuncu.esyaEkle(e)) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
+    oyuncu.altin -= e.fiyat;
+    hud.mesaj(`You bought ${e.ad} for ${e.fiyat.toLocaleString('en-US')} Noah.`, 'odul');
+  };
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
     const npcVurus = isin.intersectObjects(npcler.map((n) => n.secimKutusu))[0];
     if (npcVurus) {
       const n = npcler.find((x) => x.secimKutusu === npcVurus.object)!;
-      oyuncu.hedef = null; oyuncu.yuruHedef = n.konum.clone(); acilacakKutu = null;
-      hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
+      oyuncu.hedef = null; oyuncu.yuruHedef = n.konum.clone(); acilacakKutu = null; acilacakNpc = n;
+      if (oyuncu.konum.distanceTo(n.konum) < 3) { oyuncu.yuruHedef = null; acilacakNpc = null; npcEtkilesim(n); }
       return;
     }
     const kutuVurus = isin.intersectObjects(kutular.map((k) => k.secimKutusu))[0];
@@ -256,11 +270,11 @@ async function basla(): Promise<void> {
     const canavarVurus = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu))[0];
     if (canavarVurus) {
       oyuncu.hedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null;
-      oyuncu.yuruHedef = null; acilacakKutu = null;
+      oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       return;
     }
     const zemin = isin.intersectObject(arazi.mesh)[0];
-    if (zemin) { oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; }
+    if (zemin) { oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
   });
 
   // ---------------- Oyun kuralları ----------------
@@ -317,7 +331,7 @@ async function basla(): Promise<void> {
     sonTusSayisi = tusSayisi;
 
     if (hareket.lengthSq() > 0) {
-      oyuncu.yuruHedef = null; acilacakKutu = null;
+      oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       hareket.normalize();
       // İstenen yön (kamera yönü (x, -z) → dünya (x, z)); gidiş yönü ona sınırlı hızla döner → yumuşak kavisler.
       const direksiyon = tuslar.has('KeyW') && tuslar.has('KeyA') !== tuslar.has('KeyD'); // W + A ya da D: tuş basılı kaldıkça sürekli dön
@@ -346,10 +360,11 @@ async function basla(): Promise<void> {
         } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('savun');
       }
     } else if (oyuncu.yuruHedef) {
-      if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? 1.5 : 0)) {
+      if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? 1.5 : acilacakNpc ? 2.5 : 0)) {
         oyuncu.yuruHedef = null;
         if (acilacakKutu && kutular.includes(acilacakKutu)) hud.ganimetAc(acilacakKutu);
         acilacakKutu = null;
+        if (acilacakNpc) { const n = acilacakNpc; acilacakNpc = null; npcEtkilesim(n); }
         oyuncu.model?.oynat('bekle');
       } else oyuncu.model?.oynat(hareketAnimi());
     } else if (oyuncu.animKilidi > 0) {
@@ -448,7 +463,7 @@ async function basla(): Promise<void> {
     hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

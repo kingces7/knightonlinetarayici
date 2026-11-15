@@ -102,7 +102,7 @@ export class Hud {
   ipucuGizle(): void { this.ipucu.classList.add('gizli'); }
 
   ipucuGoster(e: EsyaTanimi, ev: MouseEvent): void {
-    const st = e.tur === 'silah' ? `Attack Power ${e.hasar}` : `Defense ${e.savunma}`;
+    const st = e.tur === 'silah' ? `Attack Power ${e.hasar}` : e.tur === 'zirh' ? `Defense ${e.savunma}` : '';
     this.ipucu.innerHTML = '';
     this.ipucu.append($(`<div class="ad"></div>`), $(`<div class="st"></div>`), $(`<div class="ac"></div>`), $(`<div class="fi"></div>`));
     (this.ipucu.children[0] as HTMLElement).textContent = e.ad;

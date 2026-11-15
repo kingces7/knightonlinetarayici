@@ -3,7 +3,7 @@
 
 export interface EsyaTanimi {
   no: number; ad: string; aciklama: string; simge: string;
-  tur: 'silah' | 'zirh'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
+  tur: 'silah' | 'zirh' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
 }
 
 export interface CanavarTuru {
@@ -96,6 +96,22 @@ export async function esyalariYukle(): Promise<EsyaTanimi[]> {
     esyalar = (await (await fetch('/esya/esyalar.json')).json() as EsyaTanimi[]).map((e) => ({ ...e, simge: `/esya/${e.simge}` }));
   } catch { esyalar = []; }
   return esyalar;
+}
+
+/** NPC mağazaları: satış grupları (sunucu ITEM_SELLTABLE; sayfa başına 24 yuva) ve eşya bilgileri (araclar: npm run magaza). */
+let magazaVeri: { gruplar: Record<string, number[][]>; esyalar: Record<string, EsyaTanimi> } | null = null;
+export async function magazaYukle(): Promise<void> {
+  try {
+    const m = await (await fetch('/magaza/magaza.json')).json() as { gruplar: Record<string, number[][]>; esyalar: Record<string, EsyaTanimi> };
+    for (const e of Object.values(m.esyalar)) e.simge = e.simge ? `/esya/${e.simge}` : '';
+    magazaVeri = m;
+  } catch { magazaVeri = null; }
+}
+/** Satış grubunun sayfaları (boş yuvalar atılır). Grup yoksa null. */
+export function magazaSayfalari(grup: number): EsyaTanimi[][] | null {
+  const g = magazaVeri?.gruplar[String(grup)];
+  if (!g || !magazaVeri) return null;
+  return g.map((sayfa) => sayfa.filter(Boolean).map((no) => magazaVeri!.esyalar[String(no)]).filter(Boolean));
 }
 
 /** Canavar seviyesine göre ganimet: altın + 0-2 eşya (ucuz eşyalar daha sık). */
