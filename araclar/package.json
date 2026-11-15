@@ -25,7 +25,8 @@
     "kamera": "node oyun/kamera.ts",
     "ses": "node oyun/ses.ts",
     "silahlar": "node oyun/silahlar.ts",
-    "magaza": "node oyun/magaza.ts"
+    "magaza": "node oyun/magaza.ts",
+    "gokyuzu": "node oyun/gokyuzu.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

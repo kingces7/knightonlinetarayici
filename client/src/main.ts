@@ -11,6 +11,7 @@ import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
+import { Gokyuzu } from './dunya/gokyuzu';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -46,10 +47,11 @@ async function basla(): Promise<void> {
   const sahne = new THREE.Scene();
   sahne.background = SIS.clone();
   sahne.fog = new THREE.Fog(SIS, 150, 600);
-  sahne.add(new THREE.HemisphereLight(0xdfe8ff, 0x6b5a45, 1.6));
+  const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x6b5a45, 1.6);
+  sahne.add(hemi);
   const gunes = new THREE.DirectionalLight(0xfff2dd, 1.8);
   gunes.position.set(40, 80, -30);
-  sahne.add(gunes);
+  sahne.add(gunes, gunes.target);
 
   durum('Loading terrain…');
   const arazi = await Arazi.yukle(`/harita/${HARITA}`);
@@ -108,6 +110,9 @@ async function basla(): Promise<void> {
   } catch { /* bu haritada NPC verisi yok */ }
 
   const kamera = new TakipKamerasi(tuval);
+  // Gökyüzü: bölgenin .n3sky gün döngüsü (yoksa sabit renkler). Saat gerçek yerel saat; ?saat=12 ile zorlanır.
+  const saatParam = parametre.get('saat');
+  const gokyuzu = await Gokyuzu.yukle(`/harita/${HARITA}/gokyuzu.json`, sahne, hemi, gunes, (r) => arazi.sisAyarla(r, 150, (sahne.fog as THREE.Fog).far), saatParam !== null ? Number(saatParam) : null);
   // Orijinal kamera ayarı (Data/DefaultCamera.N3Camera): 55° görüş açısı, yakın 0,7, uzak 512; sis de uzak düzlemde biter.
   try {
     const ka = await (await fetch('/oyun/kamera.json')).json() as { fov: number; yakin: number; uzak: number };
@@ -457,6 +462,7 @@ async function basla(): Promise<void> {
     canavarlariGuncelle(dt);
     npcleriGuncelle(dt);
     oyuncu.sahneyeYerlestir(arazi);
+    gokyuzu?.guncelle(kamera.kamera.position);
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);
