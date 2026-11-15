@@ -18,7 +18,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 
 **NPC ve dünya**
 - [ ] NPC konuşmaları ve işlevleri: `Depo/Quests/*.lua` görev/konuşma dosyaları, mağaza (K_NPC `iSellingGroup` → ITEM_SELLTABLE), banka, Sanctuary. Şimdi tıklayınca "(conversation is not available yet)" yazıyor.
-- [ ] NPC bakış yönü (`byDirection`) tahminle ayarlandı; bazıları yanlış yöne bakıyor olabilir, doğrulanacak.
+- [x] NPC bakış yönü (`byDirection`, derece; 0 = yön verilmemiş): 751 dost NPC içinden yönü verilmiş 170'i ve 17 haritanın çarpışma verisiyle 8 yorum sınandı; bakış vektörü (cos θ, −sin θ) en iyi çıktı (önü arkasından açık: 19'a 4; eski yorum 3'e 9). Güven orta (çarpışma verisi seyrek, ±90° belirsizliği tam kapanmadı). Araçlar: `client/scripts/npcyonAnaliz.mjs`, `araclar/sunucu/npc-tum-disa-aktar.ps1`.
 - [ ] Moradon şehir dışı canavarları: K_NPCPOS1098 bölge 21'de ~90 canavar kaydı (Bandicoot, Kecoon, Bulcan, Werewolf…) gerçek değerlerle (K_NPC) eklenecek.
 - [ ] Zemin geçişlerinin birebir karışım kuralı bilinmiyor (şimdi: renk haritası + parlaklığa göre karo katmanları).
 - [ ] Işınlanma kapıları (Delos, Luferson Castle, El Morad Castle…) okunuyor ama işlevsiz; kapı/kol nesne olayları kullanılmıyor.

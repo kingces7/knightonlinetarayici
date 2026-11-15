@@ -231,7 +231,10 @@ export class Npc extends Varlik {
     this.konum.set(t.x, t.z);
     this.yaricap = 0.5;
     this.can = this.enCok = 1;
-    this.yon = -(t.yon * Math.PI) / 180 + YON_OFSET; // Knight Online yön açısı (derece); yönün yönü kabaca, ince ayar gerekirse burada
+    // Sunucu K_NPCPOS.byDirection derece cinsindendir (0 = yön verilmemiş). Yorum 751 dost NPC ile sınandı (client/scripts/npcyonAnaliz.mjs):
+    // bakış vektörü KO dünyasında (cos θ, −sin θ); bu yorumda NPC önleri arkalarından 19 a karşı 4 oranında daha açık çıktı (ters yorum: 4 e karşı 19).
+    const r = (t.yon * Math.PI) / 180;
+    this.yon = Math.atan2(Math.cos(r), Math.sin(r)) + YON_OFSET; // bak() ile aynı dönüşüm: (dx, dz) = (cos θ, sin θ)
   }
   get ad(): string { return this.tanim.ad; }
   async modelYukle(): Promise<void> {
