@@ -710,6 +710,15 @@ export class OyunArayuzu {
     p.gizleDesen(/^(img_|string_[4-7]$|string_skill_level|btn_(mage|ranger|blade|cleric|reaper|master|[4-7]$|EXbuf|preset|reset_skill))/); // sınıfa özel sekmeler/başlıklar; temel skill sayfasında görünmez
     p.tikla.set('btn_close', () => this.ac('beceri', false));
     p.goster('img_public');
+    // Zemin resmi (363×151) uzmanlık puanı satırlarını (P kutuları) resmin içine çizer; temel skill sayfasında gerekmez: o bant kesilip düz panelle kapatılır
+    const art = [...p.el.querySelectorAll<HTMLElement>('.ui-t4')].find((e) => e.style.width === '363px' && e.style.height === '151px' && e.style.left === '0px');
+    if (art) {
+      art.style.clipPath = 'inset(0 0 33.8% 0)'; // üst parça: 0..100
+      const alt = art.cloneNode(false) as HTMLElement; alt.style.clipPath = 'inset(96.7% 0 0 0)'; art.after(alt); // alt şerit: 146..151
+      const dolgu = document.createElement('div');
+      Object.assign(dolgu.style, { position: 'absolute', left: '5px', top: `${parseFloat(art.style.top) + 100}px`, width: '352px', height: '46px', background: 'rgba(12,9,6,0.8)', borderTop: '1px solid #8a6a2a', borderBottom: '1px solid #8a6a2a', boxSizing: 'border-box', pointerEvents: 'none' });
+      art.after(dolgu);
+    }
     for (const m of ['Master']) p.gizleMetin(m);
     for (const id of ['btn_right', 'btn_left']) p.dugmePasif(id, true);
     for (let i = 0; i < 8; i++) {
