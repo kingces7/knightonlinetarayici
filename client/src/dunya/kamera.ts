@@ -7,6 +7,13 @@ export class TakipKamerasi {
   aci = Math.PI * 0.75; // yatay açı
   egim = (23 * Math.PI) / 180; // dikey açı: 23° (kullanıcı ayarı; varsayılan kamera dosyasındaki 13° fazla yataydı)
   uzaklik = 14;
+  /** Bakış açısını (derece) değiştirir: 8°–45° arası, kaydedilir. Yeni değeri döndürür. */
+  egimDegistir(derece: number): number {
+    const yeni = Math.max(8, Math.min(45, Math.round((this.egim * 180) / Math.PI + derece)));
+    this.egim = (yeni * Math.PI) / 180;
+    try { localStorage.setItem('ke_kamera_egim', String(yeni)); } catch { /* depolama kapalı */ }
+    return yeni;
+  }
   /** Fareyle girilmiş ama henüz uygulanmamış dönüş (rad); her karede kademeli uygulanır. */
   private bekleyenDonus = 0;
   /** Yakınlaştırma/uzaklaştırma sınırları (m). En uzak = oyunun varsayılan kamerası (DefaultCamera.N3Camera: göz–hedef mesafesi ≈ 21,8 m). */
@@ -21,6 +28,7 @@ export class TakipKamerasi {
 
   constructor(tuval: HTMLCanvasElement) {
     this.kamera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
+    try { const k = Number(localStorage.getItem('ke_kamera_egim')); if (k >= 8 && k <= 45) this.egim = (k * Math.PI) / 180; } catch { /* kayıt yok */ }
     tuval.addEventListener('contextmenu', (e) => e.preventDefault());
     tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) this.surukleniyor = true; });
     // Orta fare tuşu (tekerlek tıklaması): hızlıca arkaya dön (180°). Otomatik kaydırma imlecini engelle.

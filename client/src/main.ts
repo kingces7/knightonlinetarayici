@@ -269,6 +269,7 @@ async function basla(): Promise<void> {
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
     if (!e.repeat && e.code === 'KeyO') hud.mesaj(hud.nickDegistir() ? 'Player names are shown.' : 'Player names are hidden.', 'sistem'); // O: oyuncu adlarını aç/kapat
+    if (e.code === 'PageUp' || e.code === 'PageDown') { e.preventDefault(); hud.mesaj(`Camera angle: ${kamera.egimDegistir(e.code === 'PageUp' ? 1 : -1)}° (PageUp/PageDown)`, 'sistem'); } // bakış açısı
     if (!e.repeat && e.code === 'KeyM') hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem');
   });
   addEventListener('keyup', (e) => tuslar.delete(e.code));
