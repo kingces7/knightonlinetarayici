@@ -5,7 +5,7 @@ import * as THREE from 'three';
 export class TakipKamerasi {
   readonly kamera: THREE.PerspectiveCamera;
   aci = Math.PI * 0.75; // yatay açı
-  egim = 0.55; // dikey açı (radyan)
+  egim = (23 * Math.PI) / 180; // dikey açı: 23° (kullanıcı ayarı; varsayılan kamera dosyasındaki 13° fazla yataydı)
   uzaklik = 14;
   /** Fareyle girilmiş ama henüz uygulanmamış dönüş (rad); her karede kademeli uygulanır. */
   private bekleyenDonus = 0;
@@ -22,13 +22,16 @@ export class TakipKamerasi {
   constructor(tuval: HTMLCanvasElement) {
     this.kamera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
     tuval.addEventListener('contextmenu', (e) => e.preventDefault());
-    tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) { this.surukleniyor = true; tuval.setPointerCapture(e.pointerId); } });
+    tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) this.surukleniyor = true; });
     // Orta fare tuşu (tekerlek tıklaması): hızlıca arkaya dön (180°). Otomatik kaydırma imlecini engelle.
     tuval.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
     tuval.addEventListener('pointerdown', (e) => { if (e.button === 1) { e.preventDefault(); this.arkayaDon(); } });
     tuval.addEventListener('auxclick', (e) => { if (e.button === 1) e.preventDefault(); });
-    tuval.addEventListener('pointerup', (e) => { if (e.button === 2) this.surukleniyor = false; });
-    tuval.addEventListener('pointermove', (e) => {
+    addEventListener('pointerup', (e) => { if (e.button === 2) this.surukleniyor = false; });
+    // Sol tuş basılıyken sağ tuşa basılırsa tarayıcı ayrı bir pointerdown göndermez; bu yüzden basılı tuşlar (buttons) her harekette okunur.
+    addEventListener('pointermove', (e) => {
+      if (!(e.buttons & 2)) { this.surukleniyor = false; return; }
+      if (e.target === tuval) this.surukleniyor = true;
       if (!this.surukleniyor) return;
       // Sağ tuşla sürükleme: yalnızca yatay dönüş (yukarı/aşağı eğim kapalı); yavaş ve yumuşak
       this.bekleyenDonus -= e.movementX * 0.0032;
@@ -95,7 +98,7 @@ export class TakipKamerasi {
   ayarUygula(a: { fov: number; yakin: number; uzak: number; goz?: number[]; bak?: number[] }): void {
     if (a.goz && a.bak) { // Oyunun varsayılan kamerası (DefaultCamera.N3Camera): göz (15,5,−15), bakılan (0,0,0) → mesafe ≈ 21,8 m, eğim ≈ 13°
       const dx = a.goz[0] - a.bak[0], dy = a.goz[1] - a.bak[1], dz = a.goz[2] - a.bak[2];
-      this.enUzak = Math.hypot(dx, dy, dz); this.uzaklik = this.enUzak; this.egim = Math.atan2(dy, Math.hypot(dx, dz));
+      this.enUzak = Math.hypot(dx, dy, dz); this.uzaklik = this.enUzak;
     }
     this.kamera.fov = (a.fov * 180) / Math.PI; this.kamera.near = a.yakin; this.kamera.far = a.uzak;
     this.kamera.updateProjectionMatrix();

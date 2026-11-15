@@ -370,7 +370,9 @@ async function basla(): Promise<void> {
     if (sol.basili && !oyuncu.olu) {
       isin.setFromCamera(new THREE.Vector2((sol.x / innerWidth) * 2 - 1, -(sol.y / innerHeight) * 2 + 1), kamera.kamera);
       const z = isin.intersectObject(arazi.mesh)[0];
-      if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
+      if (kamera.suruklenirken) { // sol + sağ tuş birlikte: kamera yönünde ileri yürür (kamerayı çevirirken yön de döner)
+        const f = kamera.ileriYon(); oyuncu.yuruHedef = oyuncu.konum.clone().addScaledVector(f, 12); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null;
+      } else if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
     }
     const donus = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
     const ilerigeri = (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0);
