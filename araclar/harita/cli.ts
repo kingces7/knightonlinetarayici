@@ -8,6 +8,7 @@ import { smdOku } from './smd.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dxtOku, rgbayaCevir, tctOku } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
+import { dokuPng } from '../model/dokuYardim.ts';
 import { gtdOku, dokuKonumu, type Arazi } from './arazi.ts';
 import { nesneleriDisaAktar } from './nesneler.ts';
 
@@ -199,6 +200,9 @@ function main(argv: string[]): number {
   }, null, 2));
   console.log(`  -> ${hedef}`);
   sunucuVerisiniYaz(harita, hedef);
+  // Oyunun kendi mini haritası: Zones/<harita>.dxt (arayüzdeki re_minimap penceresinde gösterilir)
+  const mini = od.var(`Zones/${harita}.dxt`) ? dokuPng(od, `Zones/${harita}.dxt`, 4096) : null;
+  if (mini) { fs.writeFileSync(path.join(hedef, 'minimap.png'), mini.png); console.log('  minimap.png'); }
   if (!argv.includes('--nesnesiz')) {
     const { glb, rapor, kareler } = nesneleriDisaAktar(od, harita);
     fs.writeFileSync(path.join(hedef, 'nesneler.glb'), glb);

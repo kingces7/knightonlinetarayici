@@ -21,6 +21,8 @@ export interface ArayuzBaglami {
   ipucuGoster: (e: EsyaTanimi, ev: MouseEvent) => void;
   ipucuGizle: () => void;
   mesaj: (m: string) => void;
+  /** Yüklü haritanın adı ve kenar uzunluğu (m): mini harita için. */
+  haritaBilgi: () => { ad: string; genislik: number };
   /** Statü puanı harcandığında oyun kuralları (en çok can/mana vb.) güncellensin. */
   statDegisti: () => void;
   /** Otur / kalk (görev çubuğu düğmesi ve C tuşu). */
@@ -67,6 +69,7 @@ export class OyunArayuzu {
   private cubukSayfa = 0;
   private cubukKilitli = false;
   private cubukImza = '';
+  private minimapCiz: (() => void) | null = null;
   /** Sohbet ve bilgi pencereleri: köşeden büyütme, kenardan taşıma, sağ alttaki toptan kilit. */
   private sohbetSerbest: SerbestPencere | null = null;
   private bilgiSerbest: SerbestPencere | null = null;
@@ -129,6 +132,28 @@ export class OyunArayuzu {
       p.gizleDesen(/^(group_notice|group_memo|group_purge|grp_member_list_[0-4])$/);
       p.metin('text_clan_name', 'No Clan'); p.metin('text_clan_grade', '-'); p.metin('text_clan_duty', '-');
       p.metin('text_clan_member_count', 'Total users: 0'); p.metin('text_current_member_count', 'Current Connections: 0 users');
+    });
+    // Mini harita (re_minimap): oyunun kendi mini harita resmi (Zones/<harita>.dxt → harita/<ad>/minimap.png), oyuncu noktası, koordinat ve yakınlaştırma
+    this.genel.davranis.set('re_minimap', (p) => {
+      p.gizleDesen(/^(Group_NpcList|Group_Battle|Group_Toggle|Group_Note|Group_WarMap|scroll_Alpah_line|btn_battle_[apn]|Btn_WarMap|btn_paper|Btn_globalmap|btn_NpcListopen|area_note)$/);
+      const hb = this.b.haritaBilgi();
+      p.metin('str_zoneid', 'Moradon:');
+      const kap = p.alan('Img_MiniMap'); if (!kap) return;
+      const kutu = document.createElement('div'); Object.assign(kutu.style, { position: 'absolute', inset: '0', overflow: 'hidden', background: '#000' });
+      const harita = document.createElement('div'); Object.assign(harita.style, { position: 'absolute', backgroundImage: `url(/harita/${hb.ad}/minimap.png)`, backgroundSize: '100% 100%' });
+      const nokta = document.createElement('div'); Object.assign(nokta.style, { position: 'absolute', width: '9px', height: '9px', marginLeft: '-5px', marginTop: '-5px', borderRadius: '50%', background: '#ffe84a', border: '1px solid #000', boxShadow: '0 0 4px #fff', zIndex: '2' });
+      kutu.append(harita, nokta); kap.appendChild(kutu);
+      let yakin = 1;
+      p.tikla.set('Btn_ZoomIn', () => { yakin = Math.min(4, yakin * 2); });
+      p.tikla.set('Btn_ZoomOut', () => { yakin = Math.max(1, yakin / 2); });
+      this.minimapCiz = () => {
+        const o = this.b.oyuncu, w = kutu.clientWidth, h = kutu.clientHeight; if (!w) return;
+        const px = o.konum.x / hb.genislik, py = 1 - o.konum.y / hb.genislik; // kuzey yukarıda (z büyüdükçe yukarı)
+        const ox = yakin > 1 ? Math.min(0, Math.max(w - w * yakin, w / 2 - px * w * yakin)) : 0, oy = yakin > 1 ? Math.min(0, Math.max(h - h * yakin, h / 2 - py * h * yakin)) : 0;
+        Object.assign(harita.style, { width: `${w * yakin}px`, height: `${h * yakin}px`, left: `${ox}px`, top: `${oy}px` });
+        nokta.style.left = `${ox + px * w * yakin}px`; nokta.style.top = `${oy + py * h * yakin}px`;
+        p.metin('Text_Position', `${Math.round(o.konum.x)} ${Math.round(o.konum.y)}`);
+      };
     });
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
@@ -808,6 +833,7 @@ export class OyunArayuzu {
     h.ilerleme('progress_exp', o.deneyim / g); h.metin('Text_ExpP', `${((o.deneyim / g) * 100).toFixed(1)}%`);
     h.metin('text_Level', `Level ${o.seviye}`);
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
+    if (this.minimapCiz && this.genel.acik('re_minimap')) this.minimapCiz();
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
     this.hedefCiz(); this.ganimetCiz();
