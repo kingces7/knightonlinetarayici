@@ -49,7 +49,9 @@ export function canavarTurleri(): CanavarTuru[] {
   return tur;
 }
 
-export const OYUNCU_MODELI = 31137;
+/** Oyuncunun görünümü: 931137 = upc_el_rm iskeleti + upc_el_rm_chitin_w.n3chr (savaşçı Chitin Shell seti; başlangıç eşyalarının görünümü). Ses/animasyon tabloları 31137 için. */
+export const OYUNCU_MODELI = 931137;
+export const OYUNCU_SES_MODELI = 31137;
 
 /**
  * Oyuncu kuralları (sunucu veritabanı + NewChrValue.tbl; araclar: sunucu/oyuncu-disa-aktar.ps1 + npm run oyuncu).

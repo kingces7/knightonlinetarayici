@@ -1,6 +1,7 @@
 // Karakter/canavar dışa aktarma (araclar/ klasöründe):
 //   npm run karakter -- 100 200          -> NPC_Looks tablosundaki 100 ve 200 numaralı modelleri .glb yapar
 //   npm run karakter -- ara kecoon       -> adında "kecoon" geçen canavarları listeler
+//   npm run karakter -- 931137=31137:Chr/upc_el_rm_chitin_w.n3chr  -> özel görünüm (temel görünümün iskeleti + .n3chr parçaları)
 // Çıktı: donusturulmus/web/karakter/<no>.glb ve karakterler.json (ad, animasyon listesi)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -34,6 +35,19 @@ function main(argv: string[]): number {
   const dizinYolu = path.join(hedef, 'karakterler.json');
   const dizin: Record<string, unknown> = fs.existsSync(dizinYolu) ? JSON.parse(fs.readFileSync(dizinYolu, 'utf8')) : {};
   for (const a of argv) {
+    // Özel görünüm: <yeniNo>=<temelNo>:<chr dosyası>  (iskelet/animasyon temel görünümden, parçalar .n3chr dosyasından; ör. 931137=31137:Chr/upc_el_rm_chitin_w.n3chr)
+    const ozel = /^([0-9]+)=([0-9]+):(.+)$/.exec(a);
+    if (ozel) {
+      const [, yeniNo, temelNo, chr] = ozel;
+      const t = gorunum.get(Number(temelNo));
+      if (!t) { console.log(`! ${a}: temel görünüm ${temelNo} yok`); continue; }
+      const ad = `${adlar.get(Number(temelNo)) ?? 'npc_' + temelNo}_${path.basename(chr, path.extname(chr))}`;
+      const { glb, rapor } = karakterGlb(od, { ad, iskelet: String(t[2]), animasyon: String(t[3]), parcalar: chrOku(od.oku(chr)).parcalar });
+      fs.writeFileSync(path.join(hedef, `${yeniNo}.glb`), glb);
+      dizin[yeniNo] = { ad, dosya: `${yeniNo}.glb`, animasyonlar: rapor.animBilgi };
+      console.log(`${yeniNo} ${ad}: ${rapor.kemik} kemik, ${rapor.parca} parça, ${rapor.animasyonlar.length} animasyon, ${(rapor.boyut / 1024).toFixed(0)} KB`);
+      continue;
+    }
     const no = Number(a);
     const s = gorunum.get(no);
     if (!s) { console.log(`! ${a}: NPC_Looks içinde yok`); continue; }

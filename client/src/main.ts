@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
@@ -153,7 +153,7 @@ async function basla(): Promise<void> {
     if (v.tip === 1 && hedef) {
       oyuncu.bak(hedef.konum);
       oyuncu.animKilidi = oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08) || 0.8;
-      ses.modelSesi(oyuncu.modelNo, 'saldir');
+      ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
     } else if (v.tip4) {
@@ -338,7 +338,7 @@ async function basla(): Promise<void> {
           oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
           oyuncu.savastanBeri = 0;
           oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
-          ses.modelSesi(oyuncu.modelNo, 'saldir');
+          ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
           vurusZamanlayici.push({ kalan: 0.45, hedef: h });
         } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('savun');
       }
@@ -395,7 +395,7 @@ async function basla(): Promise<void> {
       if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); if (!oyuncu.hedef) oyuncu.hedef = c; }
       if (vurus && vurus.hasar > 0) {
         const net = oyuncu.hasarAl(vurus.hasar);
-        ses.modelSesi(oyuncu.modelNo, oyuncu.olu ? 'olum' : 'darbe');
+        ses.modelSesi(OYUNCU_SES_MODELI, oyuncu.olu ? 'olum' : 'darbe');
         kalk(); // hasar alınca ayağa kalkılır
         hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
         if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
