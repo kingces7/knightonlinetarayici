@@ -391,6 +391,8 @@ export class OyunArayuzu {
     c.gizleDesen(/^(btn_open|btn_close|img_front2|btn_lock|strpage[0-9])$/); // sayfa numarası görünmez; kilit ve yön düğmeleri aşağıda kendi simgeleriyle kurulur
     // Zemin resmi iki ok plakası çiziyor: ikincisi (kilit satırı) gizlenir, yerine gerçek kilit düğmesi görünür
     for (const e of c.el.querySelectorAll<HTMLElement>('.ui-t4')) if (e.style.top === '349px' && e.style.left === '2px') e.style.display = 'none';
+    // Topun yanındaki sayfa numarası karesi (zemin resminin parçası) gizlenir
+    for (const e of c.el.querySelectorAll<HTMLElement>('.ui-t4')) { const l = e.style.left, tp = e.style.top; if ((l === '36px' && tp === '13px') || (l === '14px' && tp === '2px') || (l === '33px' && tp === '10px') || (l === '11px' && tp === '1px')) e.style.display = 'none'; }
     for (const id of ['btn_up', 'btn_down']) for (const e of c.bul(id)) for (const dd of e.querySelectorAll<HTMLElement>('.ui-durum')) dd.style.opacity = '0'; // oklar zemin resminde çizili; düğme yalnızca tıklama alanı
     c.tikla.set('btn_up', () => this.cubukSayfaDegistir(-1)); c.tikla.set('btn_down', () => this.cubukSayfaDegistir(1));
     c.el.style.overflow = 'visible'; c.el.style.zIndex = '5'; c.el.style.pointerEvents = 'none';
@@ -456,7 +458,9 @@ export class OyunArayuzu {
       const kilit = yap(kx, ky, 191, (e) => e.addEventListener('click', () => { this.cubukKilitli = !this.cubukKilitli; try { localStorage.setItem('ke_skillcubugu_kilit', this.cubukKilitli ? '1' : '0'); } catch { /* depolama kapalı */ } this.cubukKilitGoster(); }));
       const yon = yap(yx, yy, 236, (e) => {
         e.title = 'Switch the bar between vertical and horizontal';
-        e.addEventListener('pointerenter', () => { e.style.backgroundPositionY = '-348px'; }); e.addEventListener('pointerleave', () => { e.style.backgroundPositionY = '-336px'; });
+        // Oyunun kare (pencere) simgesi: knight1.dxt (221,420), üzerine gelince alttaki kare
+        Object.assign(e.style, { width: '13px', height: '13px', backgroundPosition: '-221px -420px' });
+        e.addEventListener('pointerenter', () => { e.style.backgroundPosition = '-221px -433px'; }); e.addEventListener('pointerleave', () => { e.style.backgroundPosition = '-221px -420px'; });
         e.addEventListener('click', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
       });
       g.append(kilit, yon); this.cubukKilitDugmeleri.push(kilit);

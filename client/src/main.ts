@@ -242,6 +242,7 @@ async function basla(): Promise<void> {
       const yeni = e.code === 'KeyZ' ? l[0] : (l.find((c) => c !== oyuncu.hedef && (!oyuncu.hedef || c.konum.distanceTo(oyuncu.konum) >= oyuncu.hedef.konum.distanceTo(oyuncu.konum))) ?? l[0]);
       if (yeni && yeni !== oyuncu.hedef) { oyuncu.hedef = yeni; oyuncu.saldiriyor = false; }
     }
+    if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
     if (!e.repeat && e.code === 'KeyR') {
       if (!oyuncu.hedef || oyuncu.hedef.olu) { const y = yakinlar()[0]; if (y) oyuncu.hedef = y; }
       if (oyuncu.hedef && !oyuncu.hedef.olu) { oyuncu.saldiriyor = true; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; }

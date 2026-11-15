@@ -53,7 +53,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 @font-face { font-family: 'MGBasic'; src: url('/fonts/mgbasic.ttf'); }
 .etiket { font-family: 'MGBasic', 'Segoe UI', sans-serif; position: absolute; left: 0; top: 0; text-align: center; font-size: 12px; color: #ff8a7a; text-shadow: 0 1px 2px #000, 0 0 2px #000; white-space: nowrap; }
 .etiket.npc { color: #9fe3ff; }
-.etiket.oyuncu { color: #fff; font-size: 13px; }
+.etiket.oyuncu { color: #5aa9ff; font-size: 13px; }
 .etiket.oyuncu.parti { color: #ffe84a; }
 .etiket.secili span { color: #ff8a7a; }
 
