@@ -69,18 +69,37 @@ export class OyunArayuzu {
     this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur();
     this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.gorev.el, durum.el, beceri.el, env.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
-    // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan.
-    const sagX = Math.max(24, innerWidth - 570);
-    const yerles: [Ad, number, number, number][] = [['durum', 24, 110, -150], ['beceri', sagX, 70, 150], ['envanter', sagX, 70, 150]];
-    for (const [ad, x, y, kay] of yerles) {
+    // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
+    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150]];
+    for (const [ad, kay] of yerles) {
       const p = this.pencereler[ad];
-      p.el.style.left = `${x}px`; p.el.style.top = `${y}px`; p.el.style.display = 'none';
+      p.el.style.display = 'none';
       // 2. kayarak açılma/kapanma (stil.css: .ui-pencere.kayan / .kapali)
       p.el.classList.add('kayan', 'kapali'); p.el.style.setProperty('--kay', `${kay}px`);
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
-    this.gorevYerlestir(); addEventListener('resize', () => this.gorevYerlestir());
+    this.pencereYerlestir(true); this.gorevYerlestir();
+    addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
+  }
+
+  /**
+   * Açılır pencereleri (durum, skill, envanter) ekrana sığdırır: görev çubuğunun üstünde kalacak şekilde ölçeği küçültür (en az 0,45),
+   * ilk yerleşimde varsayılan konuma koyar, yeniden boyutlandırmada konumu ekran içinde tutar.
+   */
+  private pencereYerlestir(ilk: boolean): void {
+    const altBos = this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14;
+    for (const ad of ['durum', 'beceri', 'envanter'] as Ad[]) {
+      const p = this.pencereler[ad];
+      const [w, h] = p.boyut;
+      const ol = Math.max(0.45, Math.min(1, (innerWidth - 16) / w, (innerHeight - altBos - 8) / h));
+      p.olcekAyarla(ol);
+      const gw = w * ol, gh = h * ol;
+      let x = ilk ? (ad === 'durum' ? 24 : innerWidth - gw - 35) : parseFloat(p.el.style.left) || 0;
+      let y = ilk ? (ad === 'durum' ? 110 : 70) : parseFloat(p.el.style.top) || 0;
+      x = Math.max(0, Math.min(x, innerWidth - gw)); y = Math.max(0, Math.min(y, innerHeight - altBos - gh));
+      p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
+    }
   }
 
 
@@ -122,12 +141,16 @@ export class OyunArayuzu {
     s.top = `${innerHeight - this.gorev.boyut[1] * ol - 6}px`;
     // Sohbet (sol) ve bilgi/hasar penceresi (sağ) görev çubuğunun hemen üstünde.
     const ust = innerHeight - this.gorev.boyut[1] * ol - 6 - 4;
-    this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1]}px`;
-    this.bilgi.el.style.left = `${Math.max(this.sohbet.boyut[0] + 8, innerWidth - this.bilgi.boyut[0])}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1]}px`;
-    // Skill çubuğu görev çubuğunun üstünde ortada (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
-    // sohbet kutusuna binmesin
-    this.cubuk.el.style.left = `${Math.max(this.sohbet.boyut[0], (innerWidth - 356) / 2 + 10)}px`;
-    this.cubuk.el.style.top = `${ust - 62}px`;
+    // Dar ekranda üçü birden aynı oranda küçülür (sohbet | skill çubuğu | bilgi yan yana sığsın).
+    const sw = this.sohbet.boyut[0], bw = this.bilgi.boyut[0], cw = 356;
+    const hol = Math.min(1, innerWidth / (sw + bw + cw + 24));
+    for (const x of [this.sohbet, this.bilgi, this.cubuk]) x.olcekAyarla(hol);
+    this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1] * hol}px`;
+    this.bilgi.el.style.left = `${innerWidth - bw * hol}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1] * hol}px`;
+    // Skill çubuğu: sohbet ile bilgi penceresinin ortasında (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
+    const orta = (sw * hol + innerWidth - bw * hol) / 2;
+    this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
+    this.cubuk.el.style.top = `${ust - 62 * hol}px`;
   }
 
   // ---------------------------------------------------------------- skill çubuğu

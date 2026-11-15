@@ -41,7 +41,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] Skill penceresi: yalnızca "Basic Skill" sekmesi ve El Morad Savaşçı temel skilleri listeleniyor; skill **kullanılamıyor** (MP harcama, hasar, etki yok). Sınıf sekmeleri ve skill puanı harcama yok; üstteki "P" (premium) düğmeleri gizlenemedi.
 - [ ] Durum penceresi: Myko'nun "perk" paneli gizli; direnç ve silah savunma değerleri 0; ağırlık yalnızca yuva sayısı; Knight Cash / TL bakiyesi 0.
 - [ ] Envanter: yalnızca silah (yuva 6) ve zırh (yuva 4) ekipman olarak çiziliyor; diğer 13 ekipman yuvası, çanta kilidi/kozmetik paneli, eşya yok etme çalışmıyor. Sürükle-bırak yok (tıkla-kuşan).
-- [ ] Pencereler 1:1 piksel; çok küçük ekranda taşabilir, ölçek ayarı yok.
+- [x] Pencere ölçeği: durum/skill/envanter pencereleri görev çubuğunun üstünde kalacak şekilde otomatik küçülür (en az 0,45; CSS `scale`), dar ekranda sohbet + skill çubuğu + bilgi penceresi birlikte küçülür, yeniden boyutlandırmada konumlar ekran içinde tutulur; ölçekli pencere sürüklenebilir. Kullanıcıdan ayarlanan ölçek seçeneği yok (otomatik).
 - [ ] `.lilith` arayüz geri yazıcısı (pencere düzenleyip tekrar şifreleme).
 - [ ] U / K / I kısayol tuşları istek üzerine verildi; oyunun kendi varsayılan kısayol tablosu (KnightOnline.exe) çözülmedi.
 

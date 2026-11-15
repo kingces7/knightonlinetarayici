@@ -28,6 +28,9 @@ export class UiPencere {
   private dugmeler = new Map<string, { el: HTMLElement; durumlar: Map<number, HTMLElement>; pasif: boolean }>();
   private veri: PencereVeri;
   private alanlar: HTMLElement[] = [];
+  /** Pencere ölçeği (küçük ekranlarda sığdırmak için; CSS `scale`, sol üst köşeden). */
+  olcek = 1;
+  olcekAyarla(o: number): void { this.olcek = o; this.el.style.transformOrigin = '0 0'; this.el.style.setProperty('scale', String(o)); }
   /** Düğme tıklamaları: id → işlev. */
   readonly tikla = new Map<string, () => void>();
 
@@ -185,8 +188,9 @@ export class UiPencere {
     this.el.addEventListener('pointerdown', (e) => {
       if ((e.target as HTMLElement).closest('.ui-t1, .ui-t9')) return;
       const r = this.el.getBoundingClientRect();
-      const x = e.clientX - r.left, y = e.clientY - r.top;
-      if (x < yerel[0] || x > yerel[2] || y < yerel[1] || y > yerel[3]) return;
+      const x = e.clientX - r.left, y = e.clientY - r.top; // ekran pikseli
+      const lx = x / this.olcek, ly = y / this.olcek; // pencerenin kendi (ölçeksiz) koordinatı
+      if (lx < yerel[0] || lx > yerel[2] || ly < yerel[1] || ly > yerel[3]) return;
       const dx = x, dy = y;
       const tasi = (ev: PointerEvent) => {
         this.el.style.left = `${Math.max(0, Math.min(innerWidth - 40, ev.clientX - dx))}px`;
