@@ -113,8 +113,11 @@ export class Hud {
     this.ipucu.classList.remove('gizli');
   }
 
+  /** Orijinal ganimet penceresi (re_droppeditem) bunu dinler; eski panel CSS ile gizlenir. */
+  ganimetKancasi: ((k: GanimetKutusu | null) => void) | null = null;
   ganimetAc(k: GanimetKutusu | null): void {
     this.acikKutu = k;
+    this.ganimetKancasi?.(k);
     if (!k) { this.ganimet.classList.add('gizli'); return; }
     const liste = this.ganimet.querySelector('.liste')!;
     liste.innerHTML = '';

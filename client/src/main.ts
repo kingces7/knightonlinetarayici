@@ -172,10 +172,11 @@ async function basla(): Promise<void> {
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e),
+      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), ganimetAl: (k, s) => hud.ganimetAl(k, s),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
+    hud.ganimetKancasi = (k) => a.ganimetGoster(k);
     hud.mesajKancasi = (m, t) => a.bilgiMesaji(m, t);
   } catch (e) { console.warn('Orijinal arayüz yüklenemedi, basit arayüz kullanılacak', e); }
   hud.mesaj('Welcome to KnightEmpire!', 'sistem');

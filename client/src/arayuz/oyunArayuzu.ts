@@ -4,7 +4,7 @@
 // Pencere düzenleri ve dokular araclar/arayuz ile oyunun kendi dosyalarından çıkarılır (docs/formatlar/uif.md).
 import { UiPencere } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
-import type { Oyuncu } from '../oyun/varliklar';
+import type { GanimetKutusu, Oyuncu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -27,6 +27,8 @@ export interface ArayuzBaglami {
   yuruKos: () => void;
   /** Ekipman yuvasındaki eşyayı çantaya al. */
   esyaCikar: (yuva: number) => void;
+  /** Ganimet sandığından altın/eşya al (main.ts → hud.ganimetAl). */
+  ganimetAl: (k: GanimetKutusu, secim: 'altin' | number) => void;
   /** NPC mağazasından eşya satın al. */
   magazaSatinAl: (e: EsyaTanimi) => void;
   /** Skill kullan (skill numarası). */
@@ -48,6 +50,10 @@ export class OyunArayuzu {
   private onizleme: KarakterOnizleme | null = null;
   /** Hedef çerçevesi (re_target_framebar): seçili canavarın adı ve canı; renk çubuğu seviye farkına göre. */
   private hedefCubugu!: UiPencere;
+  /** Ganimet penceresi (re_droppeditem): 12 yuva; ilk yuva Noah varsa Noah. */
+  private ganimetPencere!: UiPencere;
+  private ganimetKutusu: GanimetKutusu | null = null;
+  private ganimetImza = '';
   private magazaSayfalar: EsyaTanimi[][] = [];
   private magazaSayfa = 0;
   private magazaAdi = '';
@@ -66,18 +72,18 @@ export class OyunArayuzu {
   constructor(b: ArayuzBaglami) { this.b = b; }
 
   async baslat(): Promise<void> {
-    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, hedefCubugu, bec] = await Promise.all([
+    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, hedefCubugu, ganimetPencere, bec] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
-      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'),
+      UiPencere.yukle('re_el_chatting_box'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
-    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.beceriler = Array.isArray(bec) ? bec : [];
+    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.beceriler = Array.isArray(bec) ? bec : [];
     this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
-    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur(); this.depoKur(); this.hedefKur();
-    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.hedefCubugu.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
+    this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur(); this.depoKur(); this.hedefKur(); this.ganimetKur();
+    this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.hedefCubugu.el, this.ganimetPencere.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
     // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
     const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150], ['depo', -150]];
@@ -164,6 +170,46 @@ export class OyunArayuzu {
     // Hedef çerçevesi: üstte ortada
     this.hedefCubugu.olcekAyarla(hol);
     this.hedefCubugu.el.style.left = `${Math.max(350 * hol, (innerWidth - 353 * hol) / 2)}px`; this.hedefCubugu.el.style.top = `${4 * hol}px`;
+  }
+
+  // ---------------------------------------------------------------- ganimet penceresi (re_droppeditem)
+  private ganimetKur(): void {
+    const g = this.ganimetPencere;
+    g.el.style.display = 'none'; g.el.style.zIndex = '6';
+    g.el.addEventListener('click', (ev) => {
+      const el = (ev.target as HTMLElement).closest('.ui-t9') as HTMLElement | null; const k = this.ganimetKutusu; if (!el || !k) return;
+      const i = Number(el.dataset.id);
+      const altinVar = k.altin > 0;
+      if (altinVar && i === 0) this.b.ganimetAl(k, 'altin');
+      else if (k.esyalar[i - (altinVar ? 1 : 0)]) this.b.ganimetAl(k, i - (altinVar ? 1 : 0));
+    });
+    // Sandık değişince (açılış/kapanış/eşya alma) hud bu kancayı çağırır.
+    this.ganimetPencere.el.dataset.hazir = '1';
+  }
+  /** Ganimet sandığını gösterir/gizler. */
+  ganimetGoster(k: GanimetKutusu | null): void {
+    this.ganimetKutusu = k; this.ganimetImza = '';
+    const g = this.ganimetPencere;
+    g.el.style.display = k ? '' : 'none';
+    if (k) { g.el.style.left = `${Math.max(0, (innerWidth - 155) / 2 + 190)}px`; g.el.style.top = `${Math.max(60, innerHeight * 0.3)}px`; }
+  }
+  private ganimetCiz(): void {
+    const k = this.ganimetKutusu; if (!k) return;
+    const g = this.ganimetPencere;
+    const imza = `${k.altin}|${k.esyalar.map((e) => e.no).join(',')}`;
+    if (imza === this.ganimetImza) return;
+    this.ganimetImza = imza;
+    const altinVar = k.altin > 0;
+    for (let i = 0; i < 12; i++) {
+      const alan = g.alan(String(i)); if (!alan) continue;
+      const e = altinVar ? (i === 0 ? null : k.esyalar[i - 1]) : k.esyalar[i];
+      const noah = altinVar && i === 0;
+      alan.style.backgroundImage = noah ? 'radial-gradient(circle at 35% 30%, #fff2a8, #d4a640 55%, #7a5a14)' : e?.simge ? `url(${e.simge})` : '';
+      alan.style.backgroundSize = noah ? '60% 60%' : '100% 100%'; alan.style.backgroundPosition = 'center';
+      alan.style.cursor = noah || e ? 'pointer' : 'default';
+      alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; alan.onmouseleave = () => this.b.ipucuGizle();
+      g.metin(String(i), noah ? k.altin.toLocaleString('en-US') : '');
+    }
   }
 
   // ---------------------------------------------------------------- hedef çerçevesi (re_target_framebar)
@@ -537,7 +583,7 @@ export class OyunArayuzu {
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
-    this.hedefCiz();
+    this.hedefCiz(); this.ganimetCiz();
     if (this.acik.has('magaza')) this.magazaCiz();
     if (this.acik.has('depo')) this.depoCiz();
     if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0); }

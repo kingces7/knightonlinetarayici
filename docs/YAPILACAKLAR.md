@@ -36,7 +36,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] `animAdi` artık özgün animasyon adlarına bakıyor; 155 animasyonlu modellerde saldırı animasyonları `attack_sword0_A` gibi adlarla duruyor (`saldir0/1` olarak eşlenmedi).
 
 **Orijinal arayüz — eksikler**
-- [ ] Ganimet penceresi hâlâ eski basit arayüzde (orijinal pencere dosyası araştırılacak: `re_droppeditem`).
+- [x] Ganimet penceresi orijinal `re_droppeditem` ile (12 yuva, ilk yuva Noah). Kalan: Noah simgesi (şimdi sarı kare), "hepsini al" kısayolu.
 - [x] Otur (C) ve yürü/koş (T): tuşlar ve görev çubuğundaki düğmeler çalışıyor (ayrı bir düğme yapılmayacak).
 - [ ] Görev çubuğunun çoğu düğmesi işlevsiz (Map, Control, Invite, Option, Exit); ortadaki 4 simge (`re_el_hotkey` hızlı çubuk) bağlı değil.
 - [ ] Skill penceresi: yalnızca "Basic Skill" sekmesi ve El Morad Savaşçı temel skilleri listeleniyor; skill **kullanılamıyor** (MP harcama, hasar, etki yok). Sınıf sekmeleri ve skill puanı harcama yok; üstteki "P" (premium) düğmeleri gizlenemedi.
