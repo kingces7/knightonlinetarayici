@@ -182,6 +182,7 @@ async function basla(): Promise<void> {
     });
     await a.baslat(); arayuz = a;
     hud.ganimetKancasi = (k) => a.ganimetGoster(k);
+    for (const ad of (parametre.get('ui') ?? '').split(',').filter(Boolean)) void a.genel.ac(ad); // ?ui=re_minimap,re_el_party: pencere önizleme/hata ayıklama
     hud.mesajKancasi = (m, t) => a.bilgiMesaji(m, t);
   } catch (e) { console.warn('Orijinal arayüz yüklenemedi, basit arayüz kullanılacak', e); }
   hud.mesaj('Welcome to KnightEmpire!', 'sistem');
@@ -234,7 +235,7 @@ async function basla(): Promise<void> {
         .sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum))[0];
       if (yakin) oyuncu.hedef = yakin;
     }
-    if (e.code === 'Escape') { oyuncu.hedef = null; hud.ganimetAc(null); }
+    if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
     if (!e.repeat && e.code === 'KeyM') hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem');
@@ -480,7 +481,7 @@ async function basla(): Promise<void> {
     hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

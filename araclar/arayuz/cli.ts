@@ -1,6 +1,7 @@
 // Orijinal arayüz pencerelerini (LilithACS/*.lilith = şifreli UIF) web için dışa aktarır (araclar/ klasöründe):
 //   npm run arayuz                          -> varsayılan pencere listesi
 //   npm run arayuz -- re_el_page_state ...  -> belirtilen pencereler
+//   npm run arayuz -- hepsi                 -> oyundaki bütün pencereler (LilithACS/*.lilith + paketteki ui/*.uif)
 // Çıktı: donusturulmus/web/arayuz/<pencere>.json (sadeleştirilmiş ağaç) ve donuşturulmus/web/arayuz/doku/<ad>.png
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,7 +39,13 @@ function sadeLestir(d: UiDugum, dokular: Set<string>): Sade {
 
 function main(argv: string[]): number {
   const od = new OyunDosyalari();
-  const liste = argv.length ? argv : VARSAYILAN;
+  let liste = argv.length ? argv : VARSAYILAN;
+  if (argv[0] === 'hepsi') {
+    const adlar = new Set<string>();
+    for (const f of fs.readdirSync(path.join(OYUN_DIZINI, 'LilithACS'))) if (/.lilith$/i.test(f)) adlar.add(f.replace(/.lilith$/i, ''));
+    for (const y of od.listele('.uif')) adlar.add(ad(y).replace(/.uif$/i, ''));
+    liste = [...adlar].sort();
+  }
   const hedef = path.join(CIKTI_DIZINI, 'web', 'arayuz');
   fs.mkdirSync(path.join(hedef, 'doku'), { recursive: true });
   const yazilan = new Map<string, { w: number; h: number }>();
@@ -48,7 +55,9 @@ function main(argv: string[]): number {
     const duzYol = `ui/${pencere}.uif`;
     if (!fs.existsSync(dosya) && !od.var(duzYol)) { console.log(`! ${pencere}: dosya yok`); continue; }
     const dokular = new Set<string>();
-    const kok = sadeLestir(fs.existsSync(dosya) ? lilithOku(fs.readFileSync(dosya)) : uifOku(od.oku(duzYol)), dokular);
+    let kok: Sade;
+    try { kok = sadeLestir(fs.existsSync(dosya) ? lilithOku(fs.readFileSync(dosya)) : uifOku(od.oku(duzYol)), dokular); }
+    catch (e) { console.log(`! ${pencere}: okunamadı (${(e as Error).message.slice(0, 80)})`); continue; }
     const boyutlar: Record<string, { w: number; h: number }> = {};
     for (const dk of dokular) {
       if (!yazilan.has(dk)) {

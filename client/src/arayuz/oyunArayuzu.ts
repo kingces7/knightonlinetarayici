@@ -2,6 +2,7 @@
 //   U: karakter durumu (re_el_page_state) · K: skill (re_el_skill) · I: envanter (re_el_inventory)
 //   Üstte HP/MP/EXP çubuğu (re_el_hpbar), altta görev çubuğu (re_el_taskbar_main).
 // Pencere düzenleri ve dokular araclar/arayuz ile oyunun kendi dosyalarından çıkarılır (docs/formatlar/uif.md).
+import { GenelPencereler } from './genelPencereler';
 import { UiPencere } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu } from '../oyun/varliklar';
@@ -40,6 +41,13 @@ export interface ArayuzBaglami {
 }
 
 /** Eşya simgeleri 64×64 dokunun sol üst 45×45'ine çizilir; yuvayı tam doldurmak için büyütülür. */
+/** Kısayol tuşu → orijinal pencere (M ses için ayrıldı). */
+const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyQ: 're_el_page_quest', KeyL: 're_el_clan_window', KeyN: 're_el_notice', KeyO: 're_el_various_frame' };
+/** Görev çubuğu düğmesi → orijinal pencere (eşleşme pencerenin metinlerinden tahmin edildi). */
+const GOREV_PENCERELERI: Record<string, string> = {
+  btn_map: 're_minimap', btn_exit: 're_exitmenu', btn_command: 're_el_cmdlist', btn_invite: 're_el_party', btn_option: 're_el_various_frame',
+  btn_menu: 're_minimenu', btn_question: 're_seed_helper', btn_rank: 're_el_dailyoverallrank', btn_trade: 're_el_personaltrade', btn_powerup: 're_powerupstore',
+};
 const ESYA_SIMGE = '142.22% 142.22%';
 type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza' | 'depo';
 
@@ -51,6 +59,8 @@ export class OyunArayuzu {
   private cubuk!: UiPencere;
   private cubukBeceri: (number | null)[] = new Array(8).fill(null);
   private cubukImza = '';
+  /** Oyunun öbür orijinal pencereleri (harita, parti, dost, klan, komutlar…): ad ile açılır. */
+  genel!: GenelPencereler;
   /** Skill çubuğu yönü: dikey (varsayılan, ekranın solunda) ya da yatay; çevirme düğmesiyle değişir. */
   private cubukDikey = true;
   private onizleme: KarakterOnizleme | null = null;
@@ -101,6 +111,12 @@ export class OyunArayuzu {
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
+    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m) });
+    this.genel.davranis.set('re_exitmenu', (p, kapat) => {
+      p.tikla.set('btn_exit', () => { this.b.mesaj('Close this browser tab to leave the game.'); kapat(); });
+      p.tikla.set('btn_option', () => { kapat(); void this.genel.ac('re_new_looting_option'); });
+      p.tikla.set('btn_cancel', kapat);
+    });
     this.pencereYerlestir(true); this.gorevYerlestir();
     addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
   }
@@ -148,6 +164,8 @@ export class OyunArayuzu {
     if (kod === 'Enter') { this.sohbetGiris?.focus(); return true; }
     const rakam = /^Digit([1-8])$/.exec(kod);
     if (rakam) { this.cubukKullan(Number(rakam[1]) - 1); return true; }
+    const genelTus = GENEL_TUSLAR[kod]; if (genelTus) { void this.genel.degistir(genelTus); return true; }
+    if (kod === 'Escape' && this.genel.enUsttekiniKapat()) return true;
     if (kod === 'Escape' && this.acik.size) {
       const son = [...this.acik].sort((a, c) => Number(this.pencereler[a].el.style.zIndex) - Number(this.pencereler[c].el.style.zIndex)).pop()!;
       this.ac(son, false); return true;
@@ -458,11 +476,12 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- görev çubuğu
   private gorevKur(): void {
     const g = this.gorev;
-    g.gizleDesen(/^(base_menu|base_TaskBar|btn_option|btn_uishow|btn_change|btn_close|btn_disband|btn_invite|btn_command|btn_trade|btn_rank|img_backboard|btn_seed|btn_powerup|btn_question|btn_menu)/);
+    g.gizleDesen(/^(base_menu|base_TaskBar|btn_option[12]|btn_uishow|btn_change|btn_close|btn_disband|btn_trade|btn_rank|img_backboard|btn_seed|btn_powerup|btn_question|btn_menu)/);
     g.tikla.set('btn_inventory', () => this.degistir('envanter'));
     g.tikla.set('btn_character', () => this.degistir('durum'));
     g.tikla.set('btn_skill', () => this.degistir('beceri'));
     g.tikla.set('btn_camera', () => this.b.kamera.arkayaDon());
+    for (const [id, pencere] of Object.entries(GOREV_PENCERELERI)) g.tikla.set(id, () => { void this.genel.degistir(pencere); });
     // Her çift aynı yerde durur; durumun simgesi gösterilir (guncelle → simgeleriUygula).
     for (const id of ['btn_stand', 'btn_sit']) g.tikla.set(id, () => this.b.otur());
     for (const id of ['btn_run', 'btn_walk']) g.tikla.set(id, () => this.b.yuruKos());

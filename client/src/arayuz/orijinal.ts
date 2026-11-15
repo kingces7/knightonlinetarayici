@@ -169,6 +169,8 @@ export class UiPencere {
     const secili = d.durumlar.get(pasif ? 3 : 0) ?? d.durumlar.get(0);
     for (const x of d.durumlar.values()) x.style.display = x === secili ? '' : 'none';
   }
+  /** Pencerenin bütün düğme (tür 1) düğümleri. */
+  tumDugmeler(): HTMLElement[] { return [...this.dugmeler.values()].map((d) => d.el); }
   /** Tüm yuvalar (area düğümleri), belge sırasıyla. */
   tumAlanlar(): HTMLElement[] { return this.alanlar; }
   /** Metni düzenli ifade ya da tam metinle eşleşen yazı düğümlerini gizler (kimliği olmayanlar için). */
