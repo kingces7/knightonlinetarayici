@@ -99,7 +99,8 @@ export class UiPencere {
   private yaziCiz(el: HTMLElement, n: Sade): void {
     const y = n.y!, st = n.st ?? 0;
     el.classList.add('ui-yazi');
-    el.style.fontSize = `${Math.round(y.b * 1.3)}px`;
+    el.style.fontSize = `${(y.b * 1.15).toFixed(1)}px`; // pencere 1:1 çizilir; Verdana/Arial ile bu boyut orijinal kutulara sığar
+    if (/^[A-Za-z ]+$/.test(y.font)) el.style.fontFamily = `'${y.font}', 'Segoe UI', Tahoma, sans-serif`; // pencerenin kendi yazı tipi (Verdana/Arial)
     el.style.color = renk(y.c);
     el.style.fontWeight = y.f & 1 ? 'bold' : 'normal';
     if (y.f & 2) el.style.fontStyle = 'italic';

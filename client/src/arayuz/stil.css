@@ -72,4 +72,4 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .ui-pencere.kapali { opacity: 0; transform: translateX(var(--kay, 140px)); pointer-events: none; }
 .ui-gunluk { scrollbar-width: thin; scrollbar-color: #8a7340 #0004; user-select: text; }
 .orijinal-arayuz .mesajlar { display: none !important; }
-.orijinal-arayuz .yardim { bottom: 74px; }
+.orijinal-arayuz .yardim { display: none; }
