@@ -1,0 +1,23 @@
+// Geliştirme aracı: skill çubuğunu topundan sürükler, kilitleyip tekrar dener, sayfa değiştirir.
+import { chromium } from 'playwright-core';
+const [klasor = '.'] = process.argv.slice(2);
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1366, height: 768 }, deviceScaleFactor: 2 });
+const hatalar = []; s.on('pageerror', (e) => hatalar.push(e.message));
+await s.goto('http://localhost:5173/'); await s.evaluate(() => localStorage.clear()); await s.reload();
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(2000);
+const merkez = (id) => s.evaluate((i) => { const e = [...document.querySelectorAll(`[data-id="${i}"]`)].find((x) => x.offsetParent); const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }, id);
+const konum = () => s.evaluate(() => { const e = [...document.querySelectorAll('[data-id="btn_change"]')].find((x) => x.offsetParent); const r = e.getBoundingClientRect(); return [Math.round(r.x), Math.round(r.y)]; });
+const sayfa = () => s.evaluate(() => [...document.querySelectorAll('[data-id="strpage0"]')].map((e) => e.textContent)[0]);
+const k0 = await konum();
+let b = await merkez('btn_change'); await s.mouse.move(...b); await s.mouse.down(); await s.mouse.move(b[0] + 300, b[1] - 100, { steps: 6 }); await s.mouse.up();
+const k1 = await konum();
+b = await merkez('btn_lock'); await s.mouse.click(...b); await s.waitForTimeout(200);
+b = await merkez('btn_change'); await s.mouse.move(...b); await s.mouse.down(); await s.mouse.move(b[0] - 100, b[1] + 100, { steps: 6 }); await s.mouse.up();
+const k2 = await konum();
+const p0 = await sayfa();
+b = await merkez('btn_down'); await s.mouse.click(...b); await s.waitForTimeout(200); const p1 = await sayfa();
+const dolu = await s.evaluate(() => [...document.querySelectorAll('.ui-t9')].filter((e) => e.offsetParent && /^[0-7]$/.test(e.dataset.id) && e.style.backgroundImage).length);
+await s.screenshot({ path: `${klasor}/cubuk_tasi.png` });
+console.log(JSON.stringify({ k0, k1_tasindi: k1, k2_kilitliyken: k2, p0, p1, dolu, hatalar }));
+await t.close();

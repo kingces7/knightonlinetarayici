@@ -1,0 +1,20 @@
+// Geliştirme aracı: Character/Clan/Friends sekmelerini dener, dost ekler.
+import { chromium } from 'playwright-core';
+const [klasor = '.'] = process.argv.slice(2);
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1366, height: 768 } });
+const hatalar = []; s.on('pageerror', (e) => hatalar.push(e.message));
+s.on('dialog', (d) => d.accept('Stormrider'));
+await s.goto('http://localhost:5173/'); await s.evaluate(() => localStorage.clear()); await s.reload();
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(2000);
+await s.keyboard.press('KeyU'); await s.waitForTimeout(700);
+const sekme = async (ad) => { const p = await s.evaluate((a) => { const e = [...document.querySelectorAll('div')].find((x) => x.textContent === a && x.offsetParent && x.children.length === 0 && x.style.cursor === 'pointer'); const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }, ad); await s.mouse.click(...p); await s.waitForTimeout(700); };
+await s.screenshot({ path: `${klasor}/sekme1.png`, clip: { x: 0, y: 60, width: 420, height: 300 } });
+await sekme('Friends');
+const tikla = async (id) => { const p = await s.evaluate((i) => { const e = [...document.querySelectorAll(`[data-id="${i}"]`)].find((x) => x.offsetParent); const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }, id); await s.mouse.click(...p); await s.waitForTimeout(400); };
+await tikla('btn_add');
+await s.screenshot({ path: `${klasor}/sekme2.png`, clip: { x: 0, y: 60, width: 420, height: 600 } });
+await sekme('Clan'); await s.screenshot({ path: `${klasor}/sekme3.png`, clip: { x: 0, y: 60, width: 420, height: 600 } });
+await sekme('Character');
+console.log(JSON.stringify({ durumAcik: await s.evaluate(() => [...document.querySelectorAll('[data-id="Text_Id"]')].some((e) => e.offsetParent)), hatalar }));
+await t.close();

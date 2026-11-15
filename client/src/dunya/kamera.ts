@@ -40,7 +40,16 @@ export class TakipKamerasi {
     this.donusHedefi = (this.donusHedefi ?? this.aci) + Math.PI;
   }
 
-  /** Kameranın yatay bakış yönü (WASD için). */
+  /** Fareyle kamera çevriliyor mu? */
+  get suruklenirken(): boolean { return this.surukleniyor; }
+  /** Karakter ilerlerken kamerayı yavaşça karakterin arkasına getirir (heading: Knight Online x,z açısı). Fareyle çevirirken karışmaz. */
+  arkayaHizala(heading: number, dt: number): void {
+    if (this.surukleniyor || this.donusHedefi !== null) return;
+    let fark = Math.atan2(-Math.cos(heading), -Math.sin(heading)) - this.aci;
+    fark = Math.atan2(Math.sin(fark), Math.cos(fark));
+    this.aci += fark * Math.min(1, 2.5 * dt);
+  }
+  /** Kameranın yatay bakış yönü. */
   ileriYon(): THREE.Vector2 { return new THREE.Vector2(-Math.sin(this.aci), -Math.cos(this.aci)); }
 
   /** Duvar/tavan çarpışması: 1 = engel yok; küçüldükçe kamera oyuncuya yaklaşır. Engelden hemen çıkmak değil, yavaşça açılmak için yumuşatılır. */

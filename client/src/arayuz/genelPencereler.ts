@@ -28,6 +28,8 @@ export class GenelPencereler {
 
   constructor(private b: GenelBaglam) {}
 
+  /** Yüklenmiş pencere (açık olmasa da). */
+  pencere(ad: string): UiPencere | undefined { return this.acikPencereler.get(ad); }
   /** Pencere açık mı? */
   acik(ad: string): boolean { return this.acikPencereler.has(ad); }
   /** Açık pencere sayısı (Esc davranışı için). */

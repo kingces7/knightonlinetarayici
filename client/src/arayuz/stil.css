@@ -50,10 +50,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .olum .dugme { width: 160px; font-size: 16px; }
 
 .etiketler { position: absolute; inset: 0; overflow: hidden; }
-.etiket { position: absolute; left: 0; top: 0; text-align: center; font-size: 12px; color: #ffe9a8; text-shadow: 0 1px 2px #000, 0 0 2px #000; white-space: nowrap; }
+@font-face { font-family: 'MGBasic'; src: url('/fonts/mgbasic.ttf'); }
+.etiket { font-family: 'MGBasic', 'Segoe UI', sans-serif; position: absolute; left: 0; top: 0; text-align: center; font-size: 12px; color: #ffe9a8; text-shadow: 0 1px 2px #000, 0 0 2px #000; white-space: nowrap; }
 .etiket.npc { color: #9fe3ff; }
-.etiket .mini { width: 60px; height: 4px; margin: 2px auto 0; background: #000a; border: 1px solid #0008; }
-.etiket .mini i { display: block; height: 100%; background: #e0473e; }
 .etiket.secili span { color: #ff8a7a; }
 
 /* ---- Orijinal arayüz (UIF pencereleri) ---- */

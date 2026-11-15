@@ -107,6 +107,9 @@ export abstract class Varlik {
     this.hareketEt(yon.clone().multiplyScalar(adim));
   }
 
+  /** Geri geri yürüme: bakış yönü değişmeden `yon` yönünde `adim` kadar gider. */
+  geriGit(yon: THREE.Vector2, adim: number): void { this.hareketEt(yon.clone().multiplyScalar(adim)); }
+
   /** `fark` kadar ilerlemeyi dener: duvarlardan kayarak, dik yamaçlara tırmanmadan. */
   protected hareketEt(fark: THREE.Vector2): void {
     const arazi = Varlik.arazi;

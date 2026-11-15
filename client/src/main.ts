@@ -308,8 +308,6 @@ async function basla(): Promise<void> {
     }
   };
 
-  let sonTusSayisi = 0;
-  let yonKilidi: number | null = null;
   const vurusZamanlayici: { kalan: number; hedef: Canavar; beceri?: BeceriKurali }[] = [];
   const oyuncuGuncelle = (dt: number) => {
     oyuncu.model?.guncelle(dt);
@@ -330,37 +328,33 @@ async function basla(): Promise<void> {
     oyuncu.can = Math.min(oyuncu.enCok, oyuncu.can + yenilenme * dt + (oturuyor ? oyuncu.enCok * OTURMA_CAN_ORANI * dt : 0));
     oyuncu.mana = Math.min(oyuncu.enCokMana, oyuncu.mana + 3 * dt + (oturuyor ? oyuncu.enCokMana * OTURMA_MANA_ORANI * dt : 0));
 
-    const ileri = kamera.ileriYon();
-    const sag = new THREE.Vector2(-ileri.y, ileri.x);
-    const hareket = new THREE.Vector2();
-    if (tuslar.has('KeyW')) hareket.add(ileri);
-    if (tuslar.has('KeyS')) hareket.sub(ileri);
-    if (tuslar.has('KeyD')) hareket.add(sag);
-    if (tuslar.has('KeyA')) hareket.sub(sag);
+    // Klavye (Knight Online gibi): A/D karakteri döndürür (basılı kaldıkça 360° sürekli), W karakterin baktığı yöne ilerler, S geri gider.
+    // Kamera karakterle birlikte döner ve ilerlerken yavaşça karakterin arkasına geçer.
+    const donus = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
+    const ilerigeri = (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0);
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
-    if (hareket.lengthSq() === 0) oyuncu.yuruAcisi = null;
+    oyuncu.yuruAcisi = null;
     // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
-    if (oyuncu.model?.oturuyor && (hareket.lengthSq() > 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
+    if (oyuncu.model?.oturuyor && (donus !== 0 || ilerigeri !== 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
+    // Yürümeye başlayınca ya da başka canavara geçilince açık ganimet kutusu kapanır
+    if (hud.kutuAcik && (donus !== 0 || ilerigeri !== 0 || oyuncu.hedef || (oyuncu.yuruHedef && !acilacakKutu))) hud.ganimetAc(null);
+    if (donus !== 0) {
+      const dh = donus * DIREKSIYON_HIZI * dt;
+      const h = oyuncu.bakisAcisi + dh;
+      oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h)));
+      kamera.aci -= dh;
+    }
 
-    // Basılı yön tuşu sayısı: bir tuş bırakılınca (hâlâ başka tuş basılıyken) yön kilitlenir, yeni tuşa basılana ya da hepsi bırakılana kadar korunur.
-    const tusSayisi = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].filter((k) => tuslar.has(k)).length;
-    if (tusSayisi === 0 || tusSayisi > sonTusSayisi) yonKilidi = null;
-    else if (tusSayisi < sonTusSayisi && yonKilidi === null) yonKilidi = oyuncu.yuruAcisi ?? oyuncu.bakisAcisi;
-    sonTusSayisi = tusSayisi;
-
-    if (hareket.lengthSq() > 0) {
+    if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
-      hareket.normalize();
-      // İstenen yön (kamera yönü (x, -z) → dünya (x, z)); gidiş yönü ona sınırlı hızla döner → yumuşak kavisler.
-      const direksiyon = tuslar.has('KeyW') && tuslar.has('KeyA') !== tuslar.has('KeyD'); // W + A ya da D: tuş basılı kaldıkça sürekli dön
-      const istenen = yonKilidi ?? Math.atan2(-hareket.y, hareket.x);
-      if (direksiyon) oyuncu.yuruAcisi = (oyuncu.yuruAcisi ?? oyuncu.bakisAcisi) + (tuslar.has('KeyA') ? 1 : -1) * DIREKSIYON_HIZI * dt;
-      else oyuncu.yuruAcisi = acıyaYaklas(oyuncu.yuruAcisi ?? oyuncu.bakisAcisi, istenen, YURUME_DONUS_HIZI * dt);
-      let fark = Math.abs(istenen - oyuncu.yuruAcisi) % (Math.PI * 2);
-      if (fark > Math.PI) fark = Math.PI * 2 - fark;
-      const hizCarpani = direksiyon ? 1 : 0.55 + 0.45 * Math.max(0, Math.cos(fark)); // dönerken yavaşlar
-      oyuncu.ilerle(new THREE.Vector2(Math.cos(oyuncu.yuruAcisi), Math.sin(oyuncu.yuruAcisi)), hizAl() * dt * hizCarpani);
+      const h = oyuncu.bakisAcisi;
+      const yon = new THREE.Vector2(Math.cos(h), Math.sin(h));
+      if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), hizAl() * 0.6 * dt);
+      kamera.arkayaHizala(h, dt);
       oyuncu.model?.oynat(hareketAnimi());
+    } else if (donus !== 0 && !oyuncu.hedef) {
+      oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
+      oyuncu.model?.oynat('bekle');
     } else if (oyuncu.hedef) {
       const h = oyuncu.hedef;
       if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) {

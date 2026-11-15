@@ -3,6 +3,7 @@
 //   Üstte HP/MP/EXP çubuğu (re_el_hpbar), altta görev çubuğu (re_el_taskbar_main).
 // Pencere düzenleri ve dokular araclar/arayuz ile oyunun kendi dosyalarından çıkarılır (docs/formatlar/uif.md).
 import { GenelPencereler } from './genelPencereler';
+import { SerbestPencere } from './serbestPencere';
 import { UiPencere } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu } from '../oyun/varliklar';
@@ -57,8 +58,14 @@ export class OyunArayuzu {
   private sohbet!: UiPencere; private bilgi!: UiPencere;
   /** Skill çubuğu (re_el_hotkey, yatay): 8 yuva, 1-8 tuşları; yuvalara skill penceresinden sürükleyip bırakılır. */
   private cubuk!: UiPencere;
-  private cubukBeceri: (number | null)[] = new Array(8).fill(null);
+  /** Skill çubuğu: 8 sayfa × 8 yuva (sunucu en çok 64 kısayol kaydeder). */
+  private cubukBeceri: (number | null)[] = new Array(64).fill(null);
+  private cubukSayfa = 0;
+  private cubukKilitli = false;
   private cubukImza = '';
+  /** Sohbet ve bilgi pencereleri: köşeden büyütme, kenardan taşıma, sağ alttaki toptan kilit. */
+  private sohbetSerbest: SerbestPencere | null = null;
+  private bilgiSerbest: SerbestPencere | null = null;
   /** Oyunun öbür orijinal pencereleri (harita, parti, dost, klan, komutlar…): ad ile açılır. */
   genel!: GenelPencereler;
   /** Skill çubuğu yönü: dikey (varsayılan, ekranın solunda) ya da yatay; çevirme düğmesiyle değişir. */
@@ -112,11 +119,22 @@ export class OyunArayuzu {
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
     this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m) });
+    this.genel.davranis.set('re_el_clan_window', (p) => {
+      this.sekmeSeridi(p, 'klan');
+      // Pencere tasarım örnek verisiyle (Msoft_1098…) geliyor: örnek satırlar ve açılır kutular gizlenir; klan yok (sunucu yok)
+      p.gizleDesen(/^(group_notice|group_memo|group_purge|grp_member_list_[0-4])$/);
+      p.metin('text_clan_name', 'No Clan'); p.metin('text_clan_grade', '-'); p.metin('text_clan_duty', '-');
+      p.metin('text_clan_member_count', 'Total users: 0'); p.metin('text_current_member_count', 'Current Connections: 0 users');
+    });
+    this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
     this.genel.davranis.set('re_exitmenu', (p, kapat) => {
       p.tikla.set('btn_exit', () => { this.b.mesaj('Close this browser tab to leave the game.'); kapat(); });
       p.tikla.set('btn_option', () => { kapat(); void this.genel.ac('re_new_looting_option'); });
       p.tikla.set('btn_cancel', kapat);
     });
+    const topAyari = { doku: 'co_show_icon', w: 512, h: 512, uv: [0.678, 0.178, 0.711, 0.213] as [number, number, number, number] };
+    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari }, () => this.gorevYerlestir());
+    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari }, () => this.gorevYerlestir());
     this.pencereYerlestir(true); this.gorevYerlestir();
     addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
   }
@@ -185,11 +203,17 @@ export class OyunArayuzu {
     const sw = this.sohbet.boyut[0], bw = this.bilgi.boyut[0], cw = 356;
     const hol = Math.min(1, innerWidth / (sw + bw + cw + 24));
     for (const x of [this.sohbet, this.bilgi, this.cubuk]) x.olcekAyarla(hol);
-    this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1] * hol}px`;
-    this.bilgi.el.style.left = `${innerWidth - bw * hol}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1] * hol}px`;
+    this.sohbetSerbest?.olcek(hol); this.bilgiSerbest?.olcek(hol);
+    if (!this.sohbetSerbest?.konumuUygula()) { this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1] * hol}px`; }
+    if (!this.bilgiSerbest?.konumuUygula()) { this.bilgi.el.style.left = `${innerWidth - bw * hol}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1] * hol}px`; }
     // Skill çubuğu: sohbet ile bilgi penceresinin ortasında (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
-    if (this.cubukDikey) { // ekranın solunda, dikey ortada (dikey grup pencere kutusunda +10,+9 kayık)
+    let kayit: number[] | null = null;
+    try { kayit = JSON.parse(localStorage.getItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay') ?? 'null'); } catch { /* kayıt yok */ }
+    if (kayit && kayit.length === 2) { // kullanıcının taşıdığı konum (ekran içinde tutulur)
+      const w = this.cubukKutu();
+      this.cubuk.el.style.left = `${Math.max(0, Math.min(innerWidth - w[0], kayit[0]))}px`; this.cubuk.el.style.top = `${Math.max(0, Math.min(innerHeight - w[1], kayit[1]))}px`;
+    } else if (this.cubukDikey) { // ekranın solunda, dikey ortada (dikey grup pencere kutusunda +10,+9 kayık)
       this.cubuk.el.style.left = `${14 * hol}px`;
       this.cubuk.el.style.top = `${Math.max(40, (innerHeight - 390 * hol) / 2 - 40 * hol) + 9 * hol}px`;
     } else {
@@ -205,6 +229,8 @@ export class OyunArayuzu {
   private ganimetKur(): void {
     const g = this.ganimetPencere;
     g.el.style.display = 'none'; g.el.style.zIndex = '6';
+    // Dört kareli ganimet penceresi: üç sütundan yalnızca ilki (0-3) kalır
+    g.gizleDesen(/^(img_([4-9]|1[01])|[4-9]|1[01])$/); g.el.style.width = '55px';
     g.el.addEventListener('click', (ev) => {
       const el = (ev.target as HTMLElement).closest('.ui-t9') as HTMLElement | null; const k = this.ganimetKutusu; if (!el || !k) return;
       const i = Number(el.dataset.id);
@@ -220,7 +246,7 @@ export class OyunArayuzu {
     this.ganimetKutusu = k; this.ganimetImza = '';
     const g = this.ganimetPencere;
     g.el.style.display = k ? '' : 'none';
-    if (k) { g.el.style.left = `${Math.max(0, (innerWidth - 155) / 2 + 190)}px`; g.el.style.top = `${Math.max(60, innerHeight * 0.3)}px`; }
+    if (k) { g.el.style.left = `${Math.max(0, (innerWidth - 55) / 2 + 190)}px`; g.el.style.top = `${Math.max(60, innerHeight * 0.3)}px`; }
   }
   private ganimetCiz(): void {
     const k = this.ganimetKutusu; if (!k) return;
@@ -229,7 +255,7 @@ export class OyunArayuzu {
     if (imza === this.ganimetImza) return;
     this.ganimetImza = imza;
     const altinVar = k.altin > 0;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 4; i++) {
       const alan = g.alan(String(i)); if (!alan) continue;
       const e = altinVar ? (i === 0 ? null : k.esyalar[i - 1]) : k.esyalar[i];
       const noah = altinVar && i === 0;
@@ -355,13 +381,32 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- skill çubuğu
   private cubukKur(): void {
     const c = this.cubuk;
-    c.gizleDesen(/^(btn_down|btn_up|btn_lock|btn_open|btn_close|strpage\d|img_front2)$/);
+    c.gizleDesen(/^(btn_open|btn_close|img_front2)$/);
+    // Zemin resmi iki ok plakası çiziyor: ikincisi (kilit satırı) gizlenir, yerine gerçek kilit düğmesi görünür
+    for (const e of c.el.querySelectorAll<HTMLElement>('.ui-t4')) if (e.style.top === '349px' && e.style.left === '2px') e.style.display = 'none';
+    for (const id of ['btn_up', 'btn_down']) for (const e of c.bul(id)) for (const dd of e.querySelectorAll<HTMLElement>('.ui-durum')) dd.style.opacity = '0'; // oklar zemin resminde çizili; düğme yalnızca tıklama alanı
+    c.tikla.set('btn_up', () => this.cubukSayfaDegistir(-1)); c.tikla.set('btn_down', () => this.cubukSayfaDegistir(1));
     c.el.style.overflow = 'visible'; c.el.style.zIndex = '5'; c.el.style.pointerEvents = 'none';
     try { this.cubukDikey = localStorage.getItem('ke_skillcubugu_yon') !== 'yatay'; } catch { /* kayıt yok */ }
-    c.tikla.set('btn_change', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
-    this.cubukYonUygula();
-    try { const k = JSON.parse(localStorage.getItem('ke_skillcubugu') ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 8).map((x) => (typeof x === 'number' ? x : null)); } catch { /* kayıt yok */ }
-    if (!this.cubukBeceri.some((x) => x !== null)) this.cubukBeceri = [201001, 201002, 201003, 201005, 201007, 201009, null, null]; // ilk açılışta temel skill'ler sırayla
+    try { this.cubukKilitli = localStorage.getItem('ke_skillcubugu_kilit') === '1'; } catch { /* kayıt yok */ }
+    c.tikla.set('btn_lock', () => { this.cubukKilitli = !this.cubukKilitli; try { localStorage.setItem('ke_skillcubugu_kilit', this.cubukKilitli ? '1' : '0'); } catch { /* depolama kapalı */ } this.cubukKilitGoster(); });
+    // Üstteki top: basılı tutup sürükleyince çubuk taşınır (kilitliyse taşınmaz); çift tıklama yönü (dikey/yatay) değiştirir
+    for (const top of c.bul('btn_change')) {
+      top.style.touchAction = 'none';
+      top.addEventListener('pointerdown', (ev) => {
+        if (this.cubukKilitli || ev.button !== 0) return;
+        const r = c.el.getBoundingClientRect(); const dx = ev.clientX - r.left, dy = ev.clientY - r.top;
+        top.setPointerCapture(ev.pointerId);
+        const tasi = (e2: PointerEvent) => { const w = this.cubukKutu(); c.el.style.left = `${Math.max(0, Math.min(innerWidth - w[0], e2.clientX - dx))}px`; c.el.style.top = `${Math.max(0, Math.min(innerHeight - w[1], e2.clientY - dy))}px`; };
+        const bitir = () => { top.removeEventListener('pointermove', tasi); top.removeEventListener('pointerup', bitir); try { localStorage.setItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay', JSON.stringify([parseFloat(c.el.style.left), parseFloat(c.el.style.top)])); } catch { /* depolama kapalı */ } };
+        top.addEventListener('pointermove', tasi); top.addEventListener('pointerup', bitir);
+      });
+      top.addEventListener('dblclick', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
+    }
+    this.cubukKilitGoster();
+    this.cubukYonUygula(); this.cubukSayfaDegistir(0);
+    try { const k = JSON.parse(localStorage.getItem('ke_skillcubugu') ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
+    if (!this.cubukBeceri.some((x) => x !== null)) this.cubukBeceri = [201001, 201002, 201003, 201005, 201007, 201009, null, null, ...new Array(56).fill(null)]; // ilk açılışta temel skill'ler sırayla
     for (const alan of this.cubukYuvalari()) {
       const i = this.cubukSira(alan);
       alan.style.overflow = 'hidden';
@@ -369,12 +414,12 @@ export class OyunArayuzu {
       Object.assign(bek.style, { position: 'absolute', inset: '0', display: 'none', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', color: '#fff', font: 'bold 14px sans-serif', pointerEvents: 'none' });
       bek.className = 'cubuk-bekleme'; alan.appendChild(bek);
       alan.addEventListener('click', () => this.cubukKullan(i));
-      alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[i] = null; this.cubukKaydet(); });
+      alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[this.cubukSayfa * 8 + i] = null; this.cubukKaydet(); });
       alan.addEventListener('dragover', (e) => e.preventDefault());
       alan.addEventListener('drop', (e) => {
         e.preventDefault();
         const no = Number(e.dataTransfer?.getData('text/plain'));
-        if (this.beceriler.some((b) => b.no === no)) { this.cubukBeceri[i] = no; this.cubukKaydet(); }
+        if (this.beceriler.some((b) => b.no === no)) { this.cubukBeceri[this.cubukSayfa * 8 + i] = no; this.cubukKaydet(); }
       });
     }
   }
@@ -388,13 +433,17 @@ export class OyunArayuzu {
     this.cubuk.goster('Hotkey_vertical', this.cubukDikey); this.cubuk.goster('Hotkey_Horizontal', !this.cubukDikey);
     this.cubuk.el.style.height = this.cubukDikey ? '402px' : '70px';
   }
+  /** Çubuğun ekrandaki (ölçekli) boyutu. */
+  private cubukKutu(): [number, number] { const o = this.cubuk.olcek; return this.cubukDikey ? [74 * o, 393 * o] : [356 * o, 60 * o]; }
+  private cubukSayfaDegistir(d: number): void { this.cubukSayfa = (this.cubukSayfa + d + 8) % 8; this.cubuk.metin('strpage0', this.cubukSayfa + 1); this.cubuk.metin('strpage1', this.cubukSayfa + 1); }
+  private cubukKilitGoster(): void { for (const e of this.cubuk.bul('btn_lock')) { e.style.opacity = this.cubukKilitli ? '1' : '0.55'; e.title = this.cubukKilitli ? 'Locked: the bar cannot be moved' : 'Unlocked: drag the ball to move the bar'; } }
   private cubukKaydet(): void { try { localStorage.setItem('ke_skillcubugu', JSON.stringify(this.cubukBeceri)); } catch { /* depolama kapalı */ } }
-  private cubukKullan(i: number): void { const no = this.cubukBeceri[i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
+  private cubukKullan(i: number): void { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
   private cubukCiz(): void {
     const o = this.b.oyuncu, simdi = performance.now() / 1000;
     for (const alan of this.cubukYuvalari()) {
       const i = this.cubukSira(alan);
-      const no = this.cubukBeceri[i], b = this.beceriler.find((x) => x.no === no);
+      const no = this.cubukBeceri[this.cubukSayfa * 8 + i], b = this.beceriler.find((x) => x.no === no);
       const imza = `${no}|${b && o.seviye >= b.seviye}`;
       if (alan.dataset.imza !== imza) {
         alan.dataset.imza = imza;
@@ -501,8 +550,70 @@ export class OyunArayuzu {
   }
 
   // ---------------------------------------------------------------- karakter durumu (U)
+  // ---------------------------------------------------------------- Character / Clan / Friends sekmeleri
+  /** Pencerenin üstüne (nick satırının üstüne) Character / Clan / Friends sekme şeridi koyar. */
+  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'klan' | 'dost'): void {
+    const sirit = document.createElement('div');
+    Object.assign(sirit.style, { position: 'absolute', left: '0', top: '-24px', display: 'flex', gap: '2px', zIndex: '3' });
+    const adlar: [typeof aktif, string][] = [['durum', 'Character'], ['klan', 'Clan'], ['dost', 'Friends']];
+    for (const [kod, yazi] of adlar) {
+      const b = document.createElement('div'); b.textContent = yazi;
+      Object.assign(b.style, { width: '92px', height: '22px', lineHeight: '20px', textAlign: 'center', font: 'bold 12px Segoe UI, Tahoma, sans-serif', color: kod === aktif ? '#fff2b8' : '#b8a36a', cursor: 'pointer', border: '1px solid #8a7340', borderRadius: '3px 3px 0 0', background: kod === aktif ? 'linear-gradient(#4a4230,#2a2418)' : 'linear-gradient(#262a35,#12151c)', boxSizing: 'border-box', textShadow: '0 1px 1px #000' });
+      b.addEventListener('click', () => { if (kod !== aktif) void this.sekmeGit(kod, p); });
+      sirit.appendChild(b);
+    }
+    p.el.appendChild(sirit);
+  }
+  private static readonly SEKME_PENCERE = { klan: 're_el_clan_window', dost: 're_el_page_friend' } as const;
+  /** Sekme değiştirir: yeni pencere aynı yerde açılır, eskisi kapanır. */
+  private async sekmeGit(hedef: 'durum' | 'klan' | 'dost', kaynak: UiPencere): Promise<void> {
+    const sol = kaynak.el.style.left, ust = kaynak.el.style.top, ol = kaynak.olcek;
+    let yeni: UiPencere | undefined;
+    if (hedef === 'durum') { this.ac('durum', true); yeni = this.pencereler.durum; }
+    else { const ad = OyunArayuzu.SEKME_PENCERE[hedef]; if (!(await this.genel.ac(ad))) return; yeni = this.genel.pencere(ad); }
+    if (yeni) { yeni.olcekAyarla(ol); yeni.el.style.left = sol; yeni.el.style.top = ust; }
+    if (kaynak === this.pencereler.durum) this.ac('durum', false); else this.genel.kapat(kaynak.ad);
+  }
+
+  // ---------------------------------------------------------------- dost listesi (re_el_page_friend)
+  /** Dost listesi şimdilik yereldir (sunucu yok): ad + durum. Renk: partide kırmızı, çevrimiçi yeşil, çevrimdışı gri. */
+  private dostlar: { ad: string; durum: 'parti' | 'cevrimici' | 'cevrimdisi' }[] = [];
+  private dostSecili = -1;
+  private dostBagla(p: UiPencere): void {
+    try { const k = JSON.parse(localStorage.getItem('ke_dostlar') ?? '[]'); if (Array.isArray(k)) this.dostlar = k; } catch { /* kayıt yok */ }
+    const RENK = { parti: '#ff5a5a', cevrimici: '#5adf5a', cevrimdisi: '#9a9a9a' } as const;
+    // Açıklama satırları (Green/Blue/Grey) kullanıcının renk düzenine göre
+    for (const el of p.el.querySelectorAll<HTMLElement>('.ui-yazi')) {
+      const sp = el.querySelector('span'); const m = sp?.textContent ?? '';
+      if (m.startsWith('Green')) el.style.color = RENK.cevrimici;
+      else if (m.startsWith('Blue') && sp) { sp.textContent = 'Red : In a Party'; el.style.color = RENK.parti; }
+      else if (m.startsWith('Grey')) el.style.color = RENK.cevrimdisi;
+    }
+    const ciz = () => {
+      for (let i = 0; i < 11; i++) {
+        const satir = p.alan(`base_friend${i}`); if (!satir) continue;
+        const f = this.dostlar[i];
+        satir.style.pointerEvents = 'auto'; satir.style.cursor = f ? 'pointer' : 'default';
+        satir.style.background = i === this.dostSecili && f ? '#ffffff22' : '';
+        satir.replaceChildren();
+        if (f) { const t = document.createElement('span'); t.textContent = f.ad; Object.assign(t.style, { position: 'absolute', left: '6px', top: '1px', font: 'bold 12px Segoe UI, Tahoma, sans-serif', color: RENK[f.durum], textShadow: '0 1px 1px #000' }); satir.appendChild(t); }
+        satir.onclick = () => { this.dostSecili = i; ciz(); };
+      }
+    };
+    const kaydet = () => { try { localStorage.setItem('ke_dostlar', JSON.stringify(this.dostlar)); } catch { /* depolama kapalı */ } };
+    p.tikla.set('btn_add', () => {
+      const ad = (prompt('Friend name to add:') ?? '').trim().slice(0, 20);
+      if (!ad || this.dostlar.length >= 11 || this.dostlar.some((f) => f.ad.toLowerCase() === ad.toLowerCase())) return;
+      this.dostlar.push({ ad, durum: 'cevrimdisi' }); kaydet(); ciz(); // sunucu olmadığı için herkes çevrimdışı görünür
+    });
+    p.tikla.set('Btn_Delete', () => { if (this.dostSecili >= 0 && this.dostlar[this.dostSecili]) { this.dostlar.splice(this.dostSecili, 1); this.dostSecili = -1; kaydet(); ciz(); } });
+    p.tikla.set('btn_refresh', ciz);
+    ciz();
+  }
+
   private durumKur(): void {
     const p = this.pencereler.durum;
+    this.sekmeSeridi(p, 'durum');
     p.gizleDesen(/^(icon_level_|btn_rebirth_preset|btn_preset|base_perks|Text_HP$|Text_MP$)/); // base_perks: Myko'nun ekstra özellik listesi (şimdilik yok)
     const harca = (ad: 'str' | 'sta' | 'dex' | 'int') => () => {
       if (this.b.oyuncu.statArtir(ad)) { this.b.statDegisti(); this.durumCiz(); }

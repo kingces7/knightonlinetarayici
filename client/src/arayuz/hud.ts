@@ -37,6 +37,8 @@ export class Hud {
   esyaKusan: (i: number) => void = () => {};
   yenidenDog: () => void = () => {};
   private acikKutu: GanimetKutusu | null = null;
+  /** Açık ganimet kutusu var mı? (yürümeye başlayınca ya da hedef değişince kapatılır) */
+  get kutuAcik(): boolean { return this.acikKutu !== null; }
 
   constructor() {
     this.etiketler.className = 'etiketler';
@@ -157,7 +159,7 @@ export class Hud {
     for (const c of canavarlar) {
       let el = this.etiketHaritasi.get(c);
       if (!el) {
-        el = $<HTMLDivElement>(`<div class="etiket"><span></span><div class="mini"><i></i></div></div>`);
+        el = $<HTMLDivElement>(`<div class="etiket"><span></span></div>`);
         el.querySelector('span')!.textContent = c.tur.ad;
         this.etiketler.appendChild(el); this.etiketHaritasi.set(c, el);
       }
@@ -167,7 +169,6 @@ export class Hud {
       if (!goster) continue;
       el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%)`;
       el.classList.toggle('secili', c === hedef);
-      (el.querySelector('i') as HTMLElement).style.width = `${(c.can / c.enCok) * 100}%`;
     }
   }
 }
