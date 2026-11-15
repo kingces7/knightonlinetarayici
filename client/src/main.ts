@@ -10,6 +10,7 @@ import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYakl
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, kurallariYukle, esyalariYukle, ganimetUret, gerekenDeneyim, rastgele } from './oyun/veri';
 import * as savas from './oyun/savas';
+import { Ses } from './oyun/ses';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -60,6 +61,9 @@ async function basla(): Promise<void> {
   await Promise.all([animBilgisiYukle(), esyalariYukle(), kurallariYukle()]);
 
   const hud = new Hud();
+  const ses = new Ses();
+  await ses.yukle();
+  if (ayar.bolge) ses.muzikCal(ayar.bolge);
   const oyuncu = new Oyuncu();
   oyuncu.kurallariUygula();
   oyuncu.baslangicEsyalariVer();
@@ -149,6 +153,7 @@ async function basla(): Promise<void> {
     if (v.tip === 1 && hedef) {
       oyuncu.bak(hedef.konum);
       oyuncu.animKilidi = oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08) || 0.8;
+      ses.modelSesi(oyuncu.modelNo, 'saldir');
       oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
     } else if (v.tip4) {
@@ -226,6 +231,7 @@ async function basla(): Promise<void> {
     if (e.code === 'Escape') { oyuncu.hedef = null; hud.ganimetAc(null); }
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
+    if (!e.repeat && e.code === 'KeyM') hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem');
   });
   addEventListener('keyup', (e) => tuslar.delete(e.code));
 
@@ -278,7 +284,9 @@ async function basla(): Promise<void> {
     oyuncu.model?.guncelle(dt);
     oyuncu.savastanBeri += dt;
     oyuncu.animKilidi = Math.max(0, oyuncu.animKilidi - dt);
+    ses.dinleyici.copy(oyuncu.konum);
     if (oyuncu.olu) return;
+    const oncekiKonum = oyuncu.konum.clone();
     for (const b of oyuncu.buflar.filter((x) => x.bitis <= simdiSn())) hud.mesaj(`${b.ad} has worn off.`, 'sistem');
     oyuncu.buflar = oyuncu.buflar.filter((x) => x.bitis > simdiSn());
     // Yenilenme (savaş dışında hızlı)
@@ -330,6 +338,7 @@ async function basla(): Promise<void> {
           oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
           oyuncu.savastanBeri = 0;
           oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
+          ses.modelSesi(oyuncu.modelNo, 'saldir');
           vurusZamanlayici.push({ kalan: 0.45, hedef: h });
         } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('savun');
       }
@@ -347,7 +356,11 @@ async function basla(): Promise<void> {
     }
     oyuncu.konum.x = THREE.MathUtils.clamp(oyuncu.konum.x, 2, arazi.genislik - 2);
     oyuncu.konum.y = THREE.MathUtils.clamp(oyuncu.konum.y, 2, arazi.genislik - 2);
+    // Adım sesi: koşarken 2 m'de, yürürken 1 m'de bir (adım uzunluğu henüz orijinalden doğrulanmadı)
+    adimMesafe += oyuncu.konum.distanceTo(oncekiKonum);
+    if (adimMesafe >= (kosuyor ? 2 : 1)) { adimMesafe = 0; ses.adim(kosuyor); }
   };
+  let adimMesafe = 0;
 
   const canavarlariGuncelle = (dt: number) => {
     for (let i = vurusZamanlayici.length - 1; i >= 0; i--) {
@@ -360,12 +373,14 @@ async function basla(): Promise<void> {
       if (v.beceri?.tip1) { // skill vuruşu ıskalamaz (sunucu)
         hasar = beceriVurusu(oyuncu.savasVeri, v.hedef.tur, v.beceri.tip1);
         v.hedef.hasarAl(hasar);
+        ses.modelSesi(v.hedef.tur.model, v.hedef.olu ? 'olum' : 'darbe', v.hedef.konum);
         hud.mesaj(`Your ${v.beceri.ad} hits ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
       } else {
         const vurus = oyuncuVurusu(oyuncu.savasVeri, v.hedef.tur); // sunucu formülü (savas.ts)
         if (vurus.sonuc === 'iska') { hud.mesaj(`You missed ${v.hedef.tur.ad}.`, 'bilgi'); continue; }
         hasar = vurus.hasar;
         v.hedef.hasarAl(hasar);
+        ses.modelSesi(v.hedef.tur.model, v.hedef.olu ? 'olum' : 'darbe', v.hedef.konum);
         hud.mesaj(`You hit ${v.hedef.tur.ad} for ${hasar} damage.`, 'bilgi');
       }
       if (v.hedef.olu) {
@@ -376,9 +391,11 @@ async function basla(): Promise<void> {
     for (const c of canavarlar) {
       const saldirdi = c.guncelle(dt, oyuncu);
       const vurus = saldirdi ? canavarVurusu(c.tur, oyuncu.savasVeri) : null; // sunucu formülü (savas.ts)
+      if (saldirdi) ses.modelSesi(c.tur.model, 'saldir', c.konum);
       if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); if (!oyuncu.hedef) oyuncu.hedef = c; }
       if (vurus && vurus.hasar > 0) {
         const net = oyuncu.hasarAl(vurus.hasar);
+        ses.modelSesi(oyuncu.modelNo, oyuncu.olu ? 'olum' : 'darbe');
         kalk(); // hasar alınca ayağa kalkılır
         hud.mesaj(`${c.tur.ad} hits you for ${net} damage.`, 'hasar');
         if (oyuncu.olu) { hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null; }
@@ -428,7 +445,7 @@ async function basla(): Promise<void> {
     hud.npcEtiketGuncelle(npcler, izdusum);
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

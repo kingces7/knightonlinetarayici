@@ -91,7 +91,8 @@ Bilinmeyenler (bulunca işaretle):
 - [x] Canavarların gerçek yerleşimi (Moradon): bkz. yukarıda. Diğer haritalar için `canavar-disa-aktar.ps1 -Bolge N -Harita ad` çalıştırılır.
 - [ ] Kuşanılan eşyanın karakter üzerinde görünmesi (`.n3cplug`, `.n3cpart` değişimi)
 - [ ] Skill'ler, iksirler, NPC'ler, mağaza
-- [ ] Gökyüzü (`.n3sky`), efektler (`.fxb`), sesler (`.ogg`), su
+- [x] Sesler: karakter/canavar saldırı-darbe-ölüm sesleri (NPC_Looks sütun 23-27 → sound.tbl), oyuncu adım sesleri (Move_Sound), bölge müziği (`Snd/21_moradon.ogg`), M tuşu ile kapat/aç — `araclar/oyun/ses.ts` (`npm run ses`), `client/src/oyun/ses.ts`. Kalan: yürüme sesi canavar/NPC için, zemin türüne göre adım, skill/eşya/arayüz sesleri, NPC sesleri, adım aralığı (orijinal değer bilinmiyor).
+- [ ] Gökyüzü (`.n3sky`), efektler (`.fxb`), su
 - [x] Oyunun orijinal arayüzü: HP çubuğu, görev çubuğu, durum (U), skill (K), envanter (I) pencereleri oyunun kendi UIF/doku dosyalarından ([formatlar/uif.md](formatlar/uif.md)). Kalanlar: "Eksikler ve sonraki işler".
 - [ ] Performans: dokuların sıkıştırılması (KTX2), uzak nesnelerin sadeleştirilmesi, büyük haritaların parça parça yüklenmesi
 
