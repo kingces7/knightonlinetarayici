@@ -14,7 +14,6 @@ export const HARITALAR: Record<string, HaritaAyari> = {
   moradon: { baslangic: [815, 440], canavar: false, bolge: 21 },
   // Sunucu NPC dizilimi, başlangıç noktası (START_POSITION1098 bölge 21 = 264, 302) ve kapılar bu haritaya uyuyor.
   '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21 },
-  new_runawar: { baslangic: null, canavar: true },
 };
 
 export const VARSAYILAN_AYAR: HaritaAyari = { baslangic: null, canavar: true };

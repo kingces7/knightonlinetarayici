@@ -39,6 +39,8 @@ export interface ArayuzBaglami {
   durum: () => { oturuyor: boolean; kosuyor: boolean };
 }
 
+/** Eşya simgeleri 64×64 dokunun sol üst 45×45'ine çizilir; yuvayı tam doldurmak için büyütülür. */
+const ESYA_SIMGE = '142.22% 142.22%';
 type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza' | 'depo';
 
 export class OyunArayuzu {
@@ -49,6 +51,8 @@ export class OyunArayuzu {
   private cubuk!: UiPencere;
   private cubukBeceri: (number | null)[] = new Array(8).fill(null);
   private cubukImza = '';
+  /** Skill çubuğu yönü: dikey (varsayılan, ekranın solunda) ya da yatay; çevirme düğmesiyle değişir. */
+  private cubukDikey = true;
   private onizleme: KarakterOnizleme | null = null;
   /** Hedef çerçevesi (re_target_framebar): seçili canavarın adı ve canı; renk çubuğu seviye farkına göre. */
   private hedefCubugu!: UiPencere;
@@ -167,8 +171,13 @@ export class OyunArayuzu {
     this.bilgi.el.style.left = `${innerWidth - bw * hol}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1] * hol}px`;
     // Skill çubuğu: sohbet ile bilgi penceresinin ortasında (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
-    this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
-    this.cubuk.el.style.top = `${ust - 62 * hol}px`;
+    if (this.cubukDikey) { // ekranın solunda, dikey ortada (dikey grup pencere kutusunda +10,+9 kayık)
+      this.cubuk.el.style.left = `${14 * hol}px`;
+      this.cubuk.el.style.top = `${Math.max(40, (innerHeight - 390 * hol) / 2 - 40 * hol) + 9 * hol}px`;
+    } else {
+      this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
+      this.cubuk.el.style.top = `${ust - 62 * hol}px`;
+    }
     // Hedef çerçevesi: üstte ortada
     this.hedefCubugu.olcekAyarla(hol);
     this.hedefCubugu.el.style.left = `${Math.max(350 * hol, (innerWidth - 353 * hol) / 2)}px`; this.hedefCubugu.el.style.top = `${4 * hol}px`;
@@ -207,7 +216,7 @@ export class OyunArayuzu {
       const e = altinVar ? (i === 0 ? null : k.esyalar[i - 1]) : k.esyalar[i];
       const noah = altinVar && i === 0;
       alan.style.backgroundImage = noah ? 'radial-gradient(circle at 35% 30%, #fff2a8, #d4a640 55%, #7a5a14)' : e?.simge ? `url(${e.simge})` : '';
-      alan.style.backgroundSize = noah ? '60% 60%' : '100% 100%'; alan.style.backgroundPosition = 'center';
+      alan.style.backgroundSize = noah ? '60% 60%' : ESYA_SIMGE; alan.style.backgroundPosition = noah ? 'center' : '0 0';
       alan.style.cursor = noah || e ? 'pointer' : 'default';
       alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; alan.onmouseleave = () => this.b.ipucuGizle();
       g.metin(String(i), noah ? k.altin.toLocaleString('en-US') : '');
@@ -271,7 +280,7 @@ export class OyunArayuzu {
     if (imza === this.depoImza) return;
     this.depoImza = imza;
     const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => {
-      el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = '100% 100%';
+      el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; el.onmouseleave = () => this.b.ipucuGizle();
     };
     this.depoUst().forEach((el, i) => yuvaCiz(el, o.depo[this.depoSayfa * 24 + i] ?? null));
@@ -314,7 +323,7 @@ export class OyunArayuzu {
       const alan = p.alan(`a${i}`); if (!alan) continue;
       const e = sayfa[i] ?? null;
       alan.style.backgroundImage = e?.simge ? `url(${e.simge})` : '';
-      alan.style.backgroundSize = '100% 100%';
+      alan.style.backgroundSize = ESYA_SIMGE; alan.style.backgroundPosition = '0 0';
       alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
       alan.onmouseleave = () => this.b.ipucuGizle();
       alan.style.opacity = e && o.altin < e.fiyat ? '0.55' : '1';
@@ -328,12 +337,15 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- skill çubuğu
   private cubukKur(): void {
     const c = this.cubuk;
-    c.gizleDesen(/^(Hotkey_vertical|btn_down|btn_up|btn_lock|btn_open|btn_close|btn_change|strpage\d|img_front2)$/);
-    c.el.style.height = '70px'; c.el.style.overflow = 'visible'; c.el.style.zIndex = '5';
+    c.gizleDesen(/^(btn_down|btn_up|btn_lock|btn_open|btn_close|strpage\d|img_front2)$/);
+    c.el.style.overflow = 'visible'; c.el.style.zIndex = '5'; c.el.style.pointerEvents = 'none';
+    try { this.cubukDikey = localStorage.getItem('ke_skillcubugu_yon') !== 'yatay'; } catch { /* kayıt yok */ }
+    c.tikla.set('btn_change', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
+    this.cubukYonUygula();
     try { const k = JSON.parse(localStorage.getItem('ke_skillcubugu') ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 8).map((x) => (typeof x === 'number' ? x : null)); } catch { /* kayıt yok */ }
     if (!this.cubukBeceri.some((x) => x !== null)) this.cubukBeceri = [201001, 201002, 201003, 201005, 201007, 201009, null, null]; // ilk açılışta temel skill'ler sırayla
-    for (let i = 0; i < 8; i++) {
-      const alan = c.alan(String(10 + i)); if (!alan) continue;
+    for (const alan of this.cubukYuvalari()) {
+      const i = this.cubukSira(alan);
       alan.style.overflow = 'hidden';
       const bek = document.createElement('div');
       Object.assign(bek.style, { position: 'absolute', inset: '0', display: 'none', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', color: '#fff', font: 'bold 14px sans-serif', pointerEvents: 'none' });
@@ -348,12 +360,22 @@ export class OyunArayuzu {
       });
     }
   }
+  /** Çubuktaki 16 yuva: yatay 10..17, dikey 0..7 (orijinal arayüzde iki ayrı grup). */
+  private cubukYuvalari(): HTMLElement[] {
+    const yuva = (id: string) => this.cubuk.bul(id).filter((e) => e.classList.contains('ui-t9'));
+    return [0, 1, 2, 3, 4, 5, 6, 7].flatMap((i) => [...yuva(String(10 + i)), ...yuva(String(i))]);
+  }
+  private cubukSira(alan: HTMLElement): number { const n = Number(alan.dataset.id); return n >= 10 ? n - 10 : n; }
+  private cubukYonUygula(): void {
+    this.cubuk.goster('Hotkey_vertical', this.cubukDikey); this.cubuk.goster('Hotkey_Horizontal', !this.cubukDikey);
+    this.cubuk.el.style.height = this.cubukDikey ? '402px' : '70px';
+  }
   private cubukKaydet(): void { try { localStorage.setItem('ke_skillcubugu', JSON.stringify(this.cubukBeceri)); } catch { /* depolama kapalı */ } }
   private cubukKullan(i: number): void { const no = this.cubukBeceri[i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
   private cubukCiz(): void {
     const o = this.b.oyuncu, simdi = performance.now() / 1000;
-    for (let i = 0; i < 8; i++) {
-      const alan = this.cubuk.alan(String(10 + i)); if (!alan) continue;
+    for (const alan of this.cubukYuvalari()) {
+      const i = this.cubukSira(alan);
       const no = this.cubukBeceri[i], b = this.beceriler.find((x) => x.no === no);
       const imza = `${no}|${b && o.seviye >= b.seviye}`;
       if (alan.dataset.imza !== imza) {
@@ -415,6 +437,7 @@ export class OyunArayuzu {
     const p = this.bilgi;
     p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|img_sizechange|scroll)/);
     this.satirKabi(p.alan('text_message'), 12);
+    p.el.style.zIndex = '1'; this.sohbet.el.style.zIndex = '1'; // pencerelerin (z ≥ 11) altında kalsın
   }
 
   /** Sohbet penceresine satır ekler. */
@@ -556,7 +579,7 @@ export class OyunArayuzu {
     this.sonEnvanterImza = imza;
     const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null, tikla?: () => void) => {
       el.style.backgroundImage = e ? `url(${e.simge})` : '';
-      el.style.backgroundSize = '100% 100%';
+      el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
       el.onmouseleave = () => this.b.ipucuGizle();
       el.onclick = tikla ?? null;
@@ -589,6 +612,6 @@ export class OyunArayuzu {
     this.hedefCiz(); this.ganimetCiz();
     if (this.acik.has('magaza')) this.magazaCiz();
     if (this.acik.has('depo')) this.depoCiz();
-    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0); }
+    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, this.b.oyuncu.ekipman); }
   }
 }

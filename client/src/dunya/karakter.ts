@@ -53,6 +53,21 @@ export class KarakterModeli {
 
   var(ad: string): boolean { return this.klipler.has(ad); }
 
+  /** Ekipman yuvası → gövde parçası (modelde `parca_<ad>_giyili` ve `parca_<ad>_ciplak` düğümleri bulunur). */
+  private static readonly GIYIM_YUVALARI: [string, number][] = [['bas', 1], ['govde', 4], ['bacak', 10], ['el', 12], ['ayak', 13]];
+  private giyimImzasi = '';
+  /** Giyilen eşyaya göre parçaları açar/kapatır: yuvada eşya varsa giyili parça, yoksa çıplak parça görünür. */
+  giyimAyarla(ekipman: ({ no: number } | null)[]): void {
+    const imza = KarakterModeli.GIYIM_YUVALARI.map(([, y]) => (ekipman[y] ? 1 : 0)).join('');
+    if (imza === this.giyimImzasi) return;
+    this.giyimImzasi = imza;
+    const giyili = new Map(KarakterModeli.GIYIM_YUVALARI.map(([ad, y]) => [ad, !!ekipman[y]]));
+    this.kok.traverse((o) => {
+      const m = /^parca_([a-z]+)_(giyili|ciplak)$/.exec(o.name); if (!m) return;
+      o.visible = (m[2] === 'giyili') === giyili.get(m[1]);
+    });
+  }
+
   // ---- Elde taşınan eşyalar (.n3cplug → /silah/<eşya no>.glb): ilgili el kemiğine takılır.
   private plugler = new Map<string, { no: number; nesne: THREE.Object3D; kemik: THREE.Object3D }>();
   private kemikBul(i: number): THREE.Object3D | null {

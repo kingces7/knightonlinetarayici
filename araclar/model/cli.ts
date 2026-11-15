@@ -42,7 +42,15 @@ function main(argv: string[]): number {
       const t = gorunum.get(Number(temelNo));
       if (!t) { console.log(`! ${a}: temel görünüm ${temelNo} yok`); continue; }
       const ad = `${adlar.get(Number(temelNo)) ?? 'npc_' + temelNo}_${path.basename(chr, path.extname(chr))}`;
-      const { glb, rapor } = karakterGlb(od, { ad, iskelet: String(t[2]), animasyon: String(t[3]), parcalar: chrOku(od.oku(chr)).parcalar });
+      // Sonuna "+ciplak" eklenirse giyili parçalar (10 gövde,20 bacak,30 baş,40 eller,50 ayaklar) etiketlenir ve çıplak parçalar da eklenir (istemci eşyaya göre açıp kapatır)
+      const ciplak = chr.endsWith('+ciplak'); const chrYol = (ciplak ? chr.slice(0, -7) : chr);
+      let parcalar = chrOku(od.oku(chrYol)).parcalar; let etiketler: (string | null)[] | undefined;
+      if (ciplak) {
+        const E: Record<string, string> = { '10': 'govde', '20': 'bacak', '30': 'bas', '40': 'el', '50': 'ayak' };
+        etiketler = parcalar.map((p) => { const m = /_(10|20|30|40|50)_/.exec(p); return m ? `${E[m[1]]}_giyili` : null; });
+        for (const [e, p] of [['govde', 'upper'], ['bacak', 'lower'], ['el', 'hands'], ['ayak', 'feet'], ['bas', 'hair00']] as const) { parcalar = [...parcalar, `item/upc_el_rm_${p}.n3cpart`]; etiketler.push(`${e}_ciplak`); }
+      }
+      const { glb, rapor } = karakterGlb(od, { ad, iskelet: String(t[2]), animasyon: String(t[3]), parcalar, etiketler });
       fs.writeFileSync(path.join(hedef, `${yeniNo}.glb`), glb);
       dizin[yeniNo] = { ad, dosya: `${yeniNo}.glb`, animasyonlar: rapor.animBilgi };
       console.log(`${yeniNo} ${ad}: ${rapor.kemik} kemik, ${rapor.parca} parça, ${rapor.animasyonlar.length} animasyon, ${(rapor.boyut / 1024).toFixed(0)} KB`);

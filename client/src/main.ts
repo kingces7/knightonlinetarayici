@@ -16,7 +16,7 @@ import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
 const parametre = new URLSearchParams(location.search);
-const HARITA = parametre.get('harita') ?? 'new_runawar';
+const HARITA = parametre.get('harita') ?? '14th_oldmoradon';
 const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
 const SALDIRI_MENZILI = 2.6;
@@ -315,6 +315,7 @@ async function basla(): Promise<void> {
     oyuncu.animKilidi = Math.max(0, oyuncu.animKilidi - dt);
     ses.dinleyici.copy(oyuncu.konum);
     // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
+    oyuncu.model?.giyimAyarla(oyuncu.ekipman);
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
     void oyuncu.model?.plugTak('sol', oyuncu.ekipman[8]?.no ?? 0);
     if (oyuncu.olu) return;

@@ -78,7 +78,8 @@ function baglanmaPozu(e: Eklem): { konum: [number, number, number]; donus: [numb
   return { konum: (k ?? e.konum) as [number, number, number], donus: (d ?? e.donus) as [number, number, number, number], olcek: (o ?? e.olcek) as [number, number, number] };
 }
 
-export interface KarakterTanimi { ad: string; iskelet: string; animasyon: string; parcalar: string[] }
+/** `etiketler` (parcalar ile aynı sırada) verilirse etiketli parçalar ayrı düğümler (`parca_<etiket>`) olur; istemci bunları açıp kapatır (giyili/çıplak). */
+export interface KarakterTanimi { ad: string; iskelet: string; animasyon: string; parcalar: string[]; etiketler?: (string | null)[] }
 export interface KarakterRaporu {
   kemik: number; parca: number; animasyonlar: string[]; boyut: number;
   animBilgi: Record<string, { hiz: number; vurus: number | null; sure: number }>;
@@ -109,7 +110,8 @@ export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer
 
   // Deri parçaları
   const primitifler = [];
-  for (const p of t.parcalar) {
+  const ayri: { etiket: string; mesh: number }[] = [];
+  for (const [pi, p] of t.parcalar.entries()) {
     if (!p || !od.var(p)) continue;
     try {
       const parca = parcaOku(od.oku(p));
@@ -118,12 +120,15 @@ export function karakterGlb(od: OyunDosyalari, t: KarakterTanimi): { glb: Buffer
       const doku = dokuPng(od, parca.doku);
       const mz = g.malzeme(parca.doku, doku?.png ?? null, doku?.alfa === 'BLEND' ? 'MASK' : doku?.alfa ?? 'OPAQUE', doku ? doku.alfa !== 'OPAQUE' : false);
       for (let i = 0; i < d.kemik.length; i++) if (d.kemik[i] >= eklemler.length) d.kemik[i] = 0;
-      primitifler.push({ konum: d.konum, normal: d.normal, uv: d.uv, indeks: d.indeks, malzeme: mz, kemikler: d.kemik, agirliklar: d.agirlik });
+      const prim = { konum: d.konum, normal: d.normal, uv: d.uv, indeks: d.indeks, malzeme: mz, kemikler: d.kemik, agirliklar: d.agirlik };
+      const etiket = t.etiketler?.[pi];
+      if (etiket) ayri.push({ etiket, mesh: g.mesh(`${t.ad}_${etiket}`, [prim] as never) }); else primitifler.push(prim);
     } catch (e) { console.log(`  uyarı: ${p}: ${(e as Error).message}`); }
   }
   const mesh = g.mesh(t.ad, primitifler);
   const govde = g.dugum({ ad: t.ad + '_govde', mesh, skin: 0 });
-  g.dugum({ ad: t.ad, cocuklar: [kokNo, govde] }, true);
+  const ayriDugumler = ayri.map((a) => g.dugum({ ad: `parca_${a.etiket}`, mesh: a.mesh, skin: 0 }));
+  g.dugum({ ad: t.ad, cocuklar: [kokNo, govde, ...ayriDugumler] }, true);
 
   // Animasyonlar: her kayıt eklem anahtarlarından bir zaman aralığı keser
   const animlar = od.var(t.animasyon) ? animOku(od.oku(t.animasyon)) : [];

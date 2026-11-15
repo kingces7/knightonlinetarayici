@@ -43,7 +43,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .liste .satir:hover { background: #ffffff14; }
 .dugme { margin-top: 8px; width: 100%; padding: 6px; background: linear-gradient(#5a4a22, #3a2f14); color: #f5e3b0; border: 1px solid #8a7340; border-radius: 3px; cursor: pointer; }
 .dugme:hover { filter: brightness(1.2); }
-.ipucu { padding: 8px 10px; max-width: 260px; pointer-events: none !important; }
+.ipucu { padding: 8px 10px; max-width: 260px; pointer-events: none !important; z-index: 2147483000; background: linear-gradient(#1b1f27, #0f1217); }
 .ipucu .st { color: #9fe39f; } .ipucu .ac { color: #bbb; font-size: 12px; margin: 4px 0; } .ipucu .fi { color: #ffd76b; font-size: 12px; }
 
 .olum { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #400a0a88; font-size: 32px; color: #ffb3a7; text-shadow: 0 2px 8px #000; pointer-events: auto; }
