@@ -39,9 +39,10 @@ export class KarakterOnizleme {
     } catch (e) { console.warn('Karakter önizlemesi yüklenemedi', e); }
   }
 
-  /** Her kare (envanter açıkken) çağrılır. */
-  ciz(dt: number): void {
+  /** Her kare (envanter açıkken) çağrılır; silah/kalkan numaraları verilirse ele takılır. */
+  ciz(dt: number, silah = 0, kalkan = 0): void {
     if (!this.model) return;
+    void this.model.plugTak('sag', silah); void this.model.plugTak('sol', kalkan);
     this.model.guncelle(dt);
     this.model.kok.rotation.y = this.donus;
     this.cizici.render(this.sahne, this.kamera);

@@ -158,3 +158,10 @@ Kareler 30 kare/sn birimindedir. Kayıt sırası her modelde aynı:
 ## Koordinatlar
 Knight Online sol elli (D3D): x doğu, y yukarı, z kuzey. glTF/Three.js sağ elli → z ekseni ters çevrilir
 (konum z → -z, dörtey (x,y,z,w) → (-x,-y,z,w), üçgen sırası ters). Modeller sahnede -z yönüne bakar.
+
+## `.n3cplug` (eşya modeli: silah vb.)
+```
+metin ad, int32 tür (0), int32 eklem (iskelet ön-sıra numarası; 12 = sağ el ucu, 7 = sol el ucu), vec3 konum,
+4×4 matris (satır vektör: ilk 3 satır yönelim), malzeme renkleri…, metin .n3pmesh yolu, metin .dxt yolu, …
+```
+Eşya → dosya: eşya tablosu (`Item_Org_us.tbl`) sütun 7 (8 hane) → `item/A_BBBB_CC_D.n3cplug`. Okuyucu: `araclar/oyun/silahlar.ts` (`plugOku`, `matrisDordey`). Doğrulama: Raptor eklem 12'ye takılınca elde doğru duruyor (görsel).

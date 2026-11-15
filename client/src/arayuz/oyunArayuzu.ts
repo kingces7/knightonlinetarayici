@@ -413,6 +413,6 @@ export class OyunArayuzu {
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
-    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt); }
+    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0); }
   }
 }

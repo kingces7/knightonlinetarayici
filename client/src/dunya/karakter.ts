@@ -12,6 +12,12 @@ export async function animBilgisiYukle(): Promise<void> {
   try { animBilgisi = await (await fetch('/karakter/karakterler.json')).json(); } catch { animBilgisi = {}; }
 }
 
+/** silah.json: eşya numarası → takılacak eklem (iskelet ön-sıra numarası; 12 sağ el, 7 sol el). araclar: npm run silahlar */
+let silahBilgisi: Record<string, { eklem: number }> = {};
+export async function silahBilgisiYukle(): Promise<void> {
+  try { silahBilgisi = await (await fetch('/silah/silah.json')).json(); } catch { silahBilgisi = {}; }
+}
+
 function yukle(url: string): Promise<GLTF> {
   let p = onbellek.get(url);
   if (!p) { p = new GLTFLoader().loadAsync(url); onbellek.set(url, p); }
@@ -46,6 +52,30 @@ export class KarakterModeli {
   }
 
   var(ad: string): boolean { return this.klipler.has(ad); }
+
+  // ---- Elde taşınan eşyalar (.n3cplug → /silah/<eşya no>.glb): ilgili el kemiğine takılır.
+  private plugler = new Map<string, { no: number; nesne: THREE.Object3D; kemik: THREE.Object3D }>();
+  private kemikBul(i: number): THREE.Object3D | null {
+    let sonuc: THREE.Object3D | null = null;
+    this.kok.traverse((o) => { const m = o as THREE.SkinnedMesh; if (!sonuc && m.isSkinnedMesh && m.skeleton.bones[i]) sonuc = m.skeleton.bones[i]; });
+    return sonuc;
+  }
+  /** `yuva` ('sag' | 'sol') için eşya modelini takar; no = 0 ya da modeli yoksa kaldırır. */
+  async plugTak(yuva: string, no: number): Promise<void> {
+    const eski = this.plugler.get(yuva);
+    if (eski?.no === no) return;
+    if (eski) { eski.kemik.remove(eski.nesne); this.plugler.delete(yuva); }
+    const bilgi = no ? silahBilgisi[String(no)] : undefined;
+    if (!bilgi) return;
+    const kemik = this.kemikBul(bilgi.eklem); if (!kemik) return;
+    try {
+      const g = await yukle(`/silah/${no}.glb`);
+      if (this.plugler.get(yuva)) return; // bu arada başka bir istek takmış
+      const nesne = g.scene.clone(true);
+      kemik.add(nesne);
+      this.plugler.set(yuva, { no, nesne, kemik });
+    } catch { /* model yoksa elde bir şey görünmez */ }
+  }
 
   /** Özgün adı olmayan modellerde (oyuncu iskeleti) saldırı animasyonları silah türüne göre adlandırılmıştır; şimdilik kılıç (sword0). */
   private static readonly YEDEK_AD: Record<string, string> = { saldir0: '33_attack_sword0_A', saldir1: '34_attack_sword0_B' };

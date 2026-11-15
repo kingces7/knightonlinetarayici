@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Arazi } from './dunya/arazi';
 import { nesneleriYukle } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
-import { animBilgisiYukle } from './dunya/karakter';
+import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
@@ -58,7 +58,7 @@ async function basla(): Promise<void> {
   durum('Loading objects…');
   try { sahne.add(await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`)); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
-  await Promise.all([animBilgisiYukle(), esyalariYukle(), kurallariYukle()]);
+  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle()]);
 
   const hud = new Hud();
   const ses = new Ses();
@@ -285,6 +285,9 @@ async function basla(): Promise<void> {
     oyuncu.savastanBeri += dt;
     oyuncu.animKilidi = Math.max(0, oyuncu.animKilidi - dt);
     ses.dinleyici.copy(oyuncu.konum);
+    // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
+    void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
+    void oyuncu.model?.plugTak('sol', oyuncu.ekipman[8]?.no ?? 0);
     if (oyuncu.olu) return;
     const oncekiKonum = oyuncu.konum.clone();
     for (const b of oyuncu.buflar.filter((x) => x.bitis <= simdiSn())) hud.mesaj(`${b.ad} has worn off.`, 'sistem');
