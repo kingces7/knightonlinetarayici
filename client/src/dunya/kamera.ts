@@ -43,7 +43,14 @@ export class TakipKamerasi {
   /** Kameranın yatay bakış yönü (WASD için). */
   ileriYon(): THREE.Vector2 { return new THREE.Vector2(-Math.sin(this.aci), -Math.cos(this.aci)); }
 
-  guncelle(hedef: THREE.Vector3, zeminYuksekligi: (x: number, zSahne: number) => number, dt = 1 / 60): void {
+  /** Duvar/tavan çarpışması: 1 = engel yok; küçüldükçe kamera oyuncuya yaklaşır. Engelden hemen çıkmak değil, yavaşça açılmak için yumuşatılır. */
+  private acikluk = 1;
+  private static readonly ENGEL_PAYI = 0.35; // kamera duvardan en az bu kadar (m) önde durur
+
+  /**
+   * @param engel (başlangıç → kamera) doğru parçası (sahne koordinatı) ilk engelle hangi oranda (0..1) kesişiyor; yoksa null.
+   */
+  guncelle(hedef: THREE.Vector3, zeminYuksekligi: (x: number, zSahne: number) => number, dt = 1 / 60, engel?: (a: THREE.Vector3, b: THREE.Vector3) => number | null): void {
     if (this.donusHedefi !== null) {
       this.donusGecen += dt / TakipKamerasi.DONUS_SURESI;
       const t = Math.min(1, this.donusGecen), e = t * t * (3 - 2 * t); // yumuşak başla, yumuşak dur
@@ -56,9 +63,24 @@ export class TakipKamerasi {
       hedef.y + 1.6 + Math.sin(this.egim) * this.uzaklik,
       hedef.z + Math.cos(this.aci) * yatay,
     );
+    const bas = new THREE.Vector3(hedef.x, hedef.y + 1.6, hedef.z);
+    if (engel) {
+      const boy = bas.distanceTo(k);
+      const t = engel(bas, k);
+      const hedefAciklik = t === null ? 1 : Math.max(0.04, t - TakipKamerasi.ENGEL_PAYI / Math.max(boy, 0.001));
+      // Engele girmeden önce anında yaklaş; engel kalkınca yavaşça uzaklaş (titreme olmasın)
+      this.acikluk = hedefAciklik < this.acikluk ? hedefAciklik : Math.min(hedefAciklik, this.acikluk + (hedefAciklik - this.acikluk) * Math.min(1, dt * 4));
+      k.lerpVectors(bas, k, this.acikluk);
+    }
     k.y = Math.max(k.y, zeminYuksekligi(k.x, k.z) + 1.0); // kamera yerin altına girmesin
     this.kamera.position.copy(k);
     this.kamera.lookAt(hedef.x, hedef.y + 1.6, hedef.z);
+  }
+
+  /** Oyunun varsayılan kamera ayarı (Data/DefaultCamera.N3Camera → /oyun/kamera.json): görüş açısı (rad), yakın ve uzak düzlem. */
+  ayarUygula(a: { fov: number; yakin: number; uzak: number }): void {
+    this.kamera.fov = (a.fov * 180) / Math.PI; this.kamera.near = a.yakin; this.kamera.far = a.uzak;
+    this.kamera.updateProjectionMatrix();
   }
 
   boyutlandir(g: number, y: number): void { this.kamera.aspect = g / y; this.kamera.updateProjectionMatrix(); }

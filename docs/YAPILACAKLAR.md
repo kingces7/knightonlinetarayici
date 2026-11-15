@@ -22,7 +22,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [ ] Moradon şehir dışı canavarları: K_NPCPOS1098 bölge 21'de ~90 canavar kaydı (Bandicoot, Kecoon, Bulcan, Werewolf…) gerçek değerlerle (K_NPC) eklenecek.
 - [ ] Zemin geçişlerinin birebir karışım kuralı bilinmiyor (şimdi: renk haritası + parlaklığa göre karo katmanları).
 - [ ] Işınlanma kapıları (Delos, Luferson Castle, El Morad Castle…) okunuyor ama işlevsiz; kapı/kol nesne olayları kullanılmıyor.
-- [ ] Kamera binaların/duvarların içinden geçebiliyor.
+- [x] Kamera duvar/tavan çarpışması: kamera ile oyuncu başı arasındaki doğru parçası sunucu `.smd` üçgenleriyle kesiştirilir; engelde kamera anında yaklaşır, engel kalkınca yavaşça açılır (`Carpisma.dogruKesisimi`, kontrol: `client/scripts/kameraduvar.mjs`). Görünmez çarpışma yüzeyleri varsa kamera beklenmedik yaklaşabilir.
 
 **Hareket ve karakter (2026-11-14, ikinci oturum)**
 - [x] **Oyuncu görünümü:** `upc_el_rm` iskeleti artık çalışıyor (sorun: bağlanma pozu 0. anahtar karesi olmalıydı — [formatlar/model.md](formatlar/model.md)); oyuncu modeli 31137 (155 animasyon). Kalan: oyuncu zırhı/silahı seçimi (look/Complete setleri), silah türüne göre saldırı/bekleme animasyonları (şimdilik kılıç: `attack_sword0_A/B`), `.n3cplug` ile silah gösterimi.
@@ -74,7 +74,7 @@ Bilinmeyenler (bulunca işaretle):
 - [x] Karar: yeni karakter **0 serbest statü puanıyla** başlar (sunucu NewChrValue 10 puan verir; kullanıcı kararıyla kaldırıldı). Seviye atlayınca 3 puan (60'tan sonra 5).
 - [x] W+A / W+D basılıyken 360° sürekli dönüş (direksiyon); tuş bırakılınca yön korunur.
 - [x] Envanterde karakter alanında animasyonlu oyuncu önizlemesi (sürükleyerek döner). Kalan: giyilen eşyaların önizlemede görünmesi.
-- [ ] `Data/DefaultCamera.N3Camera` (453 bayt) ve `Zones/Camera/*.n3camera` okuyucusu: kamera ayarlarını orijinalden al.
+- [x] `Data/DefaultCamera.N3Camera` okundu (`npm run kamera`, testli): göz (15,5,−15), bakış (0,0,0), görüş açısı tam 55°, yakın 0,7, uzak 512. İstemci görüş açısı/yakın/uzak düzlemi ve sis bitişini bundan alır. `Zones/Camera/*.n3camera` dosyalarının kullanımı (bölgeye özel kamera) bilinmiyor.
 - [ ] **Yöntem 3** (paket açma + tersine mühendislik) — yalnızca gerekirse, kullanıcıya sorarak
 
 ---

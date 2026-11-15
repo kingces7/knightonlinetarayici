@@ -125,7 +125,9 @@ export class OyunArayuzu {
     this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1]}px`;
     this.bilgi.el.style.left = `${Math.max(this.sohbet.boyut[0] + 8, innerWidth - this.bilgi.boyut[0])}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1]}px`;
     // Skill çubuğu görev çubuğunun üstünde ortada (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
-    this.cubuk.el.style.left = `${Math.max(this.sohbet.boyut[0], (innerWidth - 356) / 2 + 10)}px`; // sohbet kutusuna binmesin this.cubuk.el.style.top = `${ust - 62}px`;
+    // sohbet kutusuna binmesin
+    this.cubuk.el.style.left = `${Math.max(this.sohbet.boyut[0], (innerWidth - 356) / 2 + 10)}px`;
+    this.cubuk.el.style.top = `${ust - 62}px`;
   }
 
   // ---------------------------------------------------------------- skill çubuğu

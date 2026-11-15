@@ -21,7 +21,8 @@
     "arayuz": "node arayuz/cli.ts",
     "beceriler": "node oyun/beceriler.ts",
     "oyuncu": "node oyun/oyuncu.ts",
-    "kontrol": "tsc --noEmit"
+    "kontrol": "tsc --noEmit",
+    "kamera": "node oyun/kamera.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

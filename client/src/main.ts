@@ -92,6 +92,11 @@ async function basla(): Promise<void> {
   } catch { /* bu haritada NPC verisi yok */ }
 
   const kamera = new TakipKamerasi(tuval);
+  // Orijinal kamera ayarı (Data/DefaultCamera.N3Camera): 55° görüş açısı, yakın 0,7, uzak 512; sis de uzak düzlemde biter.
+  try {
+    const ka = await (await fetch('/oyun/kamera.json')).json() as { fov: number; yakin: number; uzak: number };
+    if (ka.uzak > 150) { kamera.ayarUygula(ka); (sahne.fog as THREE.Fog).far = ka.uzak; arazi.sisAyarla(SIS, 150, ka.uzak); }
+  } catch { /* dosya yoksa kendi değerlerimiz kalır */ }
   const boyut = () => { cizici.setSize(innerWidth, innerHeight, false); kamera.boyutlandir(innerWidth, innerHeight); };
   addEventListener('resize', boyut); boyut();
 
@@ -402,7 +407,8 @@ async function basla(): Promise<void> {
     canavarlariGuncelle(dt);
     npcleriGuncelle(dt);
     oyuncu.sahneyeYerlestir(arazi);
-    kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt);
+    kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
+      arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);
     arayuz?.guncelle(dt);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);

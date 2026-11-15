@@ -1,12 +1,12 @@
 // Çarpışma: sunucu haritasındaki (.smd) üçgenlerle duvar engeli ve zemin (köprü, kat, merdiven) yüksekliği.
 // Koordinatlar Knight Online dünyası: (x, y yukarı, z). Veri carpisma.bin: üçgen başına 9 float.
 const HUCRE = 4; // ızgara hücresi (m)
-const ZEMIN_NORMAL = 0.55; // normal.y bundan büyükse yürünebilir zemin, mutlak değer küçükse duvar
+const ZEMIN_NORMAL = 0.55; // normal.y bundan büyükse yürünebilir zemin, mutlak değer küçükse duvar; küçük (aşağı bakan) ise tavan (yalnızca kamera için)
 
 export class Carpisma {
   private readonly v: Float32Array;
   private readonly n: Float32Array; // üçgen başına normal (3)
-  private readonly sinif: Uint8Array; // 0 = yok say, 1 = zemin, 2 = duvar
+  private readonly sinif: Uint8Array; // 0 = yok say, 1 = zemin, 2 = duvar, 3 = tavan (yalnızca kamera çarpışması)
   private readonly hucreler: Map<number, number[]> = new Map();
   private readonly kolon: number;
 
@@ -25,7 +25,7 @@ export class Carpisma {
       if (u < 1e-9) continue; // dejenere üçgen
       nx /= u; ny /= u; nz /= u;
       this.n[t * 3] = nx; this.n[t * 3 + 1] = ny; this.n[t * 3 + 2] = nz;
-      this.sinif[t] = ny > ZEMIN_NORMAL ? 1 : Math.abs(ny) <= ZEMIN_NORMAL ? 2 : 0;
+      this.sinif[t] = ny > ZEMIN_NORMAL ? 1 : Math.abs(ny) <= ZEMIN_NORMAL ? 2 : 3;
       if (!this.sinif[t]) continue;
       const x0 = Math.min(veri[o], veri[o + 3], veri[o + 6]), x1 = Math.max(veri[o], veri[o + 3], veri[o + 6]);
       const z0 = Math.min(veri[o + 2], veri[o + 5], veri[o + 8]), z1 = Math.max(veri[o + 2], veri[o + 5], veri[o + 8]);
@@ -106,6 +106,44 @@ export class Carpisma {
       if (!itildi) break;
     }
     return [x, z];
+  }
+
+  /**
+   * Kamera için: (a → b) doğru parçasının ilk üçgenle (zemin, duvar, tavan) kesiştiği oran (0..1). Kesişmiyorsa null.
+   * Başlangıca çok yakın (oran < 0,02) kesişimler yok sayılır (oyuncunun kendi bastığı yüzey).
+   */
+  dogruKesisimi(ax: number, ay: number, az: number, bx: number, by: number, bz: number): number | null {
+    const dx = bx - ax, dy = by - ay, dz = bz - az;
+    const uz = Math.hypot(dx, dz), adim = Math.max(1, Math.ceil(uz / (HUCRE * 0.5)));
+    const gorulen = new Set<number>();
+    let en: number | null = null;
+    const v = this.v;
+    for (let i = 0; i <= adim; i++) {
+      const x = ax + (dx * i) / adim, z = az + (dz * i) / adim;
+      const l = this.hucreler.get(Math.floor(x / HUCRE) * this.kolon + Math.floor(z / HUCRE));
+      if (!l) continue;
+      for (const t of l) {
+        if (gorulen.has(t)) continue;
+        gorulen.add(t);
+        // Möller–Trumbore: doğru parçası × üçgen
+        const o = t * 9;
+        const e1x = v[o + 3] - v[o], e1y = v[o + 4] - v[o + 1], e1z = v[o + 5] - v[o + 2];
+        const e2x = v[o + 6] - v[o], e2y = v[o + 7] - v[o + 1], e2z = v[o + 8] - v[o + 2];
+        const px = dy * e2z - dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y - dy * e2x;
+        const det = e1x * px + e1y * py + e1z * pz;
+        if (Math.abs(det) < 1e-9) continue;
+        const inv = 1 / det;
+        const tx = ax - v[o], ty = ay - v[o + 1], tz = az - v[o + 2];
+        const u = (tx * px + ty * py + tz * pz) * inv;
+        if (u < 0 || u > 1) continue;
+        const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x;
+        const w = (dx * qx + dy * qy + dz * qz) * inv;
+        if (w < 0 || u + w > 1) continue;
+        const k = (e2x * qx + e2y * qy + e2z * qz) * inv;
+        if (k >= 0.02 && k <= 1 && (en === null || k < en)) en = k;
+      }
+    }
+    return en;
   }
 
   /** Üçgenin y = yy yatay düzlemiyle kesişimi (xz doğru parçası); kesmiyorsa null. */
