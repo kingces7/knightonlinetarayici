@@ -29,6 +29,8 @@ export interface ArayuzBaglami {
   esyaCikar: (yuva: number) => void;
   /** Ganimet sandığından altın/eşya al (main.ts → hud.ganimetAl). */
   ganimetAl: (k: GanimetKutusu, secim: 'altin' | number) => void;
+  /** NPC'ye çantadaki eşyayı sat (çanta yuvası). */
+  magazaSat: (yuva: number) => void;
   /** NPC mağazasından eşya satın al. */
   magazaSatinAl: (e: EsyaTanimi) => void;
   /** Skill kullan (skill numarası). */
@@ -559,7 +561,8 @@ export class OyunArayuzu {
       el.onmouseleave = () => this.b.ipucuGizle();
       el.onclick = tikla ?? null;
     };
-    this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, o.envanter[i] ? () => this.b.esyaKusan(i) : undefined));
+    // Mağaza açıkken çanta eşyasına tıklamak onu NPC'ye satar; değilse kuşanır
+    this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, o.envanter[i] ? () => (this.acik.has('magaza') ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));
     for (let yuva = 0; yuva < 15; yuva++) {
       const el = this.ekipman(yuva);
       if (el) yuvaCiz(el, o.ekipman[yuva], o.ekipman[yuva] ? () => this.b.esyaCikar(yuva) : undefined);

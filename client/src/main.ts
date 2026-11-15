@@ -177,7 +177,7 @@ async function basla(): Promise<void> {
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), ganimetAl: (k, s) => hud.ganimetAl(k, s),
+      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -250,6 +250,14 @@ async function basla(): Promise<void> {
     if (sayfalar && arayuz) { arayuz.magazaAc(n.ad, sayfalar); return; }
     if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
     hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
+  };
+  /** Mağazaya satış (sunucu NPCHandler.cpp): fiyat = alış fiyatı / 6 (varsayılan kural). */
+  const magazaSat = (yuva: number) => {
+    const e = oyuncu.envanter[yuva]; if (!e) return;
+    const fiyat = Math.floor(e.fiyat / 6);
+    if (fiyat <= 0) { hud.mesaj('This item cannot be sold.', 'sistem'); return; }
+    oyuncu.envanter[yuva] = null; oyuncu.altin += fiyat;
+    hud.mesaj(`You sold ${e.ad} for ${fiyat.toLocaleString('en-US')} Noah.`, 'odul');
   };
   /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */
   const magazaSatinAl = (e: EsyaTanimi) => {
