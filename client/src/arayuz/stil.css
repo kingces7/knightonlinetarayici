@@ -78,3 +78,6 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 html, html *, body * { cursor: url('/arayuz/doku/cursorel01.png') 2 2, auto !important; }
 body.imlec-basili, body.imlec-basili * { cursor: url('/arayuz/doku/cursorel02.png') 2 2, auto !important; }
 body.imlec-saldir, body.imlec-saldir * { cursor: url('/arayuz/doku/cursorattack.png') 3 3, auto !important; }
+
+/* Yığınlanan eşyanın adedi (yuvanın sağ altı) */
+.ui-t9[data-adet]:not([data-adet=""])::after { content: attr(data-adet); position: absolute; right: 2px; bottom: 0; font: bold 11px Verdana, sans-serif; color: #fff; text-shadow: 0 0 2px #000, 0 1px 2px #000; pointer-events: none; }

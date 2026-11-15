@@ -3,7 +3,7 @@
 
 export interface EsyaTanimi {
   no: number; ad: string; aciklama: string; simge: string;
-  tur: 'silah' | 'zirh' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
+  /** Yığınlanabilir mi (eşya tablosu Countable: iksir, ok, kâğıt…)? `adet` = bu yuvadaki sayı. */ sayilabilir?: boolean; adet?: number; tur: 'silah' | 'zirh' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
 }
 
 export interface CanavarTuru {
@@ -142,7 +142,9 @@ export function ganimetUret(tur: CanavarTuru): { altin: number; esyalar: EsyaTan
     let no = o.no;
     if (no < 100000000) { const grup = ganimetVeri.gruplar[String(no)]; if (!grup?.length) continue; no = grup[Math.floor(Math.random() * grup.length)]; }
     const e = ganimetVeri.esyalar[String(no)];
-    if (e) sonuc.push(e);
+    if (!e) continue;
+    const ok = o.no >= 391010000 && o.no < 392010000; // sunucu: ok doğrudan düşerse 20 adet (ARROW_MIN..ARROW_MAX)
+    sonuc.push(ok ? { ...e, adet: 20 } : e);
   }
   return { altin, esyalar: sonuc };
 }

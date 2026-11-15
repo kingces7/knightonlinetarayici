@@ -119,7 +119,7 @@ export class Hud {
     const st = e.tur === 'silah' ? `Attack Power ${e.hasar}` : e.tur === 'zirh' ? `Defense ${e.savunma}` : '';
     this.ipucu.innerHTML = '';
     this.ipucu.append($(`<div class="ad"></div>`), $(`<div class="st"></div>`), $(`<div class="ac"></div>`), $(`<div class="fi"></div>`));
-    (this.ipucu.children[0] as HTMLElement).textContent = e.ad;
+    (this.ipucu.children[0] as HTMLElement).textContent = e.adet && e.adet > 1 ? `${e.ad} (${e.adet})` : e.ad;
     (this.ipucu.children[1] as HTMLElement).textContent = st;
     (this.ipucu.children[2] as HTMLElement).textContent = e.aciklama;
     (this.ipucu.children[3] as HTMLElement).textContent = `Price ${e.fiyat.toLocaleString('en-US')} Noah`;

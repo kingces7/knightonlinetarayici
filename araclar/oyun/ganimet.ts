@@ -39,7 +39,7 @@ export function ganimetYaz(): { esya: number; eksik: number } {
     esyalar[String(no)] = {
       no, ad: String(s[2]), aciklama: String(s[3]).replace(/\|\s*/g, ' '), simge: simgeAd,
       tur: SILAH.has(tur) ? 'silah' : ZIRH.has(tur) ? 'zirh' : 'sarf', tip: tur, yuva: Number(s[12]),
-      hasar: Number(s[15]), gecikme: Number(s[16]), savunma: Number(s[22]), fiyat: Number(s[20]),
+      hasar: Number(s[15]), gecikme: Number(s[16]), savunma: Number(s[22]), fiyat: Number(s[20]), sayilabilir: Number(s[23]) > 0,
     };
   }
   fs.writeFileSync(path.join(klasor, 'ganimet.json'), JSON.stringify({ canavar: ham.canavar, gruplar: ham.gruplar, esyalar }));

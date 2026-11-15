@@ -258,7 +258,7 @@ export class OyunArayuzu {
   private ganimetCiz(): void {
     const k = this.ganimetKutusu; if (!k) return;
     const g = this.ganimetPencere;
-    const imza = `${k.altin}|${k.esyalar.map((e) => e.no).join(',')}`;
+    const imza = `${k.altin}|${k.esyalar.map((e) => `${e.no}x${e.adet ?? 1}`).join(',')}`;
     if (imza === this.ganimetImza) return;
     this.ganimetImza = imza;
     const altinVar = k.altin > 0;
@@ -266,7 +266,7 @@ export class OyunArayuzu {
       const alan = g.alan(String(i)); if (!alan) continue;
       const e = altinVar ? (i === 0 ? null : k.esyalar[i - 1]) : k.esyalar[i];
       const noah = altinVar && i === 0;
-      alan.style.backgroundImage = noah ? 'url(/esya/noah.png)' : e?.simge ? `url(${e.simge})` : ''; // Noah simgesi oyunun eşya tablosundan (Coin, 90001000)
+      alan.style.backgroundImage = noah ? 'url(/esya/noah.png)' : e?.simge ? `url(${e.simge})` : ''; // Noah simgesi oyunun eşya tablosundan (Coin, 90001000) alan.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       alan.style.backgroundSize = ESYA_SIMGE; alan.style.backgroundPosition = '0 0';
       alan.style.cursor = noah || e ? 'pointer' : 'default';
       alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; alan.onmouseleave = () => this.b.ipucuGizle();
@@ -327,11 +327,11 @@ export class OyunArayuzu {
   }
   private depoCiz(): void {
     const p = this.pencereler.depo, o = this.b.oyuncu;
-    const imza = `${this.depoSayfa}|${o.altin}|${o.depoAltin}|${o.depo.map((e) => e?.no ?? 0).join(',')}|${o.envanter.map((e) => e?.no ?? 0).join(',')}`;
+    const imza = `${this.depoSayfa}|${o.altin}|${o.depoAltin}|${o.depo.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}|${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}`;
     if (imza === this.depoImza) return;
     this.depoImza = imza;
     const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => {
-      el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0';
+      el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0'; el.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; el.onmouseleave = () => this.b.ipucuGizle();
     };
     this.depoUst().forEach((el, i) => yuvaCiz(el, o.depo[this.depoSayfa * 24 + i] ?? null));
@@ -775,11 +775,11 @@ export class OyunArayuzu {
 
   private envanterCiz(): void {
     const o = this.b.oyuncu, p = this.pencereler.envanter;
-    const imza = `${o.envanter.map((e) => e?.no ?? 0).join(',')}|${o.ekipman.map((e) => e?.no ?? 0).join(',')}|${o.altin}`;
+    const imza = `${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}|${o.ekipman.map((e) => e?.no ?? 0).join(',')}|${o.altin}`;
     if (imza === this.sonEnvanterImza) return;
     this.sonEnvanterImza = imza;
     const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null, tikla?: () => void) => {
-      el.style.backgroundImage = e ? `url(${e.simge})` : '';
+      el.style.backgroundImage = e ? `url(${e.simge})` : ''; el.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
       el.onmouseleave = () => this.b.ipucuGizle();

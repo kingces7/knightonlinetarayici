@@ -286,10 +286,10 @@ async function basla(): Promise<void> {
   /** Mağazaya satış (sunucu NPCHandler.cpp): fiyat = alış fiyatı / 6 (varsayılan kural). */
   const magazaSat = (yuva: number) => {
     const e = oyuncu.envanter[yuva]; if (!e) return;
-    const fiyat = Math.floor(e.fiyat / 6);
+    const fiyat = Math.floor(e.fiyat / 6) * (e.adet ?? 1); // yığının tamamı satılır
     if (fiyat <= 0) { hud.mesaj('This item cannot be sold.', 'sistem'); return; }
     oyuncu.envanter[yuva] = null; oyuncu.altin += fiyat;
-    hud.mesaj(`You sold ${e.ad} for ${fiyat.toLocaleString('en-US')} Noah.`, 'odul');
+    hud.mesaj(`You sold ${e.adet && e.adet > 1 ? `${e.adet} × ` : ''}${e.ad} for ${fiyat.toLocaleString('en-US')} Noah.`, 'odul');
   };
   /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */
   const magazaSatinAl = (e: EsyaTanimi) => {

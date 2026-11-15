@@ -405,9 +405,14 @@ export class Oyuncu extends Varlik {
 
   /** Boş envanter yuvasına koyar; yer yoksa false. */
   esyaEkle(e: EsyaTanimi): boolean {
+    const adet = e.adet ?? 1;
+    if (e.sayilabilir) { // yığınlanabilir eşya aynı numaralı yuvaya eklenir (en çok 9999)
+      const var_ = this.envanter.find((x) => x && x.no === e.no && (x.adet ?? 1) + adet <= 9999);
+      if (var_) { var_.adet = (var_.adet ?? 1) + adet; return true; }
+    }
     const i = this.envanter.indexOf(null);
     if (i < 0) return false;
-    this.envanter[i] = e;
+    this.envanter[i] = e.sayilabilir ? { ...e, adet } : e;
     return true;
   }
 }
