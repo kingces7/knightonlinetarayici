@@ -1,0 +1,11 @@
+# Satır sonları: depoda ve çalışma klasöründe LF (Windows'ta CRLF uyarılarını önler)
+* text=auto eol=lf
+
+# İkili dosyalar dokunulmasın
+*.png binary
+*.jpg binary
+*.glb binary
+*.dxt binary
+*.tbl binary
+*.bak binary
+*.ico binary
