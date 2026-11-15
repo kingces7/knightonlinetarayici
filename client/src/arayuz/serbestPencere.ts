@@ -3,7 +3,7 @@
 // Böylece zemin resimleri, yazı alanı, kaydırma çubuğu ve alt sekme şeridi bozulmadan genişler.
 import type { UiPencere } from './orijinal';
 
-interface Orijinal { l: number; t: number; w: number; h: number; bs?: [number, number]; bp?: [number, number] }
+interface Orijinal { l: number; t: number; w: number; h: number; bs?: [number, number]; bp?: [number, number]; klon?: HTMLElement }
 interface Kayit { x: number; y: number; dw: number; dh: number; kilit: boolean }
 
 export interface SerbestAyar {
@@ -14,6 +14,8 @@ export interface SerbestAyar {
   /** En çok büyüme (ölçeksiz piksel). */
   enCokDw: number; enCokDh: number;
   /** Top (kilit) simgesi: doku adı (/arayuz/doku/<ad>.png), doku boyutu ve UV [u0,v0,u1,v1]. */
+  /** Alt sekme şeridi: bu yükseklikten (ölçeksiz) aşağıdaki parçalar esnemez; yalnızca aşağı kayar. `seritSag` ise şerit sağ kenara bağlı kalır (sola büyüyen pencere), değilse sola. */
+  seritY?: number; seritSag?: boolean;
   /** Kilit topunu sol alta koy (varsayılan sağ alt). */
   topSol?: boolean;
   /** Taşıma tutamağı: alt sekme şeridindeki yazının üstü (sol ya da sağ kenardan uzaklık, ölçeksiz piksel). */
@@ -53,17 +55,28 @@ export class SerbestPencere {
   /** Pencereyi (dw, dh) kadar büyütür: parçaları yeniden yerleştirir. */
   private boyutla(dw: number, dh: number): void {
     const { xBolme: sx, yBolme: sy } = this.ayar;
-    const mapX = (a: number, b: number): [number, number] => (a >= sx ? [a + dw, b + dw] : b > sx ? [a, b + dw] : [a, b]);
+    const sy0 = this.ayar.seritY ?? 1e9, sag = !!this.ayar.seritSag;
+    const mapX = (a: number, b: number, serit: boolean): [number, number] => (serit ? (sag ? [a + dw, b + dw] : [a, b]) : a >= sx ? [a + dw, b + dw] : b > sx ? [a, b + dw] : [a, b]);
     const mapY = (a: number, b: number): [number, number] => (a >= sy ? [a + dh, b + dh] : b > sy ? [a, b + dh] : [a, b]);
     const gez = (el: HTMLElement, oAbsX: number, oAbsY: number, nAbsX: number, nAbsY: number) => {
       for (const c of Array.from(el.children) as HTMLElement[]) {
         const o = this.orijinal.get(c); if (!o) continue;
         const ax = oAbsX + o.l, ay = oAbsY + o.t;
-        const [x0, x1] = mapX(ax, ax + o.w), [y0, y1] = mapY(ay, ay + o.h);
+        const serit = ay >= sy0 && o.h < 60 && o.h > 0; // alt şeridin parçaları (yükseklikleri küçük)
+        // Hem gövdeyi hem alt şeridi kaplayan tek resim (kenar çerçevesi + sekme): üst parça esner, şerit parçası ayrı kopyayla sabit kalır
+        const bolun = !serit && ay < sy0 && ay + o.h > sy0 && !!o.bs && !!o.bp && ay + o.h - sy0 < 60;
+        const ustH = bolun ? sy0 - ay : o.h;
+        const [x0, x1] = mapX(ax, ax + o.w, serit), [y0, y1] = mapY(ay, ay + ustH);
+        if (bolun) {
+          if (!o.klon) { o.klon = c.cloneNode(false) as HTMLElement; c.after(o.klon); }
+          const k = o.klon, [kx0, kx1] = mapX(ax, ax + o.w, true), [ky0, ky1] = mapY(sy0, ay + o.h);
+          k.style.left = `${kx0 - nAbsX}px`; k.style.top = `${ky0 - nAbsY}px`; k.style.width = `${kx1 - kx0}px`; k.style.height = `${ky1 - ky0}px`;
+          k.style.backgroundSize = `${o.bs![0]}px ${o.bs![1]}px`; k.style.backgroundPosition = `${o.bp![0]}px ${o.bp![1] - (sy0 - ay)}px`;
+        }
         c.style.left = `${x0 - nAbsX}px`; c.style.top = `${y0 - nAbsY}px`;
         c.style.width = `${x1 - x0}px`; c.style.height = `${y1 - y0}px`;
         if (o.bs && o.bp && o.w > 0 && o.h > 0) {
-          const fx = (x1 - x0) / o.w, fy = (y1 - y0) / o.h;
+          const fx = (x1 - x0) / o.w, fy = (y1 - y0) / ustH;
           c.style.backgroundSize = `${o.bs[0] * fx}px ${o.bs[1] * fy}px`; c.style.backgroundPosition = `${o.bp[0] * fx}px ${o.bp[1] * fy}px`;
         }
         gez(c, ax, ay, x0, y0);

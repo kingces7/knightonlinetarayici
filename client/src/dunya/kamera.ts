@@ -93,7 +93,10 @@ export class TakipKamerasi {
 
   /** Oyunun varsayılan kamera ayarı (Data/DefaultCamera.N3Camera → /oyun/kamera.json): görüş açısı (rad), yakın ve uzak düzlem. */
   ayarUygula(a: { fov: number; yakin: number; uzak: number; goz?: number[]; bak?: number[] }): void {
-    if (a.goz && a.bak) { this.enUzak = Math.hypot(a.goz[0] - a.bak[0], a.goz[1] - a.bak[1], a.goz[2] - a.bak[2]); this.uzaklik = Math.min(this.uzaklik, this.enUzak); }
+    if (a.goz && a.bak) { // Oyunun varsayılan kamerası (DefaultCamera.N3Camera): göz (15,5,−15), bakılan (0,0,0) → mesafe ≈ 21,8 m, eğim ≈ 13°
+      const dx = a.goz[0] - a.bak[0], dy = a.goz[1] - a.bak[1], dz = a.goz[2] - a.bak[2];
+      this.enUzak = Math.hypot(dx, dy, dz); this.uzaklik = this.enUzak; this.egim = Math.atan2(dy, Math.hypot(dx, dz));
+    }
     this.kamera.fov = (a.fov * 180) / Math.PI; this.kamera.near = a.yakin; this.kamera.far = a.uzak;
     this.kamera.updateProjectionMatrix();
   }

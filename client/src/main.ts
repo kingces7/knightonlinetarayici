@@ -163,7 +163,7 @@ async function basla(): Promise<void> {
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
     if (v.tip === 1 && hedef) {
       oyuncu.bak(hedef.konum);
-      oyuncu.animKilidi = oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08) || 0.8;
+      oyuncu.animKilidi = oyuncu.model?.beceriOynat() || 0.8; // silah türüne özgü skill hareketi
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
@@ -352,6 +352,7 @@ async function basla(): Promise<void> {
     // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
     oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
     oyuncu.model?.giyimAyarla(oyuncu.ekipman);
+    oyuncu.model?.silahAyarla(oyuncu.ekipman[6]?.tip ?? 0);
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
     void oyuncu.model?.plugTak('sol', oyuncu.ekipman[8]?.no ?? 0);
     if (oyuncu.olu) return;
@@ -391,7 +392,7 @@ async function basla(): Promise<void> {
       const h = oyuncu.bakisAcisi;
       const yon = new THREE.Vector2(Math.cos(h), Math.sin(h));
       if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), hizAl() * 0.6 * dt);
-      oyuncu.model?.oynat(hareketAnimi());
+      oyuncu.model?.oynat(ilerigeri < 0 && oyuncu.model.var('geri') ? 'geri' : hareketAnimi()); // S: geri yürüme animasyonu
     } else if (donus !== 0 && !oyuncu.hedef) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       oyuncu.model?.oynat('bekle');
@@ -410,7 +411,7 @@ async function basla(): Promise<void> {
           oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
           ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
           vurusZamanlayici.push({ kalan: 0.45, hedef: h });
-        } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('savun');
+        } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('bekle'); // vuruşlar arasında silahlı bekleme duruşu
       }
     } else if (oyuncu.yuruHedef) {
       if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? 1.5 : acilacakNpc ? 2.5 : 0)) {

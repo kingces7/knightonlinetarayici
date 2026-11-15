@@ -138,8 +138,8 @@ export class OyunArayuzu {
       p.tikla.set('btn_cancel', kapat);
     });
     const topAyari = { doku: 'co_show_icon', w: 512, h: 512, uv: [0.678, 0.178, 0.711, 0.213] as [number, number, number, number] };
-    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari, topSol: true, tasi: { sol: 20, genislik: 76, yukseklik: 24 } }, () => this.gorevYerlestir());
-    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, tasi: { sag: 20, genislik: 85, yukseklik: 22 } }, () => this.gorevYerlestir());
+    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari, topSol: true, seritY: 122, tasi: { sol: 20, genislik: 76, yukseklik: 24 } }, () => this.gorevYerlestir());
+    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, seritY: 116, seritSag: true, tasi: { sag: 20, genislik: 85, yukseklik: 22 } }, () => this.gorevYerlestir());
     this.pencereYerlestir(true); this.gorevYerlestir();
     addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
   }

@@ -92,7 +92,44 @@ export class KarakterModeli {
     } catch { /* model yoksa elde bir şey görünmez */ }
   }
 
-  /** Özgün adı olmayan modellerde (oyuncu iskeleti) saldırı animasyonları silah türüne göre adlandırılmıştır; şimdilik kılıç (sword0). */
+  /**
+   * Oyuncu iskeletinde animasyonlar silah türüne göre numaralıdır (32_breath_sword0, 33_attack_sword0_A…).
+   * Silah türü (eşya tablosu sütun 10) → [bekleme, saldırı A, saldırı B, skill A, skill B] animasyon numaraları. Eşleşme adlardan çıkarıldı
+   * (X0 = tek el, Twohand/Twoblunt = iki el); orijinal istemci kodu olmadığı için sınıflandırma varsayımdır.
+   */
+  private static readonly SILAH_AILESI: Record<number, [number, number, number, number, number]> = {
+    0: [86, 87, 88, 0, 0], // silahsız: yumruk
+    11: [38, 39, 40, 116, 117], 21: [32, 33, 34, 128, 129], 22: [50, 51, 52, 134, 135],
+    31: [68, 69, 70, 112, 113], 32: [71, 72, 73, 132, 133], 41: [56, 57, 58, 120, 121], 42: [62, 63, 64, 122, 123],
+    51: [74, 75, 76, 126, 127], 52: [80, 81, 82, 124, 125], 70: [92, 96, 97, 0, 0], 71: [93, 96, 97, 0, 0], 110: [98, 99, 100, 0, 0],
+  };
+  private aile: [number, number, number, number, number] | null = null;
+  private silahTipi = -1;
+  private klipNo(no: number): string | undefined {
+    if (!no) return undefined;
+    for (const ad of this.klipler.keys()) if (ad.startsWith(`${no}_`)) return ad;
+    return undefined;
+  }
+  /** Eldeki silahın türüne göre bekleme/saldırı/skill animasyonlarını seçer (0 = silahsız). Silah değişince bekleme yenilenir. */
+  silahAyarla(tip: number): void {
+    if (tip === this.silahTipi) return;
+    this.silahTipi = tip;
+    this.aile = this.klipNo(32) ? (KarakterModeli.SILAH_AILESI[tip] ?? KarakterModeli.SILAH_AILESI[21]) : null; // numaralı animasyonu olmayan modellerde (canavar) yok
+    if (this.aktifAd === 'bekle') { this.aktifAd = ''; this.calistir('bekle', true, 0.2); }
+  }
+  /** Fiziksel skill animasyonu: silah türüne özgü skill hareketi (A ya da B), yoksa büyü hareketi. Süreyi döndürür. */
+  beceriOynat(): number {
+    const a = this.aile && this.klipNo(Math.random() < 0.5 ? this.aile[3] : this.aile[4]);
+    return a ? this.oynat(a, false, 0.08) : this.oynatRastgele('saldir', 2, false, 0.08);
+  }
+  /** `onek0..onek(adet-1)` animasyonlarından var olan birini rastgele oynatır (ör. darbe0-2, olum0-1, saldir0-1). */
+  oynatRastgele(onek: string, adet: number, tekrar = false, gecis = 0.1): number {
+    const adaylar = Array.from({ length: adet }, (_, i) => `${onek}${i}`).filter((a) => this.klipler.has(a) || (this.aile !== null && onek === 'saldir'));
+    if (!adaylar.length) return 0;
+    return this.oynat(adaylar[Math.floor(Math.random() * adaylar.length)], tekrar, gecis);
+  }
+
+  /** Özgün adı olmayan modellerde (oyuncu iskeleti) saldırı animasyonları silah türüne göre adlandırılmıştır; aile seçilmediyse kılıç (sword0). */
   private static readonly YEDEK_AD: Record<string, string> = { saldir0: '33_attack_sword0_A', saldir1: '34_attack_sword0_B' };
 
   /**
@@ -108,7 +145,8 @@ export class KarakterModeli {
   }
 
   private calistir(ad: string, tekrar: boolean, gecis: number): number {
-    const gercek = this.klipler.has(ad) ? ad : KarakterModeli.YEDEK_AD[ad] ?? ad;
+    let gercek = this.klipler.has(ad) ? ad : KarakterModeli.YEDEK_AD[ad] ?? ad;
+    if (this.aile) { const f = ad === 'bekle' ? this.klipNo(this.aile[0]) : ad === 'saldir0' ? this.klipNo(this.aile[1]) : ad === 'saldir1' ? this.klipNo(this.aile[2]) : undefined; if (f) gercek = f; }
     const klip = this.klipler.get(gercek);
     if (!klip) return 0;
     if (this.aktifAd === ad && tekrar) return klip.duration;

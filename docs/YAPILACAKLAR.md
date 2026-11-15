@@ -224,3 +224,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Ganimet: canavar başına sunucu tablosu (K_MONSTER_ITEM + MAKE_ITEM_GROUP) ve para (iMoney × %70–100, en çok 32000); `npm run ganimet`. Ölçümle doğrulandı (Worm: para 15–22, eşya oranları tablodaki yüzdelere uygun).
 - [ ] Ganimette yığın adedi (ok 20 adet, iksir) yok; her eşya bir yuva. Ganimet yalnızca son vuran/en çok hasar veren içindir (tek oyuncuda fark yok).
 - [ ] Sıradaki: skill türleri (MAGIC_TYPE 2-9), buff/direnç, canavar yapay zekâsı.
+
+**Animasyon, kamera, pencere (2026-11-15, 5. tur)**
+- [x] Oyuncu animasyonları silah türüne göre (bekleme, saldırı A/B, skill A/B; silahsızken yumruk); S = geri yürüme (`geri`); canavar/oyuncu darbe ve ölüm animasyon çeşitleri rastgele. Silah türü → animasyon eşleşmesi adlardan çıkarıldı (varsayım): `client/src/dunya/karakter.ts SILAH_AILESI`. İki silahlı (dual) ve oyuncu skill'lerinde silah dışı hareketler (selamlama, savaş çığlığı, balık tutma, kanat…) henüz tetiklenmiyor.
+- [x] Kamera: varsayılan açı ve mesafe `DefaultCamera.N3Camera` dosyasından (eğim ≈ 13°, mesafe ≈ 21,8 m). Bu dosyanın oyun içi takip kamerası olduğu doğrulanamadı.
+- [x] Sohbet/bilgi pencereleri: alt sekme şeridi esnemez; yalnızca yazı alanı büyür (`serbestPencere.ts` seritY).

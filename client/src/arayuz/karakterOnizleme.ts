@@ -43,6 +43,7 @@ export class KarakterOnizleme {
   ciz(dt: number, silah = 0, kalkan = 0, ekipman: ({ no: number } | null)[] = []): void {
     if (!this.model) return;
     this.model.giyimAyarla(ekipman);
+    this.model.silahAyarla((ekipman as { tip?: number }[])[6]?.tip ?? 0);
     void this.model.plugTak('sag', silah); void this.model.plugTak('sol', kalkan);
     this.model.guncelle(dt);
     this.model.kok.rotation.y = this.donus;

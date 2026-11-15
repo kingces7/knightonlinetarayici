@@ -173,10 +173,10 @@ export class Canavar extends Varlik {
     this.kizgin = true;
     if (this.can <= 0) {
       this.durum = 'olu'; this.oluSuresi = 0;
-      this.model?.oynat('olum0', false);
+      this.model?.oynatRastgele('olum', 2, false, 0.1);
     } else if (this.model && this.durum !== 'saldir') {
-      this.model.oynat('darbe0', false, 0.05);
-      setTimeout(() => { if (!this.olu && this.model?.aktifAd === 'darbe0') this.model.oynat('bekle'); }, 400);
+      this.model.oynatRastgele('darbe', 3, false, 0.05);
+      setTimeout(() => { if (!this.olu && this.model?.aktifAd.startsWith('darbe')) this.model.oynat('bekle'); }, 400);
     }
   }
 
@@ -209,7 +209,7 @@ export class Canavar extends Varlik {
         this.saldiriSayaci -= dt;
         if (this.saldiriSayaci <= 0) {
           this.saldiriSayaci = this.tur.gecikme / 1000; // sunucu sAttackDelay (ms)
-          this.model?.oynat('saldir0', false, 0.1);
+          this.model?.oynatRastgele('saldir', 2, false, 0.1);
           return true;
         }
         if (this.saldiriSayaci < this.tur.gecikme / 1000 - 0.8 && this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
@@ -389,7 +389,8 @@ export class Oyuncu extends Varlik {
   hasarAl(miktar: number): number {
     this.can = Math.max(0, this.can - miktar);
     this.savastanBeri = 0;
-    if (this.can <= 0) this.model?.oynat('olum0', false);
+    if (this.can <= 0) this.model?.oynatRastgele('olum', 3, false, 0.1);
+    else this.model?.oynatRastgele('darbe', 3, false, 0.05);
     return miktar;
   }
 
