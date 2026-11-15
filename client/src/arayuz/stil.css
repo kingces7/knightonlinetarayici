@@ -62,6 +62,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d10; fon
 .ui-yazi { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; line-height: 1.1; overflow: hidden; text-shadow: 0 1px 1px #0008; pointer-events: none; }
 .ui-ilerleme { position: absolute; overflow: hidden; }
 .ui-t9 { pointer-events: auto; cursor: pointer; background-position: center; background-repeat: no-repeat; }
+.ui-t1 { pointer-events: auto; }
 .ui-t1 .ui-durum { pointer-events: none; }
 .orijinal-arayuz .durum, .orijinal-arayuz .envanter, .orijinal-arayuz .hedef, .orijinal-arayuz .ganimet { display: none !important; }
 
