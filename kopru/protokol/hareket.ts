@@ -6,7 +6,7 @@
 //  - yankı ≠ 0 iken hız 0 olamaz (3 kez olursa oyuncu şehre geri gönderilir) — varış ile şimdiki konum aynıysa ("durağan") bu kural atlanır;
 //  - art arda iki "durdu" (yankı 0) paketi yollanamaz;
 //  - hız sınırı: normal sınıf 4,5 m/sn (45), savaşçı/büyücü/rahip 6,7 (67), haydut 9,0 (90); aşılırsa bağlantı kesilir.
-// Gerçek istemci hareket sürerken saniyede bir "sürüyor" paketi yollar (WIZ_MOVE açıklaması: "Move (1 Second)"); aynısı yapılır.
+// Gerçek istemci hareket sürerken 1,5 sn’de bir "sürüyor" paketi yollar (PACKET_INTERVAL_MOVE); aynısı yapılır.
 import { PaketYazici } from './ikili.ts';
 
 export const YANKI = { DURDU: 0, BASLADI: 1, SURUYOR: 3 } as const;
@@ -16,7 +16,9 @@ const DURMA_ESIGI = 0.4;
 /** Hareket bitince "durdu" paketi, bu kadar saniye kıpırdamadan sonra yollanır (titreme/tek kare duraksamayı elemek için). */
 const DURMA_SURESI = 0.15;
 /** Hareket sürerken en az bu aralıkla (sn) "sürüyor" paketi yollanır. */
-const YENILEME_ARALIGI = 1.0;
+const YENILEME_ARALIGI = 1.5; // orijinal istemci: PACKET_INTERVAL_MOVE = 1,5 sn
+/** Varış noktası, bu kadar saniye sonraki tahmini konumdur (orijinal: NextPos(1,5)). */
+const TAHMIN_SURESI = 1.5;
 /** Yön bu kadar derece değişirse aralığı beklemeden "sürüyor" yollanır. */
 const YON_DEGISIMI = 20;
 
@@ -69,9 +71,9 @@ export class HareketGonderici {
 
   #gonder(yanki: number, x: number, z: number, y: number): void {
     const hiz10 = yanki === YANKI.DURDU ? 0 : Math.min(this.#azamiHiz10, Math.max(1, Math.round(this.#hiz * 10)));
-    // Varış: hareket sürerken 1 sn sonraki tahmini konum; durunca şimdiki konum ("durağan" paket).
-    const vx = yanki === YANKI.DURDU ? x : x + this.#yonX * (hiz10 / 10);
-    const vz = yanki === YANKI.DURDU ? z : z + this.#yonZ * (hiz10 / 10);
+    // Varış: hareket sürerken 1,5 sn sonraki tahmini konum; durunca şimdiki konum ("durağan" paket).
+    const vx = yanki === YANKI.DURDU ? x : x + this.#yonX * (hiz10 / 10) * TAHMIN_SURESI;
+    const vz = yanki === YANKI.DURDU ? z : z + this.#yonZ * (hiz10 / 10) * TAHMIN_SURESI;
     const p = (m: number) => Math.min(0xffff, Math.max(0, Math.round(m * 10)));
     const govde = new PaketYazici().u16(p(vx)).u16(p(vz)).u16(p(y)).i16(hiz10).u8(yanki).u16(p(x)).u16(p(z)).u16(p(y)).baytlar();
     this.#sonGonderim = this.#t; this.#sonYolX = this.#yonX; this.#sonYolZ = this.#yonZ;

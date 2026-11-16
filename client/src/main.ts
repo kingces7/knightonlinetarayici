@@ -37,7 +37,9 @@ const OYUNCU_HIZI = 4.5;
 /** Klavyeyle yürürken gidiş yönünün dönebileceği en yüksek hız (rad/sn): yumuşak, geniş kavisler. */
 const YURUME_DONUS_HIZI = 3.2;
 /** W + A/D basılıyken karakterin sürekli dönüş hızı (rad/sn): tuş basılı kaldıkça 360° dönebilir. */
-const DIREKSIYON_HIZI = 2.4;
+const DIREKSIYON_HIZI = Math.PI / 3; // orijinal: A/D saniyede 60° (docs/hareket-mekanigi.md)
+/** Orijinal yürüme hızı (m/sn); koşma bunun 3 katı. Geri giderken her zaman yürüme hızı. */
+const YURUME_HIZI = 1.5;
 /** Oturma: saniyede en çok canın / mananın yüzdesi kadar dolar (sonradan ayarlanabilir). */
 const OTURMA_CAN_ORANI = 0.04;
 const OTURMA_MANA_ORANI = 0.05;
@@ -156,7 +158,7 @@ async function basla(): Promise<void> {
   };
   const kalk = () => { if (oyuncu.model?.oturuyor) oyuncu.model.oturPozu(false); };
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
-  const hizAl = () => (kosuyor ? OYUNCU_HIZI : OYUNCU_HIZI * 0.5) * oyuncu.hizCarpani; // hız buff'ı (Sprint) dahil
+  const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani; // hız buff'ı (Sprint) dahil
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
 
   const simdiSn = () => performance.now() / 1000;
@@ -444,7 +446,7 @@ async function basla(): Promise<void> {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       const h = oyuncu.bakisAcisi;
       const yon = new THREE.Vector2(Math.cos(h), Math.sin(h));
-      if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), hizAl() * 0.6 * dt);
+      if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), YURUME_HIZI * oyuncu.hizCarpani * dt);
       oyuncu.model?.oynat(ilerigeri < 0 && oyuncu.model.var('geri') ? 'geri' : hareketAnimi()); // S: geri yürüme animasyonu
     } else if (donus !== 0 && !oyuncu.hedef) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;

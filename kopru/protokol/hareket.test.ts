@@ -31,23 +31,23 @@ function simule(adimlar: Array<{ sure: number; hiz: number; yonX?: number; yonZ?
   return { paketler, ihlal: d.ihlal, son: { x, z } };
 }
 
-test('düz yürüyüş: başla (1) → saniyede bir sürüyor (3) → dur (0); sunucu kuralları çiğnenmez', () => {
-  const { paketler, ihlal } = simule([{ sure: 3.2, hiz: 4.5 }, { sure: 1, hiz: 0 }]);
+test('düz yürüyüş: başla (1) → 1,5 sn’de bir sürüyor (3) → dur (0); sunucu kuralları çiğnenmez', () => {
+  const { paketler, ihlal } = simule([{ sure: 4.7, hiz: 4.5 }, { sure: 1, hiz: 0 }]);
   assert.deepEqual(ihlal, []);
   const yankilar = paketler.map((p) => p.yanki);
   assert.equal(yankilar[0], YANKI.BASLADI);
   assert.equal(yankilar.at(-1), YANKI.DURDU);
   assert.ok(yankilar.slice(1, -1).every((y) => y === YANKI.SURUYOR));
   const sureyen = yankilar.filter((y) => y === YANKI.SURUYOR).length;
-  assert.ok(sureyen >= 2 && sureyen <= 4, `sürüyor sayısı ${sureyen}`); // ~3,2 sn → saniyede bir
+  assert.ok(sureyen >= 2 && sureyen <= 4, `sürüyor sayısı ${sureyen}`); // ~4,7 sn → 1,5 sn’de bir
   assert.equal(paketler[0].hiz, 45);
   const son = paketler.at(-1)!; assert.equal(son.hiz, 0); assert.deepEqual([son.vx, son.vz], [son.x, son.z]); // durunca varış = şimdiki konum
 });
 
-test('varış noktası, yürüme yönünde yaklaşık 1 sn ilerisidir (×10 tam sayı)', () => {
+test('varış noktası, yürüme yönünde yaklaşık 1,5 sn ilerisidir (×10 tam sayı)', () => {
   const { paketler } = simule([{ sure: 1.5, hiz: 4.5 }]);
   const p = paketler[0];
-  assert.ok(Math.abs((p.vx - p.x) - 45) <= 2, `fark ${p.vx - p.x}`); // 4,5 m = 45 birim
+  assert.ok(Math.abs((p.vx - p.x) - 67) <= 3, `fark ${p.vx - p.x}`); // 4,5 m/sn × 1,5 sn = 6,75 m ≈ 67 birim
   assert.ok(Math.abs(p.vz - p.z) <= 1);
 });
 
@@ -63,7 +63,7 @@ test('dur-kalk-dur: art arda iki "durdu" paketi asla yollanmaz', () => {
 test('yön değişince beklemeden "sürüyor" yollanır', () => {
   const { paketler, ihlal } = simule([{ sure: 0.4, hiz: 4.5, yonX: 1, yonZ: 0 }, { sure: 0.4, hiz: 4.5, yonX: 0, yonZ: 1 }]);
   assert.deepEqual(ihlal, []);
-  assert.deepEqual(paketler.map((p) => p.yanki), [YANKI.BASLADI, YANKI.SURUYOR]); // 0,8 sn'de saniyelik aralık dolmadan yön değişimiyle
+  assert.deepEqual(paketler.map((p) => p.yanki), [YANKI.BASLADI, YANKI.SURUYOR]); // 0,8 sn’de 1,5 sn’lik aralık dolmadan yön değişimiyle
 });
 
 test('hız sınırı: normal sınıfta en çok 45, savaşçıda 67 (koşu + sprint)', () => {
@@ -75,10 +75,10 @@ test('hız sınırı: normal sınıfta en çok 45, savaşçıda 67 (koşu + spri
   assert.equal(savasci.paketler[0].hiz, 67);
 });
 
-test('yavaş yürüme (yürü modu ~2,25 m/sn): hız ~22, yankı ≠ 0 iken hız hiç 0 olmaz', () => {
-  const { paketler, ihlal } = simule([{ sure: 2.5, hiz: 2.25 }, { sure: 0.5, hiz: 0 }]);
+test('yavaş yürüme (yürü modu 1,5 m/sn): hız ~15, yankı ≠ 0 iken hız hiç 0 olmaz', () => {
+  const { paketler, ihlal } = simule([{ sure: 2.5, hiz: 1.5 }, { sure: 0.5, hiz: 0 }]);
   assert.deepEqual(ihlal, []);
-  assert.ok(Math.abs(paketler[0].hiz - 22) <= 1, `hız ${paketler[0].hiz}`);
+  assert.ok(Math.abs(paketler[0].hiz - 15) <= 1, `hız ${paketler[0].hiz}`);
 });
 
 test('yerinde dururken hiç paket yollanmaz; ilk kare yalnızca konumu kaydeder', () => {
