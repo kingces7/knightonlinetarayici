@@ -172,6 +172,10 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Aşama 2 — Harita ve model okuyucuları, glTF çıktısı (sürüm 7 şifreli dokular sonradan çözüldü)
 - [x] Aşama 3 — İlk görüntü: tarayıcıda harita + yürüyen karakter + kamera (+ tek oyunculu av modu)
 - [ ] Aşama 4 — Sunucu bağlantısı: WebSocket köprüsü, şifreleme, login, karakter seçimi
+  - [x] Protokol incelemesi (kaynaktan): `docs/protokol.md` (çerçeve, JvCryption, login ve oyun sunucusu akışı, XSafe notu)
+  - [ ] Hangi sunucuyla test edilecek karar: çalışır `.exe` sunucu (Knight All in one) + JPKO yedeği ya da Myko kaynağını derlemek
+  - [ ] Köprü (`kopru/`): çerçeve ayrıştırıcı + JvCryption (testli), login server akışı, sonra oyun sunucusu
+  - [ ] Client'ın gerçek paket sırasını bir bağlantı kaydıyla doğrula (protokol.md "Doğrulanacaklar")
 - [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler
 
 ---
