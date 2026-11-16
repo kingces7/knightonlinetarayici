@@ -20,6 +20,7 @@ import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
+import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -86,6 +87,7 @@ async function basla(): Promise<void> {
   const oyuncu = new Oyuncu();
   let sunucuOturumu: SunucuOturumu | null = null;
   let sunucuDunyasi: SunucuDunyasi | null = null;
+  let sonIstenenHedef: Canavar | null = null; // sunucudan can bilgisi istenen son hedef
   let hareketGonderici: HareketGonderici | null = null; // sunucu bağlıyken oyuncu hareketini bildirir
   oyuncu.kurallariUygula();
   oyuncu.baslangicEsyalariVer();
@@ -173,6 +175,7 @@ async function basla(): Promise<void> {
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
       if (oyuncu.konum.distanceTo(hedef.konum) > SALDIRI_MENZILI + 0.5) { hud.mesaj('The target is too far away.', 'sistem'); return; }
     } else if (v.tip !== 4) { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
+    if (hedef?.agModu) { hud.mesaj('Skills are not connected to the server yet.', 'sistem'); return; } // sunucu canavarına skill: sonraki adım
     kalk();
     oyuncu.mana -= v.msp;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
@@ -256,6 +259,7 @@ async function basla(): Promise<void> {
     deneyimKaybet(fark);
   };
   hud.yenidenDog = () => {
+    if (sunucuOturumu) { sunucuOturumu.gonder(WIZ.YENIDEN_DOGUS, yenidenDogusIstegi()); return; } // sunucu canı doldurur ve yeni konumu bildirir
     // Sunucu Regene: START_POSITION (bölge 21: 264,302 + 0..3 rastgele), canı tam doldurur (mana değişmez), 10 sn göz kırpma
     oyuncu.isinla(baslangic.x + Math.floor(Math.random() * 4), baslangic.y + Math.floor(Math.random() * 4), arazi); oyuncu.can = oyuncu.enCok;
     oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.buflar = []; kalk(); oyuncu.model?.oynat('bekle');
@@ -478,7 +482,11 @@ async function basla(): Promise<void> {
       v.kalan -= dt;
       if (v.kalan > 0) continue;
       vurusZamanlayici.splice(i, 1);
-      if (v.hedef.olu || v.hedef.agModu || oyuncu.olu) continue; // sunucu canavarına saldırı henüz sunucuya bağlı değil
+      if (v.hedef.olu || oyuncu.olu) continue;
+      if (v.hedef.agModu) { // sunucu canavarı: isabeti ve hasarı sunucu belirler, biz yalnızca saldırı isteriz
+        if (sunucuOturumu && !v.beceri) sunucuOturumu.gonder(WIZ.SALDIRI, saldiriIstegi(v.hedef.agKimlik, (oyuncu.silah?.gecikme ?? 100) + 10, 10));
+        continue;
+      }
       let hasar: number;
       if (v.beceri?.tip1) { // skill vuruşu ıskalamaz (sunucu)
         hasar = beceriVurusu(oyuncu.savasVeri, v.hedef.tur, v.beceri.tip1);
@@ -515,14 +523,14 @@ async function basla(): Promise<void> {
         else if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } // karşılık ver
       }
       if (c.olu) {
-        if (!c.ganimetBirakildi && c.oluSuresi > 1.2) {
+        if (!c.agModu && !c.ganimetBirakildi && c.oluSuresi > 1.2) { // sunucu canavarının ganimeti sunucudan gelir (sonraki adım)
           c.ganimetBirakildi = true;
           const g = ganimetUret(c.tur);
           const k = new GanimetKutusu(c.konum.x, c.konum.y, g.altin, g.esyalar);
           kutular.push(k); sahne.add(k.grup);
         }
         if (c.oluSuresi > 5) c.grup.visible = false;
-        if (c.oluSuresi > c.dogusSure) c.yenidenDog(); // sunucu RegTime
+        if (!c.agModu && c.oluSuresi > c.dogusSure) c.yenidenDog(); // sunucu RegTime (sunucu canavarı yeniden doğunca sunucu bildirir)
       }
       c.sahneyeYerlestir(arazi);
     }
@@ -547,6 +555,7 @@ async function basla(): Promise<void> {
   cizici.setAnimationLoop(() => {
     const dt = Math.min(saat.getDelta(), 0.1);
     oyuncuGuncelle(dt);
+    if (sunucuOturumu && oyuncu.hedef?.agModu && oyuncu.hedef !== sonIstenenHedef) { sonIstenenHedef = oyuncu.hedef; sunucuOturumu.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(oyuncu.hedef.agKimlik)); }
     if (hareketGonderici && !oyuncu.olu) hareketGonderici.guncelle(oyuncu.konum.x, oyuncu.konum.y, oyuncu.yuksek ?? 0, dt);
     yonetici?.guncelle(dt);
     canavarlariGuncelle(dt);
@@ -593,7 +602,16 @@ async function basla(): Promise<void> {
       yonetici = null;
       for (const c of canavarlar) { sahne.remove(c.grup); hud.etiketKaldir(c); }
       canavarlar.length = 0; oyuncu.hedef = null; oyuncu.saldiriyor = false;
-      sunucuDunyasi = new SunucuDunyasi(sahne, canavarlar, digerOyuncular, hud, s.benim.soketNo);
+      sunucuDunyasi = new SunucuDunyasi(sahne, canavarlar, digerOyuncular, hud, s.benim.soketNo, oyuncu, {
+        canavarSaldirdi: (c) => ses.modelSesi(c.tur.model, 'saldir', c.konum),
+        canavarVuruldu: (c) => ses.modelSesi(c.tur.model, 'darbe', c.konum),
+        oyuncuVuruldu: () => {
+          kalk(); ses.modelSesi(OYUNCU_SES_MODELI, oyuncu.olu ? 'olum' : 'darbe');
+          if (oyuncu.olu) { oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.model?.oynatRastgele('olum', 3, false, 0.1); } else oyuncu.model?.oynatRastgele('darbe', 3, false, 0.05);
+        },
+        seviyeAtlandi: () => envanterYenile(),
+        yenidenDogdu: (x, z) => { oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.buflar = []; kalk(); oyuncu.model?.oynat('bekle'); hud.mesaj('You have been revived.', 'sistem'); },
+      });
       const dunya = sunucuDunyasi;
       s.akisaGec((p) => dunya.paketIsle(p));
       // Hareketi sunucuya bildir (savaşçı/büyücü/rahip sınıflarında sunucu hız sınırı 6,7 m/sn, diğerlerinde 4,5).

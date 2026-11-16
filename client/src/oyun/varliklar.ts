@@ -185,6 +185,24 @@ export class Canavar extends Varlik {
     }
   }
 
+  /** Sunucu canavarı: sunucu "öldü" dedi (WIZ_DEAD). Ganimet ve yeniden doğma sunucudan gelir. */
+  agOlum(): void {
+    if (this.olu) return;
+    this.can = 0; this.durum = 'olu'; this.oluSuresi = 0; this.agHedef = null;
+    this.model?.oynatRastgele('olum', 2, false, 0.1);
+  }
+  /** Sunucu canavarı: vuruş alınca darbe animasyonu (hasar sunucudan gelir). */
+  agDarbe(): void {
+    if (this.olu || !this.model) return;
+    this.model.oynatRastgele('darbe', 3, false, 0.05);
+    setTimeout(() => { if (!this.olu && this.model?.aktifAd.startsWith('darbe')) this.model.oynat('bekle'); }, 400);
+  }
+  /** Sunucu canavarı: yeniden doğdu (aynı kimlikle yeniden göründü). */
+  agCanlan(x: number, z: number): void {
+    this.konum.set(x, z); this.can = this.enCok; this.durum = 'gez'; this.oluSuresi = 0; this.agHedef = null;
+    this.grup.visible = true; this.model?.oynat('bekle');
+  }
+
   yenidenDog(): void {
     this.konum.copy(this.dogum);
     this.can = this.enCok; this.durum = 'gez'; this.kizgin = false; this.ganimetBirakildi = false;

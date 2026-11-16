@@ -1,0 +1,628 @@
+{
+ "aciklama": "Lilith (seviye 65) bir canavara saldirirken gelen paketler (Myko, 2026-11-16). hedefId/protoNo: saldirilan canavar.",
+ "hedefId": 8110,
+ "protoNo": 754,
+ "lilithSoketNo": 1,
+ "paketler": [
+  {
+   "asama": "hedef_sec",
+   "opcode": 34,
+   "hex": "ae1f0120000000200000000000010001"
+  },
+  {
+   "asama": "hedef_sec",
+   "opcode": 11,
+   "hex": "01122194117c0600000e00"
+  },
+  {
+   "asama": "hedef_sec",
+   "opcode": 131,
+   "hex": "0100"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 26,
+   "hex": "019dd3c90f00000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 35,
+   "hex": "ae1f020000000c"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 17,
+   "hex": "ae1f"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 233,
+   "hex": "af02f202000000000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 56,
+   "hex": "06ec41"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 8,
+   "hex": "01020100ae1f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a01fcc103e0800000e00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a21fae105c0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a11fa410480800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a31fc7102d0800001e00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a41f9a10840800001000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ab1f7210480800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01aa1fa4107a0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ad1f9010660800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b11ff30eb00800001e00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ac1fea10340800000e00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b01fc40ec00800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b21f880ee80800000800"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b31fec0eac0800001600"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01c41fd40d040600001500"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01c61fa20d2c0600001d00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "014e20100e340800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0154205410b20700000100"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0155203610f80700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0153205e10ee0700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0157205e10800700000700"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0156205e100c0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0163201211720600000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0165200811680600001000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016220c2107c0600001400"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0164200811680600000200"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0166201c11860600000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016c20520da80700000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "017020280d0e0800000700"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0176202a12220600000a00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0179202a12040600000800"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01772066120e0600000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0178204812400600000a00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "017a202012180600001b00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b720060ed20500001c00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01e9207c10220600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ea209a105e0600000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ed205e107c0600000a00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01eb205e10540600001200"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ec20b50f3f0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01122194117c0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019c1ff20dfc0800000800"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019b1fca0dc00800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019e1fde0d060900000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019f1f1a0eac0800000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a01fcc103e0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019d1fc00dca0800000a00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a41f9a10840800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ac1fea10340800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01af1fba0eca0800001700"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b21f880ee80800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b31fec0eac0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 10,
+   "hex": "02c31f"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01c71ff20dc80500000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01c41fd40d040600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01c61fa20d2c0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "015020560e3e0800000b00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "014e20100e340800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "014f20740e480800000f00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0152207e0e3e0800000300"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0154205410b20700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "015120740e340800001700"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0157205e10800700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0163201211720600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0165200811680600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016220c2107c0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0164200811680600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0166201c11860600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016f207a0dda0700000500"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016c20520da80700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 10,
+   "hex": "016e205503012003000000000000000000780000000000000000000012200d160800000000000000000000000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016e20200d160800000500"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016d205c0de40700000300"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "017020280d0e0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0176202a12220600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0179202a12040600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01772066120e0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0178204812400600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "017a202012180600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b720060ed20500000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ba206a0e180600000b00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b820060e5e0600001d00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b920060ee60500000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01bb20240ee60500001500"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01e9207c10220600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ea209a105e0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ed205e107c0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01eb205e10540600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 233,
+   "hex": "ba0200000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019c1ff20dfc0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019b1fca0dc00800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019e1fde0d060900000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019f1f1a0eac0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "019d1fc00dca0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a11fce10390800002c00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01a11fce10390800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ab1f4910330800002d00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ab1f4910330800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01aa1fa4104d0800002d00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01aa1fa4104d0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01af1fba0eca0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01c71ff20dc80500000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "015020560e3e0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "014f20740e480800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0152207e0e3e0800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0155205510d80700002c00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "0155205510d80700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "015120740e340800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016f207a0dda0700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016e20200d160800000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "016d205c0de40700000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ba206a0e180600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01b820060e5e0600000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01bb20240ee60500000000"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ec20e10f480600002c00"
+  },
+  {
+   "asama": "saldiri_1",
+   "opcode": 11,
+   "hex": "01ec20e10f480600000000"
+  }
+ ]
+}

@@ -4,7 +4,7 @@
 // Şimdilik yalnızca CANAVARLAR sunucudan gelir (tür 1); sabit dost NPC'ler (tür 2) yerel npc.json'dan görünmeye devam eder (aynı veritabanından, hareket etmezler).
 // Sunucu canavarında hasar/ölüm henüz sunucuya bağlı değil (saldırı paketleri sonraki adım).
 import * as THREE from 'three';
-import { Canavar, DigerOyuncu, YON_OFSET } from './varliklar';
+import { Canavar, DigerOyuncu, type Oyuncu, YON_OFSET } from './varliklar';
 import { canavarTuruSid, irkModeli } from './veri';
 import type { Hud } from '../arayuz/hud';
 import type { Paket } from '../ag/sunucu';
@@ -13,6 +13,19 @@ import {
   type KullaniciBilgisi, type NpcBilgisi,
 } from '../../../kopru/protokol/paketler.ts';
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
+import {
+  SALDIRI_SONUCU, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
+} from '../../../kopru/protokol/savas.ts';
+
+/** Savaş olaylarında ana döngünün yapacağı yan işler (ses, ayağa kalkma, arayüz yenileme). */
+export interface SavasKancalari {
+  canavarSaldirdi?: (c: Canavar) => void;
+  canavarVuruldu?: (c: Canavar, hasar: number) => void;
+  /** Kendi canımız değişti (düştüyse `hasar` > 0). */
+  oyuncuVuruldu?: (hasar: number) => void;
+  seviyeAtlandi?: () => void;
+  yenidenDogdu?: (x: number, z: number) => void;
+}
 
 /** Bu uzaklıktan (m) fazla geride kalan varlık varış noktasına ışınlanır (sekme/bağlantı gecikmesi). */
 const ISINLAMA_ESIGI = 6;
@@ -32,10 +45,15 @@ export class SunucuDunyasi {
   private oyuncuListesi: DigerOyuncu[];
   private hud: Hud;
   private benimSoketNo: number;
+  private oyuncu: Oyuncu | null;
+  private kancalar: SavasKancalari;
+  /** Sunucunun bildirdiği son can (yerel can yenilenmesi kesirli değer üretir; hasar bu değere göre hesaplanır). */
+  private sonSunucuCan: number | null = null;
 
   /** `liste`/`oyuncuListesi`: oyun döngüsünün gezdiği diziler (varlıklar yüklenince buraya eklenir, kalkınca çıkarılır). */
-  constructor(sahne: THREE.Scene, liste: Canavar[], oyuncuListesi: DigerOyuncu[], hud: Hud, benimSoketNo: number) {
+  constructor(sahne: THREE.Scene, liste: Canavar[], oyuncuListesi: DigerOyuncu[], hud: Hud, benimSoketNo: number, oyuncu: Oyuncu | null = null, kancalar: SavasKancalari = {}) {
     this.sahne = sahne; this.liste = liste; this.oyuncuListesi = oyuncuListesi; this.hud = hud; this.benimSoketNo = benimSoketNo;
+    this.oyuncu = oyuncu; this.kancalar = kancalar;
   }
 
   paketIsle(p: Paket): void {
@@ -54,6 +72,13 @@ export class SunucuDunyasi {
         break;
       }
       case WIZ.HAREKET: { this.sayac.oyuncuHareket++; const h = kullaniciHareketi(p.govde); this.oyuncuHareketi(h.id, h.x, h.z, h.hiz, h.yanki); break; }
+      case WIZ.SALDIRI: this.saldiri(saldiriSonucu(p.govde)); break;
+      case WIZ.HEDEF_CAN: this.hedefCan(hedefCan(p.govde)); break;
+      case WIZ.CAN_DEGISTI: this.canDegisti(canDegisti(p.govde)); break;
+      case WIZ.OLUM: this.olum(olum(p.govde).id); break;
+      case WIZ.DENEYIM_DEGISTI: this.deneyim(deneyimDegisti(p.govde)); break;
+      case WIZ.SEVIYE_DEGISTI: this.seviye(seviyeDegisti(p.govde)); break;
+      case WIZ.YENIDEN_DOGUS: { const y = yenidenDogusCevabi(p.govde); this.kancalar.yenidenDogdu?.(y.x, y.z); break; }
       default: break; // diğer paketler sonraki adımlarda
     }
   }
@@ -62,7 +87,7 @@ export class SunucuDunyasi {
   private ekle(n: NpcBilgisi): void {
     if (n.tur !== 1) return; // dost NPC: yerelde
     const var_ = this.canavarlar.get(n.id);
-    if (var_) { var_.konum.set(n.x, n.z); var_.agHedef = null; return; } // zaten var: yeni konum
+    if (var_) { if (var_.olu) var_.agCanlan(n.x, n.z); else { var_.konum.set(n.x, n.z); var_.agHedef = null; } return; } // zaten var: yeniden doğdu ya da yeni konum
     const tur = canavarTuruSid(n.protoNo, 1);
     if (!tur) { this.bilinmeyenTurler.add(n.protoNo); return; }
     const c = new Canavar(tur, n.x, n.z);
@@ -121,6 +146,69 @@ export class SunucuDunyasi {
     o.agHedef = hedef; o.agHiz = yanki === 0 ? 6 : hiz;
     o.suruyor = yanki !== 0; o.sonPaketSn = performance.now() / 1000;
     const fark = hedef.clone().sub(o.konum); if (fark.lengthSq() > 1e-4) o.yonV.copy(fark.normalize());
+  }
+
+  // ---------------------------------------------------------------- savaş (sunucu belirler; biz yalnızca gösteririz)
+  private saldiri(s: { tur: number; sonuc: number; saldiran: number; hedef: number }): void {
+    const o = this.oyuncu;
+    if (s.saldiran === this.benimSoketNo) { // bizim saldırımız
+      const c = this.canavarlar.get(s.hedef);
+      if (c && s.sonuc === SALDIRI_SONUCU.ISKA) this.hud.mesaj(`You missed ${c.tur.ad}.`, 'bilgi');
+      if (c && (s.sonuc === SALDIRI_SONUCU.HEDEF_OLDU || s.sonuc === SALDIRI_SONUCU.HEDEF_OLDU_TAMAM)) this.hud.mesaj(`${c.tur.ad} has been defeated.`, 'sistem');
+      return;
+    }
+    const c = this.canavarlar.get(s.saldiran);
+    if (c && s.hedef === this.benimSoketNo && o) { // canavar bize saldırdı
+      c.bak(o.konum); c.model?.oynatRastgele('saldir', 2, false, 0.1);
+      this.kancalar.canavarSaldirdi?.(c);
+      if (s.sonuc === SALDIRI_SONUCU.ISKA) this.hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi');
+    }
+  }
+
+  private hedefCan(h: { id: number; enCok: number; can: number; hasar: number; saldiran: number }): void {
+    const c = this.canavarlar.get(h.id); if (!c) return;
+    c.enCok = h.enCok; c.can = h.can;
+    if (h.hasar > 0 && h.saldiran === this.benimSoketNo) {
+      this.hud.mesaj(`You hit ${c.tur.ad} for ${h.hasar} damage.`, 'bilgi');
+      c.agDarbe(); this.kancalar.canavarVuruldu?.(c, h.hasar);
+    }
+  }
+
+  private canDegisti(d: { enCok: number; can: number; saldiran: number }): void {
+    const o = this.oyuncu; if (!o) return;
+    const once = this.sonSunucuCan ?? Math.round(o.can);
+    this.sonSunucuCan = d.can;
+    o.enCok = d.enCok; o.can = d.can;
+    const hasar = once - d.can;
+    if (hasar > 0) {
+      const c = this.canavarlar.get(d.saldiran);
+      this.hud.mesaj(c ? `${c.tur.ad} hits you for ${hasar} damage.` : `You took ${hasar} damage.`, 'hasar');
+      if (d.can <= 0) this.hud.mesaj(c ? `You were slain by ${c.tur.ad}.` : 'You were slain.', 'hasar');
+      this.kancalar.oyuncuVuruldu?.(hasar);
+    }
+  }
+
+  private olum(id: number): void {
+    if (id === this.benimSoketNo) { if (this.oyuncu && this.oyuncu.can > 0) { this.oyuncu.can = 0; this.kancalar.oyuncuVuruldu?.(0); } return; }
+    this.canavarlar.get(id)?.agOlum();
+  }
+
+  private deneyim(d: { tur: number; deneyim: bigint }): void {
+    const o = this.oyuncu; if (!o) return;
+    const yeni = Number(d.deneyim), fark = yeni - o.deneyim;
+    o.deneyim = yeni;
+    if (fark > 0) this.hud.mesaj(`You gained ${fark} experience.`, 'odul');
+  }
+
+  private seviye(s: { id: number; seviye: number; bosPuan: number; azamiDeneyim: bigint; deneyim: bigint; enCokCan: number; can: number; enCokMana: number; mana: number }): void {
+    if (s.id !== this.benimSoketNo) { const d = this.oyuncular.get(s.id); if (d) d.seviye = s.seviye; return; }
+    const o = this.oyuncu; if (!o) return;
+    const yukseldi = s.seviye > o.seviye;
+    o.seviye = s.seviye; o.bonusPuan = s.bosPuan; o.azamiDeneyimSunucu = Number(s.azamiDeneyim); o.deneyim = Number(s.deneyim);
+    o.enCok = s.enCokCan; o.can = s.can; o.enCokMana = s.enCokMana; o.mana = s.mana;
+    this.sonSunucuCan = s.can;
+    this.hud.mesaj(yukseldi ? `Level up! You are now level ${s.seviye}.` : `You are now level ${s.seviye}.`, 'sistem');
+    this.kancalar.seviyeAtlandi?.();
   }
 
   /** Bağlantı kapanırken ya da sunucudan ayrılırken: sunucudan gelen her şeyi sahneden kaldırır. */

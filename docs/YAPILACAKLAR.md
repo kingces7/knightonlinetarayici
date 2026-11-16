@@ -184,7 +184,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
   - [ ] İstemci eşya listesi sunucudaki tüm eşyaları kapsamıyor (6 eşyadan 1'i eşleşmedi): `Item_Org_us.tbl` tamamından üret
   - [x] **Karakter modeli ırka göre** (kendimiz ve diğer oyuncular): 1-4 Karus ırkları, 11 Barbar, 12 Erkek, 13 Kadın → `client/src/oyun/veri.ts` `IRK_MODELLERI` (zırhlı hazır görünümler; Lilith artık kadın El Morad). Kalan: sınıfa/eşyaya göre giydirme (diğer oyuncuların `WIZ_USER_INOUT` eşya listesi hazır, çizilmiyor), yüz/saç; klan üyesi karakterlerin `WIZ_MYINFO` klan bloğu
   - [x] **Aşama 5 başlangıcı:** canlı dünya — sunucudan canavarlar (giriş/çıkış/hareket), diğer oyuncular (liste/giriş/çıkış/hareket) görünür ve yürür; kendi hareketimiz sunucuya bildirilir (kurallara uygun, testli) — gerçek sunucuda ve tarayıcıda doğrulandı (docs/protokol.md §14)
-  - [ ] Saldırı/hasar/ölüm sunucuya bağlansın (WIZ_ATTACK, WIZ_TARGET_HP, WIZ_DEAD…); sunucu canavarına vuruş şimdilik yok sayılıyor
+  - [x] **Savaş sunucuya bağlandı:** saldırı isteği, isabet/ıska, hasar, canavar canı, canavarın karşı vuruşu, ölüm, deneyim, seviye atlama, yeniden doğma (docs/protokol.md §15; tarayıcıda doğrulandı)
+  - [ ] Ganimet: ölen canavarın torbasını aç/al (0x23, 0x24, 0x26), altın (0x4a); sunucu skill'leri (0x31 WIZ_MAGIC_PROCESS); oyuncu-oyuncu savaşı
   - [ ] Sohbet (0x10 gönder/al), NPC etkileşimi (0x20), envanter/eşya (0x1F…), skill (0x31) paketleri
   - [ ] Diğer oyuncuların eşyaları/modeli görünsün (şimdi hepsi aynı model); ırk/sınıfa göre model
   - [ ] Dost NPC'ler (tür 2) sunucudan gelsin (şimdi yerel npc.json); bölge/harita değişimi (WIZ_ZONE_CHANGE)
