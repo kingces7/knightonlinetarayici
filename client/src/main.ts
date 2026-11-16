@@ -211,7 +211,7 @@ async function basla(): Promise<void> {
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v, hedefEfekt: efektId?.hedef ?? null });
     } else if (v.tip4) {
-      if (!hareketEdiyor) oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
+      // Buff skill'lerinde (Sprint, Defense…) karakter animasyonu oynatılmaz (kullanıcı isteği); yalnız efekt çıkar.
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
       oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
       if (efektId?.hedef) void efektler.oynat(efektId.hedef, oyuncu.grup, { sure: 1.2 }); // buff'ta hedef efekti de kullanana uygulanır

@@ -48,6 +48,41 @@ export class UiPencere {
    * (ör. envanterin solunda/sağında); ekrana yaslarken bu boşluk hesaba katılır.
    */
   sinirTemizle(): void { this.sinirOnbellek = null; }
+  /**
+   * `sinir()`'in piksel düzeyinde hâli: her resmin SAYDAM olmayan piksellerinin sınırı bulunur (resim dosyalarının kendi saydam kenar boşlukları da atılır).
+   * Resimler yüklendikten sonra çağrılır; önbelleği günceller. Başarılıysa true.
+   */
+  async sinirKesinles(): Promise<boolean> {
+    const onceki = { d: this.el.style.display, v: this.el.style.visibility };
+    this.el.style.display = ''; this.el.style.visibility = 'hidden';
+    const ol = this.olcek || 1, r0 = this.el.getBoundingClientRect();
+    const ogeler: { e: HTMLElement; l: number; t: number; w: number; h: number }[] = [];
+    for (const e of this.el.querySelectorAll<HTMLElement>('*')) {
+      const cs = getComputedStyle(e); if (cs.display === 'none' || cs.backgroundImage === 'none') continue;
+      const k = e.getBoundingClientRect(); if (k.width < 2 || k.height < 2) continue;
+      ogeler.push({ e, l: (k.left - r0.left) / ol, t: (k.top - r0.top) / ol, w: k.width / ol, h: k.height / ol });
+    }
+    this.el.style.display = onceki.d; this.el.style.visibility = onceki.v;
+    let a = 1e9, b = 1e9, c = 0, d = 0;
+    const resimler = new Map<string, HTMLImageElement>();
+    for (const g of ogeler) {
+      const m = /url("?([^")]+)"?)/.exec(g.e.style.backgroundImage || getComputedStyle(g.e).backgroundImage); if (!m) continue;
+      let img = resimler.get(m[1]);
+      if (!img) { img = new Image(); img.src = m[1]; try { await img.decode(); } catch { continue; } resimler.set(m[1], img); }
+      const bs = /^(-?[d.]+)px (-?[d.]+)px$/.exec(g.e.style.backgroundSize), bp = /^(-?[d.]+)px (-?[d.]+)px$/.exec(g.e.style.backgroundPosition);
+      const W = Math.max(1, Math.ceil(g.w)), H = Math.max(1, Math.ceil(g.h));
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d', { willReadFrequently: true })!;
+      if (bs && bp) cx.drawImage(img, Number(bp[1]), Number(bp[2]), Number(bs[1]), Number(bs[2])); else cx.drawImage(img, 0, 0, W, H);
+      const px = cx.getImageData(0, 0, W, H).data;
+      let x0 = W, y0 = H, x1 = -1, y1 = -1;
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (px[(y * W + x) * 4 + 3] > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+      if (x1 < 0) continue;
+      a = Math.min(a, g.l + x0); b = Math.min(b, g.t + y0); c = Math.max(c, g.l + x1 + 1); d = Math.max(d, g.t + y1 + 1);
+    }
+    if (!(c > a)) return false;
+    this.sinirOnbellek = [Math.max(0, a), b, c, d];
+    return true;
+  }
   sinir(): [number, number, number, number] {
     if (this.sinirOnbellek) return this.sinirOnbellek;
     const onceki = { d: this.el.style.display, v: this.el.style.visibility };

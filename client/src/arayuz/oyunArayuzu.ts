@@ -188,6 +188,8 @@ export class OyunArayuzu {
     this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari, topSol: true, seritY: 122, tasi: { sol: 20, genislik: 76, yukseklik: 24 } }, () => this.gorevYerlestir());
     this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, seritY: 116, seritSag: true, tasi: { sag: 20, genislik: 85, yukseklik: 22 } }, () => this.gorevYerlestir());
     this.pencereYerlestir(true); this.gorevYerlestir();
+    // Skill çubuğunun resim dosyasındaki saydam sol boşluk piksel taramasıyla atılır; sonra yeniden yerleştirilir (çubuk ekranın sol kenarına tam yapışır).
+    void this.cubuk.sinirKesinles().then((tamam) => { if (tamam) this.gorevYerlestir(); });
     addEventListener('resize', () => { this.pencereYerlestir(false); this.gorevYerlestir(); });
   }
 
@@ -367,6 +369,8 @@ export class OyunArayuzu {
     const h = this.hedefCubugu;
     h.gizleDesen(/^(frame_[1-9][0-9]?|base_mon_hp_level_long|base_player_hp_state|base_cover|Button_Board|mark_pos)$/); // yalnız frame_0 (sade çerçeve) kullanılır
     h.el.style.display = 'none'; h.el.style.zIndex = '4';
+    // Referans görünüm: canavar adı kırmızı-somon ve büyük, altında yazısız parlak kırmızı can çubuğu.
+    for (const e of h.bul('name')) { e.style.color = '#ff5a5a'; e.querySelectorAll<HTMLElement>('*').forEach((k) => { k.style.color = '#ff5a5a'; k.style.fontSize = '17px'; k.style.fontWeight = '600'; k.style.textShadow = '0 1px 2px #000'; }); }
   }
   private hedefCubukHedef: unknown = null; private hedefCubukOran = 1;
   private hedefCiz(): void {
@@ -378,7 +382,7 @@ export class OyunArayuzu {
     const k = fark <= -5 ? 0 : fark <= 1 ? 1 : fark <= 5 ? 2 : 3;
     for (let i = 0; i < 4; i++) h.goster(`grpg_level_${i}`, i === k);
     h.metin('name', hd.tur.ad);
-    h.metin('Text_Health', `${Math.ceil(hd.can)} / ${hd.enCok}`);
+    h.metin('Text_Health', ''); // referans görünüm: çubuğun üstünde yazı yok, can çubuğun doluluğundan izlenir
     // Can çubuğu vuruşta ani kesilmez: hızla (≈0,15 sn) yeni değere akar; hedef değişince hemen oturur.
     const oran = Math.max(0, hd.can / Math.max(1, hd.enCok));
     if (this.hedefCubukHedef !== hd) { this.hedefCubukHedef = hd; this.hedefCubukOran = oran; } else this.hedefCubukOran += (oran - this.hedefCubukOran) * 0.25;
@@ -578,7 +582,7 @@ export class OyunArayuzu {
         // Oyunun kare (pencere) simgesi: knight1.dxt (221,420), üzerine gelince alttaki kare
         Object.assign(e.style, { width: '13px', height: '13px', backgroundPosition: '-221px -420px' });
         e.addEventListener('pointerenter', () => { e.style.backgroundPosition = '-221px -433px'; }); e.addEventListener('pointerleave', () => { e.style.backgroundPosition = '-221px -420px'; });
-        e.addEventListener('click', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.cubuk.sinirTemizle(); this.gorevYerlestir(); });
+        e.addEventListener('click', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.cubuk.sinirTemizle(); this.gorevYerlestir(); void this.cubuk.sinirKesinles().then((tamam) => { if (tamam) this.gorevYerlestir(); }); });
       });
       g.append(kilit, yon); this.cubukKilitDugmeleri.push(kilit);
     }
