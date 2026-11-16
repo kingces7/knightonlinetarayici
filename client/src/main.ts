@@ -368,11 +368,13 @@ async function basla(): Promise<void> {
   addEventListener('pointerup', () => document.body.classList.remove('imlec-basili'));
   tuval.addEventListener('pointermove', (e) => {
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
-    const ustunde = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu)).length > 0;
-    document.body.classList.toggle('imlec-saldir', ustunde);
+    document.body.classList.remove('imlec-saldir'); // canavarın üstünde kılıç imleci yok: saldırı tamamen oyuncunun kararı
   });
   tuval.addEventListener('pointerleave', () => document.body.classList.remove('imlec-saldir'));
   const sol = { basili: false, x: 0, y: 0 };
+  let fareSolBasili = false;
+  addEventListener('pointerdown', (e) => { if (e.button === 0) fareSolBasili = true; });
+  addEventListener('pointerup', (e) => { if (e.button === 0) fareSolBasili = false; });
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
@@ -395,7 +397,10 @@ async function basla(): Promise<void> {
       const yeniHedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null;
       if (yeniHedef !== oyuncu.hedef) { oyuncu.saldiriyor = false; hud.ganimetAc(null); }
       oyuncu.hedef = yeniHedef;
-      sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; // tuş basılı kalırsa karakter imlece doğru yürümeye devam eder
+      // Kısa tık yalnız seçer (karakter dönmez/yürümez). Tuş 0,3 sn'den uzun basılı kalırsa imlece doğru yürüme başlar.
+      const tikZamani = performance.now(); sol.x = e.clientX; sol.y = e.clientY;
+      const bekle = setTimeout(() => { if (fareSolBasili && performance.now() - tikZamani >= 280) { sol.basili = true; } }, 300);
+      addEventListener('pointerup', () => clearTimeout(bekle), { once: true });
       return;
     }
     const oyuncuVurus = isin.intersectObjects(digerOyuncular.map((d) => d.secimKutusu))[0];
