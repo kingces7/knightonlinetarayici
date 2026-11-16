@@ -105,6 +105,14 @@ export class KarakterModeli {
   };
   private aile: [number, number, number, number, number] | null = null;
   private silahTipi = -1;
+  private savasDurusuDeger = false;
+  /** Düşman hedef seçiliyken true: bekleme animasyonu silahlı savaş duruşu olur. */
+  get savasDurusu(): boolean { return this.savasDurusuDeger; }
+  set savasDurusu(d: boolean) {
+    if (d === this.savasDurusuDeger) return;
+    this.savasDurusuDeger = d;
+    if (this.aktifAd === 'bekle') { this.aktifAd = ''; this.calistir('bekle', true, 0.2); }
+  }
   private klipNo(no: number): string | undefined {
     if (!no) return undefined;
     for (const ad of this.klipler.keys()) if (ad.startsWith(`${no}_`)) return ad;
@@ -148,7 +156,8 @@ export class KarakterModeli {
 
   private calistir(ad: string, tekrar: boolean, gecis: number): number {
     let gercek = this.klipler.has(ad) ? ad : KarakterModeli.YEDEK_AD[ad] ?? ad;
-    if (this.aile) { const f = ad === 'bekle' ? this.klipNo(this.aile[0]) : ad === 'saldir0' ? this.klipNo(this.aile[1]) : ad === 'saldir1' ? this.klipNo(this.aile[2]) : undefined; if (f) gercek = f; }
+    // Orijinal (JudgeAnimationBreath): silaha özgü bekleme duruşu YALNIZCA düşman bir hedef varken; aksi hâlde normal soluma (ANI_BREATH).
+    if (this.aile) { const f = ad === 'bekle' ? (this.savasDurusu ? this.klipNo(this.aile[0]) : undefined) : ad === 'saldir0' ? this.klipNo(this.aile[1]) : ad === 'saldir1' ? this.klipNo(this.aile[2]) : undefined; if (f) gercek = f; }
     const klip = this.klipler.get(gercek);
     if (!klip) return 0;
     if (this.aktifAd === ad && tekrar) return klip.duration;

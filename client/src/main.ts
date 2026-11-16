@@ -397,6 +397,7 @@ async function basla(): Promise<void> {
     oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
     oyuncu.model?.giyimAyarla(oyuncu.ekipman);
     oyuncu.model?.silahAyarla(oyuncu.ekipman[6]?.tip ?? 0);
+    if (oyuncu.model) oyuncu.model.savasDurusu = !!oyuncu.hedef && !oyuncu.hedef.olu;
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
     void oyuncu.model?.plugTak('sol', oyuncu.ekipman[8]?.no ?? 0);
     if (oyuncu.olu) return;
