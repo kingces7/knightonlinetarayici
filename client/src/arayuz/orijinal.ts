@@ -21,10 +21,10 @@ function renk(c: number): string {
 
 /**
  * Arayüzün (pencereler, çubuklar) ekran büyüklüğüne göre ölçeği.
- * Formül: ölçek = sınırla( min(genişlik / 1280, yükseklik / 640) × ARAYUZ_CARPANI , 1 , 2,2 ). 2560×1270'te tam ölçek 1,98'dir; çarpan 0,75 ile 1,49 olur.
+ * Formül: ölçek = sınırla( min(genişlik / 1280, yükseklik / 640) × ARAYUZ_CARPANI , 1 , 2,2 ). 2560×1270'te tam ölçek 1,98'dir; çarpan 0,6566 ile 1,30 olur.
  * Deneme için adrese `?ui=1.7` yazılırsa çarpan yerine bu ölçek aynen kullanılır.
  */
-export const ARAYUZ_CARPANI = 0.75;
+export const ARAYUZ_CARPANI = 0.6566;
 export function arayuzOlcegi(): number {
   const u = Number(new URLSearchParams(location.search).get('ui'));
   if (u >= 0.5 && u <= 4) return u;

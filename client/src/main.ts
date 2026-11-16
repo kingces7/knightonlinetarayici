@@ -446,7 +446,8 @@ async function basla(): Promise<void> {
     const egimTus = (tuslar.has('Home') ? 1 : 0) - (tuslar.has('End') ? 1 : 0);
     if (egimTus !== 0) kamera.egimKaydir(egimTus * 45 * dt);
     if (otoIleri && (tuslar.has('KeyW') || tuslar.has('KeyS') || oyuncu.yuruHedef || oyuncu.olu || oyuncu.model?.oturuyor)) otoIleri = false;
-    const ilerigeri = Math.max(ikiTus || otoIleri ? 1 : 0, (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0));
+    const tusYonu = (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0); // W ileri, S geri (eskiden Math.max(0, …) geri yönü siliyordu)
+    const ilerigeri = ikiTus || otoIleri ? Math.max(1, tusYonu) : tusYonu;
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
     if (!oyuncu.hedef) oyuncu.saldiriyor = false;
     oyuncu.saldiriSayaci = Math.max(0, oyuncu.saldiriSayaci - dt); // (eskiden yalnızca saldırı dalında düşüyordu: hedef ölünce saldırı duruşunda takılıyordu)

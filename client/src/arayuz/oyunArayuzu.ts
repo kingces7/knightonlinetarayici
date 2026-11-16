@@ -171,6 +171,7 @@ export class OyunArayuzu {
       };
     });
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
+    this.genel.davranis.set('re_el_page_quest', (p) => this.sekmeSeridi(p, 'gorev'));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
     this.genel.davranis.set('re_exitmenu', (p, kapat) => {
       p.tikla.set('btn_exit', () => { this.b.mesaj('Close this browser tab to leave the game.'); kapat(); });
@@ -610,7 +611,9 @@ export class OyunArayuzu {
 
   private bilgiKur(): void {
     const p = this.bilgi;
-    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|scroll)/);
+    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|scroll|btn_Merchant|btn_notice)/); // Merchant Chat / Recent Notices sekmeleri işe yaramıyor (yalnız Information kalır)
+    // Boş iki sekmenin (Merchant Chat / Recent Notices) çerçeve resimleri de kalkar; yalnız Information sekmesi ve sağdaki küre kalır.
+    for (const e of Array.from(p.el.children) as HTMLElement[]) { if (Math.abs((parseFloat(e.style.top) || 0) - 117) < 1.5 && (parseFloat(e.style.left) || 0) < 190 && e.dataset.id === undefined) e.style.display = 'none'; }
     for (const e of p.bul('img_sizechange')) e.style.pointerEvents = 'none'; // köşe tutamağı: büyütme SerbestPencere'de
     for (const id of ['img_background', 'img_background2']) for (const e of p.bul(id)) e.style.opacity = String(ARKA_PLAN_SAYDAMLIK);
     this.satirKabi(p.alan('text_message'), 12);
@@ -665,15 +668,15 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- karakter durumu (U)
   // ---------------------------------------------------------------- Character / Clan / Friends sekmeleri
   /** Pencerenin üstüne (nick satırının üstüne) Character / Clan / Friends sekme şeridi koyar. */
-  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'klan' | 'dost' | 'baslik'): void {
+  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', ust = -31): void {
     const sirit = document.createElement('div');
     const w = p.boyut[0] - 6;
-    Object.assign(sirit.style, { position: 'absolute', left: '3px', top: '-31px', width: `${w}px`, display: 'flex', gap: '2px', zIndex: '3' });
-    const adlar: [typeof aktif, string][] = [['durum', 'Character'], ['klan', 'Clan'], ['dost', 'Friends'], ['baslik', 'Title']];
+    Object.assign(sirit.style, { position: 'absolute', left: '3px', top: `${ust}px`, width: `${w}px`, display: 'flex', gap: '2px', zIndex: '3' });
+    const adlar: [typeof aktif, string][] = [['durum', 'Character Report'], ['gorev', 'Quest'], ['klan', 'Clan'], ['dost', 'Friend']];
     for (const [kod, yazi] of adlar) {
       const b = document.createElement('div'); b.textContent = yazi;
       Object.assign(b.style, {
-        flex: '1', height: '29px', lineHeight: '25px', textAlign: 'center', font: '600 13px Segoe UI, Tahoma, sans-serif', color: '#fff', cursor: 'pointer', boxSizing: 'border-box',
+        flex: '1', height: '31px', lineHeight: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: '600 12px Segoe UI, Tahoma, sans-serif', color: '#fff', cursor: 'pointer', boxSizing: 'border-box',
         border: kod === aktif ? '2px solid #e9d9a4' : '2px solid #b9955a', borderRadius: '7px', textShadow: '0 1px 2px #000',
         background: kod === aktif ? 'linear-gradient(#5b6478,#2b3144 55%,#1c2030)' : 'linear-gradient(#3d4457,#1b1f2c 55%,#10131c)', boxShadow: 'inset 0 0 0 1px #0008, 0 1px 3px #000a',
       });
@@ -682,9 +685,9 @@ export class OyunArayuzu {
     }
     p.el.appendChild(sirit);
   }
-  private static readonly SEKME_PENCERE = { klan: 're_el_clan_window', dost: 're_el_page_friend', baslik: 're_title_window' } as const;
+  private static readonly SEKME_PENCERE = { gorev: 're_el_page_quest', klan: 're_el_clan_window', dost: 're_el_page_friend', baslik: 're_title_window' } as const;
   /** Sekme değiştirir: yeni pencere aynı yerde açılır, eskisi kapanır. */
-  private async sekmeGit(hedef: 'durum' | 'klan' | 'dost' | 'baslik', kaynak: UiPencere): Promise<void> {
+  private async sekmeGit(hedef: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', kaynak: UiPencere): Promise<void> {
     const sol = kaynak.el.style.left, ust = kaynak.el.style.top, ol = kaynak.olcek;
     let yeni: UiPencere | undefined;
     if (hedef === 'durum') { this.ac('durum', true); yeni = this.pencereler.durum; }
@@ -731,14 +734,18 @@ export class OyunArayuzu {
 
   private durumKur(): void {
     const p = this.pencereler.durum;
-    this.sekmeSeridi(p, 'durum');
-    // Karakter (stat) penceresinin özgün tasarımında kapatma düğmesi yok: sol üst köşeye çarpı eklenir.
-    const x = document.createElement('div');
-    x.textContent = '✕'; x.title = 'Close';
-    Object.assign(x.style, { position: 'absolute', left: '4px', top: '34px', width: '22px', height: '22px', lineHeight: '20px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold', color: '#f8d067', background: 'radial-gradient(#3a4a66, #141c2c)', border: '1px solid #c9a24a', borderRadius: '50%', cursor: 'pointer', zIndex: '5', boxShadow: '0 0 3px #000' });
-    x.addEventListener('pointerdown', (e) => e.stopPropagation());
-    x.addEventListener('click', () => this.ac('durum', false));
-    p.el.appendChild(x);
+    this.sekmeSeridi(p, 'durum', 52); // pencere resmi 83. pikselden başlar: sekmeler hemen üstüne oturur
+    // Karakter (stat) penceresinin özgün tasarımında kapatma düğmesi yok: envanterdeki özgün çarpı kopyalanıp sol üste konur.
+    const kaynakX = this.pencereler.envanter.el.querySelector<HTMLElement>('[data-id="btn_close"]');
+    if (kaynakX) {
+      const x = kaynakX.cloneNode(true) as HTMLElement;
+      Object.assign(x.style, { left: '2px', top: '14px', zIndex: '5', display: '' });
+      x.title = 'Close';
+      x.addEventListener('pointerdown', (e) => e.stopPropagation());
+      x.addEventListener('click', () => this.ac('durum', false));
+      p.el.appendChild(x);
+    }
+    this.durumDuzeniReferans(p);
     p.gizleDesen(/^(icon_level_|btn_rebirth_preset|btn_preset|base_perks|Text_HP$|Text_MP$)/); // base_perks: Myko'nun ekstra özellik listesi (şimdilik yok)
     const harca = (ad: 'str' | 'sta' | 'dex' | 'int') => () => {
       if (this.b.oyuncu.statArtir(ad)) { this.b.statDegisti(); this.durumCiz(); }
@@ -757,15 +764,42 @@ export class OyunArayuzu {
     const p = this.pencereler.durum, o = this.b.oyuncu;
     p.metin('Text_Id', o.ad); p.metin('Text_Nation', 'El Morad'); p.metin('Text_Class', 'Warrior'); p.metin('Text_Race', 'Human');
     p.metin('Text_Level', o.seviye);
-    p.metin('Text_Exp', `${o.deneyim} / ${o.azamiDeneyimSunucu ?? gerekenDeneyim(o.seviye)}`);
-    p.metin('Text_HP', `${Math.ceil(o.can)} / ${o.enCok}`); p.metin('Text_MP', `${Math.ceil(o.mana)} / ${o.enCokMana}`);
+    // Referans düzen: Text_Exp satırı Hit Point, Text_RealmPoint Mana Point, Text_Cash Experience Points, Text_tl_Cash National Point gösterir.
+    p.metin('Text_Exp', `${Math.ceil(o.can)} / ${o.enCok}`); p.metin('Text_RealmPoint', `${Math.ceil(o.mana)} / ${o.enCokMana}`);
+    p.metin('Text_Cash', `${o.deneyim} / ${o.azamiDeneyimSunucu ?? gerekenDeneyim(o.seviye)}`); p.metin('Text_tl_Cash', 0);
     p.metin('Text_AP', o.toplamVurus()); p.metin('Text_GP', o.savunma());
     p.metin('Text_Weight', `${o.envanter.filter(Boolean).length} / 28`);
     p.metin('Text_BonusPoint', o.bonusPuan);
     p.metin('Text_Strength', o.stat.str); p.metin('Text_Stamina', o.stat.sta); p.metin('Text_Dexterity', o.stat.dex);
     p.metin('Text_Intelligence', o.stat.int); p.metin('Text_MagicAttack', Math.max(0, o.stat.int - 30));
-    p.metin('Text_RealmPoint', 0); p.metin('Text_Manner', 0);
+    p.metin('Text_Manner', 0);
     for (const d of ['btn_str', 'btn_sta', 'btn_Dex', 'btn_Int', 'btn_Magic']) p.dugmePasif(d, o.bonusPuan <= 0);
+  }
+
+  /**
+   * Karakter penceresi, referans oyunun düzenine getirilir (kullanıcının gönderdiği ekran görüntüsü): isim, Level/Job, Nation/Race,
+   * Hit Point, Mana Point, Experience Points, National Point, Attack/Defense, Manner, bonus puan, STR/HP, DEX/MP, INT, Resistance.
+   * Anti Defence bölümü, Weight, Stat Point yazısı, Reset Stat ve Perks yoktur; direnç bloğu yukarı kayar.
+   */
+  private durumDuzeniReferans(p: UiPencere): void {
+    const dugumler = [...p.el.children].filter((e): e is HTMLElement => e instanceof HTMLElement && e.classList.contains('ui-dugum'));
+    const ust = (e: HTMLElement) => parseFloat(e.style.top) || 0;
+    const ANTI_BAS = 366, DIRENC_BAS = 449, KAYMA = DIRENC_BAS - ANTI_BAS;
+    for (const e of dugumler) {
+      const t = ust(e);
+      if (e.dataset.id && /^(btn_perks|btn_reset_stat)$/.test(e.dataset.id)) { e.style.display = 'none'; continue; }
+      if (t >= ANTI_BAS && t < DIRENC_BAS - 1) e.style.display = 'none'; // Anti Defence bölümü
+      else if (t >= DIRENC_BAS - 1) e.style.top = `${t - KAYMA}px`; // direnç bloğu yukarı
+    }
+    p.el.style.height = `${parseFloat(p.el.style.height || String(p.boyut[1])) - KAYMA}px`;
+    p.gizleDesen(/^(text_10|Text_Weight|text_12)$/);
+    // Satır başlıkları: eski Exp / National Point / Knight Cash / TL Balance satırları Hit Point / Mana Point / Experience Points / National Point olur.
+    const yaz = (e: HTMLElement | undefined, s: string) => { if (!e) return; const sp = e.querySelector('span'); if (sp) sp.textContent = s; e.style.color = '#ffe98a'; e.style.justifyContent = 'flex-start'; e.style.fontWeight = 'bold'; e.querySelectorAll<HTMLElement>('*').forEach((c) => { c.style.color = '#ffe98a'; }); };
+    yaz(p.alan('text_06'), 'Hit Point'); yaz(p.alan('Title_RealmPoint'), 'Mana Point');
+    yaz(p.alan('Title_Cash', 0), 'Experience Points'); yaz(p.alan('Title_Cash', 1), 'National Point');
+    for (const id of ['text_06', 'Title_RealmPoint']) { const e = p.alan(id); if (e) e.style.width = '130px'; }
+    for (const i of [0, 1]) { const e = p.alan('Title_Cash', i); if (e) e.style.width = '130px'; }
+    for (const id of ['Text_Cash', 'Text_tl_Cash', 'Text_Exp', 'Text_RealmPoint']) for (const c of p.bul(id)) c.querySelectorAll<HTMLElement>('*').forEach((k) => { k.style.color = '#fff'; });
   }
 
   // ---------------------------------------------------------------- skill (K)

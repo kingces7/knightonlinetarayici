@@ -6,6 +6,15 @@ import * as THREE from 'three';
 
 interface SuVerisi { dalga: string; kostik: number; nehirler: { tur: string; genislik: number; ind: number[]; k: number[][] }[] }
 const KOSTIK_FPS = 16;
+/** Su, kameradan bu uzaklıkta (m) solmaya başlar ve ikincisinde tamamen kaybolur: çok uzaktaki su düz beyaz bir şerit gibi görünüyordu. */
+const SU_SOLMA_BAS = 40, SU_SOLMA_SON = 110;
+/** Malzemeye uzaklığa göre saydamlaşma ekler (üç.js'in kendi gölgelendiricisine küçük bir ek). */
+function uzaktaSol(m: THREE.Material): void {
+  m.onBeforeCompile = (s) => {
+    s.vertexShader = 'varying float vSuMesafe;' + String.fromCharCode(10) + s.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>' + String.fromCharCode(10) + 'vSuMesafe = -mvPosition.z;');
+    s.fragmentShader = 'varying float vSuMesafe;' + String.fromCharCode(10) + s.fragmentShader.replace('#include <dithering_fragment>', '#include <dithering_fragment>' + String.fromCharCode(10) + `gl_FragColor.a *= 1.0 - smoothstep(${SU_SOLMA_BAS.toFixed(1)}, ${SU_SOLMA_SON.toFixed(1)}, vSuMesafe);`);
+  };
+}
 
 export class Su {
   private kostikler: THREE.Texture[] = [];
@@ -23,6 +32,7 @@ export class Su {
     const kostikler = Array.from({ length: v.kostik }, (_, i) => doku(`su/caust${String(i).padStart(2, '0')}.png`));
     const taban = new THREE.MeshBasicMaterial({ map: dalga, color: 0x8fb4c8, vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const kostikM = new THREE.MeshBasicMaterial({ map: kostikler[0] ?? null, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
+    uzaktaSol(taban); uzaktaSol(kostikM);
     const grup = new THREE.Group(); grup.name = 'su';
     for (const r of v.nehirler) {
       const n = r.k.length;
