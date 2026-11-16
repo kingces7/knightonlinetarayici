@@ -37,9 +37,19 @@ export abstract class Varlik {
   model: KarakterModeli | null = null;
   readonly grup = new THREE.Group();
   /** Tıklama için görünmez çarpışma kapsülü. */
-  readonly secimKutusu: THREE.Mesh;
+  secimKutusu: THREE.Mesh;
   /** Seçim kutusunun (isabet alanı) yarıçapı ve boyu: ad etiketi bunun hemen üstüne konur, hedef halkası buna göre ölçeklenir. */
-  readonly secimYaricapi: number; readonly boy: number;
+  secimYaricapi: number; boy: number;
+  /** Model yüklenince seçim kutusunu (ve yeşil halkayı) modelin gerçek boyutuna uydurur. */
+  protected secimiModeleUydur(kok: THREE.Object3D): void {
+    const kutu = new THREE.Box3().setFromObject(kok), b = kutu.getSize(new THREE.Vector3());
+    if (!(b.y > 0.1)) return;
+    const yaricap = Math.max(0.4, Math.min(8, (b.x + b.z) / 4)), boy = Math.max(0.8, Math.min(14, b.y));
+    this.secimKutusu.geometry.dispose();
+    this.secimKutusu.geometry = new THREE.CylinderGeometry(yaricap, yaricap, boy, 10);
+    this.secimKutusu.position.y = boy / 2;
+    this.secimYaricapi = yaricap; this.boy = boy;
+  }
   constructor(yaricap = 0.7, boy = 1.8) {
     this.secimYaricapi = yaricap; this.boy = boy;
     this.secimKutusu = new THREE.Mesh(new THREE.CylinderGeometry(yaricap, yaricap, boy, 8), new THREE.MeshBasicMaterial({ visible: false }));
@@ -172,6 +182,7 @@ export class Canavar extends Varlik {
     this.model = await KarakterModeli.olustur(`/karakter/${this.tur.model}.glb`);
     this.model.kok.scale.setScalar(this.tur.olcek);
     this.grup.add(this.model.kok);
+    this.secimiModeleUydur(this.model.kok);
     this.model.oynat('bekle');
   }
 

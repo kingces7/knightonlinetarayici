@@ -326,6 +326,7 @@ export class OyunArayuzu {
     this.ganimetKutusu = k; this.ganimetImza = '';
     const g = this.ganimetPencere;
     g.el.style.display = k ? '' : 'none';
+    if (k) this.ganimetCiz(); // içerik pencere açılır açılmaz çizilir (bir kare sonra belirmesin)
     if (k) {
       // Pencere sandığın hemen yanında açılır: sandığın ekrandaki yeri hesaplanır, pencere sağına (sığmazsa soluna) dikey ortalı konur.
       const ol = arayuzOlcegi(); g.olcekAyarla(ol);

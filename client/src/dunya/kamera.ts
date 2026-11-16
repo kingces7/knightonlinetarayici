@@ -52,7 +52,7 @@ export class TakipKamerasi {
       if (e.target === tuval) this.surukleniyor = true;
       if (!this.surukleniyor) return;
       // Sağ tuşla sürükleme: yalnızca yatay dönüş (yukarı/aşağı eğim kapalı); yavaş ve yumuşak
-      this.bekleyenDonus -= e.movementX * 0.0032;
+      this.aci -= e.movementX * 0.0032; // anlık (yumuşatma yok)
     });
     tuval.addEventListener('wheel', (e) => {
       this.uzaklik = THREE.MathUtils.clamp(this.uzaklik * (e.deltaY > 0 ? 1.1 : 0.9), this.enYakin, this.enUzak);
@@ -61,8 +61,7 @@ export class TakipKamerasi {
 
   /** Hızlıca 180° arkaya döner (orta fare tuşu / görev çubuğu kamera düğmesi). */
   arkayaDon(): void {
-    this.donusBaslangic = this.aci; this.donusGecen = 0;
-    this.donusHedefi = (this.donusHedefi ?? this.aci) - Math.PI; // ters yönde (saat yönü)
+    this.aci -= Math.PI; this.donusHedefi = null; // anında 180° (ters yönde, yumuşatma yok)
   }
 
   /** Fareyle kamera çevriliyor mu? */

@@ -30,6 +30,8 @@ const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? '14th_oldmoradon';
 const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
+/** Hedefin boyuna göre menzil: büyük canavarın merkezi uzaktadır (orijinal DistanceExceptRadius). */
+const menzilDe = (h: { secimYaricapi: number }) => SALDIRI_MENZILI + Math.max(0, h.secimYaricapi - 0.8);
 const SALDIRI_MENZILI = 3.6; // yakın dövüş vuruş menzili (m); eskiden 2,6 (canavarın çok yakınına girmek gerekiyordu)
 /**
  * Oyuncu koşma hızı (m/sn). Sunucu kaynağı: SpeedHackUser() normal oyuncuda en çok 45, savaşçı/büyücü/rahipte 67 (= 45 × 1,5; Sprint %150 buff) izin verir;
@@ -189,11 +191,12 @@ async function basla(): Promise<void> {
     if (v.tip === 1) {
       hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
-      if (oyuncu.konum.distanceTo(hedef.konum) > SALDIRI_MENZILI + 0.5) { hud.mesaj('The target is too far away.', 'sistem'); return; }
+      if (oyuncu.konum.distanceTo(hedef.konum) > menzilDe(hedef) + 0.5) { hud.mesaj('The target is too far away.', 'sistem'); return; }
     } else if (v.tip !== 4) { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
     if (hedef?.agModu) { hud.mesaj('Skills are not connected to the server yet.', 'sistem'); return; } // sunucu canavarına skill: sonraki adım
     kalk();
-    const efektId = arayuz?.beceriEfekt(no);
+    // Efekt istisnaları: Sprint'te altın toplanma (Ability_cast) yok, yalnız mavi rüzgâr izi (kullanıcı kararı); Defense tabloya uygun altın efektini kullanır.
+    const efektId = { ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(no === 201002 ? { kendi: null } : {}) };
     if (efektId?.kendi) void efektler.oynat(efektId.kendi, oyuncu.grup, { sure: v.tip4 ? 1.2 : 0.6 }); // kullanan kişide efekt
     oyuncu.mana -= v.msp;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
@@ -201,7 +204,6 @@ async function basla(): Promise<void> {
     if (v.tip === 1 && hedef) {
       if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } // skill tablosundaki animasyon (yürürken oynatılmaz: yürüme sürer)
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
-      oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v, hedefEfekt: efektId?.hedef ?? null });
     } else if (v.tip4) {
       if (!hareketEdiyor) oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
@@ -481,7 +483,8 @@ async function basla(): Promise<void> {
     }
     /** Hedef menzildeyse ve silah aralığı dolduysa vurur. Yürürken de vurulur (orijinal: IsAttackableTarget); yürürken saldırı animasyonu oynatılmaz. */
     const saldirTik = (h: Canavar, hareketli: boolean) => {
-      if (oyuncu.saldiriSayaci > 0) return;
+      // Orijinal (PlayerMySelf::Tick): skill adımı sürerken (m_iSkillStep > 0) sürekli saldırı bekler, adım bitince kendiliğinden devam eder.
+      if (oyuncu.saldiriSayaci > 0 || oyuncu.animKilidi > 0) return;
       oyuncu.blinkBitis = 0; // saldırınca göz kırpma biter
       oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
       oyuncu.savastanBeri = 0;
@@ -489,7 +492,7 @@ async function basla(): Promise<void> {
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       vurusZamanlayici.push({ kalan: 0.45, hedef: h });
     };
-    const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= SALDIRI_MENZILI;
+    const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= menzilDe(oyuncu.hedef);
     hareketEdiyor = ilerigeri !== 0 || !!oyuncu.yuruHedef;
     if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
@@ -511,8 +514,8 @@ async function basla(): Promise<void> {
       } else { oyuncu.model?.oynat(hareketAnimi()); if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true); }
     } else if (oyuncu.hedef && oyuncu.saldiriyor) {
       const h = oyuncu.hedef;
-      if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) { // menzil dışı: hedefe yürü (hareket eden canavarı da izler)
-        oyuncu.yuru(h.konum, hizAl() * dt, SALDIRI_MENZILI - 0.3);
+      if (oyuncu.konum.distanceTo(h.konum) > menzilDe(h)) { // menzil dışı: hedefe yürü (hareket eden canavarı da izler)
+        oyuncu.yuru(h.konum, hizAl() * dt, menzilDe(h) - 0.3);
         oyuncu.model?.oynat(hareketAnimi());
         hareketEdiyor = true;
       } else {
@@ -586,6 +589,7 @@ async function basla(): Promise<void> {
         if (!c.agModu && !c.ganimetBirakildi && c.oluSuresi > 0.3) { // sunucu canavarının ganimeti sunucudan gelir (sonraki adım)
           c.ganimetBirakildi = true;
           const g = ganimetUret(c.tur);
+          for (const e of g.esyalar) if (e.simge) new Image().src = e.simge; // simgeler kutu açılmadan önce yüklensin (açılınca anında görünsün)
           const k = new GanimetKutusu(c.konum.x, c.konum.y, g.altin, g.esyalar);
           kutular.push(k); sahne.add(k.grup);
         }
