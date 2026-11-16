@@ -22,3 +22,23 @@ Not: Haritadaki **animasyonlu dokular** (ateş, duman, ışınlanma işareti) `.
 - `Myko_Source.rar` listesinde (10.174 dosya) `N3FX*`, `FXBundle`, `FXPart*` kaynağı **yok**; N3BASE klasöründe yalnızca arayüz/doku/animasyon-anahtarı ve `N3River.h` var. Bu yüzden `.fxb` parça alanları kaynaktan doğrulanamıyor.
 - Yapı: `heal_cast.fxb` (sürüm 5, 2612 bayt) 5 parçadan oluşur (particle, mesh/`object`, billboard, particle…); her parça normal ve `_hdr` değişkenini art arda taşır (~280 bayt aralık). Parça yolları doku/ağ **adlarıdır**: ör. `fx\billboard\0724heal_tarcb\0724heal_tarcb` → arşivde `0724heal_tarcb0000..0009.dxt` kareleri; `fx\object\0725heal_mesh\heal_mesh.n3shape`.
 - Çözülürse sıradaki iş: billboard parçalarını (doku kareleri + boyut/ömür) çizmek; ancak boyut/ömür/renk alanlarının yeri bilinmediği için başlanmadı. Orijinal `N3FXBundle.cpp`/`N3FXPart*.cpp` kaynağı ya da çalışan istemciden alınmış bir efekt kaydı bulunursa tamamlanabilir.
+
+## Yardımcı Kaynak 2 incelemesi (2026-11-16): `Myko Patch` (1300–1308.zip)
+
+**Sonuç: yeni efekt varlığı yok.** `1303.zip` ve `1305.zip` içindeki 15 `.fxb` örneğini mevcut `fx.src` arşivimizle bayt bayt karşılaştırdım:
+12/15'i **birebir aynı** (ör. `marseu_gigaham_hammer_target.fxb`, `marse_corp_binder_target_alll.fxb`); 2'si bizim arşivimizde **daha büyük/daha yeni** sürümle var
+(`070707_itemzone_2007_bill_fx_c01.fxb` 1031→1613 bayt, `mpn2007_venknigh_p.fxb` 1883→1431 bayt — yani elimizdeki istemci bu patch'ten sonraki bir sürüm);
+yalnızca `OzkanOzdemir_YeniCz.fxb` (8 parçalı, hepsi `arena_sheild` dokusuna bağlı — kişi adına özel, muhtemelen bir yöneticinin tek seferlik test efekti)
+bizde yok, ama kullandığı doku (`fx/particle/40303arena_sheilds/arena_sheild0000.dxt`) zaten elimizde. Ayrıca `1304.zip`'teki `Data/Fx.tbl` (RC4 şifreli, araçlarımızla
+sorunsuz çözüldü, 649 satır — şu anki `Data/fx.tbl`'den [1092 satır] daha eski/eksik) eşya 2601→`fx/Heal_cast0_1.fxb` ve 2701→`fx/Ability_cast0_1.fxb` eşlemesini
+doğruluyor, yeni bir şey eklemiyor. Kaynak kod da yine yok. **Savaşçının 6 temel skill'i için kullanılan `Heal_cast0_1.fxb`/`Ability_cast0_1.fxb` dosyalarının
+daha eski ya da daha açıklayıcı bir biçimi bu pakette çıkmadı.**
+
+**Yan bulgu (asıl değerli kısım, kaynağı bu patch değil — kendi `fx.src` arşivimizdeki dosyalarla da tekrarlanabilir):** Tek-parçacıklı küçük `.fxb` dosyalarında
+(575 bayt; `marseu_gear_2007_dust.fxb`, `marse_corp_binder_foot.fxb`, `mpn2007_venknigh_p_s.fxb`) yol metninin **sabit 260 baytlık bir alanda** durduğu,
+bu alanın her zaman dosyanın 85. baytında başlayıp 345. baytta bittiği doğrulandı (önceki incelemede bu sınır yanlış yerden okunduğu için sonrası çöp veri gibi
+görünüyordu). 345. bayttan sonraki 230 baytlık kuyrukta üç dosya arasında **anlamlı ve temiz kayan noktalı sayılar** farklılaşıyor: 20. bayt tam sayı (40/30/15 —
+parçacık sayısı gibi), 40–48 ile 52–60 aralıkları simetrik üçlüler (1.5,1.5,0 / −1.5,−1.5,0 gibi — hız konisi min/maks gibi), 76. bayt 360/360/30 (derece — yayılma
+açısı gibi). Ancak bu yalnızca **tek parçalı, parçacık türü** için geçerli; çok parçalı dosyalarda (`heal_cast.fxb` gibi) parçalar arası uzunluk sabit değil
+(456/452/860 bayt gibi değişken aralıklar görüldü), yani parça türüne göre kuyruk uzunluğu da değişiyor ve bu henüz genelleştirilemedi. Kısaca: tek parçacıklı
+küçük efektlerin sayısal alanları artık okunabilir hâle geldi, ama çok parçalı (mesh+billboard+particle karışık) efektleri çizecek kadar değil.
