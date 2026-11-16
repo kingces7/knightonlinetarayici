@@ -378,6 +378,13 @@ export class Oyuncu extends Varlik {
   }
 
   modelNo = 0;
+  /** Görünümü değiştirir (sunucudan ırk gelince): eski model sahneden kalkar, yenisi aynı animasyonla başlar. */
+  async modelDegistir(no: number): Promise<void> {
+    if (no === this.modelNo) return;
+    const eski = this.model;
+    await this.modelYukle(no);
+    if (eski) this.grup.remove(eski.kok);
+  }
   async modelYukle(no: number): Promise<void> {
     this.modelNo = no;
     this.model = await KarakterModeli.olustur(`/karakter/${no}.glb`);

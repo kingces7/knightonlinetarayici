@@ -5,7 +5,7 @@
 // Sunucu canavarında hasar/ölüm henüz sunucuya bağlı değil (saldırı paketleri sonraki adım).
 import * as THREE from 'three';
 import { Canavar, DigerOyuncu, YON_OFSET } from './varliklar';
-import { canavarTuruSid, OYUNCU_MODELI } from './veri';
+import { canavarTuruSid, irkModeli } from './veri';
 import type { Hud } from '../arayuz/hud';
 import type { Paket } from '../ag/sunucu';
 import {
@@ -98,7 +98,7 @@ export class SunucuDunyasi {
     if (var_) { var_.konum.set(k.x, k.z); var_.agHedef = null; var_.ad = k.ad; var_.seviye = k.seviye; return; }
     const o = new DigerOyuncu(k.id, k.ad, k.seviye, k.ulus, k.x, k.z);
     this.oyuncular.set(k.id, o);
-    o.modelYukle(OYUNCU_MODELI).then(() => {
+    o.modelYukle(irkModeli(k.irk)).then(() => {
       if (this.oyuncular.get(k.id) !== o) return;
       this.sahne.add(o.grup); this.oyuncuListesi.push(o);
     }).catch((e) => { console.warn('Oyuncu modeli yüklenemedi', k.ad, e); this.oyuncular.delete(k.id); });

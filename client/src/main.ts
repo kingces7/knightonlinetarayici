@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -586,6 +586,7 @@ async function basla(): Promise<void> {
       sunucuOturumu = s;
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
+      await oyuncu.modelDegistir(irkModeli(s.benim.irk)).catch((e) => console.warn('Irk modeli yüklenemedi', s.benim.irk, e)); // kadın/barbar/Karus görünümü
       hud.mesaj(`Connected to ${s.sunucuAdi} as ${s.benim.ad} (Lv ${s.benim.seviye}).`, 'sistem');
       if (s.karsilama) hud.mesaj(s.karsilama, 'sistem');
       // Canlı dünya: yerel (tek oyunculu) canavarlar kaldırılır; canavarlar artık sunucudan gelir.

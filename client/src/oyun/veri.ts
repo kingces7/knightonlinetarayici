@@ -52,6 +52,13 @@ export function canavarTurleri(): CanavarTuru[] {
 /** Oyuncunun görünümü: 931137 = upc_el_rm iskeleti + upc_el_rm_chitin_w.n3chr (savaşçı Chitin Shell seti; başlangıç eşyalarının görünümü). Ses/animasyon tabloları 31137 için. */
 export const OYUNCU_MODELI = 931137;
 export const OYUNCU_SES_MODELI = 31137;
+/**
+ * Irka göre oyuncu görünümü (sunucu ırk numarası: 1 Ark Tuarek, 2 Tuarek, 3 Wrinkle Tuarek, 4 Puri Tuarek; 11 Barbar, 12 Erkek, 13 Kadın).
+ * Değerler NPC_Looks numaralarıdır (UPC_DefaultLooks iskeletleri); zırhlı hazır görünümler kullanılır, eşyaya göre giydirme henüz yok.
+ * Üretim: npm run karakter -- 31121 31128 31142 31147 31152 31155 (araclar klasöründe).
+ */
+export const IRK_MODELLERI: Record<number, number> = { 1: 31142, 2: 31152, 3: 31155, 4: 31147, 11: 31121, 12: OYUNCU_MODELI, 13: 31128 };
+export const irkModeli = (irk: number): number => IRK_MODELLERI[irk] ?? OYUNCU_MODELI;
 
 /**
  * Oyuncu kuralları (sunucu veritabanı + NewChrValue.tbl; araclar: sunucu/oyuncu-disa-aktar.ps1 + npm run oyuncu).
