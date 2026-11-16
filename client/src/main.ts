@@ -65,9 +65,11 @@ async function basla(): Promise<void> {
   const sahne = new THREE.Scene();
   sahne.background = SIS.clone();
   sahne.fog = new THREE.Fog(SIS, 150, 600);
-  const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x6b5a45, 1.6);
+  // Işık şiddeti: eskiden hemi 1,6 + güneş 1,8 yüzeyleri 3 kata kadar aşırı aydınlatıyordu (zemin beyaza yanıyordu). Orijinal D3D ışığı gibi toplam ≈1. Deneme: ?isik=0.8 (çarpan)
+  const ISIK = Number(parametre.get('isik') ?? 1);
+  const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x6b5a45, 0.7 * ISIK);
   sahne.add(hemi);
-  const gunes = new THREE.DirectionalLight(0xfff2dd, 1.8);
+  const gunes = new THREE.DirectionalLight(0xfff2dd, 0.6 * ISIK);
   gunes.position.set(40, 80, -30);
   sahne.add(gunes, gunes.target);
 
@@ -76,7 +78,7 @@ async function basla(): Promise<void> {
   arazi.sisAyarla(SIS, 150, 600);
   sahne.add(arazi.mesh);
   durum('Loading objects…');
-  const su = await Su.yukle(`/harita/${HARITA}/su.json`, sahne); // nehir, kanal, deniz (yoksa su yok)
+  const su = await Su.yukle(`/harita/${HARITA}/su.json`, sahne, (x, z) => arazi.yukseklikAl(x, z)); // nehir, kanal, deniz (yoksa su yok)
   // DENEYSEL: .fxb tahmini efekt denemesi (bkz. efektDeneme.ts başı) — gerçek bir skill'e bağlı değil, yalnızca window.ke.efektDene() ile elle tetiklenir.
   const efektDeneme = await EfektDeneme.yukle('/efekt/dust.json');
   const efektTanecikleri: Tanecik[] = [];
@@ -487,8 +489,8 @@ async function basla(): Promise<void> {
     // karakter mevcut yönünde kalır, yalnızca kameranın değişimi eklenir. (Kamera açısı artınca karakter yönü de aynı miktarda artar.)
     const dAci = Math.atan2(Math.sin(kamera.aci - oncekiKameraAci), Math.cos(kamera.aci - oncekiKameraAci));
     oncekiKameraAci = kamera.aci;
-    // Sağ tuşla etrafa bakarken (tek başına ya da sol tuşla birlikte) karakter de kamerayla AYNI anda ve aynı derecede döner.
-    if ((ikiTus || kamera.suruklenirken) && dAci !== 0 && !oyuncu.model?.oturuyor) {
+    // Sol + sağ tuş birlikte: karakter kameranın dönüşüyle AYNI anda ve aynı derecede döner. Yalnız sağ tuşla bakarken (duruyorsan) karakter SABİT kalır, yalnız kamera döner.
+    if (ikiTus && dAci !== 0) {
       const h = oyuncu.bakisAcisi + dAci;
       oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h))); oyuncu.yon = oyuncu.hedefYon;
     }

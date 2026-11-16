@@ -42,7 +42,9 @@ export function nehirleriOku(kuyruk: Buffer): Nehir[] {
 /** Üçgen indeksleri: şerit için zikzak üçgen şeridi, ızgara için satır-sütun dörtgenleri. */
 export function nehirUcgenleri(r: Nehir): number[] {
   const n = r.koseler.length, ind: number[] = [];
-  if (r.tur === 'serit') {
+  if (r.tur === 'serit' && n % 4 === 0) { // 4 köşe genişliğinde ızgara (kıyı, orta, orta, kıyı); zikzak şerit sanılınca çapraz geniş dörtgenler çıkıyordu
+    for (let s = 0; s + 1 < n / 4; s++) for (let c = 0; c < 3; c++) { const a = s * 4 + c, d = a + 4; ind.push(a, a + 1, d, a + 1, d + 1, d); }
+  } else if (r.tur === 'serit') {
     for (let i = 0; i + 2 < n; i++) ind.push(...(i % 2 === 0 ? [i, i + 1, i + 2] : [i + 1, i, i + 2]));
   } else {
     const w = r.genislik, h = n / w;

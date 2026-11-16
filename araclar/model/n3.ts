@@ -159,3 +159,16 @@ export function opdOku(b: Buffer): Opd {
   }
   return { ad, genislik, uzunluk, nesneler, atlanan };
 }
+
+/**
+ * Harita dosyasındaki (.opd) çarpışma yüzleri (N3ShapeMgr::LoadCollisionData): `int32 uzunluk, ad, int32, float genişlik, float uzunluk, int32 yüzSayısı, vec3[yüz*3]`.
+ * İstemcinin kendi çarpışması bunlardır; sunucu .smd'sindeki yüzlerden daha ayrıntılıdır (ör. Moradon'un geniş merdivenleri yalnız burada tam).
+ */
+export function opdYuzleri(b: Buffer): Float32Array {
+  const adUz = b.readInt32LE(0);
+  const o = 4 + adUz + 4, n = b.readInt32LE(o + 8);
+  if (n < 0 || o + 12 + n * 36 > b.length) throw new Error('opd çarpışma yüzleri okunamadı');
+  const f = new Float32Array(n * 9);
+  for (let i = 0; i < f.length; i++) f[i] = b.readFloatLE(o + 12 + i * 4);
+  return f;
+}

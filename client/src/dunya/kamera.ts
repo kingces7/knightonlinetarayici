@@ -34,7 +34,7 @@ export class TakipKamerasi {
   private donusBaslangic = 0;
   private donusGecen = 0;
   /** Orta tuşla 180° dönüşün süresi (sn). */
-  static readonly DONUS_SURESI = 0.22; // orta tuş 180° dönüşü süresi (sn): deneyerek ayarlanacak
+  static readonly DONUS_SURESI = 0.45; // orta tuş 180° dönüşü süresi (sn): deneyerek ayarlanacak
 
   constructor(tuval: HTMLCanvasElement) {
     this.kamera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
@@ -43,7 +43,8 @@ export class TakipKamerasi {
     tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) this.surukleniyor = true; });
     // Orta fare tuşu (tekerlek tıklaması): hızlıca arkaya dön (180°). Otomatik kaydırma imlecini engelle.
     tuval.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
-    tuval.addEventListener('pointerdown', (e) => { if (e.button === 1) { e.preventDefault(); this.arkayaDon(); } });
+    // Orta tuş: sol/sağ tuş basılıyken de çalışsın diye 'mousedown' (pointerdown, ikinci tuş için tetiklenmez)
+    tuval.addEventListener('mousedown', (e) => { if (e.button === 1) { e.preventDefault(); this.arkayaDon(); } });
     tuval.addEventListener('auxclick', (e) => { if (e.button === 1) e.preventDefault(); });
     addEventListener('pointerup', (e) => { if (e.button === 2) this.surukleniyor = false; });
     // Sol tuş basılıyken sağ tuşa basılırsa tarayıcı ayrı bir pointerdown göndermez; bu yüzden basılı tuşlar (buttons) her harekette okunur.

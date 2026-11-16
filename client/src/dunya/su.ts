@@ -6,6 +6,8 @@ import * as THREE from 'three';
 
 interface SuVerisi { dalga: string; kostik: number; nehirler: { tur: string; genislik: number; ind: number[]; k: number[][] }[] }
 const KOSTIK_FPS = 16;
+/** Su köşesi arazinin bu kadar (m) üstünden fazla yükseklikteyse "havada" sayılır; üçgenin en alçak köşesi bunun üstündeyse çizilmez. */
+const SU_ASILI_ESIK = -0.15;
 /** Su, kameradan bu uzaklıkta (m) solmaya başlar ve ikincisinde tamamen kaybolur: çok uzaktaki su düz beyaz bir şerit gibi görünüyordu. */
 const SU_SOLMA_BAS = 40, SU_SOLMA_SON = 110;
 /** Malzemeye uzaklığa göre saydamlaşma ekler (üç.js'in kendi gölgelendiricisine küçük bir ek). */
@@ -21,7 +23,8 @@ export class Su {
   private kostikMalzeme: THREE.MeshBasicMaterial;
   private constructor(private grup: THREE.Group, kostikler: THREE.Texture[], km: THREE.MeshBasicMaterial) { this.kostikler = kostikler; this.kostikMalzeme = km; }
 
-  static async yukle(url: string, sahne: THREE.Scene): Promise<Su | null> {
+  /** `arazi`: arazi yüksekliği (x, z) — verilirse, tamamı arazinin ÜSTÜNDE kalan (havada asılı) su üçgenleri çizilmez: kuru yataklarda düz mavi karolar görünüyordu. */
+  static async yukle(url: string, sahne: THREE.Scene, arazi?: (x: number, z: number) => number): Promise<Su | null> {
     let v: SuVerisi;
     try { v = await (await fetch(url)).json() as SuVerisi; } catch { return null; }
     if (!v?.nehirler?.length) return null;
@@ -34,7 +37,24 @@ export class Su {
     const kostikM = new THREE.MeshBasicMaterial({ map: kostikler[0] ?? null, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
     uzaktaSol(taban); uzaktaSol(kostikM);
     const grup = new THREE.Group(); grup.name = 'su';
-    for (const r of v.nehirler) {
+    for (const r0 of v.nehirler) {
+      let r = r0;
+      // Nehir şeridi 4 köşe genişliğinde bir IZGARADIR (her satırda kıyı-orta-orta-kıyı; kıyı köşeleri saydam). Eski dönüştürücü bunu zikzak şerit sanıp çapraz geniş dörtgenler üretiyordu.
+      if (r.tur === 'serit' && r.k.length % 4 === 0) {
+        const ind: number[] = [];
+        for (let s = 0; s + 1 < r.k.length / 4; s++) for (let c = 0; c < 3; c++) { const a = s * 4 + c, b = a + 1, d = a + 4, e = d + 1; ind.push(a, b, d, b, e, d); }
+        r = { ...r, ind };
+      }
+      if (arazi) { // her üçgende en az bir köşe arazinin altında değilse (kıyı/yatak sınırı yok) üçgen atılır
+        const ind: number[] = [];
+        for (let i = 0; i + 2 < r.ind.length; i += 3) {
+          let enAlt = Infinity;
+          for (let j = 0; j < 3; j++) { const k = r.k[r.ind[i + j]]; enAlt = Math.min(enAlt, k[1] - arazi(k[0], k[2])); }
+          if (enAlt < SU_ASILI_ESIK) ind.push(r.ind[i], r.ind[i + 1], r.ind[i + 2]);
+        }
+        r = { ...r, ind };
+        if (!ind.length) continue;
+      }
       const n = r.k.length;
       const pos = new Float32Array(n * 3), renk = new Float32Array(n * 4), uv = new Float32Array(n * 2), uv2 = new Float32Array(n * 2);
       r.k.forEach((k, i) => { pos.set([k[0], k[1], -k[2]], i * 3); renk.set([1, 1, 1, k[3] / 255], i * 4); uv.set([k[4], k[5]], i * 2); uv2.set([k[6], k[7]], i * 2); });

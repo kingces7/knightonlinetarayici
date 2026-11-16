@@ -20,6 +20,7 @@
     "itembox": "node oyun/itembox.ts",
     "efekt-deneme": "node oyun/efekt-deneme.ts",
     "efekt": "node oyun/efekt.ts",
+    "carpisma-opd": "node harita/carpisma-opd.ts",
     "yazitipi": "node oyun/yazitipi.ts",
     "web-hazirla": "node harita/cli.ts 14th_oldmoradon && node model/cli.ts 11610 100 200 300 500 700 800 && node oyun/esyalar.ts && node oyun/yazitipi.ts",
     "arayuz": "node arayuz/cli.ts",

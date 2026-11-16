@@ -547,6 +547,8 @@ export class GanimetKutusu {
   altin: number;
   esyalar: EsyaTanimi[];
   omur = 60;
+  /** Kutuda başlangıçta Noah vardıysa ilk yuva Noah'a ayrılır; Noah alınınca öbür eşyalar yukarı kaymaz. */
+  readonly altinYuvasi: boolean;
   readonly secimKutusu: THREE.Mesh;
   private zaman = 0;
 
@@ -558,7 +560,7 @@ export class GanimetKutusu {
 
   constructor(x: number, z: number, altin: number, esyalar: EsyaTanimi[]) {
     this.konum = new THREE.Vector2(x, z);
-    this.altin = altin; this.esyalar = esyalar;
+    this.altin = altin; this.esyalar = esyalar; this.altinYuvasi = altin > 0;
     if (GanimetKutusu.model) {
       const m = GanimetKutusu.model.clone(true);
       m.traverse((o) => { const me = o as THREE.Mesh; if (me.isMesh) { const mat = (me.material as THREE.MeshStandardMaterial).clone(); mat.emissive = new THREE.Color(0x553300); mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.6; me.material = mat; } });

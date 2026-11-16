@@ -138,7 +138,7 @@ export class Arazi {
             c = mix(c, t2 / max(a2, 0.35), a2 * 0.85 * detay);
           }
           c = min(c, vec3(1.0));
-          float isik = 0.45 + 0.75 * max(dot(normalize(vNormal), gunesYonu), 0.0);
+          float isik = 0.38 + 0.52 * max(dot(normalize(vNormal), gunesYonu), 0.0); // en çok ≈0,9 (eskiden 1,2: zemin beyaza yanıyordu)
           vec3 r = c * isik;
           float sis = smoothstep(sisYakin, sisUzak, vDerinlik);
           gl_FragColor = vec4(mix(r, sisRengi, sis), 1.0);
