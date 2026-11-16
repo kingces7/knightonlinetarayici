@@ -79,9 +79,13 @@ Her aşama bitince `docs/ILERLEME.md` dosyasını güncelle.
 E:\Knight Online Browser Project\
 ├── KnightEmpire           # Myko client'ı, Myko_Source.rar'dan çıkarıldı (sadece oku)
 ├── Myko Database\          # LILITH_MYKO.bak, LILITH_LOG.bak (SQL Server 2022 yedeği)
-├── Source Files\           # Myko_Source.rar, DXSDK, libcurl
-├── Noah-System\            # topluluk araçları (TBL editor, UIE…)
-├── *.rar                   # ham proje arşivi, panel (proje için gerekmiyor)
+├── Source Files\           # Myko_Source.rar, libcurl (DXSDK silindi)
+├── Knight All in one\      # resmî USKO 1298 istemcisi (Myko'da olmayan intro/kamera/tablolar için), 1298 sunucu .exe'leri, JPKO_0.1a.bak
+├── Knight-Online-Project-master\  # GPLv3 açık kaynak 1299 sunucu kaynağı (GameServer/AIServer/LogIn, Lua görevleri) — Aşama 4 için "okuyup öğrenme" kaynağı
+├── Yardımcı Kaynak 2\Myko Patch\  # 1300-1308 yama zip'leri (yeni efekt içermiyor)
+├── Masaustu DB incele\     # .bak'lerden çıkarılan json'lar ve çözücü betikler
+├── Noah-System\            # yalnızca UIE ve StudPE (diğer topluluk araçları silindi)
+├── *.rar                   # ham proje arşivi (Homeko yedeği), panel
 └── knightonlinetarayici\   # BU DEPO
     ├── araclar\            # dönüştürücüler
     ├── client\             # tarayıcı oyunu
