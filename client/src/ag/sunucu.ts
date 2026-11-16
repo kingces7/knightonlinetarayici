@@ -131,9 +131,9 @@ async function girisSunucusu(kopru: string, hesap: string, sifre: string): Promi
 
 /**
  * Tam bağlantı akışı. Başarılı olunca oyun sunucusu bağlantısı AÇIK kalır (`kapat()` ile kapatılır).
- * `karakterAdi` verilmezse hesabın ilk dolu karakter yuvası seçilir.
+ * `karakterAdi` verilmezse `secici` (karakter seçim ekranı) sorulur; o da yoksa hesabın ilk dolu karakter yuvası seçilir.
  */
-export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSAYILAN_KOPRU, karakterAdi?: string): Promise<SunucuOturumu> {
+export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSAYILAN_KOPRU, karakterAdi?: string, secici?: (yuvalar: KarakterOzeti[]) => Promise<string>): Promise<SunucuOturumu> {
   const sunucuAdi = await girisSunucusu(kopru, hesap, sifre);
 
   const b = await Baglanti.ac(`${kopru}/oyun`);
@@ -146,6 +146,7 @@ export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSA
 
     b.gonder(WIZ.TUM_KARAKTER_BILGISI, new PaketYazici().u8(1).baytlar());
     const { yuvalar } = karakterListesi((await b.bekle(WIZ.TUM_KARAKTER_BILGISI)).govde);
+    if (!karakterAdi && secici) karakterAdi = await secici(yuvalar); // seçici hata fırlatırsa (geri düğmesi vb.) bağlantı kapanır
     const karakter = yuvalar.find((y) => y.ad && (!karakterAdi || y.ad.toLowerCase() === karakterAdi.toLowerCase()));
     if (!karakter) throw new SunucuHatasi(karakterAdi ? `Character "${karakterAdi}" not found on this account.` : 'This account has no characters.');
 

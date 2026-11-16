@@ -15,6 +15,7 @@ import { Gokyuzu } from './dunya/gokyuzu';
 import { Su } from './dunya/su';
 import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
 import { sunucuyaBaglan, type SunucuOturumu } from './ag/sunucu';
+import { GirisEkrani } from './arayuz/girisEkrani';
 import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
@@ -579,9 +580,9 @@ async function basla(): Promise<void> {
      * Sunucu modu (Aşama 4, deneysel): köprü + Myko sunucusu çalışırken konsoldan `await ke.sunucuyaBaglan(hesap, sifre)`.
      * Giriş sunucusundan geçip karakteri seçer, oyuna girer ve gelen karakter verisini (seviye, statlar, can/mana, altın, eşyalar, konum) oyuncuya uygular.
      */
-    sunucuyaBaglan: async (hesap: string, sifre: string, kopru?: string, karakter?: string) => {
+    sunucuyaBaglan: async (hesap: string, sifre: string, kopru?: string, karakter?: string, secici?: Parameters<typeof sunucuyaBaglan>[4]) => {
       sunucuDunyasi?.tumunuKaldir(); sunucuOturumu?.kapat(); hareketGonderici = null;
-      const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter);
+      const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter, secici);
       sunucuOturumu = s;
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
@@ -604,4 +605,17 @@ async function basla(): Promise<void> {
     sunucuDurumu: () => sunucuDunyasi ? { canavar: sunucuDunyasi.canavarlar.size, oyuncu: sunucuDunyasi.oyuncular.size, sayac: { ...sunucuDunyasi.sayac }, bilinmeyenTurler: [...sunucuDunyasi.bilinmeyenTurler] } : null };
 }
 
-basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });
+// Giriş ekranı (hesap/şifre → karakter seçimi). Otomatik tarayıcılarda (testler) kapalıdır; ?giris=1 zorla açar, ?giris=0 kapatır.
+async function girisEkraniAc(): Promise<void> {
+  const g = new URLSearchParams(location.search).get('giris');
+  if (g === '0' || (g !== '1' && navigator.webdriver)) return;
+  const ke = (window as unknown as { ke: { sunucuyaBaglan: (h: string, s: string, k?: string, c?: string, sec?: Parameters<typeof sunucuyaBaglan>[4]) => Promise<unknown> } }).ke;
+  const ekran = new GirisEkrani({
+    kok: document.getElementById('arayuz')!,
+    baglan: async (hesap, sifre, sec) => { await ke.sunucuyaBaglan(hesap, sifre, undefined, undefined, async (yuvalar) => sec(yuvalar.map((y) => ({ ad: y.ad, seviye: y.seviye, sinif: y.sinif })))); },
+    cevrimdisi: () => {},
+  });
+  await ekran.ac();
+}
+
+basla().then(girisEkraniAc).catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });
