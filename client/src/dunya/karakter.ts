@@ -104,6 +104,15 @@ export class KarakterModeli {
     51: [74, 75, 76, 126, 127], 52: [80, 81, 82, 124, 125], 70: [92, 96, 97, 0, 0], 71: [93, 96, 97, 0, 0], 110: [98, 99, 100, 0, 0],
   };
   private aile: [number, number, number, number, number] | null = null;
+  /** Yürüme/koşma/geri animasyonları (hız buff'ında hızlanır: orijinalde animasyon hızı m_fMoveDelta ile çarpılır). */
+  private static readonly HAREKET = new Set(['yuru', 'kos', 'geri']);
+  private hareketCarpaniDeger = 1;
+  get hareketCarpani(): number { return this.hareketCarpaniDeger; }
+  set hareketCarpani(c: number) {
+    if (c === this.hareketCarpaniDeger) return;
+    this.hareketCarpaniDeger = c;
+    if (this.aktif && KarakterModeli.HAREKET.has(this.aktifAd)) { const g = this.aktifAd; this.aktifAd = ''; this.calistir(g, true, 0); }
+  }
   private silahTipi = -1;
   private savasDurusuDeger = false;
   /** Düşman hedef seçiliyken true: bekleme animasyonu silahlı savaş duruşu olur. */
@@ -166,7 +175,7 @@ export class KarakterModeli {
     yeni.reset();
     yeni.setLoop(tekrar ? THREE.LoopRepeat : THREE.LoopOnce, Infinity);
     yeni.clampWhenFinished = !tekrar;
-    yeni.timeScale = hiz > 0 ? hiz : 1;
+    yeni.timeScale = (hiz > 0 ? hiz : 1) * (KarakterModeli.HAREKET.has(ad) ? this.hareketCarpani : 1);
     yeni.play();
     if (this.aktif && this.aktif !== yeni) this.aktif.crossFadeTo(yeni, gecis, false);
     this.aktif = yeni;

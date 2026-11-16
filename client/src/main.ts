@@ -387,7 +387,7 @@ async function basla(): Promise<void> {
     if (zemin) { secilenOyuncu = null; oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; }
   });
   // Sol tuş basılı tutulup sürüklenince karakter imlecin gösterdiği yöne yürür (her karede yeniden hedeflenir) ve oraya döner
-  addEventListener('pointermove', (e) => { if (sol.basili) { sol.x = e.clientX; sol.y = e.clientY; } });
+  addEventListener('pointermove', (e) => { if (sol.basili && !(e.buttons & 2)) { sol.x = e.clientX; sol.y = e.clientY; } }); // sağ tuş basılıyken imleç konumu dondurulur (orijinalde imleç geri alınır)
   addEventListener('pointerup', (e) => { if (e.button === 0) sol.basili = false; });
   addEventListener('blur', () => { sol.basili = false; });
 
@@ -415,6 +415,7 @@ async function basla(): Promise<void> {
     oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
     oyuncu.model?.giyimAyarla(oyuncu.ekipman);
     oyuncu.model?.silahAyarla(oyuncu.ekipman[6]?.tip ?? 0);
+    if (oyuncu.model) oyuncu.model.hareketCarpani = oyuncu.hizCarpani;
     if (oyuncu.model) oyuncu.model.savasDurusu = !!oyuncu.hedef && !oyuncu.hedef.olu;
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
     void oyuncu.model?.plugTak('sol', oyuncu.ekipman[8]?.no ?? 0);
@@ -440,7 +441,7 @@ async function basla(): Promise<void> {
     }
     const donusHam = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
     // Sol + sağ tuş birlikteyken karakter kamerayla BİRLİKTE döner (WoW gibi): A/D kamerayı çevirir, karakter her kare kameranın baktığı yöne bakar.
-    if (ikiTus && donusHam !== 0) kamera.aciEkle(-donusHam * DIREKSIYON_HIZI * dt);
+    if (ikiTus && donusHam !== 0) kamera.aciEkle(donusHam * DIREKSIYON_HIZI * dt);
     const donus = ikiTus ? 0 : donusHam;
     // Orijinal: Home/End basılıyken kamera eğimi saniyede 45° değişir (Home = aşağı bakış)
     const egimTus = (tuslar.has('Home') ? 1 : 0) - (tuslar.has('End') ? 1 : 0);
@@ -460,7 +461,14 @@ async function basla(): Promise<void> {
       oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h)));
     }
 
-    if (ikiTus) { const f = kamera.ileriYon(); oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + f.x, oyuncu.konum.y + f.y)); oyuncu.yon = oyuncu.hedefYon; } // fareyle dönüş anında karaktere de yansır
+    // Sol + sağ tuş: kameranın o karedeki dönüşü kadar karakter de döner (aynı yönde ve aynı derecede, yumuşak). Başlangıçta yön sıçraması olmaz:
+    // karakter mevcut yönünde kalır, yalnızca kameranın değişimi eklenir. (Kamera açısı artınca karakter yönü de aynı miktarda artar.)
+    const dAci = Math.atan2(Math.sin(kamera.aci - oncekiKameraAci), Math.cos(kamera.aci - oncekiKameraAci));
+    oncekiKameraAci = kamera.aci;
+    if (ikiTus && dAci !== 0) {
+      const h = oyuncu.bakisAcisi + dAci;
+      oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h))); oyuncu.yon = oyuncu.hedefYon;
+    }
     if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       const h = oyuncu.bakisAcisi;
@@ -507,6 +515,7 @@ async function basla(): Promise<void> {
     if (adimMesafe >= (kosuyor ? 2 : 1)) { adimMesafe = 0; ses.adim(kosuyor); }
   };
   let adimMesafe = 0;
+  let oncekiKameraAci = kamera.aci;
 
   const canavarlariGuncelle = (dt: number) => {
     for (let i = vurusZamanlayici.length - 1; i >= 0; i--) {

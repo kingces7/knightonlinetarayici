@@ -19,6 +19,9 @@ function renk(c: number): string {
   return `rgba(${r},${g},${b},${a === 0 ? 1 : (a / 255).toFixed(3)})`;
 }
 
+/** Arayüzün (pencereler, çubuklar) ekran büyüklüğüne göre ölçeği: 1280×640 ve altında 1, 2560×1280'de ≈2 (en çok 2,2). */
+export function arayuzOlcegi(): number { return Math.max(1, Math.min(2.2, innerWidth / 1280, innerHeight / 640)); }
+
 export class UiPencere {
   readonly el = document.createElement('div');
   readonly ad: string;
@@ -30,6 +33,27 @@ export class UiPencere {
   private alanlar: HTMLElement[] = [];
   /** Pencere ölçeği (küçük ekranlarda sığdırmak için; CSS `scale`, sol üst köşeden). */
   olcek = 1;
+  private sinirOnbellek: [number, number, number, number] | null = null;
+  /**
+   * Pencerenin GÖRÜNEN resim alanı (pencere kutusuna göre, ölçeksiz piksel): [sol, üst, sağ, alt]. Pencere kutusu çoğu zaman saydam boşluk içerir
+   * (ör. envanterin solunda/sağında); ekrana yaslarken bu boşluk hesaba katılır.
+   */
+  sinir(): [number, number, number, number] {
+    if (this.sinirOnbellek) return this.sinirOnbellek;
+    const onceki = { d: this.el.style.display, v: this.el.style.visibility };
+    this.el.style.display = ''; this.el.style.visibility = 'hidden';
+    const r = this.el.getBoundingClientRect(), ol = this.olcek || 1;
+    let a = 1e9, b = 1e9, c = 0, d = 0;
+    for (const e of this.el.querySelectorAll<HTMLElement>('*')) {
+      const cs = getComputedStyle(e); if (cs.display === 'none' || cs.backgroundImage === 'none') continue;
+      const k = e.getBoundingClientRect(); if (k.width < 2 || k.height < 2) continue;
+      a = Math.min(a, k.left - r.left); b = Math.min(b, k.top - r.top); c = Math.max(c, k.right - r.left); d = Math.max(d, k.bottom - r.top);
+    }
+    this.el.style.display = onceki.d; this.el.style.visibility = onceki.v;
+    const s: [number, number, number, number] = c > a ? [Math.max(0, a / ol), Math.min(0, 0) + b / ol, c / ol, d / ol] : [0, 0, this.boyut[0], this.boyut[1]];
+    if (r.width > 0) this.sinirOnbellek = s;
+    return s;
+  }
   olcekAyarla(o: number): void { this.olcek = o; this.el.style.transformOrigin = '0 0'; this.el.style.setProperty('scale', String(o)); }
   /** Düğme tıklamaları: id → işlev. */
   readonly tikla = new Map<string, () => void>();

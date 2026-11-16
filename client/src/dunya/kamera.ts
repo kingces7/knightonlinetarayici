@@ -2,6 +2,9 @@
 // Sağ fare tuşu basılıyken sürükle = döndür, tekerlek = yakınlaş/uzaklaş.
 import * as THREE from 'three';
 
+/** Oyuna bu uzaklıktan (m) başlanır (kullanıcı ayarı: karakter ekranda rahat oynanacak yakınlıkta). */
+const BASLANGIC_UZAKLIK = 12.5;
+
 export class TakipKamerasi {
   readonly kamera: THREE.PerspectiveCamera;
   aci = Math.PI * 0.75; // yatay açı
@@ -74,7 +77,7 @@ export class TakipKamerasi {
   /** Kamerayı doğrudan `d` radyan döndürür (sol+sağ tuş basılıyken A/D: karakter kamerayla birlikte döner). */
   aciEkle(d: number): void { this.aci += d; }
   /** Kameranın yatay bakış yönü. */
-  ileriYon(): THREE.Vector2 { return new THREE.Vector2(-Math.sin(this.aci), -Math.cos(this.aci)); }
+  ileriYon(): THREE.Vector2 { return new THREE.Vector2(-Math.sin(this.aci), Math.cos(this.aci)); } // (x, y) = karakter koordinatı; sahne z = −y
 
   /** Duvar/tavan çarpışması: 1 = engel yok; küçüldükçe kamera oyuncuya yaklaşır. Engelden hemen çıkmak değil, yavaşça açılmak için yumuşatılır. */
   private acikluk = 1;
@@ -115,7 +118,7 @@ export class TakipKamerasi {
   ayarUygula(a: { fov: number; yakin: number; uzak: number; goz?: number[]; bak?: number[] }): void {
     if (a.goz && a.bak) { // Oyunun varsayılan kamerası (DefaultCamera.N3Camera): göz (15,5,−15), bakılan (0,0,0) → mesafe ≈ 21,8 m, eğim ≈ 13°
       const dx = a.goz[0] - a.bak[0], dy = a.goz[1] - a.bak[1], dz = a.goz[2] - a.bak[2];
-      this.enUzak = Math.hypot(dx, dy, dz); this.uzaklik = this.enUzak;
+      this.enUzak = Math.hypot(dx, dy, dz); this.uzaklik = Math.min(BASLANGIC_UZAKLIK, this.enUzak);
     }
     this.kamera.fov = (a.fov * 180) / Math.PI; this.kamera.near = a.yakin; this.kamera.far = a.uzak;
     this.kamera.updateProjectionMatrix();

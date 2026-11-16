@@ -1,7 +1,7 @@
 // Genel pencere yöneticisi: oyunun orijinal arayüz pencerelerinden (re_*.json, araclar/arayuz "hepsi") herhangi birini açar.
 // Her pencere: sürüklenir, tıklayınca öne gelir, kapatma düğmesi (btn_close/cancel/exit…) çalışır, Esc en üsttekini kapatır,
 // ekrana sığmıyorsa küçültülür. Pencereye özel davranış (veri bağlama) `davranis` tablosuna eklenir; olmayanlar orijinal görünümüyle açılır.
-import { UiPencere } from './orijinal';
+import { UiPencere, arayuzOlcegi } from './orijinal';
 
 /** Kapatma düğmesi kimlikleri (büyük/küçük harf duyarsız). */
 const KAPAT = /^(btn_?)?(close|cancel|exit|x|no|ok)\d*$|close/i;
@@ -66,19 +66,20 @@ export class GenelPencereler {
     const p = await this.yukle(ad); if (!p) return false;
     if (!this.acikPencereler.has(ad)) {
       this.acikPencereler.set(ad, p);
-      const [w, h] = p.boyut;
       const bos = this.b.altBos();
-      const ol = Math.max(0.35, Math.min(1, (innerWidth - 16) / w, (innerHeight - bos - 8) / h));
+      const [sl, st, sr, sb] = p.sinir();
+      const ol = Math.max(0.35, Math.min(arayuzOlcegi(), (innerWidth - 16) / (sr - sl), (innerHeight - bos - 8) / (sb - st)));
       p.olcekAyarla(ol);
-      const gw = w * ol, gh = h * ol, kay = (this.sayac++ % 6) * 26;
+      const [l2, t2, r2, b2] = p.sinir();
+      const gw = (r2 - l2) * ol, gh = (b2 - t2) * ol, kay = (this.sayac++ % 6) * 26;
       if (SAGDAN.has(ad)) { // envanter gibi: sağ kenara yaslı, sağdan kayarak gelir
-        p.el.style.left = `${Math.max(0, innerWidth - gw - 35)}px`;
-        p.el.style.top = `${Math.max(0, Math.min(innerHeight - bos - gh, 70))}px`;
+        p.el.style.left = `${innerWidth - r2 * ol}px`; // görünen resim sağ kenara tam oturur
+        p.el.style.top = `${Math.max(-t2 * ol, Math.min(innerHeight - bos - b2 * ol, 70))}px`;
         p.el.style.display = ''; void p.el.offsetWidth;
         p.el.classList.remove('kapali');
       } else {
-        p.el.style.left = `${Math.max(0, Math.min(innerWidth - gw, (innerWidth - gw) / 2 + kay - 60))}px`;
-        p.el.style.top = `${Math.max(0, Math.min(innerHeight - bos - gh, (innerHeight - bos - gh) / 2 + kay - 60))}px`;
+        p.el.style.left = `${Math.max(-l2 * ol, Math.min(innerWidth - r2 * ol, (innerWidth - gw) / 2 - l2 * ol + kay - 60))}px`;
+        p.el.style.top = `${Math.max(-t2 * ol, Math.min(innerHeight - bos - b2 * ol, (innerHeight - bos - gh) / 2 - t2 * ol + kay - 60))}px`;
         p.el.style.display = '';
       }
     }

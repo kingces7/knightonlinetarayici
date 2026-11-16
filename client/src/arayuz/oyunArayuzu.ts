@@ -4,7 +4,7 @@
 // Pencere düzenleri ve dokular araclar/arayuz ile oyunun kendi dosyalarından çıkarılır (docs/formatlar/uif.md).
 import { GenelPencereler } from './genelPencereler';
 import { SerbestPencere } from './serbestPencere';
-import { UiPencere } from './orijinal';
+import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
@@ -131,7 +131,7 @@ export class OyunArayuzu {
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
-    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m) });
+    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m) });
     this.genel.davranis.set('re_el_clan_window', (p) => {
       this.sekmeSeridi(p, 'klan');
       // Pencere tasarım örnek verisiyle (Msoft_1098…) geliyor: örnek satırlar ve açılır kutular gizlenir; klan yok (sunucu yok)
@@ -189,16 +189,17 @@ export class OyunArayuzu {
    * ilk yerleşimde varsayılan konuma koyar, yeniden boyutlandırmada konumu ekran içinde tutar.
    */
   private pencereYerlestir(ilk: boolean): void {
-    const altBos = this.gorev.boyut[1] * Math.min(1, innerWidth / (this.gorev.boyut[0] + 4)) + 14;
+    const altBos = this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14;
     for (const ad of ['durum', 'beceri', 'envanter', 'magaza', 'depo'] as Ad[]) {
       const p = this.pencereler[ad];
-      const [w, h] = p.boyut;
-      const ol = Math.max(0.45, Math.min(1, (innerWidth - 16) / w, (innerHeight - altBos - 8) / h));
+      // Pencere kutusundaki saydam boşluklar atılır: yalnızca görünen resim ekrana yaslanır (sinir()).
+      const [sl, st, sr, sb] = p.sinir();
+      const ol = Math.max(0.45, Math.min(arayuzOlcegi(), (innerWidth - 16) / (sr - sl), (innerHeight - altBos - 8) / (sb - st)));
       p.olcekAyarla(ol);
-      const gw = w * ol, gh = h * ol;
-      let x = ilk ? (ad === 'durum' || ad === 'magaza' || ad === 'depo' ? 24 : innerWidth - gw - 35) : parseFloat(p.el.style.left) || 0;
+      const [l2, t2, r2, b2] = p.sinir();
+      let x = ilk ? (ad === 'durum' || ad === 'magaza' || ad === 'depo' ? -l2 * ol : innerWidth - r2 * ol) : parseFloat(p.el.style.left) || 0;
       let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : ad === 'depo' ? 20 : 70) : parseFloat(p.el.style.top) || 0;
-      x = Math.max(0, Math.min(x, innerWidth - gw)); y = Math.max(0, Math.min(y, innerHeight - altBos - gh));
+      x = Math.max(-l2 * ol, Math.min(x, innerWidth - r2 * ol)); y = Math.max(-t2 * ol, Math.min(y, innerHeight - altBos - b2 * ol));
       p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
     }
   }
@@ -245,7 +246,7 @@ export class OyunArayuzu {
   }
 
   private gorevYerlestir(): void {
-    const ol = Math.min(1, innerWidth / (this.gorev.boyut[0] + 4));
+    const ol = Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4));
     const s = this.gorev.el.style;
     s.transformOrigin = '0 0'; s.transform = `scale(${ol})`;
     s.left = `${Math.max(0, (innerWidth - this.gorev.boyut[0] * ol) / 2)}px`;
@@ -254,8 +255,8 @@ export class OyunArayuzu {
     const ust = innerHeight - this.gorev.boyut[1] * ol - 6 - 4;
     // Dar ekranda üçü birden aynı oranda küçülür (sohbet | skill çubuğu | bilgi yan yana sığsın).
     const sw = this.sohbet.boyut[0], bw = this.bilgi.boyut[0], cw = 356;
-    const hol = Math.min(1, innerWidth / (sw + bw + cw + 24));
-    for (const x of [this.sohbet, this.bilgi, this.cubuk]) x.olcekAyarla(hol);
+    const hol = Math.min(arayuzOlcegi(), innerWidth / (sw + bw + cw + 24));
+    for (const x of [this.sohbet, this.bilgi, this.cubuk, this.hpbar]) x.olcekAyarla(hol);
     this.sohbetSerbest?.olcek(hol); this.bilgiSerbest?.olcek(hol);
     if (!this.sohbetSerbest?.konumuUygula()) { this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1] * hol}px`; }
     if (!this.bilgiSerbest?.konumuUygula()) { this.bilgi.el.style.left = `${innerWidth - bw * hol}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1] * hol}px`; }
