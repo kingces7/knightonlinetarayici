@@ -14,6 +14,7 @@ import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
 import { Su } from './dunya/su';
 import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
+import { EfektYoneticisi } from './dunya/efekt';
 import { sunucuyaBaglan, type SunucuOturumu } from './ag/sunucu';
 import { GirisEkrani } from './arayuz/girisEkrani';
 import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
@@ -146,6 +147,8 @@ async function basla(): Promise<void> {
   } catch { /* bu haritada NPC verisi yok */ }
 
   const kamera = new TakipKamerasi(tuval);
+  // Skill efektleri (.fxb, OpenKO kaynağındaki parça mantığıyla): skill kullanılınca kendinde ve hedefte oynar
+  const efektler = new EfektYoneticisi(sahne, kamera.kamera);
   // Gökyüzü: bölgenin .n3sky gün döngüsü (yoksa sabit renkler). Saat gerçek yerel saat; ?saat=12 ile zorlanır.
   const saatParam = parametre.get('saat');
   const gokyuzu = await Gokyuzu.yukle(`/harita/${HARITA}/gokyuzu.json`, sahne, hemi, gunes, (r) => arazi.sisAyarla(r, 150, (sahne.fog as THREE.Fog).far), saatParam !== null ? Number(saatParam) : null);
@@ -190,6 +193,8 @@ async function basla(): Promise<void> {
     } else if (v.tip !== 4) { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
     if (hedef?.agModu) { hud.mesaj('Skills are not connected to the server yet.', 'sistem'); return; } // sunucu canavarına skill: sonraki adım
     kalk();
+    const efektId = arayuz?.beceriEfekt(no);
+    if (efektId?.kendi) void efektler.oynat(efektId.kendi, oyuncu.grup, { sure: v.tip4 ? 1.2 : 0.6 }); // kullanan kişide efekt
     oyuncu.mana -= v.msp;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
@@ -197,11 +202,12 @@ async function basla(): Promise<void> {
       if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } // skill tablosundaki animasyon (yürürken oynatılmaz: yürüme sürer)
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
-      vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
+      vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v, hedefEfekt: efektId?.hedef ?? null });
     } else if (v.tip4) {
       if (!hareketEdiyor) oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
       oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
+      if (efektId?.hedef) void efektler.oynat(efektId.hedef, oyuncu.grup, { sure: 1.2 }); // buff'ta hedef efekti de kullanana uygulanır
       hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
@@ -406,7 +412,7 @@ async function basla(): Promise<void> {
     }
   };
 
-  const vurusZamanlayici: { kalan: number; hedef: Canavar; beceri?: BeceriKurali }[] = [];
+  const vurusZamanlayici: { kalan: number; hedef: Canavar; beceri?: BeceriKurali; hedefEfekt?: number | null }[] = [];
   const oyuncuGuncelle = (dt: number) => {
     oyuncu.model?.guncelle(dt);
     oyuncu.savastanBeri += dt;
@@ -535,6 +541,7 @@ async function basla(): Promise<void> {
       if (v.kalan > 0) continue;
       vurusZamanlayici.splice(i, 1);
       if (v.hedef.olu || oyuncu.olu) continue;
+      if (v.hedefEfekt) void efektler.oynat(v.hedefEfekt, v.hedef.grup, { sure: 0.5 }); // vuruş efekti hedefte
       if (v.hedef.agModu) { // sunucu canavarı: isabeti ve hasarı sunucu belirler, biz yalnızca saldırı isteriz
         if (sunucuOturumu && !v.beceri) sunucuOturumu.gonder(WIZ.SALDIRI, saldiriIstegi(v.hedef.agKimlik, (oyuncu.silah?.gecikme ?? 100) + 10, 10));
         continue;
@@ -618,6 +625,7 @@ async function basla(): Promise<void> {
     nesneAnimasyonunuIlerlet(dokuAnimlari, performance.now() / 1000);
     su?.guncelle(performance.now() / 1000);
     efektDeneme?.guncelle(efektTanecikleri, dt, sahne);
+    efektler.guncelle(dt);
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);

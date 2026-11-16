@@ -12,7 +12,7 @@ import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
-export interface Beceri { no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number }
+export interface Beceri { no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
 
 export interface ArayuzBaglami {
   kok: HTMLElement;
@@ -517,6 +517,8 @@ export class OyunArayuzu {
   }
   /** Skill'in oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1). */
   beceriAnimNo(no: number): number | undefined { return this.beceriler.find((x) => x.no === no)?.anim; }
+  /** Skill'in efekt numaraları (fx.tbl): kendinde ve hedefte oynayan. */
+  beceriEfekt(no: number): { kendi: number | null; hedef: number | null } { const b = this.beceriler.find((x) => x.no === no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null }; }
   /** Çubuktaki 16 yuva: yatay 10..17, dikey 0..7 (orijinal arayüzde iki ayrı grup). */
   private cubukYuvalari(): HTMLElement[] {
     const yuva = (id: string) => this.cubuk.bul(id).filter((e) => e.classList.contains('ui-t9'));

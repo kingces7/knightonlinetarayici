@@ -1,4 +1,25 @@
-# `.fxb` efekt paketleri — kısmi bulgular (çözülmedi ⬜)
+# `.fxb` efekt paketleri
+
+## DURUM (2026-11-17): okuyucu ve oynatıcı VAR — %96 çözülüyor
+**Önemli düzeltme:** aşağıdaki eski bölümlerde "kaynak kod yok" yazıyor; bu artık yanlış. `OPENKO SRC - V1299/Client/N3Base/` içinde **N3FXBundle, N3FXPartBase, N3FXPartParticles,
+N3FXPartBillBoard, N3FXPartBottomBoard, N3FXPartMesh, N3FXParticle** kaynakları var. Okuyucu bunlardan birebir yazıldı: `araclar/oyun/fxb.ts`.
+
+- **Düzen (kaynaktan):** bundle = `i32 sürüm, f32 ömür, f32 hız, bool boyutaBağlı`, sonra 16 yuva (`i32 tür` + tür≠0 ise `f32 başlangıç` + parça), sürüm ≥ 2'de `bool statik`.
+  Parça tabanı: `u8 sürüm, u8 tabanSürüm, f32 ömür, u8 tür, hız/ivme/dönüş (3×vec3), bool yerde, vec3 konum, i32 dokuAdedi, f32 dokuFps, 260 bayt doku adı, karışım/solma/çizim bayrakları`.
+  Parçacık / tahta (billboard) / mesh / zemin tahtası alanları kaynaktaki `Load` sırasıyla. Doku kareleri `<ad>0000.dxt …`.
+- **Ama dosyalar kaynaktan YENİ sürümde:** kaynak en çok paket sürümü 2, parça sürümü 5, taban sürümü 2 okur; elimizdeki dosyalarda paket 6, parça 10, taban 4'e kadar var.
+  Yeni sürümlerde eklenenler (ölçülerek bulundu, içerikleri bilinmiyor): taban sürümü ≥ 3 → parça tabanında 2 `i32`; taban sürümü ≥ 4 → renderFlag'den sonra 260 bayt **HDR doku adı**;
+  parça sürümleri 6-10 → parça sonunda sabit sayıda bilinmeyen bayt (`fxb.ts` `EKSTRA` tablosu: yüzlerce örnekte aynı çıktı); paket sürümü ≥ 3 → dosya sonunda 45-93 baytlık bilinmeyen kuyruk.
+- **Doğrulama:** `araclar/oyun/fxb.test.ts` — 1219 dosyanın **1168'i (%96) çözülüyor**; paket sürümü ≤ 2 olanlar baytı baytına tam. Çözülemeyen ~50 dosya (çoğu paket 5-6 ve 3 parça yapısı farklı) için
+  yeni sürümlerin parça içi eklentilerinin yeri bulunmalı (şüphe: parçacık sürüm 9-10'da `bChangeColor`/`bAnimKey` bölgesine alan eklenmiş; `heal_cast.fxb` 3. parçası bunun örneği).
+- **Oynatıcı:** `client/src/dunya/efekt.ts` (`EfektYoneticisi`): parçacık (normal/yayılma/toplanma, hız, yerçekimi, renk anahtarları, doku kareleri), tahta ve zemin tahtası. **Mesh parçaları yok** (FX shape okuyucusu gerekir).
+  Dönüştürücü: `npm run efekt` (araclar) → `donusturulmus/web/efekt/fx/<fx.tbl no>.json` + `efekt/doku/*.png`.
+- **Oyuna bağlı:** skill kullanılınca (`main.ts beceriKullan`): kendinde efekt (fx.tbl sütun 7), buff'ta hedef efekti de kullanana, saldırı skill'inde vuruş anında hedefte efekt (sütun 12).
+  Savaşçı temel skill'lerinden Sprint (2701 + 10029) ve Defense (2701 + 701) ve vuruş efekti (10002 `damage0_1`) çalışıyor; **`heal_cast.fxb` (2601, Stroke/Slash/Crash/Piercing'in kendinde efekti) çözülemiyor.**
+- **Sıradaki:** (1) kalan ~50 dosya: yeni sürüm parça içi alanlarını bulmak, (2) mesh parçası (`.n3shape` FX), (3) uçan efekt (sütun 11) ve bundle yönü/hedefe uçuş (`FX_BUNDLE_MOVE_*`), (4) efekt sesi (fx.tbl sütun 3), (5) HDR doku seçimi, (6) parçacık LOD, (7) sunucu skill'leri bağlanınca oyuncular arası efekt.
+
+---
+## Eski notlar (kaynak bulunmadan önce yazıldı; tarihsel)
 
 Durum: **okuyucu yok.** Elimizde N3 efekt motorunun kaynağı yok (`N3FXBundle`/`N3FXPart*` sınıfları client kaynağında bulunmuyor; yalnızca `N3River.h`
 ve `N3AnimatedTexures.h` başlıkları var). Aşağıdakiler ikili dosyalardan gözlenenlerdir.
