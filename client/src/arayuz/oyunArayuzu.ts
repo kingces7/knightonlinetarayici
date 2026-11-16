@@ -256,17 +256,36 @@ export class OyunArayuzu {
     const ol = Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4));
     const s = this.gorev.el.style;
     s.transformOrigin = '0 0'; s.transform = `scale(${ol})`;
-    s.left = `${Math.max(0, (innerWidth - this.gorev.boyut[0] * ol) / 2)}px`;
-    s.top = `${innerHeight - this.gorev.boyut[1] * ol - 6}px`;
-    // Sohbet (sol) ve bilgi/hasar penceresi (sağ) görev çubuğunun hemen üstünde.
-    const ust = innerHeight - this.gorev.boyut[1] * ol - 6 - 4;
+    // Görev çubuğu ekranın ALT kenarına yapışır: pencere kutusundaki saydam alt boşluk sinir() ile hesaba katılır (resmin alt kenarı = ekran alt kenarı).
+    this.gorev.olcek = ol; this.gorev.sinirTemizle();
+    const [gsl, gst, gsr, gsb] = this.gorev.sinir();
+    s.left = `${(innerWidth - (gsr - gsl) * ol) / 2 - gsl * ol}px`;
+    s.top = `${innerHeight - gsb * ol}px`;
+    const gorevUst = innerHeight - (gsb - gst) * ol; // görev çubuğu resminin üst kenarı (ekran koordinatı)
+    // Sohbet (sol) ve bilgi/hasar penceresi (sağ) görev çubuğunun hemen üstünde; resimlerinin alt kenarı görev çubuğuna değmez.
+    const ust = gorevUst - 3;
     // Dar ekranda üçü birden aynı oranda küçülür (sohbet | skill çubuğu | bilgi yan yana sığsın).
     const sw = this.sohbet.boyut[0], bw = this.bilgi.boyut[0], cw = 356;
     const hol = Math.min(arayuzOlcegi(), innerWidth / (sw + bw + cw + 24));
     for (const x of [this.sohbet, this.bilgi, this.cubuk, this.hpbar]) x.olcekAyarla(hol);
     this.sohbetSerbest?.olcek(hol); this.bilgiSerbest?.olcek(hol);
-    if (!this.sohbetSerbest?.konumuUygula()) { this.sohbet.el.style.left = '0px'; this.sohbet.el.style.top = `${ust - this.sohbet.boyut[1] * hol}px`; }
-    if (!this.bilgiSerbest?.konumuUygula()) { this.bilgi.el.style.left = `${innerWidth - bw * hol}px`; this.bilgi.el.style.top = `${ust - this.bilgi.boyut[1] * hol}px`; }
+    this.sohbet.sinirTemizle(); this.bilgi.sinirTemizle();
+    const yerles = (p: UiPencere, ser: SerbestPencere | null, sag: boolean): void => {
+      if (ser?.konumuUygula()) return;
+      const [l, t, r, b] = p.sinir();
+      p.el.style.left = `${sag ? innerWidth - r * hol : -l * hol}px`;
+      p.el.style.top = `${ust - b * hol}px`;
+    };
+    yerles(this.sohbet, this.sohbetSerbest, false); yerles(this.bilgi, this.bilgiSerbest, true);
+    // Kayıtlı (kullanıcının taşıdığı) konumlar başka çözünürlükte çakışabilir: sohbet/bilgi birbirine ya da görev çubuğuna değiyorsa varsayılana dönerler.
+    const kutu = (p: UiPencere) => { const [l, t, r, b] = p.sinir(), x = parseFloat(p.el.style.left) || 0, y = parseFloat(p.el.style.top) || 0; return { l: x + l * hol, t: y + t * hol, r: x + r * hol, b: y + b * hol }; };
+    const kesisir = (x: { l: number; t: number; r: number; b: number }, y: { l: number; t: number; r: number; b: number }) => x.l < y.r - 1 && x.r > y.l + 1 && x.t < y.b - 1 && x.b > y.t + 1;
+    const gk = { l: (innerWidth - (gsr - gsl) * ol) / 2, t: gorevUst, r: (innerWidth + (gsr - gsl) * ol) / 2, b: innerHeight };
+    const sk = kutu(this.sohbet), bk = kutu(this.bilgi);
+    if (kesisir(sk, gk) || kesisir(bk, gk) || kesisir(sk, bk)) {
+      this.sohbetSerbest?.sifirla(); this.bilgiSerbest?.sifirla();
+      for (const [p, sag] of [[this.sohbet, false], [this.bilgi, true]] as [UiPencere, boolean][]) { const [l, , r, b] = p.sinir(); p.el.style.left = `${sag ? innerWidth - r * hol : -l * hol}px`; p.el.style.top = `${ust - b * hol}px`; }
+    }
     // Skill çubuğu: sohbet ile bilgi penceresinin ortasında (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
     let kayit: number[] | null = null;

@@ -33,7 +33,7 @@ export class SerbestPencere {
   private kok: HTMLElement;
   private w0: number; private h0: number;
   /** Kayıtlı konum var mı (varsa varsayılan yerleşim uygulanmaz). */
-  get konumluMu(): boolean { return !Number.isNaN(this.k.x); }
+  get konumluMu(): boolean { return typeof this.k.x === 'number' && !Number.isNaN(this.k.x) && typeof this.k.y === 'number'; }
   get kilitli(): boolean { return this.k.kilit; }
 
   constructor(private p: UiPencere, private ayar: SerbestAyar, private ekranaSigdir: () => void) {
@@ -92,6 +92,8 @@ export class SerbestPencere {
   /** Dışarıdan ölçek bildirilir (pencere ölçeği değişince tutamaç hesapları için). */
   olcek(o: number): void { this.ol = o; }
   /** Kayıtlı konumu uygular; kayıt yoksa false. */
+  /** Kayıtlı konumu siler (varsayılan konuma dönülür); boyut kalır. */
+  sifirla(): void { this.k.x = NaN; this.k.y = NaN; this.kaydetDisk(); }
   konumuUygula(): boolean {
     if (!this.konumluMu) return false;
     const w = (this.w0 + this.k.dw) * this.ol, h = (this.h0 + this.k.dh) * this.ol;

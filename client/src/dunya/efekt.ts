@@ -18,6 +18,8 @@ interface FxParca {
 }
 interface FxVeri { id: number; omur: number; parcalar: FxParca[] }
 
+/** `azamiSure` aşılınca efekt bu kadar saniyede söner. */
+const SONME = 0.12;
 const D3D_KARISIM: Record<number, THREE.BlendingDstFactor> = {
   1: THREE.ZeroFactor, 2: THREE.OneFactor, 3: THREE.SrcColorFactor, 4: THREE.OneMinusSrcColorFactor, 5: THREE.SrcAlphaFactor, 6: THREE.OneMinusSrcAlphaFactor,
   7: THREE.DstAlphaFactor, 8: THREE.OneMinusDstAlphaFactor, 9: THREE.DstColorFactor, 10: THREE.OneMinusDstColorFactor,
@@ -32,7 +34,7 @@ interface Tanecik {
 interface ParcaDurumu {
   p: FxParca; dokular: THREE.Texture[]; olusumSayaci: number; taneler: Tanecik[]; mesh?: THREE.Object3D; mats?: THREE.SpriteMaterial[]; bitti: boolean;
 }
-interface Ornek { veri: FxVeri; kok: THREE.Object3D; kok0: THREE.Vector3; t: number; sure: number; parcalar: ParcaDurumu[]; grup: THREE.Group; olcek: number }
+interface Ornek { azami: number | null; veri: FxVeri; kok: THREE.Object3D; kok0: THREE.Vector3; t: number; sure: number; parcalar: ParcaDurumu[]; grup: THREE.Group; olcek: number }
 
 export class EfektYoneticisi {
   private onbellek = new Map<number, Promise<FxVeri | null>>();
@@ -58,11 +60,11 @@ export class EfektYoneticisi {
    * Efekti `kok` nesnesinin bulunduğu yerde oynatır. `sure`: yayılan parçalara ne kadar süre yeni parçacık yaptıracağı (sn); varsayılan paket ömrü, en çok 2 sn.
    * Dönen değer yoksa (efekt yok/çözülemedi) false.
    */
-  async oynat(id: number, kok: THREE.Object3D, secenek: { sure?: number; olcek?: number } = {}): Promise<boolean> {
+  async oynat(id: number, kok: THREE.Object3D, secenek: { sure?: number; olcek?: number; azamiSure?: number } = {}): Promise<boolean> {
     const veri = await this.veri(id); if (!veri) return false;
     const grup = new THREE.Group(); this.sahne.add(grup);
     const parcalar = veri.parcalar.map((p): ParcaDurumu => ({ p, dokular: p.dokular.map((d) => this.doku(d)), olusumSayaci: p.olusumAraligi ?? 0, taneler: [], bitti: false }));
-    this.aktif.push({ veri, kok, kok0: kok.getWorldPosition(new THREE.Vector3()), t: 0, sure: secenek.sure ?? Math.min(veri.omur || 2, 2), parcalar, grup, olcek: secenek.olcek ?? 1 });
+    this.aktif.push({ azami: secenek.azamiSure ?? null, veri, kok, kok0: kok.getWorldPosition(new THREE.Vector3()), t: 0, sure: secenek.sure ?? Math.min(veri.omur || 2, 2), parcalar, grup, olcek: secenek.olcek ?? 1 });
     return true;
   }
 
@@ -87,6 +89,7 @@ export class EfektYoneticisi {
     for (let i = this.aktif.length - 1; i >= 0; i--) {
       const o = this.aktif[i]; o.t += dt;
       o.kok.getWorldPosition(o.kok0);
+      if (o.azami !== null && o.t >= o.azami + SONME) { for (const s of o.parcalar) s.bitti = true; }
       let canli = false;
       for (const s of o.parcalar) { if (!s.bitti) { this.parcaGuncelle(o, s, dt); if (!s.bitti) canli = true; } }
       if (!canli) { o.grup.removeFromParent(); for (const s of o.parcalar) { for (const t of s.taneler) t.mat.dispose(); s.mats?.forEach((m) => m.dispose()); } this.aktif.splice(i, 1); }
@@ -96,6 +99,7 @@ export class EfektYoneticisi {
   private parcaGuncelle(o: Ornek, s: ParcaDurumu, dt: number): void {
     const p = s.p, t = o.t - p.baslangic;
     if (t < 0) return;
+    const son = o.azami === null ? 1 : Math.max(0, Math.min(1, 1 - (o.t - o.azami) / SONME)); // azami süreden sonra hızla sönme
     const omur = p.omur > 0 ? p.omur : o.sure;
     const yayilimBitti = t >= Math.min(omur, o.sure) + p.solmaGiris; // yeni parçacık yaratmayı bırak (kaynak: parça ömrü dolunca Stop)
     const merkez = o.kok0.clone().add(sahneV(p.konum).multiplyScalar(o.olcek));
@@ -122,8 +126,8 @@ export class EfektYoneticisi {
     const toplam = p.solmaGiris + omur + p.solmaCikis;
     const bitisT = Math.min(toplam, p.solmaGiris + Math.min(omur, Math.max(o.sure, 0.3)) + p.solmaCikis);
     if (t >= bitisT) { s.mesh?.removeFromParent(); s.bitti = true; return; }
-    let alfa = 1;
-    if (p.solmaGiris > 0 && t < p.solmaGiris) alfa = t / p.solmaGiris;
+    let alfa = son;
+    if (p.solmaGiris > 0 && t < p.solmaGiris) alfa = t / p.solmaGiris * son;
     const kalan = bitisT - t;
     if (p.solmaCikis > 0 && kalan < p.solmaCikis) alfa = Math.min(alfa, kalan / p.solmaCikis);
     const kare = s.dokular.length ? (p.dokuDongu ? Math.floor(t * p.dokuFps) % s.dokular.length : Math.min(s.dokular.length - 1, Math.floor(t * p.dokuFps))) : 0;
@@ -173,7 +177,7 @@ export class EfektYoneticisi {
   }
 
   private tanecikGuncelle(o: Ornek, s: ParcaDurumu, k: Tanecik, dt: number): boolean {
-    const p = s.p, ol = o.olcek;
+    const p = s.p, ol = o.olcek, son = o.azami === null ? 1 : Math.max(0, Math.min(1, 1 - (o.t - o.azami) / SONME));
     const renkli = !!p.renkAnahtarlari?.length;
     if (renkli ? k.yas >= k.omur : k.yas >= p.solmaGiris + k.omur + p.solmaCikis) return false;
     const konum = k.baslangicNoktasi.clone().add(k.yerel);
@@ -186,10 +190,10 @@ export class EfektYoneticisi {
     // renk / saydamlık (kaynak: CN3FXParticle::Tick)
     if (renkli) {
       const anahtar = Math.min(99, Math.floor(k.yas * 100 / k.omur)), c = (p.renkAnahtarlari![Math.min(anahtar, p.renkAnahtarlari!.length - 1)] ?? 0xffffffff) >>> 0;
-      k.mat.color.setRGB(((c >> 16) & 255) / 255, ((c >> 8) & 255) / 255, (c & 255) / 255); k.mat.opacity = ((c >>> 24) & 255) / 255;
+      k.mat.color.setRGB(((c >> 16) & 255) / 255, ((c >> 8) & 255) / 255, (c & 255) / 255); k.mat.opacity = ((c >>> 24) & 255) / 255 * son;
     } else {
       let a = 1; if (k.yas <= p.solmaGiris && p.solmaGiris > 0) a = k.yas / p.solmaGiris; else if (k.yas > p.solmaGiris + k.omur) a = p.solmaCikis > 0 ? (p.solmaGiris + k.omur + p.solmaCikis - k.yas) / p.solmaCikis : 0;
-      k.mat.color.setRGB(1, 1, 1); k.mat.opacity = Math.max(0, Math.min(1, a));
+      k.mat.color.setRGB(1, 1, 1); k.mat.opacity = Math.max(0, Math.min(1, a)) * son;
     }
     if (s.dokular.length) { const kare = Math.floor(k.yas * p.dokuFps) % s.dokular.length; k.mat.map = s.dokular[kare]; }
     // sonraki adım

@@ -30,7 +30,7 @@ const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? '14th_oldmoradon';
 const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
-const SALDIRI_MENZILI = 2.6;
+const SALDIRI_MENZILI = 3.6; // yakın dövüş vuruş menzili (m); eskiden 2,6 (canavarın çok yakınına girmek gerekiyordu)
 /**
  * Oyuncu koşma hızı (m/sn). Sunucu kaynağı: SpeedHackUser() normal oyuncuda en çok 45, savaşçı/büyücü/rahipte 67 (= 45 × 1,5; Sprint %150 buff) izin verir;
  * hız paketi onda bir metre/sn biriminde olduğundan temel koşu 4,5 m/sn. Yürüme oranı (0,5) orijinalden doğrulanmadı.
@@ -381,6 +381,7 @@ async function basla(): Promise<void> {
       const yeniHedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null;
       if (yeniHedef !== oyuncu.hedef) { oyuncu.saldiriyor = false; hud.ganimetAc(null); }
       oyuncu.hedef = yeniHedef;
+      sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; // tuş basılı kalırsa karakter imlece doğru yürümeye devam eder
       return;
     }
     const oyuncuVurus = isin.intersectObjects(digerOyuncular.map((d) => d.secimKutusu))[0];
@@ -541,7 +542,7 @@ async function basla(): Promise<void> {
       if (v.kalan > 0) continue;
       vurusZamanlayici.splice(i, 1);
       if (v.hedef.olu || oyuncu.olu) continue;
-      if (v.hedefEfekt) void efektler.oynat(v.hedefEfekt, v.hedef.grup, { sure: 0.5 }); // vuruş efekti hedefte
+      if (v.hedefEfekt) void efektler.oynat(v.hedefEfekt, v.hedef.grup, { sure: 0.15, azamiSure: 0.25 }); // vuruş efekti hedefte
       if (v.hedef.agModu) { // sunucu canavarı: isabeti ve hasarı sunucu belirler, biz yalnızca saldırı isteriz
         if (sunucuOturumu && !v.beceri) sunucuOturumu.gonder(WIZ.SALDIRI, saldiriIstegi(v.hedef.agKimlik, (oyuncu.silah?.gecikme ?? 100) + 10, 10));
         continue;
