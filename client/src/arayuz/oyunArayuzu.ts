@@ -46,7 +46,7 @@ export interface ArayuzBaglami {
 }
 
 /** Eşya simgeleri 64×64 dokunun sol üst 45×45'ine çizilir; yuvayı tam doldurmak için büyütülür. */
-/** Kısayol tuşu → orijinal pencere (M ses için ayrıldı). */
+/** Kısayol tuşu → pencere (P/F/L/N istek üzerine eklendi; orijinal kaynakta yalnız M/H/F10 pencere tuşudur, bkz. tus()). */
 const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyL: 're_el_clan_window', KeyN: 're_el_notice', };
 /** Görev çubuğu düğmesi → orijinal pencere (eşleşme pencerenin metinlerinden tahmin edildi). */
 const GOREV_PENCERELERI: Record<string, string> = {
@@ -220,6 +220,12 @@ export class OyunArayuzu {
     if (kod === 'KeyU') { this.degistir('durum'); return true; }
     if (kod === 'KeyK') { this.degistir('beceri'); return true; }
     if (kod === 'KeyI') { this.degistir('envanter'); return true; }
+    // Orijinal tuş tablosu (GameDef.h eKeyMap): M mini harita, H komut listesi, F10 yardım, PageUp/PageDown skill çubuğu sayfası
+    if (kod === 'KeyM') { void this.genel.degistir('re_minimap'); return true; }
+    if (kod === 'KeyH') { void this.genel.degistir('re_el_cmdlist'); return true; }
+    if (kod === 'F10') { void this.genel.degistir('re_seed_helper'); return true; }
+    if (kod === 'PageUp') { if (this.cubukSayfa > 0) this.cubukSayfaDegistir(-1); return true; }
+    if (kod === 'PageDown') { if (this.cubukSayfa < 7) this.cubukSayfaDegistir(1); return true; }
     if (kod === 'Enter') { this.sohbetGiris?.focus(); return true; }
     const fSayfa = /^F([1-8])$/.exec(kod);
     if (fSayfa) { this.cubukSayfa = Number(fSayfa[1]) - 1; this.cubukSayfaDegistir(0); return true; }

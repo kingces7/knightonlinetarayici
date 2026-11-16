@@ -262,26 +262,31 @@ async function basla(): Promise<void> {
     tuslar.add(e.code);
     if (!e.repeat && arayuz?.tus(e.code)) { e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
     // Hedef seçimi: Z en yakın canavar, Q ve Tab bir sonraki yakın canavar (yalnızca seçer); R seçili hedefe temel saldırıyı başlatır
+  let otoIleri = false; // E ile açılan otomatik ilerleme
     const yakinlar = () => canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40).sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum));
     if (!e.repeat && (e.code === 'KeyZ' || e.code === 'KeyQ' || e.code === 'Tab')) {
       e.preventDefault();
+    // Ses aç/kapat: orijinalde tuşu yok (M mini haritaya ayrıldı); Shift+M
+    if (!e.repeat && e.code === 'KeyM' && e.shiftKey) { hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem'); return; }
       const l = yakinlar();
       const yeni = e.code === 'KeyZ' ? l[0] : (l.find((c) => c !== oyuncu.hedef && (!oyuncu.hedef || c.konum.distanceTo(oyuncu.konum) >= oyuncu.hedef.konum.distanceTo(oyuncu.konum))) ?? l[0]);
       if (yeni && yeni !== oyuncu.hedef) { oyuncu.hedef = yeni; oyuncu.saldiriyor = false; }
     }
     if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
-    if (!e.repeat && e.code === 'KeyR') {
+    if (!e.repeat && e.code === 'KeyR' && oyuncu.saldiriyor) { oyuncu.saldiriyor = false; hud.mesaj('Auto attack off.', 'sistem'); } // R: sürekli saldırıyı aç/kapa (orijinal CommandToggleAttackContinous)
+    else if (!e.repeat && e.code === 'KeyR') {
       if (!oyuncu.hedef || oyuncu.hedef.olu) { const y = yakinlar()[0]; if (y) oyuncu.hedef = y; }
       if (oyuncu.hedef && !oyuncu.hedef.olu) { oyuncu.saldiriyor = true; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; }
+      if (e.code === 'KeyZ' && yeni) oyuncu.bak(yeni.konum); // orijinal: en yakın düşmanı seçince ona döner (RotateTo)
     }
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
     if (!e.repeat && e.code === 'KeyO') hud.mesaj(hud.nickDegistir() ? 'Player names are shown.' : 'Player names are hidden.', 'sistem'); // O: oyuncu adlarını aç/kapat
-    if (e.code === 'PageUp' || e.code === 'PageDown') { e.preventDefault(); hud.mesaj(`Camera angle: ${kamera.egimDegistir(e.code === 'PageUp' ? 1 : -1)}° (PageUp/PageDown)`, 'sistem'); } // bakış açısı
-    if (!e.repeat && e.code === 'KeyM') hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem');
+    if (e.code === 'Home' || e.code === 'End') e.preventDefault(); // kamera eğimi: Home/End basılı tutulunca (döngüde)
   });
-  addEventListener('keyup', (e) => tuslar.delete(e.code));
+  addEventListener('keyup', (e) => { tuslar.delete(e.code); if (e.code === 'Home' || e.code === 'End') kamera.egimKaydet(); });
+    if (!e.repeat && e.code === 'KeyE' && !oyuncu.olu) { otoIleri = !otoIleri; if (otoIleri) { oyuncu.yuruHedef = null; oyuncu.saldiriyor = false; } } // E: otomatik ilerleme (orijinal KM_TOGGLE_MOVE_CONTINOUS)
 
   const isin = new THREE.Raycaster();
   let acilacakKutu: GanimetKutusu | null = null;
@@ -395,7 +400,11 @@ async function basla(): Promise<void> {
       } else if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
     }
     const donus = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
-    const ilerigeri = Math.max(ikiTus ? 1 : 0, (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0));
+    // Orijinal: Home/End basılıyken kamera eğimi saniyede 45° değişir (Home = aşağı bakış)
+    const egimTus = (tuslar.has('Home') ? 1 : 0) - (tuslar.has('End') ? 1 : 0);
+    if (egimTus !== 0) kamera.egimKaydir(egimTus * 45 * dt);
+    if (otoIleri && (tuslar.has('KeyW') || tuslar.has('KeyS') || oyuncu.yuruHedef || oyuncu.olu || oyuncu.model?.oturuyor)) otoIleri = false;
+    const ilerigeri = Math.max(ikiTus || otoIleri ? 1 : 0, (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0));
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
     if (!oyuncu.hedef) oyuncu.saldiriyor = false;
     oyuncu.yuruAcisi = null;

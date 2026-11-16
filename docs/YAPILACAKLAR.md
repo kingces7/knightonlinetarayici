@@ -51,7 +51,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 Veri dosyaları açık; kapalı olan, veriyi **nasıl kullanacağını** söyleyen istemci kuralları. Elimizde: tam sunucu kaynağı, tablolar ve N3BASE'in yalnızca arayüz/doku/animasyon-anahtarı parçası (`N3Joint`, `N3Chr`, `N3AnimControl` yok). Yöntem sırası: **1)** veriden çıkarım, **2)** `.exe` içindeki düz metin/sabit arama, **3)** paketi açıp tersine mühendislik (ancak 1-2 yetmezse; önce kullanıcıya sorulur). İlke: oyunu uyarlıyoruz, kural icat etmiyoruz.
 
 Bilinmeyenler (bulunca işaretle):
-- [ ] Varsayılan **kısayol tuşu tablosu** (şimdilik U/K/I/C/T istek üzerine verildi)
+- [x] Varsayılan **kısayol tuşu tablosu** — OpenKO 1299 istemci kaynağından (`GameDef.h` eKeyMap, `GameProcMain.cpp`) alındı: 1-8 skill, F1-F8 sayfa, PageUp/PageDown sayfa ±1 (uçlarda durur), T koş/yürü, E otomatik ilerleme, R sürekli saldırı aç/kapa, C otur, I/K/U pencereler, M mini harita, H komut listesi, F10 yardım, Home/End kamera eğimi (45°/sn), Z en yakın düşman (ona döner). Sınama: `client/scripts/kisayolTesti.mjs`. Kalan: F9 bakış değiştirme (birinci şahıs kamerası yok), X en yakın partili (parti yok); Q/Tab hedef seçimi ve P/F/L/N pencere tuşları orijinalde yok, istek üzerine duruyor; ses aç/kapa artık Shift+M; A/D dönüş hızı bizde 2,4 rad/sn (orijinal 60°/sn) — kullanıcı kararı bekliyor.
 - [ ] **Silah türüne göre** bekleme/saldırı/skill animasyon seçimi (`breath_sword0`, `attack_sword0_A`… hangi eşya türü hangisini kullanıyor)
 - [ ] Animasyon **hız/geçiş/vuruş anı** kuralları, hareket ve koşma **hız sabitleri**, yürüme↔koşma geçişi
 - [ ] **Kamera** kuralları (mesafe, açı sınırları, çarpışma)

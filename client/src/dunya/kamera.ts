@@ -14,6 +14,13 @@ export class TakipKamerasi {
     try { localStorage.setItem('ke_kamera_egim', String(yeni)); } catch { /* depolama kapalı */ }
     return yeni;
   }
+  /** Eğimi sürekli (kesirli) değiştirir, kaydetmez; tuş bırakılınca egimKaydet çağrılır. */
+  egimKaydir(derece: number): void {
+    this.egim = (Math.max(8, Math.min(45, (this.egim * 180) / Math.PI + derece)) * Math.PI) / 180;
+  }
+  egimKaydet(): void {
+    try { localStorage.setItem('ke_kamera_egim', String(Math.round((this.egim * 180) / Math.PI))); } catch { /* depolama kapalı */ }
+  }
   /** Fareyle girilmiş ama henüz uygulanmamış dönüş (rad); her karede kademeli uygulanır. */
   private bekleyenDonus = 0;
   /** Yakınlaştırma/uzaklaştırma sınırları (m). En uzak = oyunun varsayılan kamerası (DefaultCamera.N3Camera: göz–hedef mesafesi ≈ 21,8 m). */
