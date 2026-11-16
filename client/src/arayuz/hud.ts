@@ -11,7 +11,7 @@ const $ = <T extends HTMLElement>(html: string): T => {
 export class Hud {
   private kok = document.getElementById('arayuz')!;
   private durum = $<HTMLDivElement>(`<div class="panel durum">
-      <div class="ad">KnightEmpire <span class="sev"></span></div>
+      <div class="ad">kingces <span class="sev"></span></div>
       <div class="cubuk can"><i></i><b></b></div>
       <div class="cubuk mana"><i></i><b></b></div>
       <div class="cubuk exp"><i></i><b></b></div></div>`);

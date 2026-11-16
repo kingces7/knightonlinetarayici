@@ -127,6 +127,39 @@ export class KarakterModeli {
     for (const ad of this.klipler.keys()) if (ad.startsWith(`${no}_`)) return ad;
     return undefined;
   }
+  // ---- Hareket ederken saldırı (orijinal PlayerBase::Action PSA_ATTACK: IsMovingNow → ANI_ATTACK_WITH_WEAPON_WHEN_MOVE = 14, "yalnız üst gövde").
+  // Kemikler iki gruba bölünür: üst gövde (göğüs, omuz, kol, boyun, baş) saldırı animasyonunu oynar, bacak/kalça koşmayı sürdürür.
+  private static readonly UST_KEMIKLER = new Set(['Chest', 'Chest2', 'LeftCollar', 'LeftShoulder', 'LeftElbow', 'RightCollar', 'RightShoulder', 'RightElbow', 'Neck', 'Head']);
+  private bolunmus = new Map<string, { ust: THREE.AnimationClip; alt: THREE.AnimationClip }>();
+  private ustSaldiriAktif = false;
+  private bol(klip: THREE.AnimationClip): { ust: THREE.AnimationClip; alt: THREE.AnimationClip } {
+    let b = this.bolunmus.get(klip.name);
+    if (!b) {
+      const ustMu = (iz: THREE.KeyframeTrack) => KarakterModeli.UST_KEMIKLER.has(iz.name.split('.')[0]);
+      b = { ust: new THREE.AnimationClip(klip.name + '_ust', klip.duration, klip.tracks.filter(ustMu)), alt: new THREE.AnimationClip(klip.name + '_alt', klip.duration, klip.tracks.filter((t) => !ustMu(t))) };
+      this.bolunmus.set(klip.name, b);
+    }
+    return b;
+  }
+  /** Koşarken/yürürken saldırı: üst gövde 14 numaralı animasyonu bir kez oynar, alt gövde hareket animasyonuna devam eder. */
+  ustSaldiri(): void {
+    if (this.ustSaldiriAktif || this.oturAsama !== 'yok' || (this.aktifAd !== 'kos' && this.aktifAd !== 'yuru')) return;
+    const saldiri = [...this.klipler.values()][14], hareket = this.klipler.get(this.aktifAd);
+    if (!saldiri || !hareket || !this.aktif) return;
+    const ust = this.bol(saldiri).ust, alt = this.bol(hareket).alt;
+    if (!ust.tracks.length || !alt.tracks.length) return;
+    this.ustSaldiriAktif = true;
+    const altEylem = this.karistirici.clipAction(alt); altEylem.reset(); altEylem.timeScale = this.aktif.timeScale; altEylem.play();
+    this.aktif.crossFadeTo(altEylem, 0.05, false); this.aktif = altEylem;
+    const ustEylem = this.karistirici.clipAction(ust); ustEylem.reset(); ustEylem.setLoop(THREE.LoopOnce, 1); ustEylem.clampWhenFinished = false; ustEylem.play(); ustEylem.fadeIn(0.05);
+    const ad = this.aktifAd;
+    setTimeout(() => {
+      ustEylem.fadeOut(0.08); this.ustSaldiriAktif = false;
+      if (this.aktifAd === ad) { this.aktifAd = ''; this.calistir(ad, true, 0.08); } // tam hareket animasyonuna dön
+    }, Math.max(150, ust.duration * 1000 / Math.max(0.1, this.aktif.timeScale || 1)));
+  }
+  /** Numaralı animasyonu (ör. 104 selamlama) bir kez oynatır; süresini (sn) döndürür, yoksa 0. */
+  numaraOynat(no: number): number { const ad = this.klipNo(no); return ad ? this.oynat(ad, false, 0.1) : 0; }
   /** Eldeki silahın türüne göre bekleme/saldırı/skill animasyonlarını seçer (0 = silahsız). Silah değişince bekleme yenilenir. */
   silahAyarla(tip: number): void {
     if (tip === this.silahTipi) return;

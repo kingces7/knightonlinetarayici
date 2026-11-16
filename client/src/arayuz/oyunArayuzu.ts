@@ -30,6 +30,10 @@ export interface ArayuzBaglami {
   npcler: () => { ad: string; x: number; y: number }[];
   /** Statü puanı harcandığında oyun kuralları (en çok can/mana vb.) güncellensin. */
   statDegisti: () => void;
+  /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
+  sehreDon: () => void;
+  /** Oyuncu animasyonu numarasını oynat (selamlama, savaş çığlığı). */
+  emote: (animNo: number) => void;
   /** Seçili oyuncuya parti daveti gönder (görev çubuğundaki Party düğmesi). */
   partiDavet: () => void;
   /** Otur / kalk (görev çubuğu düğmesi ve C tuşu). */
@@ -171,6 +175,7 @@ export class OyunArayuzu {
         p.metin('Text_Position', `${Math.round(o.konum.x)} ${Math.round(o.konum.y)}`);
       };
     });
+    this.genel.davranis.set('re_el_cmdlist', (p) => this.komutListesi(p));
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
     this.genel.davranis.set('re_el_page_quest', (p) => this.sekmeSeridi(p, 'gorev'));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
@@ -363,6 +368,7 @@ export class OyunArayuzu {
     h.gizleDesen(/^(frame_[1-9][0-9]?|base_mon_hp_level_long|base_player_hp_state|base_cover|Button_Board|mark_pos)$/); // yalnız frame_0 (sade çerçeve) kullanılır
     h.el.style.display = 'none'; h.el.style.zIndex = '4';
   }
+  private hedefCubukHedef: unknown = null; private hedefCubukOran = 1;
   private hedefCiz(): void {
     const h = this.hedefCubugu, hd = this.b.oyuncu.hedef;
     if (!hd || hd.olu) { if (h.el.style.display !== 'none') h.el.style.display = 'none'; return; }
@@ -373,7 +379,10 @@ export class OyunArayuzu {
     for (let i = 0; i < 4; i++) h.goster(`grpg_level_${i}`, i === k);
     h.metin('name', hd.tur.ad);
     h.metin('Text_Health', `${Math.ceil(hd.can)} / ${hd.enCok}`);
-    for (let i = 0; i < 4; i++) h.ilerleme(`grpg_level_${i}`, hd.can / hd.enCok);
+    // Can çubuğu vuruşta ani kesilmez: hızla (≈0,15 sn) yeni değere akar; hedef değişince hemen oturur.
+    const oran = Math.max(0, hd.can / Math.max(1, hd.enCok));
+    if (this.hedefCubukHedef !== hd) { this.hedefCubukHedef = hd; this.hedefCubukOran = oran; } else this.hedefCubukOran += (oran - this.hedefCubukOran) * 0.25;
+    for (let i = 0; i < 4; i++) h.ilerleme(`grpg_level_${i}`, this.hedefCubukOran);
   }
 
   // ---------------------------------------------------------------- banka (re_el_warehouse)
@@ -664,7 +673,7 @@ export class OyunArayuzu {
   private hpbarKur(): void {
     const p = this.hpbar;
     p.gizleDesen(/^(img_mail|img_Reporter|progress_Rexp|progress_Sexp|progress_HP_slow|progress_HP_drop|progress_HP_lasting|text_level_id|str_exp)/);
-    p.metin('text_Nick', 'KnightEmpire');
+    p.metin('text_Nick', 'kingces');
   }
 
   // ---------------------------------------------------------------- görev çubuğu
@@ -700,6 +709,42 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- karakter durumu (U)
   // ---------------------------------------------------------------- Character / Clan / Friends sekmeleri
   /** Pencerenin üstüne (nick satırının üstüne) Character / Clan / Friends sekme şeridi koyar. */
+  /**
+   * Command penceresi (referans oyunun komut listesi): üstte sohbet komutları, altta eylemler. Tek tık seçer, çift tık çalıştırır.
+   * Town → Moradon şehir noktası (305, 342). Greeting/Provoke → oyuncu animasyonu. Exit → çıkış menüsü.
+   */
+  private komutListesi(p: UiPencere): void {
+    const UST = ['Private', 'Trade', 'Party', 'Clan', 'Knights', 'Guardian Monster', 'King', 'GM'];
+    const ALT: [string, () => void][] = [
+      ['PM', () => this.sohbetKomutu('/private ')],
+      ['Town', () => this.b.sehreDon()],
+      ['Exit', () => { void this.genel.ac('re_exitmenu'); }],
+      ['Greeting', () => this.b.emote(104)], ['Greeting2', () => this.b.emote(105)], ['Greeting3', () => this.b.emote(106)],
+      ['Provoke', () => this.b.emote(107)], ['Provoke2', () => this.b.emote(108)], ['Provoke3', () => this.b.emote(109)],
+      ['Save', () => this.b.mesaj('Your character is saved automatically on the server.')],
+      ['Recommend', () => this.b.mesaj('Recommend is not available yet.')],
+      ['Individual_Battle', () => this.b.mesaj('Individual battle is not available yet.')],
+    ];
+    const doldur = (kap: HTMLElement | undefined, satirlar: [string, () => void][], renk: string) => {
+      if (!kap) return;
+      kap.replaceChildren();
+      Object.assign(kap.style, { overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', scrollbarWidth: 'none' });
+      let secili: HTMLElement | null = null;
+      for (const [ad, calistir] of satirlar) {
+        const s = document.createElement('div'); s.textContent = ad;
+        Object.assign(s.style, { color: renk, font: '600 14px Segoe UI, Tahoma, sans-serif', height: '20px', lineHeight: '20px', paddingLeft: '3px', cursor: 'pointer', border: '1px solid transparent', textShadow: '0 1px 2px #000', whiteSpace: 'nowrap', boxSizing: 'border-box' });
+        s.addEventListener('click', () => { if (secili) secili.style.borderColor = 'transparent'; secili = s; s.style.borderColor = '#31e05a'; });
+        s.addEventListener('dblclick', calistir);
+        s.addEventListener('pointerdown', (e) => e.stopPropagation());
+        kap.appendChild(s);
+      }
+    };
+    doldur(p.alan('list_curtailment'), UST.map((ad): [string, () => void] => [ad, () => this.sohbetKomutu('/' + ad.toLowerCase().replace(/ /g, '') + ' ')]), '#f5e800');
+    doldur(p.alan('list_content'), ALT, '#ffffff');
+  }
+  /** Komut listesinden sohbet girişine ön ek yazar ve odaklar. */
+  private sohbetKomutu(onEk: string): void { const g = this.sohbetGiris; if (!g) return; g.value = onEk; g.focus(); }
+
   private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', ust = -31): void {
     const sirit = document.createElement('div');
     const w = p.boyut[0] - 6;

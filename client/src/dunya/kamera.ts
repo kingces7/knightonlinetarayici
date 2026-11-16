@@ -34,7 +34,7 @@ export class TakipKamerasi {
   private donusBaslangic = 0;
   private donusGecen = 0;
   /** Orta tuşla 180° dönüşün süresi (sn). */
-  static readonly DONUS_SURESI = 0.7;
+  static readonly DONUS_SURESI = 0.22; // orta tuş 180° dönüşü süresi (sn): deneyerek ayarlanacak
 
   constructor(tuval: HTMLCanvasElement) {
     this.kamera = new THREE.PerspectiveCamera(55, 1, 0.5, 2000);
@@ -61,7 +61,8 @@ export class TakipKamerasi {
 
   /** Hızlıca 180° arkaya döner (orta fare tuşu / görev çubuğu kamera düğmesi). */
   arkayaDon(): void {
-    this.aci -= Math.PI; this.donusHedefi = null; // anında 180° (ters yönde, yumuşatma yok)
+    this.donusBaslangic = this.aci; this.donusGecen = 0;
+    this.donusHedefi = (this.donusHedefi ?? this.aci) - Math.PI; // ters yönde (saat yönü), kısa ve yumuşak
   }
 
   /** Fareyle kamera çevriliyor mu? */

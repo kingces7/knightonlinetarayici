@@ -47,6 +47,25 @@ export class Carpisma {
     return new Carpisma(new Float32Array(tampon), haritaBoyu);
   }
 
+  /** `zemin` gibi, ama zeminin eğimini de döndürür (normal.y: 1 = düz, küçüldükçe dik). Merdiven rampalarını düz zeminlerden ayırmak için. */
+  zeminBilgi(x: number, z: number, ustY: number): { y: number; egim: number } | null {
+    const l = this.hucreler.get(Math.floor(x / HUCRE) * this.kolon + Math.floor(z / HUCRE));
+    if (!l) return null;
+    let en: { y: number; egim: number } | null = null;
+    for (const t of l) {
+      if (this.sinif[t] !== 1) continue;
+      const o = t * 9, v = this.v;
+      const d1 = (x - v[o + 6]) * (v[o + 5] - v[o + 8]) - (v[o + 3] - v[o + 6]) * (z - v[o + 8]);
+      const d2 = (x - v[o]) * (v[o + 8] - v[o + 2]) - (v[o + 6] - v[o]) * (z - v[o + 2]);
+      const d3 = (x - v[o + 3]) * (v[o + 2] - v[o + 5]) - (v[o] - v[o + 3]) * (z - v[o + 5]);
+      if ((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0)) continue;
+      const ny = this.n[t * 3 + 1];
+      const y = v[o + 1] - (this.n[t * 3] * (x - v[o]) + this.n[t * 3 + 2] * (z - v[o + 2])) / ny;
+      if (y <= ustY && (en === null || y > en.y)) en = { y, egim: ny };
+    }
+    return en;
+  }
+
   /** (x,z) noktasının altındaki/üstündeki en yüksek yürünebilir zemin; `ustY`'yi geçmeyenler arasından. Yoksa null. */
   zemin(x: number, z: number, ustY: number): number | null {
     const l = this.hucreler.get(Math.floor(x / HUCRE) * this.kolon + Math.floor(z / HUCRE));

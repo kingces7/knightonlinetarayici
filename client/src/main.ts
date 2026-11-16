@@ -21,6 +21,7 @@ import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
+import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
@@ -32,7 +33,9 @@ const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
 /** Hedefin boyuna göre menzil: büyük canavarın merkezi uzaktadır (orijinal DistanceExceptRadius). */
 const menzilDe = (h: { secimYaricapi: number }) => SALDIRI_MENZILI + Math.max(0, h.secimYaricapi - 0.8);
-const SALDIRI_MENZILI = 3.6; // yakın dövüş vuruş menzili (m); eskiden 2,6 (canavarın çok yakınına girmek gerekiyordu)
+const SALDIRI_MENZILI = 3.6;
+/** Town komutunun ışınlandığı Moradon şehir noktası (kullanıcı verdi). */
+const SEHIR_NOKTASI: [number, number] = [305, 342]; // yakın dövüş vuruş menzili (m); eskiden 2,6 (canavarın çok yakınına girmek gerekiyordu)
 /**
  * Oyuncu koşma hızı (m/sn). Sunucu kaynağı: SpeedHackUser() normal oyuncuda en çok 45, savaşçı/büyücü/rahipte 67 (= 45 × 1,5; Sprint %150 buff) izin verir;
  * hız paketi onda bir metre/sn biriminde olduğundan temel koşu 4,5 m/sn. Yürüme oranı (0,5) orijinalden doğrulanmadı.
@@ -229,7 +232,14 @@ async function basla(): Promise<void> {
       },
       ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      partiDavet: () => partiDavetEt(), otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
+      partiDavet: () => partiDavetEt(),
+      // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
+      sehreDon: () => {
+        const [x, z] = SEHIR_NOKTASI; kalk(); oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null;
+        if (sunucuOturumu) { const p = (m: number) => Math.round(m * 10); const y = p(arazi.yukseklikAl(x, z)); sunucuOturumu.gonder(WIZ.HAREKET, new PaketYazici().u16(p(x)).u16(p(z)).u16(y).i16(0).u8(0).u16(p(x)).u16(p(z)).u16(y).baytlar()); }
+        hud.mesaj('You returned to town.', 'sistem');
+      },
+      emote: (no) => { if (oyuncu.olu || !oyuncu.model) return; kalk(); oyuncu.yuruHedef = null; oyuncu.animKilidi = oyuncu.model.numaraOynat(no) || 0; }, otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -477,7 +487,8 @@ async function basla(): Promise<void> {
     // karakter mevcut yönünde kalır, yalnızca kameranın değişimi eklenir. (Kamera açısı artınca karakter yönü de aynı miktarda artar.)
     const dAci = Math.atan2(Math.sin(kamera.aci - oncekiKameraAci), Math.cos(kamera.aci - oncekiKameraAci));
     oncekiKameraAci = kamera.aci;
-    if (ikiTus && dAci !== 0) {
+    // Sağ tuşla etrafa bakarken (tek başına ya da sol tuşla birlikte) karakter de kamerayla AYNI anda ve aynı derecede döner.
+    if ((ikiTus || kamera.suruklenirken) && dAci !== 0 && !oyuncu.model?.oturuyor) {
       const h = oyuncu.bakisAcisi + dAci;
       oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h))); oyuncu.yon = oyuncu.hedefYon;
     }
@@ -489,6 +500,7 @@ async function basla(): Promise<void> {
       oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
       oyuncu.savastanBeri = 0;
       if (!hareketli) oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
+      else oyuncu.model?.ustSaldiri(); // orijinal: hareket ederken saldırı ANI_ATTACK_WITH_WEAPON_WHEN_MOVE (yalnız üst gövde)
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       vurusZamanlayici.push({ kalan: 0.45, hedef: h });
     };

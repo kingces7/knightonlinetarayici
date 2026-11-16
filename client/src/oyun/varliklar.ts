@@ -73,7 +73,11 @@ export abstract class Varlik {
   /** (x,z) noktasındaki yürünebilir zemin: arazi ya da en fazla bir basamak yüksekteki köprü/kat. `kat` = zemin araziden mi yüksek. */
   private zeminBul(arazi: Arazi, x: number, z: number): { y: number; kat: boolean } {
     const t = arazi.yukseklikAl(x, z);
-    const f = arazi.carpisma?.zemin(x, z, (this.yuksek ?? t) + BASAMAK) ?? null;
+    const ay = this.yuksek ?? t;
+    let f = arazi.carpisma?.zemin(x, z, ay + BASAMAK) ?? null;
+    // Merdiven rampasının "içinde" kalma: zemin (arazi) rampanın altında kaldıysa ve hemen üstünde (en çok 1,6 m) EĞİMLİ bir rampa varsa oraya çıkılır.
+    // (Düz zeminler — köprü, çatı, kat — için bu geçerli değil: altından üstüne sıçranmaz.)
+    if (f === null && arazi.carpisma) { const g = arazi.carpisma.zeminBilgi(x, z, ay + 1.6); if (g && g.egim < 0.97 && g.y > t + 0.05) f = g.y; }
     return f !== null && f > t + 0.05 ? { y: f, kat: true } : { y: t, kat: false };
   }
 
@@ -355,7 +359,7 @@ export class Oyuncu extends Varlik {
   /** Sunucu bağlıyken sunucunun bildirdiği bu seviyedeki azami deneyim (yoksa istemci tablosu kullanılır). */
   azamiDeneyimSunucu: number | null = null;
   /** Görünen karakter adı (tek oyunculu modda sabit; sunucuya bağlanınca sunucudaki ad). */
-  ad = 'KnightEmpire';
+  ad = 'kingces';
   altin = 0;
   mana = 100; enCokMana = 100;
   envanter: (EsyaTanimi | null)[] = new Array(28).fill(null);
