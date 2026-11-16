@@ -116,3 +116,66 @@ test('PaketKanali (şifreli): sunucu→client paketi (FC 1E başlığı, CRC yok
   const yanlis = new PaketKanali(); yanlis.sifrelemeyiAc(acik ^ 1n);
   assert.throws(() => yanlis.al(kare), CerceveHatasi);
 });
+
+// ---------- LZF ve sıkıştırılmış paket ----------
+import { lzfAc, lzfDuzSar, LzfHatasi } from './lzf.ts';
+const hexBayt = (s: string) => Uint8Array.from(s.split(' ').map((x) => parseInt(x, 16)));
+
+test('LZF: düz bölüm ve geri başvuru (elle kurulmuş vektör: "ab" + 6 bayt kopya = "abababab")', () => {
+  assert.equal(new TextDecoder().decode(lzfAc(hexBayt('01 61 62 80 01'), 8)), 'abababab');
+  assert.deepEqual(lzfAc(lzfDuzSar(hexBayt('01 02 03')), 3), hexBayt('01 02 03'));
+  const uzun = Uint8Array.from({ length: 100 }, (_, i) => i);
+  assert.deepEqual(lzfAc(lzfDuzSar(uzun), 100), uzun);
+  assert.throws(() => lzfAc(hexBayt('01 61 62 80 01'), 9), LzfHatasi); // uzunluk uyuşmuyor
+  assert.throws(() => lzfAc(hexBayt('20 01'), 5), LzfHatasi); // çıktı başında geri başvuru
+});
+
+test('GERÇEK YAKALAMA: 1298 oyun sunucusunun sürüm kontrol cevabı (sıkıştırılmış, u16 başlıklı) çözülür', () => {
+  // 127.0.0.1:15001'e WIZ_VERSION_CHECK (0x2B) gönderilince gelen ham baytlar (resmî 1298 sunucu .exe'si)
+  const ham = hexBayt('aa 55 16 00 42 0d 00 0c 00 00 00 00 00 0b 2b 12 05 ae d6 6c e1 84 be 23 29 81 55 aa');
+  const [p] = new PaketKanali().al(ham);
+  assert.equal(p.opcode, 0x2b);
+  const o = new PaketOkuyucu(p.govde);
+  assert.equal(o.u16(), 1298);                  // oyun sunucusu sürümü
+  assert.equal(o.u64(), 0x2923be84e16cd6aen);   // şifreleme için açık anahtar
+  assert.equal(o.u8(), 0x81);
+  assert.equal(o.kalan, 0);
+});
+
+test('sıkıştırılmış paket: Myko düzeni (u32 başlıklı) da çözülür', () => {
+  const ic = Uint8Array.from([0x2b, 1, 2, 3, 4]);
+  const veri = lzfDuzSar(ic);
+  const govde = new PaketYazici().u32(veri.length).u32(ic.length).u32(0).ham(veri).baytlar();
+  const kare = cerceveYap(Uint8Array.from([0x42, ...govde]));
+  const [p] = new PaketKanali().al(kare);
+  assert.equal(p.opcode, 0x2b); assert.deepEqual(p.govde, Uint8Array.from([1, 2, 3, 4]));
+  // bozuk başlık
+  assert.throws(() => new PaketKanali().al(cerceveYap(Uint8Array.from([0x42, 1, 2, 3]))), CerceveHatasi);
+});
+
+// ---------- GERÇEK YAKALAMA: resmî 1298 oyun sunucusu, klasik özel anahtar ----------
+import { OZEL_ANAHTAR_KLASIK, OZEL_ANAHTAR_MYKO } from './jvSifre.ts';
+
+test('JvSifre: iki özel anahtar da seçilebilir (açık = özel → tkey 0 → aynı elle vektör)', () => {
+  assert.equal(hex(new JvSifre(OZEL_ANAHTAR_KLASIK, OZEL_ANAHTAR_KLASIK).donustur(bayt(0))), '95');
+  assert.equal(hex(new JvSifre(OZEL_ANAHTAR_MYKO, OZEL_ANAHTAR_MYKO).donustur(bayt(0))), '95');
+  assert.notEqual(hex(new JvSifre(0x1111n, OZEL_ANAHTAR_KLASIK).donustur(bayt(0, 0, 0))), hex(new JvSifre(0x1111n, OZEL_ANAHTAR_MYKO).donustur(bayt(0, 0, 0))));
+});
+
+test('GERÇEK YAKALAMA: sürüm cevabından anahtar alınır, klasik özel anahtarla şifreli giriş cevabı çözülür (opcode 1, sonuç 0 = başarılı)', () => {
+  // 127.0.0.1:15001, resmî 1298 Ebenezer.exe; hesap admin/admin (2026-11-16 yakalaması)
+  const surum = hexBayt('aa 55 16 00 42 0d 00 0c 00 00 00 00 00 0b 2b 12 05 8c c1 28 11 a5 6a 3b b1 87 55 aa');
+  const giris = hexBayt('aa 55 07 00 65 d4 91 58 16 03 65 55 aa');
+  const k = new PaketKanali();
+  const [sp] = k.al(surum);
+  const o = new PaketOkuyucu(sp.govde);
+  assert.equal(o.u16(), 1298);
+  const acik = o.u64();
+  assert.equal(acik, 0xb13b6aa51128c18cn);
+  k.sifrelemeyiAc(acik, OZEL_ANAHTAR_KLASIK);
+  const [gp] = k.al(giris);
+  assert.equal(gp.opcode, 0x01); assert.deepEqual(gp.govde, bayt(0));
+  // yanlış özel anahtarla aynı baytlar çözülemez
+  const yanlis = new PaketKanali(); yanlis.sifrelemeyiAc(acik, OZEL_ANAHTAR_MYKO);
+  assert.throws(() => yanlis.al(giris), CerceveHatasi);
+});

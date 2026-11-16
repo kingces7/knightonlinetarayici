@@ -3,15 +3,19 @@
 // gerçek anahtar `açık ^ özel` olur ve 8 baytlık little-endian dizi olarak kullanılır.
 import { crc32 } from './crc32.ts';
 
-/** Sunucu kaynağındaki sabit "özel" anahtar (Myko ve açık kaynak sunucuda aynı). */
-export const OZEL_ANAHTAR = 0x1207500120128966n;
+/** Myko sunucu kaynağındaki ve açık kaynak 1299 sunucusundaki sabit "özel" anahtar. */
+export const OZEL_ANAHTAR_MYKO = 0x1207500120128966n;
+/** Resmî 1298 sunucu `.exe`'sinin kullandığı klasik "özel" anahtar (gerçek sunucuyla yapılan denemede doğrulandı, docs/protokol.md §4). */
+export const OZEL_ANAHTAR_KLASIK = 0x1234567890123456n;
+/** Varsayılan: Myko (hedef sunucumuz). */
+export const OZEL_ANAHTAR = OZEL_ANAHTAR_MYKO;
 
 export class JvSifre {
   readonly #anahtar = new Uint8Array(8);
 
-  constructor(acikAnahtar: bigint) {
+  constructor(acikAnahtar: bigint, ozelAnahtar: bigint = OZEL_ANAHTAR) {
     if (BigInt.asUintN(64, acikAnahtar) === 0n) throw new Error('Açık anahtar 0: şifreleme açılmaz (sunucu 0 verirse düz metin konuşulur)');
-    let t = BigInt.asUintN(64, acikAnahtar) ^ OZEL_ANAHTAR;
+    let t = BigInt.asUintN(64, acikAnahtar) ^ BigInt.asUintN(64, ozelAnahtar);
     for (let i = 0; i < 8; i++) { this.#anahtar[i] = Number(t & 0xffn); t >>= 8n; }
   }
 

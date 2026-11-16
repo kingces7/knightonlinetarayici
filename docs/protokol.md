@@ -27,7 +27,7 @@ AA 55 | uzunluk (uint16) | veri (uzunluk bayt) | 55 AA
 tek bayt uzunluk (varsayılan, "SByte") ya da 2 bayt uzunluk ("DByte", bazı paketlerde). Kodlama ANSI (Windows-1252). `bool` = 1 bayt.
 
 ## 4. Şifreleme (`JvCryption`) — yalnızca login server'da
-- Sabit "özel anahtar" `0x1207500120128966` (Myko ve açık kaynak sunucuda aynı). Sunucu rastgele 64 bit **açık anahtar** üretir; `tkey = açık ^ özel`.
+- Sabit "özel anahtar": Myko kaynağında ve açık kaynak sunucuda `0x1207500120128966`; **resmî 1298 sunucu `.exe`'sinde klasik `0x1234567890123456`** (gerçek sunucuyla doğrulandı, bkz. §11). Sunucu rastgele 64 bit **açık anahtar** üretir; `tkey = açık ^ özel`. Kütüphanede `JvSifre(açık, özel)` ve `PaketKanali.sifrelemeyiAc(açık, özel)` ikinci parametre alır.
 - Şifre akışı (her iki yönde aynı işlem): `rkey=2157; lkey=(len*157)&0xFF; her i için: çıkış[i] = ((giriş[i] ^ ((rkey>>8)&0xFF)) ^ tkey_bayt[i%8]) ^ lkey; rkey *= 2171` (`rkey` int, taşma serbest).
 - Şifreli paketin içi: `[sıra no uint32][opcode][gövde][CRC32 uint32]`; CRC32 başlangıç değeri `-1`, sıra no her paketle +1 (ilk beklenen 1). Sunucu→client yönünde ilk 5 bayt sabit başlık (`FC 1E`, sıra, 0).
 - Etkinleşme: login server'a client `LS_CRYPTION (0xF2)` gönderir → sunucu 8 bayt açık anahtarı düz metin olarak yollar ve **bundan sonra** şifreli konuşur.
@@ -86,5 +86,27 @@ Myko'nun oyun sunucusu, kendi client'ındaki hile koruma bileşeniyle (`lilith.a
 - ✅ `kopru/protokol/` (tarayıcıda ve Node'da çalışır, Node'a özgü şey kullanmaz): `crc32.ts`, `jvSifre.ts` (elle hesaplanmış vektörlerle test edildi), `ikili.ts` (okuyucu/yazıcı), `kanal.ts` (çerçeve + şifreli/düz kanal), `opcode.ts`.
 - ✅ `kopru/src/kopru.ts`: WebSocket ↔ TCP köprüsü; baytları anlamadan taşır. Güvenlik: hedefler yalnızca ayardaki yollara (`/giris` → 15100, `/oyun` → 15001) bağlı; yalnızca `127.0.0.1`'de dinler; `Origin` yalnızca yerel adreslerden kabul. Çalıştırma: `cd kopru && npm run baslat`.
 - ✅ Testler (`npm test`, 16 adet): protokol birimleri + köprü + köprü üzerinden sahte login server ile uçtan uca. Sahte sunucu C++ koduna göre ayrıca yazıldı (kanal.ts'i kullanmıyor).
-- ⬜ Gerçek bir sunucuyla deneme (hazır `.exe` sunucu + veritabanı kurulumu gerekir; bkz. YAPILACAKLAR).
+- ✅ Gerçek (resmî 1298) sunucularla deneme yapıldı: giriş, sunucu listesi, haber, oyun sunucusu sürüm/şifreleme/giriş çalıştı (§11). ⚠ Defender Ebenezer.exe'yi Trojan olarak işaretledi; o programlar artık çalıştırılmıyor.
 - ⬜ Sonra: oyun sunucusu akışı (sürüm → giriş → karakter listesi → karakter seç → `GAMESTART`), `WIZ_MYINFO` ayrıştırıcı, mevcut tek oyunculu oyuna bağlama.
+
+## 11. Gerçek sunucu doğrulaması (resmî 1298 `.exe` sunucuları, 2026-11-16)
+Sunucular `Knight All in one\Untouched Server Files v1298` içindeki programlardır (kopyası `oyun-dosyalari\sunucu-1298`, SQL Express'te `KN_online` + kullanıcıya özel ODBC kaydı ile).
+Köprü üzerinden **kendi protokol kütüphanemizle** (`kopru/src/deneme-giris.ts`) denendi. **Bu sunucu Myko'dan farklıdır; bulgular aşağıda, Myko için §5–6 geçerlidir.**
+
+**Login server (15100) — bu sürümde:**
+- **Şifreleme yok**: `0xF2` (`LS_CRYPTION`) ve `0x03` tanınmaz, sunucu bağlantıyı kapatır. Bütün paketler düz gider.
+- **Yazılar 2 baytlık uzunlukla** (`05 00 "admin"`). 1 baytlık uzunlukla gönderilen giriş paketi bağlantıyı kapattırır.
+- `0x01` sürüm → `i16 1299`. `0x02` indirme bilgisi (`u16 sürüm`) → `yazı ftp adresi, yazı yol, u16 yama sayısı`.
+- `0xF3` giriş (`yazı hesap, yazı şifre`) → yalnızca **`u8 sonuç`**: 1 başarılı, 2 hesap yok, 3 şifre yanlış (Myko'daki gibi baştaki `u16 0` ve hesap adı yok).
+- `0xF5` sunucu listesi (`u16 yankı`) → `u8 sayı`, her sunucu için `yazı ip, yazı ad, i16 oyuncu` (Myko'nunki çok daha uzun, §5).
+- `0xF6` haber → `yazı başlık, yazı metin`.
+
+**Oyun sunucusu (15001):**
+- `0x2B` sürüm kontrol (boş gövde) → cevap **LZF ile sıkıştırılmış `0x42` paketi** içinde gelir: `u16 sıkıştırılmış uzunluk, u16 açık uzunluk, u32 CRC (0), LZF verisi`; açılınca `[0x2B] u16 sürüm (1298), u64 açık anahtar, u8 sayaç`. Gerçek yakalama `protokol.test.ts` içinde test verisi olarak duruyor.
+- Şifreleme: yukarıdaki açık anahtar + **klasik özel anahtar `0x1234567890123456`** ile açılır; client→sunucu biçimi `[sıra u32][opcode][gövde][CRC32]` (sıra no 0 ya da 1 kabul edildi), aynen §4. Yanlış anahtar/biçimde sunucu **sessiz kalır**.
+- Yazılar burada da **2 baytlık uzunluk**: `0x01` giriş (`yazı hesap, yazı şifre`) → `i8 sonuç` (0 başarılı; 1 baytlık uzunlukla gönderilince `0xFF` = başarısız). Aujard kaydında `ACCOUNT_LOGIN('admin','admin')` göründü, yani istek veritabanına kadar ulaştı.
+- `0x0C` tüm karakter bilgisi → hep **172 bayt**: `01` + 171 sıfır (istek gövdesi ne olursa olsun; hesapta `Can_SnoxD` karakteri olmasına rağmen). **Çözülmedi** — Aujard'ın `LOAD_CHAR_INFO` çağrısı bu veritabanında (parametre `@nRet`) farklı olabilir ya da 1298 liste biçimi ayrı. Sonraki adım.
+- `0x05` ulus seç (`u8 1`) → `u8 0`.
+
+**Güvenlik notu:** Çalıştırma sırasında Windows Defender `Ebenezer.exe` kopyasını **Trojan:Win32/Bitrep.B** (itibar tabanlı tespit, ciddiyet yüksek) olarak işaretledi; ilk çalıştırmalarda (yaklaşık 10 dakika) engellemedi, sonradan engelledi. Doğrulayamadığımız için bu programlar bir daha çalıştırılmayacak (`kopru/sunucu-baslat.ps1` varsayılan olarak reddeder). Protokol bulgularının geri kalanı için Myko sunucu **kaynağı** derlenip kullanılmalı.
+**Sunucuyu başlatma sırası** (bilgi olarak): billing → AI → **Ebenezer** → Aujard → login. Aujard, Ebenezer'den önce açılırsa "Main Shared Memory Initialize Fail" verip kapanır.
