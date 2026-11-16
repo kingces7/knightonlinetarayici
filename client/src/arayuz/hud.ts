@@ -15,6 +15,8 @@ export class Hud {
       <div class="cubuk can"><i></i><b></b></div>
       <div class="cubuk mana"><i></i><b></b></div>
       <div class="cubuk exp"><i></i><b></b></div></div>`);
+  /** Oyuncu adını (sol üstteki durum paneli) değiştirir. */
+  adAyarla(ad: string): void { const e = this.durum.querySelector('.ad')!; if (e.firstChild) e.firstChild.textContent = ad + ' '; }
   private hedef = $<HTMLDivElement>(`<div class="panel hedef gizli"><div class="ad"></div><div class="cubuk can"><i></i><b></b></div></div>`);
   private mesajlar = $<HTMLDivElement>(`<div class="panel mesajlar"></div>`);
   private envanter = $<HTMLDivElement>(`<div class="panel pencere envanter gizli">
@@ -36,8 +38,9 @@ export class Hud {
   nickDegistir(): boolean { this.nickAcik = !this.nickAcik; return this.nickAcik; }
   /** Karakterin üstündeki ad: partideyse sarı, değilse oyundaki ad rengi (beyaz; re_el_hpbar text_Nick). */
   oyuncuEtiketGuncelle(ad: string, p: { x: number; y: number; gorunur: boolean }, partide: boolean): void {
-    if (!this.oyuncuEtiketi) { this.oyuncuEtiketi = $<HTMLDivElement>('<div class="etiket oyuncu"><span></span></div>'); this.oyuncuEtiketi.querySelector('span')!.textContent = ad; this.etiketler.appendChild(this.oyuncuEtiketi); }
+    if (!this.oyuncuEtiketi) { this.oyuncuEtiketi = $<HTMLDivElement>('<div class="etiket oyuncu"><span></span></div>'); this.etiketler.appendChild(this.oyuncuEtiketi); }
     const el = this.oyuncuEtiketi;
+    const span = el.querySelector('span')!; if (span.textContent !== ad) span.textContent = ad;
     el.style.display = this.nickAcik && p.gorunur ? '' : 'none';
     el.classList.toggle('parti', partide);
     el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%) translateY(-2px)`;
@@ -88,7 +91,7 @@ export class Hud {
     this.durum.querySelector('.sev')!.textContent = `Lv ${o.seviye}`;
     this.cubuk(this.durum.querySelector('.can')!, o.can, o.enCok);
     this.cubuk(this.durum.querySelector('.mana')!, o.mana, o.enCokMana);
-    const g = gerekenDeneyim(o.seviye);
+    const g = o.azamiDeneyimSunucu ?? gerekenDeneyim(o.seviye);
     this.cubuk(this.durum.querySelector('.exp')!, o.deneyim, g, `EXP ${((o.deneyim / g) * 100).toFixed(1)}%`);
     if (hedef && !hedef.olu) {
       this.hedef.classList.remove('gizli');

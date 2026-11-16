@@ -14,6 +14,8 @@ import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
 import { Su } from './dunya/su';
 import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
+import { sunucuyaBaglan, type SunucuOturumu } from './ag/sunucu';
+import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -78,6 +80,7 @@ async function basla(): Promise<void> {
   await ses.yukle();
   if (ayar.bolge) ses.muzikCal(ayar.bolge);
   const oyuncu = new Oyuncu();
+  let sunucuOturumu: SunucuOturumu | null = null;
   oyuncu.kurallariUygula();
   oyuncu.baslangicEsyalariVer();
   Varlik.arazi = arazi;
@@ -543,7 +546,7 @@ async function basla(): Promise<void> {
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
     kamera.kamera.updateMatrixWorld(); // etiketler bu karenin kamera konumuna göre hesaplanır (gecikme/kayma olmasın)
     hud.npcEtiketGuncelle(npcler, izdusum);
-    hud.oyuncuEtiketGuncelle('KnightEmpire', izdusum(oyuncu), oyuncu.partide);
+    hud.oyuncuEtiketGuncelle(oyuncu.ad, izdusum(oyuncu), oyuncu.partide);
     // Hedef (agro) halkası: oyunun kendi yeşil halka resmi (Misc/target_symbol_plane), seçili canavarın ayağında
     const th = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
     halka.visible = !!th;
@@ -553,7 +556,23 @@ async function basla(): Promise<void> {
   (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
-    efektSayisi: () => efektTanecikleri.length };
+    efektSayisi: () => efektTanecikleri.length,
+    /**
+     * Sunucu modu (Aşama 4, deneysel): köprü + Myko sunucusu çalışırken konsoldan `await ke.sunucuyaBaglan(hesap, sifre)`.
+     * Giriş sunucusundan geçip karakteri seçer, oyuna girer ve gelen karakter verisini (seviye, statlar, can/mana, altın, eşyalar, konum) oyuncuya uygular.
+     */
+    sunucuyaBaglan: async (hesap: string, sifre: string, kopru?: string, karakter?: string) => {
+      sunucuOturumu?.kapat();
+      const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter);
+      sunucuOturumu = s;
+      const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
+      oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
+      hud.mesaj(`Connected to ${s.sunucuAdi} as ${s.benim.ad} (Lv ${s.benim.seviye}).`, 'sistem');
+      if (s.karsilama) hud.mesaj(s.karsilama, 'sistem');
+      if (ozet.esyaEslesmeyen.length) hud.mesaj(`${ozet.esyaEslesmeyen.length} item(s) are not in the client item list yet.`, 'sistem');
+      return { ad: s.benim.ad, seviye: s.benim.seviye, altin: s.benim.altin, can: s.benim.can, bolge: s.bolge, ...ozet };
+    },
+    sunucudanAyril: () => { sunucuOturumu?.kapat(); sunucuOturumu = null; } };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

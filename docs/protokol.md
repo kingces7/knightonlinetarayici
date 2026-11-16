@@ -127,3 +127,10 @@ Myko sunucusu (`LILITH_Game-Server`) Visual Studio 2022 Build Tools ile **kaynak
 `WIZ_MYINFO` gövdesinin başı gerçek veriyle doğrulandı: `u8 1, u8 0, yazı ad (SByte: 06 "Lilith"), u16 x, z, y, u8 ulus (2), u8 ırk (13), u16 sınıf (206), u8 yüz, u32 saç, …` (alan alan çözümü sonraki iş).
 
 **Düzeltme (önceki sürümlerdeki hata):** yazıların varsayılan uzunluğu 2 bayttır (§3). Kütüphane varsayılanı buna göre düzeltildi.
+
+## 13. Tarayıcı client'ına bağlanma (2026-11-16)
+- `client/src/ag/sunucu.ts`: köprü üzerinden tam akış (giriş sunucusu → oyun sunucusu → karakter → oyuna giriş), `kopru/protokol/` kütüphanesini doğrudan kullanır (Vite `fs.allow`, `allowImportingTsExtensions`).
+- `client/src/oyun/sunucuVerisi.ts`: `WIZ_MYINFO` verisini `Oyuncu` nesnesine uygular (seviye, deneyim, statlar, can/mana, altın, giyili/çanta eşyaları, ad, Moradon'da konum).
+- Kullanım: köprü (`kopru: npm run baslat`) + Myko sunucusu (`kopru/myko-baslat.ps1`) + `client: npm run dev` çalışırken oyun sayfasında konsoldan `await ke.sunucuyaBaglan('<hesap>', '<şifre>')`. Otomatik deneme: `client/scripts/sunucuTesti.mjs`.
+- Gerçek tarayıcıda doğrulandı: sunucudaki `Lilith` (seviye 65, 2.087.207 altın, 5 giyili parça) oyuncuya yansıdı, ekranda ad/seviye/can/mana/deneyim doğru.
+- Henüz yok: giriş/karakter seçim ekranı, canlı bağlantı (çevre oyuncuları/NPC, hareket, sohbet), tüm eşyaların listesi.

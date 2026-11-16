@@ -178,8 +178,12 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
   - [x] Gerçek sunucu denemesi (resmî 1298 `.exe`'ler): login + oyun sunucusu giriş akışı çalıştı (`docs/protokol.md` §11). SQL'de `KN_online` veritabanı ve kullanıcıya özel ODBC kaydı `KN_online` duruyor (silmek istenirse: `DROP DATABASE KN_online`, `HKCU:\Software\ODBC\ODBC.INI\KN_online`)
   - [x] **Myko sunucusu kaynaktan derlendi ve çalıştırıldı** (VS 2022 Build Tools; `docs/sunucu-derleme.md`, `kopru/myko-baslat.ps1`). Defender derlenen dosyalarda bir şey bulmadı, istisna eklenmedi
   - [x] Myko'ya karşı tam akış doğrulandı: giriş (şifreli) → sunucu listesi → oyun sunucusu giriş → karakter listesi → karakter seç → oyun başlat (`docs/protokol.md` §12, `kopru/src/deneme-myko.ts`)
-  - [ ] `WIZ_MYINFO` (0x0E) gövdesini alan alan çöz (envanter dahil) ve testle; `0x1D`/`0x07` (çevre oyuncu/NPC), `0x13` saat, `0x14` hava ayrıştırıcıları
-  - [ ] Tarayıcı client'ına bağla: giriş ekranı → karakter seçim ekranı → oyuna giriş (şimdiki tek oyunculu mod yerine sunucu verisiyle)
+  - [x] `WIZ_MYINFO` (0x0E) tam çözüldü (1596 bayt, envanter dahil, veritabanıyla birebir doğrulandı), karakter listesi/seçimi, saat, hava (`kopru/protokol/paketler.ts`, gerçek yakalamalı testler)
+  - [x] Tarayıcı client'ı sunucuya bağlandı (`client/src/ag/sunucu.ts`): konsoldan `await ke.sunucuyaBaglan(hesap, sifre)` → giriş → karakter → oyuna giriş; seviye/stat/can/mana/altın/eşya/konum/ad oyuncuya uygulanır (`client/scripts/sunucuTesti.mjs`)
+  - [ ] Giriş ekranı (hesap/şifre formu) ve karakter seçim ekranı arayüzü (şimdilik yalnızca konsoldan); sunucu modunda varsayılan olarak açılsın
+  - [ ] İstemci eşya listesi sunucudaki tüm eşyaları kapsamıyor (6 eşyadan 1'i eşleşmedi): `Item_Org_us.tbl` tamamından üret
+  - [ ] Karakter modeli ırk/sınıfa göre seçilsin (şimdi hep aynı model); klan üyesi karakterlerin `WIZ_MYINFO` klan bloğu
+  - [ ] Oyun içi akış (Aşama 5): çevredeki oyuncular/NPC'ler (`0x07`, `0x0A`, `0x1D`), hareket (`0x06`), sohbet (`0x10`); bağlantıyı canlı tutma
   - [ ] Eski 1298 `.exe` sunucuları (Defender: Trojan) çalıştırılmayacak; `kopru/sunucu-baslat.ps1` varsayılan olarak reddeder
   - [ ] Client'ın (KnightOnLine.exe) gerçek paket sırasını bir bağlantı kaydıyla doğrula (şimdiye kadar yalnızca sunucu tarafı doğrulandı)
 - [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler

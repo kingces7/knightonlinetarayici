@@ -578,7 +578,7 @@ export class OyunArayuzu {
       g.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter') {
           const m = g.value.trim(); g.value = '';
-          if (m) this.sohbetYaz(`[Normal] KnightEmpire: ${m}`, '#ffffff');
+          if (m) this.sohbetYaz(`[Normal] ${this.b.oyuncu.ad}: ${m}`, '#ffffff');
           g.blur();
         } else if (ev.key === 'Escape') { g.value = ''; g.blur(); }
         ev.stopPropagation();
@@ -727,9 +727,9 @@ export class OyunArayuzu {
 
   private durumCiz(): void {
     const p = this.pencereler.durum, o = this.b.oyuncu;
-    p.metin('Text_Id', 'KnightEmpire'); p.metin('Text_Nation', 'El Morad'); p.metin('Text_Class', 'Warrior'); p.metin('Text_Race', 'Human');
+    p.metin('Text_Id', o.ad); p.metin('Text_Nation', 'El Morad'); p.metin('Text_Class', 'Warrior'); p.metin('Text_Race', 'Human');
     p.metin('Text_Level', o.seviye);
-    p.metin('Text_Exp', `${o.deneyim} / ${gerekenDeneyim(o.seviye)}`);
+    p.metin('Text_Exp', `${o.deneyim} / ${o.azamiDeneyimSunucu ?? gerekenDeneyim(o.seviye)}`);
     p.metin('Text_HP', `${Math.ceil(o.can)} / ${o.enCok}`); p.metin('Text_MP', `${Math.ceil(o.mana)} / ${o.enCokMana}`);
     p.metin('Text_AP', o.toplamVurus()); p.metin('Text_GP', o.savunma());
     p.metin('Text_Weight', `${o.envanter.filter(Boolean).length} / 28`);
@@ -840,7 +840,8 @@ export class OyunArayuzu {
     if (this.fpsSayac > 0.5) { this.fps = Math.round(1 / Math.max(dt, 1e-4)); this.fpsSayac = 0; h.metin('text_fps', `${this.fps} fps`); }
     h.metin('Text_HP', `${Math.ceil(o.can)}/${o.enCok}`); h.metin('Text_MSP', `${Math.ceil(o.mana)}/${o.enCokMana}`);
     h.ilerleme('progress_HP', o.can / o.enCok); h.ilerleme('progress_msp', o.mana / o.enCokMana);
-    const g = gerekenDeneyim(o.seviye);
+    const g = o.azamiDeneyimSunucu ?? gerekenDeneyim(o.seviye);
+    h.metin('text_Nick', o.ad);
     h.ilerleme('progress_exp', o.deneyim / g); h.metin('Text_ExpP', `${((o.deneyim / g) * 100).toFixed(1)}%`);
     h.metin('text_Level', `Level ${o.seviye}`);
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);

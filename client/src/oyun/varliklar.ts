@@ -271,6 +271,10 @@ export class Npc extends Varlik {
 export class Oyuncu extends Varlik {
   seviye = 1;
   deneyim = 0;
+  /** Sunucu bağlıyken sunucunun bildirdiği bu seviyedeki azami deneyim (yoksa istemci tablosu kullanılır). */
+  azamiDeneyimSunucu: number | null = null;
+  /** Görünen karakter adı (tek oyunculu modda sabit; sunucuya bağlanınca sunucudaki ad). */
+  ad = 'KnightEmpire';
   altin = 0;
   mana = 100; enCokMana = 100;
   envanter: (EsyaTanimi | null)[] = new Array(28).fill(null);
