@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 // Orijinal oyun arayüzünün (re_el_* pencereleri) oyun verisine bağlanması.
 //   U: karakter durumu (re_el_page_state) · K: skill (re_el_skill) · I: envanter (re_el_inventory)
 //   Üstte HP/MP/EXP çubuğu (re_el_hpbar), altta görev çubuğu (re_el_taskbar_main).
@@ -306,7 +307,16 @@ export class OyunArayuzu {
     this.ganimetKutusu = k; this.ganimetImza = '';
     const g = this.ganimetPencere;
     g.el.style.display = k ? '' : 'none';
-    if (k) { g.el.style.left = `${Math.max(0, (innerWidth - 55) / 2 + 190)}px`; g.el.style.top = `${Math.max(60, innerHeight * 0.3)}px`; }
+    if (k) {
+      // Pencere sandığın hemen yanında açılır: sandığın ekrandaki yeri hesaplanır, pencere sağına (sığmazsa soluna) dikey ortalı konur.
+      const ol = arayuzOlcegi(); g.olcekAyarla(ol);
+      const p = new THREE.Vector3(k.konum.x, this.b.oyuncu.grup.position.y + 0.4, -k.konum.y).project(this.b.kamera.kamera); // sandık yerde, oyuncuyla yaklaşık aynı yükseklikte
+      const sx = (p.x * 0.5 + 0.5) * innerWidth, sy = (-p.y * 0.5 + 0.5) * innerHeight;
+      const w = 55 * ol, sn = g.sinir(), h = (sn[3] - sn[1] || 160) * ol, bos = this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14;
+      let sol = sx + 44 * ol; if (sol + w > innerWidth - 8) sol = sx - 44 * ol - w;
+      g.el.style.left = `${Math.max(8, sol)}px`;
+      g.el.style.top = `${Math.max(8, Math.min(sy - h / 2, innerHeight - bos - h)) - sn[1] * ol}px`;
+    }
   }
   private ganimetCiz(): void {
     const k = this.ganimetKutusu; if (!k) return;

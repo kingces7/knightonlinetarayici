@@ -1,7 +1,7 @@
 // Çarpışma: sunucu haritasındaki (.smd) üçgenlerle duvar engeli ve zemin (köprü, kat, merdiven) yüksekliği.
 // Koordinatlar Knight Online dünyası: (x, y yukarı, z). Veri carpisma.bin: üçgen başına 9 float.
 const HUCRE = 4; // ızgara hücresi (m)
-const ZEMIN_NORMAL = 0.55; // normal.y bundan büyükse yürünebilir zemin, mutlak değer küçükse duvar; küçük (aşağı bakan) ise tavan (yalnızca kamera için)
+const ZEMIN_NORMAL = 0.3; // normal.y bundan büyükse yürünebilir zemin (≈72° eğime kadar). Moradon merdivenlerinin çarpışma rampaları 52–69° eğimli; eski eşik 0,55 (≈57°) dikleri duvar sayıp yukarı çıkmayı engelliyordu. |ny| bu değerden küçükse duvar; küçük (aşağı bakan) ise tavan (yalnızca kamera için)
 
 export class Carpisma {
   private readonly v: Float32Array;
@@ -73,7 +73,7 @@ export class Carpisma {
    * y+0.4 … y+1.6 arasında sayılır (düşük basamaklar engel olmaz). Yeni (x,z) döndürür.
    */
   duvarlardanIt(x: number, z: number, y: number, r: number): [number, number] {
-    const yAlt = y + 0.45, yUst = y + 1.5;
+    const yAlt = y + 0.72, yUst = y + 1.5; // 0,72: basamak yüksekliği (BASAMAK 0,7) kadar alçak engeller (merdiven yükselti yüzleri) duvar sayılmaz
     for (let tur = 0; tur < 3; tur++) {
       let itildi = false;
       const a0 = Math.floor((x - r) / HUCRE), a1 = Math.floor((x + r) / HUCRE);

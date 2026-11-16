@@ -371,8 +371,10 @@ async function basla(): Promise<void> {
     }
     const canavarVurus = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu))[0];
     if (canavarVurus) {
-      oyuncu.hedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null; oyuncu.saldiriyor = true;
-      oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
+      // Sol tık yalnızca hedef seçer: karakter saldırmaz, kovalamaz. Saldırı R tuşu veya skill ile elle başlatılır.
+      const yeniHedef = canavarlar.find((c) => c.secimKutusu === canavarVurus.object) ?? null;
+      if (yeniHedef !== oyuncu.hedef) { oyuncu.saldiriyor = false; hud.ganimetAc(null); }
+      oyuncu.hedef = yeniHedef;
       return;
     }
     const oyuncuVurus = isin.intersectObjects(digerOyuncular.map((d) => d.secimKutusu))[0];
@@ -455,7 +457,7 @@ async function basla(): Promise<void> {
     // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
     if (oyuncu.model?.oturuyor && (donus !== 0 || ilerigeri !== 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
     // Yürümeye başlayınca ya da başka canavara geçilince açık ganimet kutusu kapanır
-    if (hud.kutuAcik && (donus !== 0 || ilerigeri !== 0 || oyuncu.hedef || (oyuncu.yuruHedef && !acilacakKutu))) hud.ganimetAc(null);
+    if (hud.kutuAcik && (donus !== 0 || ilerigeri !== 0 || (oyuncu.yuruHedef && !acilacakKutu))) hud.ganimetAc(null);
     if (donus !== 0) {
       const dh = donus * DIREKSIYON_HIZI * dt;
       const h = oyuncu.bakisAcisi + dh;
@@ -573,7 +575,7 @@ async function basla(): Promise<void> {
         else if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } // karşılık ver
       }
       if (c.olu) {
-        if (!c.agModu && !c.ganimetBirakildi && c.oluSuresi > 1.2) { // sunucu canavarının ganimeti sunucudan gelir (sonraki adım)
+        if (!c.agModu && !c.ganimetBirakildi && c.oluSuresi > 0.3) { // sunucu canavarının ganimeti sunucudan gelir (sonraki adım)
           c.ganimetBirakildi = true;
           const g = ganimetUret(c.tur);
           const k = new GanimetKutusu(c.konum.x, c.konum.y, g.altin, g.esyalar);
