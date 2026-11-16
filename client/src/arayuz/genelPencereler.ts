@@ -17,6 +17,8 @@ export interface GenelBaglam {
   /** Alt çubuğun (görev çubuğu) kapladığı yükseklik: pencereler bunun altına inmez. */
   altBos: () => number;
   mesaj: (m: string) => void;
+  /** Pencere açılmadan hemen önce çağrılır (ör. sağdaki pencereler birbirini kapatsın). */
+  acilirken?: (ad: string) => void;
 }
 
 /** Pencereye özel bağlama: açılırken bir kez çağrılır (düğme tıklamaları, gizlenecek parçalar, metinler). */
@@ -65,6 +67,7 @@ export class GenelPencereler {
   async ac(ad: string): Promise<boolean> {
     const p = await this.yukle(ad); if (!p) return false;
     if (!this.acikPencereler.has(ad)) {
+      this.b.acilirken?.(ad);
       this.acikPencereler.set(ad, p);
       const bos = this.b.altBos();
       const [sl, st, sr, sb] = p.sinir();

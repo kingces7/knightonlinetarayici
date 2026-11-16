@@ -194,13 +194,12 @@ async function basla(): Promise<void> {
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
     if (v.tip === 1 && hedef) {
-      oyuncu.bak(hedef.konum);
-      oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; // skill tablosundaki animasyon
+      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } // skill tablosundaki animasyon (yürürken oynatılmaz: yürüme sürer)
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       oyuncu.saldiriSayaci = Math.max(oyuncu.saldiriSayaci, 0.6);
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v });
     } else if (v.tip4) {
-      oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
+      if (!hareketEdiyor) oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || oyuncu.model?.oynat('buyu1', false, 0.1) || 0.8;
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
       oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
       hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
@@ -308,7 +307,7 @@ async function basla(): Promise<void> {
     if (!e.repeat && e.code === 'KeyR' && oyuncu.saldiriyor) { oyuncu.saldiriyor = false; hud.mesaj('Auto attack off.', 'sistem'); } // R: sürekli saldırıyı aç/kapa (orijinal CommandToggleAttackContinous)
     else if (!e.repeat && e.code === 'KeyR') {
       if (!oyuncu.hedef || oyuncu.hedef.olu) { const y = yakinlar()[0]; if (y) oyuncu.hedef = y; }
-      if (oyuncu.hedef && !oyuncu.hedef.olu) { oyuncu.saldiriyor = true; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; }
+      if (oyuncu.hedef && !oyuncu.hedef.olu) oyuncu.saldiriyor = true; // orijinalde yürürken de R ile saldırı açılır; yürüme sürer
     }
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
@@ -436,8 +435,8 @@ async function basla(): Promise<void> {
       isin.setFromCamera(new THREE.Vector2((sol.x / innerWidth) * 2 - 1, -(sol.y / innerHeight) * 2 + 1), kamera.kamera);
       const z = isin.intersectObject(arazi.mesh)[0];
       if (kamera.suruklenirken) { // sol + sağ tuş birlikte: karakter baktığı yönde düz ilerler (yön kameradan değil, kullanıcıdan gelir: A/D ile çevrilir)
-        oyuncu.yuruHedef = null; oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; ikiTus = true;
-      } else if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
+        oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; ikiTus = true;
+      } else if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); acilacakKutu = null; acilacakNpc = null; } // seçili canavar/otomatik saldırı korunur (yürürken Z/R/skill kullanılabilir)
     }
     const donusHam = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
     // Sol + sağ tuş birlikteyken karakter kamerayla BİRLİKTE döner (WoW gibi): A/D kamerayı çevirir, karakter her kare kameranın baktığı yöne bakar.
@@ -450,6 +449,7 @@ async function basla(): Promise<void> {
     const ilerigeri = Math.max(ikiTus || otoIleri ? 1 : 0, (tuslar.has('KeyW') ? 1 : 0) - (tuslar.has('KeyS') ? 1 : 0));
     if (oyuncu.hedef?.olu) oyuncu.hedef = null;
     if (!oyuncu.hedef) oyuncu.saldiriyor = false;
+    oyuncu.saldiriSayaci = Math.max(0, oyuncu.saldiriSayaci - dt); // (eskiden yalnızca saldırı dalında düşüyordu: hedef ölünce saldırı duruşunda takılıyordu)
     oyuncu.yuruAcisi = null;
     // Oturuyorken yeni bir hareket/saldırı isteği gelirse ayağa kalkılır
     if (oyuncu.model?.oturuyor && (donus !== 0 || ilerigeri !== 0 || oyuncu.hedef || oyuncu.yuruHedef)) kalk();
@@ -469,32 +469,28 @@ async function basla(): Promise<void> {
       const h = oyuncu.bakisAcisi + dAci;
       oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h))); oyuncu.yon = oyuncu.hedefYon;
     }
+    /** Hedef menzildeyse ve silah aralığı dolduysa vurur. Yürürken de vurulur (orijinal: IsAttackableTarget); yürürken saldırı animasyonu oynatılmaz. */
+    const saldirTik = (h: Canavar, hareketli: boolean) => {
+      if (oyuncu.saldiriSayaci > 0) return;
+      oyuncu.blinkBitis = 0; // saldırınca göz kırpma biter
+      oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
+      oyuncu.savastanBeri = 0;
+      if (!hareketli) oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
+      ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
+      vurusZamanlayici.push({ kalan: 0.45, hedef: h });
+    };
+    const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= SALDIRI_MENZILI;
+    hareketEdiyor = ilerigeri !== 0 || !!oyuncu.yuruHedef;
     if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       const h = oyuncu.bakisAcisi;
       const yon = new THREE.Vector2(Math.cos(h), Math.sin(h));
       if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), YURUME_HIZI * oyuncu.hizCarpani * dt);
       oyuncu.model?.oynat(ilerigeri < 0 && oyuncu.model.var('geri') ? 'geri' : hareketAnimi()); // S: geri yürüme animasyonu
+      if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true);
     } else if (donus !== 0 && !oyuncu.hedef) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       oyuncu.model?.oynat('bekle');
-    } else if (oyuncu.hedef && oyuncu.saldiriyor) {
-      const h = oyuncu.hedef;
-      if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) {
-        oyuncu.yuru(h.konum, hizAl() * dt, SALDIRI_MENZILI - 0.3);
-        oyuncu.model?.oynat(hareketAnimi());
-      } else {
-        oyuncu.bak(h.konum);
-        oyuncu.saldiriSayaci -= dt;
-        if (oyuncu.saldiriSayaci <= 0) {
-          oyuncu.blinkBitis = 0; // saldırınca göz kırpma biter
-          oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
-          oyuncu.savastanBeri = 0;
-          oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
-          ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
-          vurusZamanlayici.push({ kalan: 0.45, hedef: h });
-        } else if (oyuncu.saldiriSayaci < 0.4) oyuncu.model?.oynat('bekle'); // vuruşlar arasında silahlı bekleme duruşu
-      }
     } else if (oyuncu.yuruHedef) {
       if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? 1.5 : acilacakNpc ? 2.5 : 0)) {
         oyuncu.yuruHedef = null;
@@ -502,7 +498,18 @@ async function basla(): Promise<void> {
         acilacakKutu = null;
         if (acilacakNpc) { const n = acilacakNpc; acilacakNpc = null; npcEtkilesim(n); }
         oyuncu.model?.oynat('bekle');
-      } else oyuncu.model?.oynat(hareketAnimi());
+      } else { oyuncu.model?.oynat(hareketAnimi()); if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true); }
+    } else if (oyuncu.hedef && oyuncu.saldiriyor) {
+      const h = oyuncu.hedef;
+      if (oyuncu.konum.distanceTo(h.konum) > SALDIRI_MENZILI) { // menzil dışı: hedefe yürü (hareket eden canavarı da izler)
+        oyuncu.yuru(h.konum, hizAl() * dt, SALDIRI_MENZILI - 0.3);
+        oyuncu.model?.oynat(hareketAnimi());
+        hareketEdiyor = true;
+      } else {
+        oyuncu.bak(h.konum);
+        saldirTik(h, false);
+        if (oyuncu.saldiriSayaci > 0 && oyuncu.saldiriSayaci < 0.4 && oyuncu.animKilidi <= 0) oyuncu.model?.oynat('bekle'); // vuruşlar arasında silahlı bekleme duruşu
+      }
     } else if (oyuncu.animKilidi > 0) {
       /* skill animasyonu oynuyor */
     } else if (oyuncu.saldiriSayaci <= 0.4 || !oyuncu.model?.aktifAd.startsWith('saldir')) {
@@ -515,6 +522,7 @@ async function basla(): Promise<void> {
     if (adimMesafe >= (kosuyor ? 2 : 1)) { adimMesafe = 0; ses.adim(kosuyor); }
   };
   let adimMesafe = 0;
+  let hareketEdiyor = false; // bu karede yürünüyor mu (skill animasyonu yürümeyi bölmesin)
   let oncekiKameraAci = kamera.aci;
 
   const canavarlariGuncelle = (dt: number) => {

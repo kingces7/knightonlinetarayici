@@ -19,8 +19,17 @@ function renk(c: number): string {
   return `rgba(${r},${g},${b},${a === 0 ? 1 : (a / 255).toFixed(3)})`;
 }
 
-/** Arayüzün (pencereler, çubuklar) ekran büyüklüğüne göre ölçeği: 1280×640 ve altında 1, 2560×1280'de ≈2 (en çok 2,2). */
-export function arayuzOlcegi(): number { return Math.max(1, Math.min(2.2, innerWidth / 1280, innerHeight / 640)); }
+/**
+ * Arayüzün (pencereler, çubuklar) ekran büyüklüğüne göre ölçeği.
+ * Formül: ölçek = sınırla( min(genişlik / 1280, yükseklik / 640) × ARAYUZ_CARPANI , 1 , 2,2 ). 2560×1270'te tam ölçek 1,98'dir; çarpan 0,75 ile 1,49 olur.
+ * Deneme için adrese `?ui=1.7` yazılırsa çarpan yerine bu ölçek aynen kullanılır.
+ */
+export const ARAYUZ_CARPANI = 0.75;
+export function arayuzOlcegi(): number {
+  const u = Number(new URLSearchParams(location.search).get('ui'));
+  if (u >= 0.5 && u <= 4) return u;
+  return Math.max(1, Math.min(2.2, Math.min(innerWidth / 1280, innerHeight / 640) * ARAYUZ_CARPANI));
+}
 
 export class UiPencere {
   readonly el = document.createElement('div');
@@ -38,6 +47,7 @@ export class UiPencere {
    * Pencerenin GÖRÜNEN resim alanı (pencere kutusuna göre, ölçeksiz piksel): [sol, üst, sağ, alt]. Pencere kutusu çoğu zaman saydam boşluk içerir
    * (ör. envanterin solunda/sağında); ekrana yaslarken bu boşluk hesaba katılır.
    */
+  sinirTemizle(): void { this.sinirOnbellek = null; }
   sinir(): [number, number, number, number] {
     if (this.sinirOnbellek) return this.sinirOnbellek;
     const onceki = { d: this.el.style.display, v: this.el.style.visibility };

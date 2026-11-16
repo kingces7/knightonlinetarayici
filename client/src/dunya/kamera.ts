@@ -62,7 +62,7 @@ export class TakipKamerasi {
   /** Hızlıca 180° arkaya döner (orta fare tuşu / görev çubuğu kamera düğmesi). */
   arkayaDon(): void {
     this.donusBaslangic = this.aci; this.donusGecen = 0;
-    this.donusHedefi = (this.donusHedefi ?? this.aci) + Math.PI;
+    this.donusHedefi = (this.donusHedefi ?? this.aci) - Math.PI; // ters yönde (saat yönü)
   }
 
   /** Fareyle kamera çevriliyor mu? */

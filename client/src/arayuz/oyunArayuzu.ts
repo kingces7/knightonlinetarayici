@@ -131,7 +131,7 @@ export class OyunArayuzu {
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
-    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m) });
+    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m), acilirken: (ad) => { if (ad === 're_el_cmdlist') for (const o of ['envanter', 'beceri'] as Ad[]) if (this.acik.has(o)) this.ac(o, false); } });
     this.genel.davranis.set('re_el_clan_window', (p) => {
       this.sekmeSeridi(p, 'klan');
       // Pencere tasarım örnek verisiyle (Msoft_1098…) geliyor: örnek satırlar ve açılır kutular gizlenir; klan yok (sunucu yok)
@@ -209,6 +209,11 @@ export class OyunArayuzu {
   ac(ad: Ad, acik: boolean): void {
     const p = this.pencereler[ad]; if (!p) return;
     if (acik) {
+      // Sağdan açılan pencereler (envanter, skill, Command) aynı yeri kullanır: biri açılınca öbürleri kapanır.
+      if (ad === 'envanter' || ad === 'beceri') {
+        this.genel?.kapat('re_el_cmdlist');
+        for (const o of ['envanter', 'beceri'] as Ad[]) if (o !== ad && this.acik.has(o)) this.ac(o, false);
+      }
       this.acik.add(ad); p.el.style.display = ''; p.el.style.zIndex = String(++this.z);
       void p.el.offsetWidth; // başlangıç konumu işlensin, sonra kayarak gelsin
       p.el.classList.remove('kapali');
@@ -268,7 +273,7 @@ export class OyunArayuzu {
       const w = this.cubukKutu();
       this.cubuk.el.style.left = `${Math.max(0, Math.min(innerWidth - w[0], kayit[0]))}px`; this.cubuk.el.style.top = `${Math.max(0, Math.min(innerHeight - w[1], kayit[1]))}px`;
     } else if (this.cubukDikey) { // ekranın solunda, dikey ortada (dikey grup pencere kutusunda +10,+9 kayık)
-      this.cubuk.el.style.left = `${14 * hol}px`;
+      this.cubuk.el.style.left = `${-this.cubuk.sinir()[0] * hol}px`; // görünen çubuk ekranın sol kenarına yaslanır
       this.cubuk.el.style.top = `${Math.max(40, (innerHeight - 390 * hol) / 2 - 40 * hol) + 9 * hol}px`;
     } else {
       this.cubuk.el.style.left = `${Math.max(sw * hol, orta - (cw * hol) / 2 + 10 * hol)}px`;
@@ -531,7 +536,7 @@ export class OyunArayuzu {
         // Oyunun kare (pencere) simgesi: knight1.dxt (221,420), üzerine gelince alttaki kare
         Object.assign(e.style, { width: '13px', height: '13px', backgroundPosition: '-221px -420px' });
         e.addEventListener('pointerenter', () => { e.style.backgroundPosition = '-221px -433px'; }); e.addEventListener('pointerleave', () => { e.style.backgroundPosition = '-221px -420px'; });
-        e.addEventListener('click', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.gorevYerlestir(); });
+        e.addEventListener('click', () => { this.cubukDikey = !this.cubukDikey; try { localStorage.setItem('ke_skillcubugu_yon', this.cubukDikey ? 'dikey' : 'yatay'); } catch { /* depolama kapalı */ } this.cubukYonUygula(); this.cubuk.sinirTemizle(); this.gorevYerlestir(); });
       });
       g.append(kilit, yon); this.cubukKilitDugmeleri.push(kilit);
     }
@@ -563,6 +568,8 @@ export class OyunArayuzu {
     if (!el) throw new Error('metin alanı yok');
     el.classList.remove('ui-yazi'); el.replaceChildren();
     Object.assign(el.style, { display: 'block', overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', fontSize: `${boyut}px`, lineHeight: '1.25', color: '#fff', textShadow: '0 1px 2px #000', overflowWrap: 'anywhere', boxSizing: 'border-box', paddingRight: '4px' });
+    // Üst kenarda yarım kalan satır sert kesilmesin: yazı çerçevenin içinde yumuşakça sönsün.
+    el.style.maskImage = el.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0, #000 0.9em)';
     el.classList.add('ui-gunluk');
     return el;
   }
@@ -725,6 +732,13 @@ export class OyunArayuzu {
   private durumKur(): void {
     const p = this.pencereler.durum;
     this.sekmeSeridi(p, 'durum');
+    // Karakter (stat) penceresinin özgün tasarımında kapatma düğmesi yok: sol üst köşeye çarpı eklenir.
+    const x = document.createElement('div');
+    x.textContent = '✕'; x.title = 'Close';
+    Object.assign(x.style, { position: 'absolute', left: '4px', top: '34px', width: '22px', height: '22px', lineHeight: '20px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold', color: '#f8d067', background: 'radial-gradient(#3a4a66, #141c2c)', border: '1px solid #c9a24a', borderRadius: '50%', cursor: 'pointer', zIndex: '5', boxShadow: '0 0 3px #000' });
+    x.addEventListener('pointerdown', (e) => e.stopPropagation());
+    x.addEventListener('click', () => this.ac('durum', false));
+    p.el.appendChild(x);
     p.gizleDesen(/^(icon_level_|btn_rebirth_preset|btn_preset|base_perks|Text_HP$|Text_MP$)/); // base_perks: Myko'nun ekstra özellik listesi (şimdilik yok)
     const harca = (ad: 'str' | 'sta' | 'dex' | 'int') => () => {
       if (this.b.oyuncu.statArtir(ad)) { this.b.statDegisti(); this.durumCiz(); }
@@ -806,6 +820,7 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- envanter (I)
   private envanterKur(): void {
     const p = this.pencereler.envanter;
+    p.tikla.set('btn_close', () => this.ac('envanter', false)); // sağ üstteki çarpı
     p.gizleDesen(/(Destroy|_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^btn_gold$|^base_(inven_notice|bag|LockImg|cos)$)/);
     for (let i = 28; i <= 39; i++) p.goster(String(i), false);
     // Karakter alanı: animasyonlu oyuncu önizlemesi
