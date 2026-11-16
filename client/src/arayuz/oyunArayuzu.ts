@@ -810,6 +810,16 @@ export class OyunArayuzu {
     for (const id of ['text_06', 'Title_RealmPoint']) { const e = p.alan(id); if (e) e.style.width = '130px'; }
     for (const i of [0, 1]) { const e = p.alan('Title_Cash', i); if (e) e.style.width = '130px'; }
     for (const id of ['Text_Cash', 'Text_tl_Cash', 'Text_Exp', 'Text_RealmPoint']) for (const c of p.bul(id)) c.querySelectorAll<HTMLElement>('*').forEach((k) => { k.style.color = '#fff'; });
+    // Dört satırın değerleri aynı kutuda ve ortalı: (Text_Exp eskiden daha geniş/solda duruyordu)
+    for (const id of ['Text_Exp', 'Text_RealmPoint', 'Text_Cash', 'Text_tl_Cash']) { const e = p.alan(id); if (e) { e.style.left = '103px'; e.style.width = '181px'; e.style.justifyContent = 'center'; } }
+    for (const id of ['text_06', 'Title_RealmPoint']) { const e = p.alan(id); if (e) e.style.paddingLeft = '6px'; }
+    for (const i of [0, 1]) { const e = p.alan('Title_Cash', i); if (e) e.style.paddingLeft = '6px'; }
+    // Direnç satırları: uzun adlar hücreye sığsın, kenara yapışmasın
+    for (let i = 18; i <= 23; i++) { const e = p.alan(`text_${i}`); if (e) { e.style.paddingLeft = '4px'; e.style.fontSize = '8.6px'; e.querySelectorAll<HTMLElement>('*').forEach((k) => { k.style.fontSize = '8.6px'; k.style.whiteSpace = 'nowrap'; }); } }
+    // Weight satırı kalktığı için sol hücredeki boş simge kutusu zemin rengiyle kapatılır
+    const dolgu = document.createElement('div');
+    Object.assign(dolgu.style, { position: 'absolute', left: '7px', top: '266px', width: '46px', height: '17px', background: 'rgba(16,11,7,0.94)', pointerEvents: 'none', zIndex: '1' });
+    p.el.appendChild(dolgu);
   }
 
   // ---------------------------------------------------------------- skill (K)
