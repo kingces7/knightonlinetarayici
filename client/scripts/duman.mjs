@@ -1,0 +1,22 @@
+// Geliştirme aracı: duman testi — oyunun ana akışlarını sırayla dener, sayfa hatalarını ve uyarıları toplar.
+import { chromium } from 'playwright-core';
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1366, height: 768 } });
+const hatalar = [], uyarilar = [], yok = [];
+s.on('response', (r) => { if (r.status() === 404) yok.push(r.url().replace('http://localhost:5173', '')); });
+s.on('pageerror', (e) => hatalar.push(e.message)); s.on('console', (m) => { if (m.type() === 'error') uyarilar.push(m.text().slice(0, 160)); });
+await s.goto('http://localhost:5173/'); await s.evaluate(() => localStorage.clear()); await s.reload();
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
+const adim = [];
+const dene = async (ad, f) => { try { await f(); adim.push(ad + ': tamam'); } catch (e) { adim.push(ad + ': HATA ' + String(e).slice(0, 100)); } };
+await dene('yürü WASD', async () => { for (const k of ['KeyW', 'KeyA', 'KeyS', 'KeyD']) { await s.keyboard.down(k); await s.waitForTimeout(300); await s.keyboard.up(k); } });
+await dene('pencereler U K I', async () => { for (const k of ['KeyU', 'KeyK', 'KeyI']) { await s.keyboard.press(k); await s.waitForTimeout(400); } for (const k of ['KeyU', 'KeyK', 'KeyI']) { await s.keyboard.press(k); await s.waitForTimeout(300); } });
+await dene('hedef + saldırı + skill', async () => { await s.evaluate(() => { const c = window.ke.canavarlar.find((x) => !x.olu); const o = window.ke.oyuncu; o.seviye = 10; o.mana = o.enCokMana = 200; o.konum.set(c.konum.x - 1.5, c.konum.y); }); await s.keyboard.press('KeyZ'); await s.keyboard.press('KeyR'); await s.waitForTimeout(1500); await s.keyboard.press('Digit1'); await s.waitForTimeout(800); await s.keyboard.press('Digit2'); await s.waitForTimeout(500); });
+await dene('canavar öldür + ganimet', async () => { await s.evaluate(() => { const c = window.ke.oyuncu.hedef; if (c) c.hasarAl(99999); }); await s.waitForTimeout(2500); });
+await dene('ölüm + yeniden doğma', async () => { await s.evaluate(() => { const o = window.ke.oyuncu; o.hasarAl(99999); }); await s.waitForTimeout(500); await s.evaluate(() => window.ke.hud.yenidenDog()); await s.waitForTimeout(500); });
+await dene('mağaza ve banka', async () => { await s.evaluate(() => { const n = window.ke.npcler.find((x) => x.tanim.satis > 0); window.ke.npcTikla(n); }); await s.waitForTimeout(600); await s.evaluate(() => { const n = window.ke.npcler.find((x) => x.tanim.tur === 31 && x.tanim.sid !== 19999); if (n) window.ke.npcTikla(n); }); await s.waitForTimeout(600); });
+await dene('genel pencereler', async () => { for (const ad of ['re_minimap', 're_el_party', 're_el_page_friend', 're_el_clan_window', 're_exitmenu', 're_el_cmdlist']) { await s.evaluate((a) => window.ke.arayuz().genel.ac(a), ad); await s.waitForTimeout(150); await s.evaluate((a) => window.ke.arayuz().genel.kapat(a), ad); } });
+await dene('imleç/kamera', async () => { await s.mouse.move(600, 300); await s.mouse.down({ button: 'right' }); await s.mouse.move(700, 300, { steps: 4 }); await s.mouse.up({ button: 'right' }); await s.mouse.wheel(0, 300); });
+await s.waitForTimeout(800);
+console.log(JSON.stringify({ adim, hatalar, bulunamayan: [...new Set(yok)] }, null, 1));
+await t.close();
