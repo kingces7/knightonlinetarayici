@@ -13,6 +13,7 @@ import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
 import { Su } from './dunya/su';
+import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -60,6 +61,9 @@ async function basla(): Promise<void> {
   sahne.add(arazi.mesh);
   durum('Loading objects…');
   const su = await Su.yukle(`/harita/${HARITA}/su.json`, sahne); // nehir, kanal, deniz (yoksa su yok)
+  // DENEYSEL: .fxb tahmini efekt denemesi (bkz. efektDeneme.ts başı) — gerçek bir skill'e bağlı değil, yalnızca window.ke.efektDene() ile elle tetiklenir.
+  const efektDeneme = await EfektDeneme.yukle('/efekt/dust.json');
+  const efektTanecikleri: Tanecik[] = [];
   void GanimetKutusu.modelYukle();
   const halkaDoku = new THREE.TextureLoader().load('/esya/hedef_halka.png'); halkaDoku.colorSpace = THREE.SRGBColorSpace;
   const halka = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: halkaDoku, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false }));
@@ -531,6 +535,7 @@ async function basla(): Promise<void> {
     gokyuzu?.guncelle(kamera.kamera.position);
     nesneAnimasyonunuIlerlet(dokuAnimlari, performance.now() / 1000);
     su?.guncelle(performance.now() / 1000);
+    efektDeneme?.guncelle(efektTanecikleri, dt, sahne);
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);
@@ -545,7 +550,10 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret };
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+    // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
+    efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
+    efektSayisi: () => efektTanecikleri.length };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

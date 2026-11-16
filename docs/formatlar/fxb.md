@@ -42,3 +42,23 @@ parçacık sayısı gibi), 40–48 ile 52–60 aralıkları simetrik üçlüler 
 açısı gibi). Ancak bu yalnızca **tek parçalı, parçacık türü** için geçerli; çok parçalı dosyalarda (`heal_cast.fxb` gibi) parçalar arası uzunluk sabit değil
 (456/452/860 bayt gibi değişken aralıklar görüldü), yani parça türüne göre kuyruk uzunluğu da değişiyor ve bu henüz genelleştirilemedi. Kısaca: tek parçacıklı
 küçük efektlerin sayısal alanları artık okunabilir hâle geldi, ama çok parçalı (mesh+billboard+particle karışık) efektleri çizecek kadar değil.
+
+## Deneme: toz efekti (2026-11-16) — ⚠️ DOĞRULANMAMIŞ TAHMİN, oyun kuralı DEĞİL
+
+Tek parçalı parçacık türünü (yukarıdaki yan bulgu) 12 örnek dosyada (hem bu arşivde hem `Yardımcı Kaynak 2`'de bulunanlar) karşılaştırarak alan tahminini
+genişlettim ve `fx\marseu_gear_2007_dust.fxb` ("toz" efekti) üzerinden deneysel bir görsel oluşturdum. 345. bayttan sonraki kuyrukta tahmin edilen düzen:
+
+| Bayt (kuyruktan) | Tahmini anlam | Kanıt |
+|---|---|---|
+| +0 | parça türü (sabit `5` = parçacık) | 12/12 örnekte aynı |
+| +8, +12 | ömür (sn), ömür rastgeleliği | değerler 0,1–2 sn arası, efekt adlarıyla tutarlı (toz 1 sn, ayak izi 0,2 sn, rüzgâr 2 sn) |
+| +24, +28 | boyut: başlangıç/bitiş | duman efektlerinde büyüyor (2→4,5), toz taneciklerinde küçük kalıyor |
+| +40/+52, +44/+56, +48/+60 | X/Y/Z hız kutusu: **maks/min** | +52 = −(+40) her örnekte **birebir** tutuyor (12/12); +56/+60 çoğunlukla ama değil her zaman −(+44/+48) |
+| +64 | yukarı sürüklenme (duman için güçlü: 0,6–0,9; toz için zayıf: 0,01–0,1) | duman efektleri (`giga_chim`) ile toz/rüzgâr efektleri arasındaki fark anlamlı |
+| +76 | yayılma açısı (derece; 360 = her yöne, 30 = dar huni) | yönlü rüzgâr efektlerinde 30–50°, patlama tarzı efektlerde 360° |
+
+**Bu hâlâ bir tahmindir, kaynak kodla doğrulanmadı.** Bu yüzden gerçek bir skill'e BAĞLANMADI: `araclar/oyun/efekt-deneme.ts` (`npm run efekt-deneme`)
+yalnızca `dust.json` + `dust.png` üretir; `client/src/dunya/efektDeneme.ts` bunu okuyup basit, billboard sprite tabanlı bir parçacık patlaması çizer;
+oyunda yalnızca geliştirici konsolundan `window.ke.efektDene()` ile elle tetiklenir (`client/scripts/efektDenemeTesti.mjs` ile de denenebilir).
+Sonuç gözle makul görünüyor (ayaklarının önünde büyüyüp sönen kum rengi bir toz bulutu, ~1 sn sürüyor) ama renk/dönüş gibi bazı alanlar (+80..+108 arası)
+hâlâ belirsiz ve kullanılmadı; çok parçalı efektler (gerçek skill'lerin kullandığı `Heal_cast0_1.fxb`/`Ability_cast0_1.fxb`) bu yöntemle çizilemiyor.
