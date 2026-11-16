@@ -20,6 +20,7 @@ class Baglanti {
   #kuyruk: Paket[] = [];
   #bekleyen: { opcode: number; coz: (p: Paket) => void; hata: (e: Error) => void; zaman: ReturnType<typeof setTimeout> } | null = null;
   #kapali: Error | null = null;
+  #akis: ((p: Paket) => void) | null = null;
 
   private constructor(ws: WebSocket) {
     this.ws = ws;
@@ -44,6 +45,8 @@ class Baglanti {
   #paketGeldi(p: Paket): void {
     if (this.#bekleyen && this.#bekleyen.opcode === p.opcode) {
       const b = this.#bekleyen; this.#bekleyen = null; clearTimeout(b.zaman); b.coz(p);
+    } else if (this.#akis) {
+      this.#akis(p);
     } else {
       this.#kuyruk.push(p);
       if (this.#kuyruk.length > 400) this.#kuyruk.shift(); // oyun içi akışta sınırsız büyümesin (Aşama 5'te işleyicilere bağlanacak)
@@ -71,6 +74,12 @@ class Baglanti {
     });
   }
 
+  /** Oyun akışı: sırada bekleyen paketleri sırayla verir, sonra gelen her paketi doğrudan işleyiciye yollar. */
+  akisaGec(fn: (p: Paket) => void): void {
+    this.#akis = fn;
+    for (const p of this.#kuyruk.splice(0)) fn(p);
+  }
+
   kapat(): void { this.ws.close(); }
 }
 
@@ -85,8 +94,14 @@ export interface SunucuOturumu {
   hava: ReturnType<typeof oyunHavasi> | null;
   /** Sunucunun karşılama mesajı (varsa). */
   karsilama: string | null;
+  /** Oyun akışına geç: bekleyen ve bundan sonra gelen bütün paketler işleyiciye verilir (işleyici hata fırlatırsa yutulur ve konsola yazılır). */
+  akisaGec(fn: (p: Paket) => void): void;
+  /** Sunucuya paket gönderir (oyun içi: hareket, sohbet…). */
+  gonder(opcode: number, govde?: Uint8Array): void;
   kapat(): void;
 }
+
+export type { Paket };
 
 const GIRIS_MESAJLARI: Record<number, string> = {
   [GIRIS_SONUCU.HESAP_YOK]: 'Account not found.', [GIRIS_SONUCU.SIFRE_YANLIS]: 'Wrong password.', [GIRIS_SONUCU.YASAKLI]: 'This account is banned.',
@@ -152,6 +167,8 @@ export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSA
       sunucuAdi, karakter, bolge: sec.bolge, ulus: giris.ulus === -1 ? 0 : giris.ulus, benim,
       saat: saatPaketi ? oyunSaati(saatPaketi.govde) : null, hava: havaPaketi ? oyunHavasi(havaPaketi.govde) : null,
       karsilama, kapat: () => b.kapat(),
+      akisaGec: (fn) => b.akisaGec((p) => { try { fn(p); } catch (e) { console.warn(`Packet 0x${p.opcode.toString(16)} could not be handled`, e); } }),
+      gonder: (opcode, govde) => b.gonder(opcode, govde),
     };
   } catch (e) { b.kapat(); throw e; }
 }

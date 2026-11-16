@@ -2,7 +2,7 @@
 // Oyun içeriği İngilizce olduğu için arayüz yazıları da İngilizce.
 import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
-import type { Canavar, GanimetKutusu, Npc, Oyuncu } from '../oyun/varliklar';
+import type { Canavar, DigerOyuncu, GanimetKutusu, Npc, Oyuncu } from '../oyun/varliklar';
 
 const $ = <T extends HTMLElement>(html: string): T => {
   const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild as T;
@@ -170,6 +170,21 @@ export class Hud {
     }
   }
 
+  private digerEtiketleri = new Map<DigerOyuncu, HTMLDivElement>();
+  /** Sunucudaki diğer oyuncuların ad etiketleri (oyuncu adlarını açıp kapatan O tuşuna uyar). */
+  digerEtiketGuncelle(oyuncular: DigerOyuncu[], izdusum: (o: DigerOyuncu) => { x: number; y: number; gorunur: boolean }): void {
+    for (const o of oyuncular) {
+      let el = this.digerEtiketleri.get(o);
+      if (!el) { el = $<HTMLDivElement>('<div class="etiket oyuncu"><span></span></div>'); this.etiketler.appendChild(el); this.digerEtiketleri.set(o, el); }
+      const span = el.querySelector('span')!; if (span.textContent !== o.ad) span.textContent = o.ad;
+      const p = izdusum(o);
+      el.style.display = this.nickAcik && p.gorunur ? '' : 'none';
+      if (this.nickAcik && p.gorunur) el.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -100%) translateY(-2px)`;
+    }
+  }
+  digerEtiketKaldir(o: DigerOyuncu): void { const el = this.digerEtiketleri.get(o); if (el) { el.remove(); this.digerEtiketleri.delete(o); } }
+  /** Sahneden kalkan canavarın ad etiketini siler. */
+  etiketKaldir(c: Canavar): void { const el = this.etiketHaritasi.get(c); if (el) { el.remove(); this.etiketHaritasi.delete(c); } }
   etiketGuncelle(canavarlar: Canavar[], izdusum: (c: Canavar) => { x: number; y: number; gorunur: boolean }, hedef: Canavar | null): void {
     for (const c of canavarlar) {
       let el = this.etiketHaritasi.get(c);

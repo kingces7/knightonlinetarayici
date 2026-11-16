@@ -19,6 +19,15 @@ const sonra = await s.evaluate(() => {
   return { seviye: o.seviye, altin: o.altin, deneyim: o.deneyim, azamiDeneyim: o.azamiDeneyimSunucu, can: o.can, enCok: o.enCok, mana: o.mana, stat: o.stat, sinif: o.sinif, konum: [o.konum.x, o.konum.y],
     ekipman: o.ekipman.map((e, i) => e ? `${i}:${e.ad}` : null).filter(Boolean), cantaDolu: o.envanter.filter(Boolean).length, hudAd: document.querySelector('.durum .ad')?.textContent?.trim() };
 });
-console.log(JSON.stringify({ once, sonuc, sonra, hatalar }, null, 1));
+// Canlı dünya: sunucu canavarları belirdi mi, hareket ediyorlar mı?
+await s.waitForTimeout(5000);
+const konumlar = () => s.evaluate(() => window.ke.canavarlar.filter((c) => c.agModu).map((c) => [c.agKimlik, c.tur.ad, +c.konum.x.toFixed(1), +c.konum.y.toFixed(1)]));
+const k1 = await konumlar(); const sayac1 = await s.evaluate(() => window.ke.sunucuDurumu().sayac.hareket); await s.waitForTimeout(10000); const k2 = await konumlar(); const sayac2 = await s.evaluate(() => window.ke.sunucuDurumu().sayac.hareket);
+const durum = await s.evaluate(() => window.ke.sunucuDurumu());
+const hareketEdenler = k1.filter((a) => { const b = k2.find((x) => x[0] === a[0]); return b && (Math.abs(a[2] - b[2]) > 0.2 || Math.abs(a[3] - b[3]) > 0.2); }).length;
+console.log(JSON.stringify({ once, sonuc, sonra, durum, hareketEdenSayisi: hareketEdenler, toplamCanavar: k2.length, hareketPaketleri10sn: sayac2 - sayac1, ornekCanavarlar: undefined, hatalar }, null, 1));
+// Görsel kontrol: oyuncuyu canavarların yanına taşı
+await s.evaluate(() => { const o = window.ke.oyuncu; o.isinla(433, 224, window.ke.arazi); window.ke.kamera.uzaklik = 14; window.ke.kamera.egim = 0.6; });
+await s.waitForTimeout(2500);
 await s.screenshot({ path: `${klasor}/sunucu_oyun.png` });
 await t.close();

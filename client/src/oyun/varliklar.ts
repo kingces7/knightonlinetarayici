@@ -147,6 +147,11 @@ export class Canavar extends Varlik {
   oluSuresi = 0;
   ganimetBirakildi = false;
   kizgin = false;
+  /** Sunucu kontrollü canavar (canlı mod): sıfırdan farklıysa sunucudaki kimliktir; yapay zekâ çalışmaz, konum/hareket sunucudan gelir. */
+  agKimlik = 0;
+  /** Sunucunun bildirdiği varış noktası ve hız (m/sn). */
+  agHedef: THREE.Vector2 | null = null; agHiz = 0;
+  get agModu(): boolean { return this.agKimlik !== 0; }
   /** Sunucu yerleşim kaydı (K_NPCPOS): gezinme alanı, yeniden doğuş süresi (sn), davranış (ActType 1-2 pasif, 3-4 pasif + yardımlaşan, diğerleri saldırgan). */
   yerlesim: { alan: number; dogus: number; davranis: number; grup: Canavar[] } | null = null;
   get dogusSure(): number { return this.yerlesim?.dogus ?? 25; }
@@ -168,7 +173,7 @@ export class Canavar extends Varlik {
   }
 
   hasarAl(miktar: number): void {
-    if (this.olu) return;
+    if (this.olu || this.agModu) return; // sunucu canavarında hasar sunucudan gelir (henüz bağlı değil)
     this.can = Math.max(0, this.can - miktar);
     this.kizgin = true;
     if (this.can <= 0) {
@@ -191,6 +196,14 @@ export class Canavar extends Varlik {
   guncelle(dt: number, oyuncu: Oyuncu): boolean {
     this.model?.guncelle(dt);
     if (this.olu) { this.oluSuresi += dt; return false; }
+    if (this.agModu) {
+      if (this.agHedef && this.agHiz > 0) {
+        const bitti = this.yuru(this.agHedef, this.agHiz * dt);
+        this.model?.oynat(this.agHiz > 3.5 ? 'kos' : 'yuru');
+        if (bitti) { this.agHedef = null; this.model?.oynat('bekle'); }
+      } else if (this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
+      return false;
+    }
     const uzaklik = this.konum.distanceTo(oyuncu.konum);
     const dogumdan = this.konum.distanceTo(this.dogum);
     // Sunucu: doğduğu yerden izleme menzilinden fazla uzaklaşınca kovalamayı bırakır; saldırgan canavar arama menzilinde oyuncuyu fark eder.
@@ -264,6 +277,42 @@ export class Npc extends Varlik {
     this.model.kok.scale.setScalar(this.tanim.boyut / 100);
     this.grup.add(this.model.kok);
     this.model.oynat('bekle');
+  }
+}
+
+// ---------------------------------------------------------------- Diğer oyuncular (canlı mod)
+/** Sunucudaki başka bir oyuncu: konum ve hareket sunucudan gelir (WIZ_USER_INOUT / WIZ_MOVE). Eşyalar şimdilik görünmez (tek oyuncu modeli kullanılır). */
+export class DigerOyuncu extends Varlik {
+  /** Sunucudaki soket numarası. */
+  readonly kimlik: number;
+  ad: string; seviye: number; ulus: number;
+  /** Sunucunun bildirdiği varış noktası ve hız (m/sn). */
+  agHedef: THREE.Vector2 | null = null; agHiz = 0;
+  /** Sunucuya göre hareket sürüyor mu (son paket yankı 1/3)? Sürüyorsa bir sonraki paket gelene kadar aynı yönde devam edilir ve koşu animasyonu kesilmez. */
+  suruyor = false; yonV = new THREE.Vector2(); sonPaketSn = 0;
+  constructor(kimlik: number, ad: string, seviye: number, ulus: number, x: number, z: number) {
+    super(0.7, 1.9);
+    this.kimlik = kimlik; this.ad = ad; this.seviye = seviye; this.ulus = ulus;
+    this.konum.set(x, z);
+    this.can = this.enCok = 1;
+  }
+  async modelYukle(no: number): Promise<void> {
+    this.model = await KarakterModeli.olustur(`/karakter/${no}.glb`);
+    this.grup.add(this.model.kok);
+    this.model.oynat('bekle');
+  }
+  guncelle(dt: number): void {
+    this.model?.guncelle(dt);
+    const hareketAnimi = this.agHiz > 3.5 ? 'kos' : 'yuru';
+    if (this.agHedef && this.agHiz > 0) {
+      const bitti = this.yuru(this.agHedef, this.agHiz * dt);
+      this.model?.oynat(hareketAnimi);
+      if (bitti) { this.agHedef = null; if (!this.suruyor) this.model?.oynat('bekle'); }
+    } else if (this.suruyor && this.agHiz > 0 && performance.now() / 1000 - this.sonPaketSn < 1.5) {
+      // varış noktasına ulaştı ama oyuncu hâlâ yürüyor (bir sonraki saniyelik paket gecikti): aynı yönde devam
+      this.hareketEt(this.yonV.clone().multiplyScalar(this.agHiz * dt));
+      this.model?.oynat(hareketAnimi);
+    } else if (this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
   }
 }
 

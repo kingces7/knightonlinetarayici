@@ -31,10 +31,10 @@ const liste = kuyruk.find((p) => p.opcode === WIZ.TUM_KARAKTER_BILGISI)!;
 const lo = new PaketOkuyucu(liste.govde); lo.u8(); lo.u8(); const karakter = lo.yazi();
 await yolla('karakter_sec', WIZ.KARAKTER_SEC, new PaketYazici().yazi(hesap).yazi(karakter).u8(1).baytlar(), 2500);
 await yolla('oyun_baslat_1', WIZ.OYUN_BASLAT, new PaketYazici().u8(1).yazi(karakter, false).baytlar(), 4000);
-await yolla('oyun_baslat_2', WIZ.OYUN_BASLAT, new PaketYazici().u8(2).yazi(karakter, false).baytlar(), 3000);
+await yolla('oyun_baslat_2', WIZ.OYUN_BASLAT, new PaketYazici().u8(2).yazi(karakter, false).baytlar(), Number(process.env.KO_BEKLE ?? 3000));
 s.destroy();
 
-const hedef = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'protokol', 'ornekler', 'myko-oyuna-giris.json');
+const hedef = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'protokol', 'ornekler', (process.env.KO_CIKTI ?? 'myko-oyuna-giris.json'));
 fs.mkdirSync(path.dirname(hedef), { recursive: true });
 fs.writeFileSync(hedef, JSON.stringify({ aciklama: 'Myko oyun sunucusu (kaynaktan derlendi), 2026-11-16: oyuna giriş sırasında gelen paketler (opcode + gövde, ham hex).', paketler: kayit }, null, 1));
 console.log(`${kayit.length} paket kaydedildi → ${hedef}`);

@@ -183,7 +183,12 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
   - [ ] Giriş ekranı (hesap/şifre formu) ve karakter seçim ekranı arayüzü (şimdilik yalnızca konsoldan); sunucu modunda varsayılan olarak açılsın
   - [ ] İstemci eşya listesi sunucudaki tüm eşyaları kapsamıyor (6 eşyadan 1'i eşleşmedi): `Item_Org_us.tbl` tamamından üret
   - [ ] Karakter modeli ırk/sınıfa göre seçilsin (şimdi hep aynı model); klan üyesi karakterlerin `WIZ_MYINFO` klan bloğu
-  - [ ] Oyun içi akış (Aşama 5): çevredeki oyuncular/NPC'ler (`0x07`, `0x0A`, `0x1D`), hareket (`0x06`), sohbet (`0x10`); bağlantıyı canlı tutma
+  - [x] **Aşama 5 başlangıcı:** canlı dünya — sunucudan canavarlar (giriş/çıkış/hareket), diğer oyuncular (liste/giriş/çıkış/hareket) görünür ve yürür; kendi hareketimiz sunucuya bildirilir (kurallara uygun, testli) — gerçek sunucuda ve tarayıcıda doğrulandı (docs/protokol.md §14)
+  - [ ] Saldırı/hasar/ölüm sunucuya bağlansın (WIZ_ATTACK, WIZ_TARGET_HP, WIZ_DEAD…); sunucu canavarına vuruş şimdilik yok sayılıyor
+  - [ ] Sohbet (0x10 gönder/al), NPC etkileşimi (0x20), envanter/eşya (0x1F…), skill (0x31) paketleri
+  - [ ] Diğer oyuncuların eşyaları/modeli görünsün (şimdi hepsi aynı model); ırk/sınıfa göre model
+  - [ ] Dost NPC'ler (tür 2) sunucudan gelsin (şimdi yerel npc.json); bölge/harita değişimi (WIZ_ZONE_CHANGE)
+  - [ ] Test için ikinci hesap/karakter (kotest1/KoTest) yerel veritabanında; GitHub'a girmeyen yerel veri
   - [ ] Eski 1298 `.exe` sunucuları (Defender: Trojan) çalıştırılmayacak; `kopru/sunucu-baslat.ps1` varsayılan olarak reddeder
   - [ ] Client'ın (KnightOnLine.exe) gerçek paket sırasını bir bağlantı kaydıyla doğrula (şimdiye kadar yalnızca sunucu tarafı doğrulandı)
 - [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler

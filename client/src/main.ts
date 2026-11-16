@@ -6,7 +6,7 @@ import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
-import { Canavar, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
+import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, kurallariYukle, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
@@ -16,6 +16,9 @@ import { Su } from './dunya/su';
 import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
 import { sunucuyaBaglan, type SunucuOturumu } from './ag/sunucu';
 import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
+import { SunucuDunyasi } from './oyun/sunucuDunyasi';
+import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
+import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -81,6 +84,8 @@ async function basla(): Promise<void> {
   if (ayar.bolge) ses.muzikCal(ayar.bolge);
   const oyuncu = new Oyuncu();
   let sunucuOturumu: SunucuOturumu | null = null;
+  let sunucuDunyasi: SunucuDunyasi | null = null;
+  let hareketGonderici: HareketGonderici | null = null; // sunucu bağlıyken oyuncu hareketini bildirir
   oyuncu.kurallariUygula();
   oyuncu.baslangicEsyalariVer();
   Varlik.arazi = arazi;
@@ -91,6 +96,7 @@ async function basla(): Promise<void> {
 
   // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere (güvenli şehirlerde yok)
   const canavarlar: Canavar[] = [];
+  const digerOyuncular: DigerOyuncu[] = []; // sunucudaki diğer oyuncular (canlı mod)
   const turler = ayar.canavar ? canavarTurleri() : [];
   for (const [i, tur] of turler.entries()) {
     const aci = (i / turler.length) * Math.PI * 2;
@@ -257,36 +263,36 @@ async function basla(): Promise<void> {
   };
 
   const tuslar = new Set<string>();
+  let otoIleri = false; // E ile açılan otomatik ilerleme
   addEventListener('keydown', (e) => {
     if (e.target instanceof HTMLInputElement) return; // sohbet yazarken oyun tuşları çalışmasın
     tuslar.add(e.code);
+    // Ses aç/kapat: orijinalde tuşu yok (M mini haritaya ayrıldı); Shift+M
+    if (!e.repeat && e.code === 'KeyM' && e.shiftKey) { hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem'); return; }
     if (!e.repeat && arayuz?.tus(e.code)) { e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
     // Hedef seçimi: Z en yakın canavar, Q ve Tab bir sonraki yakın canavar (yalnızca seçer); R seçili hedefe temel saldırıyı başlatır
-  let otoIleri = false; // E ile açılan otomatik ilerleme
     const yakinlar = () => canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40).sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum));
     if (!e.repeat && (e.code === 'KeyZ' || e.code === 'KeyQ' || e.code === 'Tab')) {
       e.preventDefault();
-    // Ses aç/kapat: orijinalde tuşu yok (M mini haritaya ayrıldı); Shift+M
-    if (!e.repeat && e.code === 'KeyM' && e.shiftKey) { hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem'); return; }
       const l = yakinlar();
       const yeni = e.code === 'KeyZ' ? l[0] : (l.find((c) => c !== oyuncu.hedef && (!oyuncu.hedef || c.konum.distanceTo(oyuncu.konum) >= oyuncu.hedef.konum.distanceTo(oyuncu.konum))) ?? l[0]);
       if (yeni && yeni !== oyuncu.hedef) { oyuncu.hedef = yeni; oyuncu.saldiriyor = false; }
+      if (e.code === 'KeyZ' && yeni) oyuncu.bak(yeni.konum); // orijinal: en yakın düşmanı seçince ona döner (RotateTo)
     }
     if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
     if (!e.repeat && e.code === 'KeyR' && oyuncu.saldiriyor) { oyuncu.saldiriyor = false; hud.mesaj('Auto attack off.', 'sistem'); } // R: sürekli saldırıyı aç/kapa (orijinal CommandToggleAttackContinous)
     else if (!e.repeat && e.code === 'KeyR') {
       if (!oyuncu.hedef || oyuncu.hedef.olu) { const y = yakinlar()[0]; if (y) oyuncu.hedef = y; }
       if (oyuncu.hedef && !oyuncu.hedef.olu) { oyuncu.saldiriyor = true; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; }
-      if (e.code === 'KeyZ' && yeni) oyuncu.bak(yeni.konum); // orijinal: en yakın düşmanı seçince ona döner (RotateTo)
     }
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
+    if (!e.repeat && e.code === 'KeyE' && !oyuncu.olu) { otoIleri = !otoIleri; if (otoIleri) { oyuncu.yuruHedef = null; oyuncu.saldiriyor = false; } } // E: otomatik ilerleme (orijinal KM_TOGGLE_MOVE_CONTINOUS)
     if (!e.repeat && e.code === 'KeyO') hud.mesaj(hud.nickDegistir() ? 'Player names are shown.' : 'Player names are hidden.', 'sistem'); // O: oyuncu adlarını aç/kapat
     if (e.code === 'Home' || e.code === 'End') e.preventDefault(); // kamera eğimi: Home/End basılı tutulunca (döngüde)
   });
   addEventListener('keyup', (e) => { tuslar.delete(e.code); if (e.code === 'Home' || e.code === 'End') kamera.egimKaydet(); });
-    if (!e.repeat && e.code === 'KeyE' && !oyuncu.olu) { otoIleri = !otoIleri; if (otoIleri) { oyuncu.yuruHedef = null; oyuncu.saldiriyor = false; } } // E: otomatik ilerleme (orijinal KM_TOGGLE_MOVE_CONTINOUS)
 
   const isin = new THREE.Raycaster();
   let acilacakKutu: GanimetKutusu | null = null;
@@ -471,7 +477,7 @@ async function basla(): Promise<void> {
       v.kalan -= dt;
       if (v.kalan > 0) continue;
       vurusZamanlayici.splice(i, 1);
-      if (v.hedef.olu || oyuncu.olu) continue;
+      if (v.hedef.olu || v.hedef.agModu || oyuncu.olu) continue; // sunucu canavarına saldırı henüz sunucuya bağlı değil
       let hasar: number;
       if (v.beceri?.tip1) { // skill vuruşu ıskalamaz (sunucu)
         hasar = beceriVurusu(oyuncu.savasVeri, v.hedef.tur, v.beceri.tip1);
@@ -528,8 +534,8 @@ async function basla(): Promise<void> {
 
   const npcleriGuncelle = (dt: number) => { for (const n of npcler) { n.model?.guncelle(dt); n.sahneyeYerlestir(arazi); } };
 
-  const izdusum = (c: Canavar | Npc | Oyuncu) => {
-    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu ? 2.1 : c.boy + 0.1; // canavar adı isabet alanının hemen üstünde
+  const izdusum = (c: Canavar | Npc | Oyuncu | DigerOyuncu) => {
+    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : c.boy + 0.1; // canavar adı isabet alanının hemen üstünde
     kamera.kamera.updateMatrixWorld(); // bu karenin kamera konumuna göre (önceki kareye göre kayma/gecikme olmasın)
     const ekran = p.project(kamera.kamera);
     return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
@@ -540,9 +546,11 @@ async function basla(): Promise<void> {
   cizici.setAnimationLoop(() => {
     const dt = Math.min(saat.getDelta(), 0.1);
     oyuncuGuncelle(dt);
+    if (hareketGonderici && !oyuncu.olu) hareketGonderici.guncelle(oyuncu.konum.x, oyuncu.konum.y, oyuncu.yuksek ?? 0, dt);
     yonetici?.guncelle(dt);
     canavarlariGuncelle(dt);
     npcleriGuncelle(dt);
+    for (const d of digerOyuncular) { d.guncelle(dt); d.sahneyeYerlestir(arazi); }
     oyuncu.sahneyeYerlestir(arazi);
     gokyuzu?.guncelle(kamera.kamera.position);
     nesneAnimasyonunuIlerlet(dokuAnimlari, performance.now() / 1000);
@@ -555,6 +563,7 @@ async function basla(): Promise<void> {
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
     kamera.kamera.updateMatrixWorld(); // etiketler bu karenin kamera konumuna göre hesaplanır (gecikme/kayma olmasın)
     hud.npcEtiketGuncelle(npcler, izdusum);
+    hud.digerEtiketGuncelle(digerOyuncular, izdusum);
     hud.oyuncuEtiketGuncelle(oyuncu.ad, izdusum(oyuncu), oyuncu.partide);
     // Hedef (agro) halkası: oyunun kendi yeşil halka resmi (Misc/target_symbol_plane), seçili canavarın ayağında
     const th = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
@@ -562,7 +571,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+  (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
     efektSayisi: () => efektTanecikleri.length,
@@ -571,17 +580,28 @@ async function basla(): Promise<void> {
      * Giriş sunucusundan geçip karakteri seçer, oyuna girer ve gelen karakter verisini (seviye, statlar, can/mana, altın, eşyalar, konum) oyuncuya uygular.
      */
     sunucuyaBaglan: async (hesap: string, sifre: string, kopru?: string, karakter?: string) => {
-      sunucuOturumu?.kapat();
+      sunucuDunyasi?.tumunuKaldir(); sunucuOturumu?.kapat(); hareketGonderici = null;
       const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter);
       sunucuOturumu = s;
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
       hud.mesaj(`Connected to ${s.sunucuAdi} as ${s.benim.ad} (Lv ${s.benim.seviye}).`, 'sistem');
       if (s.karsilama) hud.mesaj(s.karsilama, 'sistem');
+      // Canlı dünya: yerel (tek oyunculu) canavarlar kaldırılır; canavarlar artık sunucudan gelir.
+      yonetici = null;
+      for (const c of canavarlar) { sahne.remove(c.grup); hud.etiketKaldir(c); }
+      canavarlar.length = 0; oyuncu.hedef = null; oyuncu.saldiriyor = false;
+      sunucuDunyasi = new SunucuDunyasi(sahne, canavarlar, digerOyuncular, hud, s.benim.soketNo);
+      const dunya = sunucuDunyasi;
+      s.akisaGec((p) => dunya.paketIsle(p));
+      // Hareketi sunucuya bildir (savaşçı/büyücü/rahip sınıflarında sunucu hız sınırı 6,7 m/sn, diğerlerinde 4,5).
+      hareketGonderici = new HareketGonderici((govde) => s.gonder(WIZ.HAREKET, govde), [1, 5, 6].includes(oyuncu.sinif % 100) ? 67 : 45);
       if (ozet.esyaEslesmeyen.length) hud.mesaj(`${ozet.esyaEslesmeyen.length} item(s) are not in the client item list yet.`, 'sistem');
       return { ad: s.benim.ad, seviye: s.benim.seviye, altin: s.benim.altin, can: s.benim.can, bolge: s.bolge, ...ozet };
     },
-    sunucudanAyril: () => { sunucuOturumu?.kapat(); sunucuOturumu = null; } };
+    sunucudanAyril: () => { hareketGonderici = null; sunucuDunyasi?.tumunuKaldir(); sunucuDunyasi = null; sunucuOturumu?.kapat(); sunucuOturumu = null; },
+    /** Hata ayıklama: sunucu dünyasındaki canavar sayısı ve gelen paket sayaçları. */
+    sunucuDurumu: () => sunucuDunyasi ? { canavar: sunucuDunyasi.canavarlar.size, oyuncu: sunucuDunyasi.oyuncular.size, sayac: { ...sunucuDunyasi.sayac }, bilinmeyenTurler: [...sunucuDunyasi.bilinmeyenTurler] } : null };
 }
 
 basla().catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

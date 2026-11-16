@@ -63,6 +63,8 @@ export interface BenimBilgim {
   ulus: number; irk: number; sinif: number; yuz: number; sac: number; rutbe: number; unvan: number;
   seviye: number; bosPuan: number; azamiDeneyim: bigint; deneyim: bigint; ulusPuani: number; aylikUlusPuani: number;
   klanNo: number; fame: number;
+  /** Klan üyesiyse klan bilgisi (kaynak: UserInfoSystem.cpp SendMyInfo). */
+  klan: { ittifakNo: number; bayrak: number; ad: string; derece: number; sira: number; isaretSurumu: number; pelerinNo: number } | null;
   azamiCan: number; can: number; azamiMana: number; mana: number; azamiAgirlik: number; agirlik: number;
   /** STR, STA, DEX, INT, CHA: temel değer + eşya bonusu. */
   statlar: Record<'str' | 'sta' | 'dex' | 'int' | 'cha', { deger: number; bonus: number }>;
@@ -79,7 +81,7 @@ export interface BenimBilgim {
   kalan: number;
 }
 
-/** `WIZ_MYINFO (0x0E)`. Klan üyesi karakterler için klan bloğu henüz desteklenmiyor (kaynak çözümü var, gerçek veriyle doğrulanmadı). */
+/** `WIZ_MYINFO (0x0E)`. */
 export function benimBilgim(govde: Uint8Array): BenimBilgim {
   const o = new PaketOkuyucu(govde);
   const soketNo = o.u16();
@@ -89,8 +91,12 @@ export function benimBilgim(govde: Uint8Array): BenimBilgim {
   o.u8(); o.u8();
   const seviye = o.u8(), bosPuan = o.i16(), azamiDeneyim = o.u64(), deneyim = o.u64(), ulusPuani = o.u32(), aylikUlusPuani = o.u32();
   const klanNo = o.u16(), fame = o.u8();
-  if (klanNo > 0 && klanNo !== 0xffff) throw new Error('Klan üyesi karakterin WIZ_MYINFO klan bloğu henüz desteklenmiyor');
-  o.u64(); o.u16(); o.u32(); // klan yoksa: ittifak(8) + kral pelerini(2, -1) + 4 sıfır
+  let klan: BenimBilgim['klan'] = null;
+  if (klanNo > 0 && klanNo !== 0xffff) {
+    const ittifakNo = o.u16(), bayrak = o.u8(), ad = o.yazi(false), derece = o.u8(), sira = o.u8(), isaretSurumu = o.u16(), pelerinNo = o.u16();
+    o.ham(4); // pelerin rengi R,G,B + bayrak (ya da u32 0): kaynakta hangi dalda olursa olsun 6 bayt
+    klan = { ittifakNo, bayrak, ad, derece, sira, isaretSurumu, pelerinNo };
+  } else { o.u64(); o.u16(); o.u32(); } // klan yoksa: 8 sıfır + kral pelerini (-1) + 4 sıfır
   o.ham(4); // 2,3,4,5 (kaynakta "unknown")
   const azamiCan = o.i16(), can = o.i16(), azamiMana = o.i16(), mana = o.i16(), azamiAgirlik = o.u32(), agirlik = o.u32();
   const st = () => ({ deger: o.u8(), bonus: o.u8() });
@@ -112,7 +118,7 @@ export function benimBilgim(govde: Uint8Array): BenimBilgim {
   const muhurluDeneyim = o.u64(), kapakUnvan = o.u16(), skillUnvan = o.u16();
   o.u32(); o.u32(); o.u8(); // ReturnSymbolisOK(u32) + uint32(0) + uint8(0)
   return {
-    soketNo, ad, x, z, y, ulus, irk, sinif, yuz, sac, rutbe, unvan, seviye, bosPuan, azamiDeneyim, deneyim, ulusPuani, aylikUlusPuani, klanNo, fame,
+    soketNo, ad, x, z, y, ulus, irk, sinif, yuz, sac, rutbe, unvan, seviye, bosPuan, azamiDeneyim, deneyim, ulusPuani, aylikUlusPuani, klanNo, fame, klan,
     azamiCan, can, azamiMana, mana, azamiAgirlik, agirlik, statlar, toplamVurus, toplamSavunma, direnc, altin, yetki, klanSirasi, kisiselSira, skillPuanlari,
     envanter, hesapDurumu, premium, kullanilanPremium, yeniBaslayan, adabPuani, askeriKamp, cinSaati, yenidenDogus, yenidenDogusStat, muhurluDeneyim, kapakUnvan, skillUnvan,
     kalan: o.kalan,
@@ -129,4 +135,132 @@ export function oyunSaati(govde: Uint8Array): { yil: number; ay: number; gun: nu
 /** `WIZ_WEATHER (0x14)`: `u8 tür, u16 miktar` (1 güneşli/açık, 2 yağmur, 3 kar — kaynakta doğrulanacak). */
 export function oyunHavasi(govde: Uint8Array): { tur: number; miktar: number } {
   const o = new PaketOkuyucu(govde); return { tur: o.u8(), miktar: o.u16() };
+}
+
+// ---------- NPC / canavar ----------
+export interface NpcBilgisi {
+  /** Sunucudaki dünya numarası (paket içindeki NPC kimliği; hareket ve çıkış paketleri bununla anılır). */
+  id: number;
+  /** K_NPC/K_MONSTER prototip numarası (`sSid`). */
+  protoNo: number;
+  /** 1 = canavar, 2 = NPC. */
+  tur: number;
+  /** Model/resim numarası (istemcideki NPC_Looks numarası). */
+  resimNo: number;
+  satisGrubu: number;
+  /** NPC tipi (K_NPC.byType). */
+  tip: number;
+  boyut: number;
+  silah1: number; silah2: number;
+  ulus: number; seviye: number;
+  x: number; z: number; y: number;
+  kapiAcik: number; nesneTuru: number;
+  /** Bakış yönü (derece). */
+  yon: number;
+}
+
+/** Bir NPC kaydını okur (kimlik `id` dışarıda okunur). `WIZ_REQ_NPCIN` ve `WIZ_NPC_INOUT` aynı biçimi kullanır. */
+function npcBilgisiOku(o: PaketOkuyucu, id: number): NpcBilgisi {
+  const protoNo = o.u16(), tur = o.u8(), resimNo = o.u16(), satisGrubu = o.u32(), tip = o.u8();
+  if (tip === 15) throw new Error('Kışla/kale NPC kaydı (tip 15) henüz desteklenmiyor');
+  o.u32();
+  const boyut = o.u16(), silah1 = o.u32(), silah2 = o.u32(), ulus = o.u8(), seviye = o.u8();
+  const x = konumCoz(o.u16()), z = konumCoz(o.u16()), y = konumCoz(o.u16());
+  const kapiAcik = o.u32(), nesneTuru = o.u8();
+  o.u16(); o.u16();
+  const yon = o.i16();
+  return { id, protoNo, tur, resimNo, satisGrubu, tip, boyut, silah1, silah2, ulus, seviye, x, z, y, kapiAcik, nesneTuru, yon };
+}
+
+/** `WIZ_REQ_NPCIN (0x1D)`: `u16 adet`, her NPC için `u16 id` + kayıt. Bölge değiştikçe sunucu yenisini yollar. */
+export function npcListesi(govde: Uint8Array): { npcler: NpcBilgisi[]; kalan: number } {
+  const o = new PaketOkuyucu(govde);
+  const adet = o.u16();
+  const npcler: NpcBilgisi[] = [];
+  for (let i = 0; i < adet; i++) { const id = o.u16(); npcler.push(npcBilgisiOku(o, id)); }
+  return { npcler, kalan: o.kalan };
+}
+
+export const GIRIS_CIKIS = { GIRIS: 1, CIKIS: 2, YENIDEN_DOGUS: 3 } as const;
+
+/** `WIZ_NPC_INOUT (0x0A)`: `u8 tür (1 giriş, 2 çıkış, 3 yeniden doğuş), u16 id`, çıkış değilse NPC kaydı. */
+export function npcGirisCikis(govde: Uint8Array): { tur: number; id: number; npc: NpcBilgisi | null; kalan: number } {
+  const o = new PaketOkuyucu(govde);
+  const tur = o.u8(), id = o.u16();
+  const npc = tur === GIRIS_CIKIS.CIKIS ? null : npcBilgisiOku(o, id);
+  return { tur, id, npc, kalan: o.kalan };
+}
+
+/** `WIZ_NPC_MOVE (0x0B)`: `u8 1, u16 id, konum x/z/y (×10), u16 hız (×10, m/sn)`. Konum, canavarın VARACAĞI yerdir. */
+export function npcHareket(govde: Uint8Array): { id: number; x: number; z: number; y: number; hiz: number; kalan: number } {
+  const o = new PaketOkuyucu(govde);
+  o.u8();
+  const id = o.u16(), x = konumCoz(o.u16()), z = konumCoz(o.u16()), y = konumCoz(o.u16()), hiz = o.u16() / 10;
+  return { id, x, z, y, hiz, kalan: o.kalan };
+}
+
+// ---------- diğer oyuncular ----------
+/** Başkasının görünümünde taşınan 15 yuva (sunucudaki sıra: gövde, bacak, kask, eldiven, ayak, omuz, sağ el, sol el, kanat, kostüm kask/sol/sağ/üst, peri, dövme). */
+export const GORUNEN_YUVALAR = ['govde', 'bacak', 'kask', 'eldiven', 'ayak', 'omuz', 'sagEl', 'solEl', 'kanat', 'kostumKask', 'kostumSol', 'kostumSag', 'kostumUst', 'peri', 'dovme'] as const;
+
+export interface KullaniciBilgisi {
+  /** Sunucudaki soket numarası (diğer paketler bununla anar). */
+  id: number; ad: string; ulus: number; klanNo: number; fame: number;
+  klan: { ittifakNo: number; ad: string; derece: number; sira: number; isaretSurumu: number; pelerinNo: number; bayrak: number } | null;
+  seviye: number; irk: number; sinif: number; x: number; z: number; y: number; yuz: number; sac: number;
+  /** Can durumu (0 canlı…), anormal durum bayrakları, yetki (0 = GM), yön (derece), rütbe. */
+  canDurumu: number; anormalDurum: number; yetki: number; yon: number; rutbe: number;
+  /** Görünen eşyalar (boş yuva: `no === 0`). */
+  esyalar: Record<(typeof GORUNEN_YUVALAR)[number], { no: number; dayaniklilik: number; bayrak: number }>;
+  bolge: number;
+}
+
+/** Bir oyuncu kaydını okur (kimlik dışarıda okunur): `WIZ_REQ_USERIN`, `WIZ_USER_INOUT` aynı biçimi kullanır (kaynak: GetUserInfo). */
+function kullaniciBilgisiOku(o: PaketOkuyucu, id: number): KullaniciBilgisi {
+  const ad = o.yazi(false); // bu kayıtta yazılar tek baytlık uzunlukla
+  const ulus = o.u8(); o.u8(); o.u8();
+  const klanNo = o.u16(), fame = o.u8();
+  let klan: KullaniciBilgisi['klan'] = null;
+  if (klanNo > 0 && klanNo !== 0xffff) {
+    const ittifakNo = o.u16(), klanAdi = o.yazi(false), derece = o.u8(), sira = o.u8(), isaretSurumu = o.u16();
+    if (ittifakNo !== 0) throw new Error('İttifaklı klan üyesinin görünümü henüz desteklenmiyor');
+    const pelerinNo = o.u16(); o.ham(3); o.u8(); // pelerin rengi R,G,B + 0
+    const bayrak = o.u8();
+    klan = { ittifakNo, ad: klanAdi, derece, sira, isaretSurumu, pelerinNo, bayrak };
+  } else { o.u32(); o.u16(); o.u8(); o.u16(); o.u32(); o.u8(); } // klansız: 14 bayt (… pelerin -1 …)
+  const seviye = o.u8(), irk = o.u8(), sinif = o.u16();
+  const x = konumCoz(o.u16()), z = konumCoz(o.u16()), y = konumCoz(o.u16());
+  const yuz = o.u8(), sac = o.u32(), canDurumu = o.u8(), anormalDurum = o.u32();
+  o.u8(); const yetki = o.u8(); o.u8(); o.u8(); o.u8(); o.u8(); o.u8(); // aranan parti, yetki, parti lideri, görünmezlik, takım rengi, kask/kostüm gizli
+  const yon = o.i16();
+  o.u8(); o.u8(); o.u8(); // şeytan, kanat gizli, yeni başlayan
+  const rutbe = o.u8(); o.i8(); o.i8();
+  const esyalar = {} as KullaniciBilgisi['esyalar'];
+  for (const yuva of GORUNEN_YUVALAR) esyalar[yuva] = { no: o.u32(), dayaniklilik: o.u16(), bayrak: o.u8() };
+  const bolge = o.u8();
+  o.u8(); o.u8(); o.u32(); o.u8(); o.u8(); o.u8(); o.u8(); o.u8(); o.u16(); o.u32(); o.u32(); o.u16(); // -1,-1, 0, gizli×3, peri, yeniden doğuş, unvan, dönüş sembolü, yüz süresi, yeni alan
+  return { id, ad, ulus, klanNo, fame, klan, seviye, irk, sinif, x, z, y, yuz, sac, canDurumu, anormalDurum, yetki, yon, rutbe, esyalar, bolge };
+}
+
+/** `WIZ_REQ_USERIN (0x16)`: `u16 adet`, her oyuncu için `u8 0, u16 id` + kayıt. Bölgeye girince sunucu bölgedeki herkesi bu paketle yollar. */
+export function kullaniciListesi(govde: Uint8Array): { oyuncular: KullaniciBilgisi[]; kalan: number } {
+  const o = new PaketOkuyucu(govde);
+  const adet = o.u16();
+  const oyuncular: KullaniciBilgisi[] = [];
+  for (let i = 0; i < adet; i++) { o.u8(); const id = o.u16(); oyuncular.push(kullaniciBilgisiOku(o, id)); }
+  return { oyuncular, kalan: o.kalan };
+}
+
+/** `WIZ_USER_INOUT (0x07)`: `u16 tür (1 giriş, 2 çıkış, 3 yeniden doğuş…), u16 id`, çıkış değilse oyuncu kaydı. */
+export function kullaniciGirisCikis(govde: Uint8Array): { tur: number; id: number; oyuncu: KullaniciBilgisi | null; kalan: number } {
+  const o = new PaketOkuyucu(govde);
+  const tur = o.u16(), id = o.u16();
+  const oyuncu = tur === GIRIS_CIKIS.CIKIS ? null : kullaniciBilgisiOku(o, id);
+  return { tur, id, oyuncu, kalan: o.kalan };
+}
+
+/** `WIZ_MOVE (0x06)` (sunucu → client): başka bir oyuncunun hareketi. Varış noktası ve hız; yankı: 1 başladı, 3 sürüyor, 0 durdu. */
+export function kullaniciHareketi(govde: Uint8Array): { id: number; x: number; z: number; y: number; hiz: number; yanki: number; kalan: number } {
+  const o = new PaketOkuyucu(govde);
+  return { id: o.u16(), x: konumCoz(o.u16()), z: konumCoz(o.u16()), y: konumCoz(o.u16()), hiz: o.i16() / 10, yanki: o.u8(), kalan: o.kalan };
 }
