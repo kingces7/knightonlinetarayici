@@ -9,6 +9,9 @@ const KAPAT = /^(btn_?)?(close|cancel|exit|x|no|ok)\d*$|close/i;
 /** Sekme düğmeleri (karakter/görev/dost/klan/unvan çerçevesi): düğme kimliği → açılacak pencere. */
 const SEKME: Record<string, string> = { btn_friends: 're_el_page_friend', btn_clan: 're_el_clan_window', btn_title: 're_title_window', btn_quest: 're_el_page_quest' };
 
+/** Envanter gibi sağ kenardan kayarak açılan pencereler. */
+const SAGDAN = new Set(['re_el_cmdlist']);
+
 export interface GenelBaglam {
   kok: HTMLElement;
   /** Alt çubuğun (görev çubuğu) kapladığı yükseklik: pencereler bunun altına inmez. */
@@ -46,6 +49,7 @@ export class GenelPencereler {
 
   private kur(p: UiPencere): UiPencere {
     p.el.style.display = 'none';
+    if (SAGDAN.has(p.ad)) { p.el.classList.add('kayan', 'kapali'); p.el.style.setProperty('--kay', '150px'); }
     p.surukle();
     p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     // Kapatma düğmeleri: kimliğinden tanınır
@@ -67,9 +71,16 @@ export class GenelPencereler {
       const ol = Math.max(0.35, Math.min(1, (innerWidth - 16) / w, (innerHeight - bos - 8) / h));
       p.olcekAyarla(ol);
       const gw = w * ol, gh = h * ol, kay = (this.sayac++ % 6) * 26;
-      p.el.style.left = `${Math.max(0, Math.min(innerWidth - gw, (innerWidth - gw) / 2 + kay - 60))}px`;
-      p.el.style.top = `${Math.max(0, Math.min(innerHeight - bos - gh, (innerHeight - bos - gh) / 2 + kay - 60))}px`;
-      p.el.style.display = '';
+      if (SAGDAN.has(ad)) { // envanter gibi: sağ kenara yaslı, sağdan kayarak gelir
+        p.el.style.left = `${Math.max(0, innerWidth - gw - 35)}px`;
+        p.el.style.top = `${Math.max(0, Math.min(innerHeight - bos - gh, 70))}px`;
+        p.el.style.display = ''; void p.el.offsetWidth;
+        p.el.classList.remove('kapali');
+      } else {
+        p.el.style.left = `${Math.max(0, Math.min(innerWidth - gw, (innerWidth - gw) / 2 + kay - 60))}px`;
+        p.el.style.top = `${Math.max(0, Math.min(innerHeight - bos - gh, (innerHeight - bos - gh) / 2 + kay - 60))}px`;
+        p.el.style.display = '';
+      }
     }
     p.el.style.zIndex = String(++this.z);
     return true;
@@ -77,7 +88,9 @@ export class GenelPencereler {
 
   kapat(ad: string): void {
     const p = this.acikPencereler.get(ad); if (!p) return;
-    this.acikPencereler.delete(ad); p.el.style.display = 'none';
+    this.acikPencereler.delete(ad);
+    if (SAGDAN.has(ad)) { p.el.classList.add('kapali'); setTimeout(() => { if (!this.acikPencereler.has(ad)) p.el.style.display = 'none'; }, 300); }
+    else p.el.style.display = 'none';
   }
 
   async degistir(ad: string): Promise<void> { if (this.acik(ad)) this.kapat(ad); else await this.ac(ad); }

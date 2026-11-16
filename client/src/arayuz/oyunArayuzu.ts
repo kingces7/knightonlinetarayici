@@ -29,6 +29,8 @@ export interface ArayuzBaglami {
   npcler: () => { ad: string; x: number; y: number }[];
   /** Statü puanı harcandığında oyun kuralları (en çok can/mana vb.) güncellensin. */
   statDegisti: () => void;
+  /** Seçili oyuncuya parti daveti gönder (görev çubuğundaki Party düğmesi). */
+  partiDavet: () => void;
   /** Otur / kalk (görev çubuğu düğmesi ve C tuşu). */
   otur: () => void;
   /** Yürüme ↔ koşma geçişi (görev çubuğu düğmesi ve R tuşu). */
@@ -559,7 +561,7 @@ export class OyunArayuzu {
   private satirKabi(el: HTMLElement | undefined, boyut: number): HTMLElement {
     if (!el) throw new Error('metin alanı yok');
     el.classList.remove('ui-yazi'); el.replaceChildren();
-    Object.assign(el.style, { display: 'block', overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', fontSize: `${boyut}px`, lineHeight: '1.25', color: '#fff', textShadow: '0 1px 2px #000' });
+    Object.assign(el.style, { display: 'block', overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', fontSize: `${boyut}px`, lineHeight: '1.25', color: '#fff', textShadow: '0 1px 2px #000', overflowWrap: 'anywhere', boxSizing: 'border-box', paddingRight: '4px' });
     el.classList.add('ui-gunluk');
     return el;
   }
@@ -625,12 +627,15 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- görev çubuğu
   private gorevKur(): void {
     const g = this.gorev;
-    g.gizleDesen(/^(base_menu|base_TaskBar|btn_option[12]|btn_uishow|btn_change|btn_close|btn_disband|btn_trade|btn_rank|img_backboard|btn_seed|btn_powerup|btn_question|btn_menu)/);
+    g.gizleDesen(/^(base_menu|base_TaskBar|btn_option[12]|btn_uishow|btn_change|btn_close|btn_disband|btn_rank|img_backboard|btn_seed|btn_powerup|btn_question|btn_menu)/);
     g.tikla.set('btn_inventory', () => this.degistir('envanter'));
     g.tikla.set('btn_character', () => this.degistir('durum'));
     g.tikla.set('btn_skill', () => this.degistir('beceri'));
     g.tikla.set('btn_camera', () => this.b.kamera.arkayaDon());
     for (const [id, pencere] of Object.entries(GOREV_PENCERELERI)) g.tikla.set(id, () => { void this.genel.degistir(pencere); });
+    // Invite'ın solundaki Trade düğmesi Party olur: seçili oyuncuya parti daveti yollar (alış-veriş ayrı bir iş).
+    for (const el of g.bul('btn_trade')) for (const s of el.querySelectorAll('span')) if (s.textContent === 'Trade') s.textContent = 'Party';
+    g.tikla.set('btn_trade', () => this.b.partiDavet());
     // Her çift aynı yerde durur; durumun simgesi gösterilir (guncelle → simgeleriUygula).
     for (const id of ['btn_stand', 'btn_sit']) g.tikla.set(id, () => this.b.otur());
     for (const id of ['btn_run', 'btn_walk']) g.tikla.set(id, () => this.b.yuruKos());

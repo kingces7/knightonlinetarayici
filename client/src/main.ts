@@ -20,6 +20,7 @@ import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
+import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
@@ -89,6 +90,16 @@ async function basla(): Promise<void> {
   const oyuncu = new Oyuncu();
   let sunucuOturumu: SunucuOturumu | null = null;
   let sunucuDunyasi: SunucuDunyasi | null = null;
+  let secilenOyuncu: DigerOyuncu | null = null; // tıklanarak seçilen diğer oyuncu (parti daveti için)
+  let partidayiz = false; // davet gönderdiysek parti kurulmuştur (sonraki davetler PARTY_INSERT)
+  const partiDavetEt = () => {
+    if (!sunucuOturumu) { hud.mesaj('Party invitations need a server connection.', 'sistem'); return; }
+    if (secilenOyuncu && !digerOyuncular.includes(secilenOyuncu)) secilenOyuncu = null; // ayrılmış oyuncu
+    if (!secilenOyuncu) { hud.mesaj('Click a player first, then press Party.', 'sistem'); return; }
+    sunucuOturumu.gonder(WIZ.PARTI, partiDavetiIstegi(secilenOyuncu.ad, partidayiz));
+    hud.mesaj(`You invited ${secilenOyuncu.ad} to a party.`, 'sistem');
+    partidayiz = true;
+  };
   let sonIstenenHedef: Canavar | null = null; // sunucudan can bilgisi istenen son hedef
   let hareketGonderici: HareketGonderici | null = null; // sunucu bağlıyken oyuncu hareketini bildirir
   oyuncu.kurallariUygula();
@@ -211,7 +222,7 @@ async function basla(): Promise<void> {
       },
       ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
-      otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
+      partiDavet: () => partiDavetEt(), otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -365,8 +376,15 @@ async function basla(): Promise<void> {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       return;
     }
+    const oyuncuVurus = isin.intersectObjects(digerOyuncular.map((d) => d.secimKutusu))[0];
+    if (oyuncuVurus) {
+      secilenOyuncu = digerOyuncular.find((d) => d.secimKutusu === oyuncuVurus.object) ?? null;
+      if (secilenOyuncu) hud.mesaj(`Selected player: ${secilenOyuncu.ad} (Lv ${secilenOyuncu.seviye}).`, 'sistem');
+      oyuncu.hedef = null; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
+      return;
+    }
     const zemin = isin.intersectObject(arazi.mesh)[0];
-    if (zemin) { oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; }
+    if (zemin) { secilenOyuncu = null; oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; }
   });
   // Sol tuş basılı tutulup sürüklenince karakter imlecin gösterdiği yöne yürür (her karede yeniden hedeflenir) ve oraya döner
   addEventListener('pointermove', (e) => { if (sol.basili) { sol.x = e.clientX; sol.y = e.clientY; } });
@@ -624,6 +642,15 @@ async function basla(): Promise<void> {
           if (oyuncu.olu) { oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.model?.oynatRastgele('olum', 3, false, 0.1); } else oyuncu.model?.oynatRastgele('darbe', 3, false, 0.05);
         },
         seviyeAtlandi: () => envanterYenile(),
+        parti: (p) => {
+          if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
+          else if (p.tur === 'davet') {
+            // Biri bizi partiye çağırıyor: kabul/ret sunucuya bildirilir
+            const kabul = confirm(`${p.ad} invites you to a party. Accept?`);
+            sunucuOturumu?.gonder(WIZ.PARTI, partiDavetCevabi(kabul));
+            hud.mesaj(kabul ? `You accepted ${p.ad}'s party invitation.` : 'You declined the party invitation.', 'sistem');
+          }
+        },
         yenidenDogdu: (x, z) => { oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.buflar = []; kalk(); oyuncu.model?.oynat('bekle'); hud.mesaj('You have been revived.', 'sistem'); },
       });
       const dunya = sunucuDunyasi;

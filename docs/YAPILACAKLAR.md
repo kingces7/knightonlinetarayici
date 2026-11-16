@@ -261,3 +261,6 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Sol+sağ tuş birlikte: karakter baktığı yönde düz ilerler (A/D ile çevrilir); çubuktan dışarı sürüklenen skill atılır.
 - [x] Skill penceresindeki P kutuları kaldırıldı. Canavar: doğduğu yere dönüş ve 200 m sınırı. Yığınlanan eşyalar (adet, ok 20, satış). Kamera açısı PageUp/PageDown. Mini harita (oyunun kendi resmi, oyuncu noktası, yakınlaştırma).
 - [ ] Skill efektleri (.fxb): çözülemedi, bulgular `formatlar/fxb.md`. Mini harita: NPC listesi/ışınlanma işaretleri yok. Boş kalan pencereler (parti, dost listesi sunucusu, klan, görev…) sunucu ile gelecek.
+
+- [ ] **Parti sistemi (devam):** Party düğmesi ve davet gönderme/alma yapıldı (`kopru/protokol/parti.ts`), ama canlı sunucuda iki oyuncuyla denenmedi. Eksikler: parti üye listesi/can çubukları (PARTY_INSERT üye paketi), partiden çıkma/dağıtma, lider devri; gelen davet şimdilik tarayıcı onay kutusuyla soruluyor (özel pencere yapılabilir). Alış-veriş (Trade) düğmesi Party'ye dönüştüğü için yok.
+- [ ] **Bilgi penceresi taşması:** Kullanıcı yazıların taştığını bildirdi; geliştirme ortamında yeniden üretilemedi (1280×800 ve 1920×1080'de yazı pencerede kırpılıyor, köşeden büyütünce açılıyor). Uzun sözcükler artık satır kırıyor. Sürerse kullanıcıdan ekran görüntüsü iste.

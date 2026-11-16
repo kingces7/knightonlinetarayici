@@ -13,6 +13,7 @@ import {
   type KullaniciBilgisi, type NpcBilgisi,
 } from '../../../kopru/protokol/paketler.ts';
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
+import { partiPaketi, type PartiPaketi } from '../../../kopru/protokol/parti.ts';
 import {
   SALDIRI_SONUCU, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
 } from '../../../kopru/protokol/savas.ts';
@@ -25,6 +26,8 @@ export interface SavasKancalari {
   oyuncuVuruldu?: (hasar: number) => void;
   seviyeAtlandi?: () => void;
   yenidenDogdu?: (x: number, z: number) => void;
+  /** Sunucudan parti paketi geldi (davet, hata…). */
+  parti?: (p: PartiPaketi) => void;
 }
 
 /** Bu uzaklıktan (m) fazla geride kalan varlık varış noktasına ışınlanır (sekme/bağlantı gecikmesi). */
@@ -72,6 +75,7 @@ export class SunucuDunyasi {
         break;
       }
       case WIZ.HAREKET: { this.sayac.oyuncuHareket++; const h = kullaniciHareketi(p.govde); this.oyuncuHareketi(h.id, h.x, h.z, h.hiz, h.yanki); break; }
+      case WIZ.PARTI: this.kancalar.parti?.(partiPaketi(p.govde)); break;
       case WIZ.SALDIRI: this.saldiri(saldiriSonucu(p.govde)); break;
       case WIZ.HEDEF_CAN: this.hedefCan(hedefCan(p.govde)); break;
       case WIZ.CAN_DEGISTI: this.canDegisti(canDegisti(p.govde)); break;
