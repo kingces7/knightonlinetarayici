@@ -39,9 +39,9 @@ tek bayt uzunluk (varsayılan, "SByte") ya da 2 bayt uzunluk ("DByte", bazı pak
 1. `LS_VERSION_REQ (0x01)` → cevap: `int16 en son sürüm` (DB `VERSION` tablosu; bizde 1299).
 2. `LS_DOWNLOADINFO_REQ (0x02)` (`uint16 istemci sürümü`) → cevap: `ftp adresi, ftp yolu (yazı), uint16 indirilecek yama sayısı, yama adları…`. Tarayıcı client'ında yama yok → sayı 0 gelmeli (ya da hiç sorulmaz).
 3. `LS_CRYPTION (0xF2)` → cevap: `uint64 açık anahtar` (düz metin), sonrası şifreli.
-4. `LS_LOGIN_REQ (0xF3)`: gönderilen `hesap (yazı), şifre (yazı)` → cevap: `uint16 0, uint8 sonuç[, hesap tipi/premium (u8), hesap adı]`.
+4. `LS_LOGIN_REQ (0xF3)`: gönderilen `hesap (yazı), şifre (yazı)` → cevap: `uint16 0, uint8 sonuç[, int16 premium (saat; -1 yok), hesap adı (yazı)]` (başarılıysa köşeli kısım gelir).
    Sonuç kodları: 1 başarılı, 2 hesap yok, 3 şifre yanlış, 4 yasaklı, 5 oyunda (cevap ek olarak IP, `uint16 15001`, hesap adı), 6 hata, 0x0F sözleşme, 0x10 OTP, 0xFF başarısız.
-5. `LS_SERVERLIST (0xF5)` (`uint16 yankı`) → cevap: `yankı, uint8 sunucu sayısı`, her sunucu için: `lan ip, sunucu ip, sunucu adı (yazılar), int16 oyuncu sayısı (dolu ise -1), sunucu no, grup no, oyuncu üst sınırı, ücretsiz üst sınır (hepsi int16/…; tam tipler kaynakta), uint8 0, ekran tipi (yazı), Karus kral adı, Karus duyurusu, El Morad kral adı, El Morad duyurusu`.
+5. `LS_SERVERLIST (0xF5)` (`uint16 yankı`) → cevap: `yankı, uint8 sunucu sayısı`, her sunucu için: `lan ip, sunucu ip, sunucu adı (yazılar), int16 oyuncu sayısı (üst sınırı aşarsa -1), int16 sunucu no, int16 grup no, int16 oyuncu üst sınırı, int16 ücretsiz üst sınır, uint8 0, uint8 ekran tipi, Karus kral adı, Karus duyurusu, El Morad kral adı, El Morad duyurusu` (son dört yazı).
 6. `LS_NEWS (0xF6)` → cevap: `"Login Notice", uint16 boyut, içerik` ya da `"Login Notice", "<empty>"`.
 7. Diğerleri: `LS_KOREAKOLAUNCHER_PING (0x03)` (boş cevap), `LS_OTP (0xFA)`, `LS_OTP_SYNC (0xFD)`, `0xF7` (cevap `uint16 0`) — tek oyunculu/küçük sürümde gerekmeyebilir.
 
@@ -82,7 +82,9 @@ Myko'nun oyun sunucusu, kendi client'ındaki hile koruma bileşeniyle (`lilith.a
 3. `LS_SERVERLIST` alanlarının tam tipleri ve `WIZ_MYINFO` envanter sonrası kuyruğu (kaynaktan tam okunup test edilecek).
 4. Hangi sunucuyu kullanacağız: Myko sunucu kaynağı (derlemek gerekir, Visual Studio yok) mı, yoksa elimizdeki çalışır `.exe`'ler mi (kaynak yok, ama hazır)? Protokol ikisinde de büyük ölçüde aynı; fark: oyun sunucusu sürüm cevabında anahtar verip vermemesi.
 
-## 10. Sonraki adımlar (öneri)
-1. `kopru/`: WebSocket ↔ TCP köprüsü (Node.js), çerçeve ayrıştırıcı + `JvCryption` (TypeScript, testli; CRC32 + sıra no dahil).
-2. Login server'a bağlan: sürüm, giriş, sunucu listesi (yerel sunucuyla deneme).
-3. Oyun sunucusuna bağlan: sürüm → giriş → karakter listesi → karakter seç → `GAMESTART`; ardından `WIZ_MYINFO`'yu ayrıştırıp mevcut tek oyunculu oyuna bağla.
+## 10. Uygulama durumu (`kopru/`)
+- ✅ `kopru/protokol/` (tarayıcıda ve Node'da çalışır, Node'a özgü şey kullanmaz): `crc32.ts`, `jvSifre.ts` (elle hesaplanmış vektörlerle test edildi), `ikili.ts` (okuyucu/yazıcı), `kanal.ts` (çerçeve + şifreli/düz kanal), `opcode.ts`.
+- ✅ `kopru/src/kopru.ts`: WebSocket ↔ TCP köprüsü; baytları anlamadan taşır. Güvenlik: hedefler yalnızca ayardaki yollara (`/giris` → 15100, `/oyun` → 15001) bağlı; yalnızca `127.0.0.1`'de dinler; `Origin` yalnızca yerel adreslerden kabul. Çalıştırma: `cd kopru && npm run baslat`.
+- ✅ Testler (`npm test`, 16 adet): protokol birimleri + köprü + köprü üzerinden sahte login server ile uçtan uca. Sahte sunucu C++ koduna göre ayrıca yazıldı (kanal.ts'i kullanmıyor).
+- ⬜ Gerçek bir sunucuyla deneme (hazır `.exe` sunucu + veritabanı kurulumu gerekir; bkz. YAPILACAKLAR).
+- ⬜ Sonra: oyun sunucusu akışı (sürüm → giriş → karakter listesi → karakter seç → `GAMESTART`), `WIZ_MYINFO` ayrıştırıcı, mevcut tek oyunculu oyuna bağlama.

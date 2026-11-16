@@ -1,0 +1,22 @@
+{
+  "name": "knightempire-kopru",
+  "private": true,
+  "description": "KnightEmpire: tarayıcı (WebSocket) ile oyun/giriş sunucusu (TCP) arasındaki köprü + paket protokolü kütüphanesi",
+  "type": "module",
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "baslat": "node src/baslat.ts",
+    "test": "node --test",
+    "kontrol": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.9.3"
+  }
+}

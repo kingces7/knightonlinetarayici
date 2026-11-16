@@ -173,8 +173,10 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Aşama 3 — İlk görüntü: tarayıcıda harita + yürüyen karakter + kamera (+ tek oyunculu av modu)
 - [ ] Aşama 4 — Sunucu bağlantısı: WebSocket köprüsü, şifreleme, login, karakter seçimi
   - [x] Protokol incelemesi (kaynaktan): `docs/protokol.md` (çerçeve, JvCryption, login ve oyun sunucusu akışı, XSafe notu)
-  - [ ] Hangi sunucuyla test edilecek karar: çalışır `.exe` sunucu (Knight All in one) + JPKO yedeği ya da Myko kaynağını derlemek
-  - [ ] Köprü (`kopru/`): çerçeve ayrıştırıcı + JvCryption (testli), login server akışı, sonra oyun sunucusu
+  - [x] Karar: önce hazır `.exe` sunucuyla (Knight All in one + JPKO yedeği) denenecek, sonra Myko'ya geçilecek
+  - [x] Köprü (`kopru/`): çerçeve + JvCryption + WebSocket↔TCP köprüsü, 16 test (sahte login server ile uçtan uca)
+  - [ ] Gerçek sunucu denemesi (kullanıcı onayı gerek): SQL'e `KN_online` veritabanını geri yükleme, ODBC kaydı (HKLM), 3. taraf `.exe`'leri çalıştırma
+  - [ ] Login server akışını gerçek sunucuyla doğrula; oyun sunucusu akışı (sürüm→giriş→karakter→GAMESTART); `WIZ_MYINFO` ayrıştırıcı
   - [ ] Client'ın gerçek paket sırasını bir bağlantı kaydıyla doğrula (protokol.md "Doğrulanacaklar")
 - [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler
 
