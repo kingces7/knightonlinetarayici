@@ -18,6 +18,7 @@ export class Okuyucu {
     const s = this.b.toString('latin1', this.o, this.o + n); this.o += n; return s;
   }
   atla(n: number): void { this.o += n; }
+  al(n: number): Buffer { const v = this.b.subarray(this.o, this.o + n); this.o += n; return v; }
 }
 
 // ---------------- .n3pmesh ----------------
@@ -73,7 +74,7 @@ export function pmeshOku(b: Buffer): Mesh {
 }
 
 // ---------------- .n3shape ----------------
-export interface ShapeParca { pivot: [number, number, number]; mesh: string; dokular: string[]; /** Animasyonlu doku hızı (kare/sn); 0 = sabit. */ fps: number }
+export interface ShapeParca { pivot: [number, number, number]; mesh: string; dokular: string[]; /** Animasyonlu doku hızı (kare/sn); 0 = sabit. */ fps: number; /** Ham malzeme bloğu: D3DMATERIAL9 (68 bayt) + 24 bayt ayar (ham, çözülmedi) */ malzeme?: Buffer }
 export interface Shape {
   ad: string;
   konum: [number, number, number];
@@ -102,12 +103,12 @@ export function shapeOkuR(r: Okuyucu, kuyruk = true): Shape {
   for (let p = 0; p < pc; p++) {
     const pivot = r.v3();
     const mesh = r.str();
-    r.atla(68 + 24); // D3DMATERIAL9 + renk/karışım ayarları
+    const malzeme = r.al(68 + 24); // D3DMATERIAL9 + renk/karışım ayarları
     const tc = r.i32(); const fps = r.f32();
     if (tc < 0 || tc > 1024) throw new Error(`doku sayısı geçersiz ${tc}`);
     const dokular: string[] = [];
     for (let t = 0; t < tc; t++) dokular.push(r.str());
-    parcalar.push({ pivot, mesh, dokular, fps });
+    parcalar.push({ pivot, mesh, dokular, fps, malzeme });
   }
   if (kuyruk) r.atla(20); // belong, eventID, eventType, npcID, npcStatus
   return { ad, konum, donus, olcek, parcalar };

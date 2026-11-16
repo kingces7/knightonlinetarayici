@@ -21,6 +21,8 @@ export interface Arazi {
   yon1: Uint8Array;
   yon2: Uint8Array;
   karolar: { kaynak: string; sira: number }[];
+  /** Okunan son bayt konumu (kalan bayt = dosya uzunluğu − bitis) */
+  bitis?: number;
 }
 
 const MAX_PATH = 260;
@@ -66,7 +68,7 @@ export function gtdOku(dosya: Buffer): Arazi {
     karolar.push({ kaynak: kaynaklar[dosya.readInt16LE(o)], sira: dosya.readInt16LE(o + 2) });
     o += 4;
   }
-  return { ad, boyut: n, birim: 4, yukseklik, doku1, doku2, yon1, yon2, karolar };
+  return { ad, boyut: n, birim: 4, yukseklik, doku1, doku2, yon1, yon2, karolar, bitis: o };
 }
 
 /** Birden fazla doku içeren dosyada (ör. .gtt) sıra'ıncı dokunun başlangıcı. */

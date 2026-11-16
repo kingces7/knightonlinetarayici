@@ -165,3 +165,12 @@ metin ad, int32 tür (0), int32 eklem (iskelet ön-sıra numarası; 12 = sağ el
 4×4 matris (satır vektör: ilk 3 satır yönelim), malzeme renkleri…, metin .n3pmesh yolu, metin .dxt yolu, …
 ```
 Eşya → dosya: eşya tablosu (`Item_Org_us.tbl`) sütun 7 (8 hane) → `item/A_BBBB_CC_D.n3cplug`. Okuyucu: `araclar/oyun/silahlar.ts` (`plugOku`, `matrisDordey`). Doğrulama: Raptor eklem 12'ye takılınca elde doğru duruyor (görsel).
+
+## `.gtd` kuyruğu: su (nehir, kanal, deniz) ✅
+Karo listesinden (`gtdOku().bitis`) sonraki bayt dizisi su yüzeylerini taşır (`araclar/harita/nehir.ts`, test `nehir.test.ts`; `14th_oldmoradon.gtd`: 6 parça).
+Köşe = 44 bayt: `x,y,z, nx,ny,nz, D3DCOLOR(ARGB), u,v, u2,v2` (hizasız dizilir).
+- **Şerit** (nehir/kanal; 136, 160, 132, 64 köşe): iki kıyı arasında zikzak üçgen şeridi; köşelerden sonra `int` (indeks sayısı) ve dalga dokusu adı (`Misc/river/z_nomaldark512_k07.dxt`).
+- **Izgara** (deniz; 225 köşe = 15×15, 2 parça): dalga dokusu adı köşelerden ÖNCE; satırlar 15 köşe, ~56 m aralıklı, haritanın dışına taşar.
+- Köşe alfası: kıyılar 0x30 (şeffaf), orta 0x99/0xFF. İkinci doku koordinatı `Misc/river/caust00..31.dxt` kostik animasyonu içindir (32 kare; kare hızı doğrulanmadı, 16 fps varsayıldı).
+- Doğrulama: köşeler mini haritadaki (Zones/<harita>.dxt) nehir/kanal yataklarının üzerine düşüyor. `moradon` ve `new_runawar` kuyruklarında bu biçim bulunmadı (0 parça): başka biçimde olabilir.
+Önceki "bu haritada su verisi yok" notu yanlıştı; su, N3River kayıtlarıyla `.gtd` içindeydi (`.rvr` dosyası yok).

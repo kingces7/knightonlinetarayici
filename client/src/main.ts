@@ -12,6 +12,7 @@ import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
+import { Su } from './dunya/su';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
@@ -58,6 +59,7 @@ async function basla(): Promise<void> {
   arazi.sisAyarla(SIS, 150, 600);
   sahne.add(arazi.mesh);
   durum('Loading objects…');
+  const su = await Su.yukle(`/harita/${HARITA}/su.json`, sahne); // nehir, kanal, deniz (yoksa su yok)
   void GanimetKutusu.modelYukle();
   const halkaDoku = new THREE.TextureLoader().load('/esya/hedef_halka.png'); halkaDoku.colorSpace = THREE.SRGBColorSpace;
   const halka = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: halkaDoku, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false }));
@@ -528,6 +530,7 @@ async function basla(): Promise<void> {
     oyuncu.sahneyeYerlestir(arazi);
     gokyuzu?.guncelle(kamera.kamera.position);
     nesneAnimasyonunuIlerlet(dokuAnimlari, performance.now() / 1000);
+    su?.guncelle(performance.now() / 1000);
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);

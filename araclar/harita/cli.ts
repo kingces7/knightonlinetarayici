@@ -11,6 +11,7 @@ import { pngKodla } from '../ortak/png.ts';
 import { dokuPng } from '../model/dokuYardim.ts';
 import { gtdOku, dokuKonumu, type Arazi } from './arazi.ts';
 import { nesneleriDisaAktar } from './nesneler.ts';
+import { nehirleriOku, nehirUcgenleri } from './nehir.ts';
 
 const KARO_PX = 128;
 const ATLAS_KOLON = 16;
@@ -200,6 +201,21 @@ function main(argv: string[]): number {
   }, null, 2));
   console.log(`  -> ${hedef}`);
   sunucuVerisiniYaz(harita, hedef);
+  // Su (nehir, kanal, deniz): .gtd kuyruğu + dalga dokusu ve 32 kare kostik (Misc/river/caust00..31) → su.json ve su/*.png
+  {
+    const gtd = od.oku(`Zones/${harita}.gtd`), arz = gtdOku(gtd);
+    const nehirler = nehirleriOku(gtd.subarray(arz.bitis!));
+    if (nehirler.length) {
+      const suKlasor = path.join(hedef, 'su'); fs.mkdirSync(suKlasor, { recursive: true });
+      const dalga = nehirler[0].doku || 'z_nomaldark512_k07.dxt';
+      const yaz = (yol: string, ad: string) => { const p = od.var(yol) ? dokuPng(od, yol, 1024) : null; if (p) fs.writeFileSync(path.join(suKlasor, ad), p.png); return !!p; };
+      yaz(`Misc/river/${dalga}`, 'dalga.png');
+      let kare = 0; for (let i = 0; i < 32; i++) if (yaz(`Misc/river/caust${String(i).padStart(2, '0')}.dxt`, `caust${String(i).padStart(2, '0')}.png`)) kare++;
+      const veri = nehirler.map((r) => ({ tur: r.tur, genislik: r.genislik, ind: nehirUcgenleri(r), k: r.koseler.map((k) => [k.x, k.y, k.z, (k.renk >>> 24) & 255, k.u, k.v, k.u2, k.v2]) }));
+      fs.writeFileSync(path.join(hedef, 'su.json'), JSON.stringify({ dalga: 'su/dalga.png', kostik: kare, nehirler: veri }));
+      console.log(`  su: ${nehirler.length} parça (${nehirler.map((r) => r.koseler.length).join(', ')} köşe), ${kare} kostik karesi`);
+    }
+  }
   // Oyunun kendi mini haritası: Zones/<harita>.dxt (arayüzdeki re_minimap penceresinde gösterilir)
   const mini = od.var(`Zones/${harita}.dxt`) ? dokuPng(od, `Zones/${harita}.dxt`, 4096) : null;
   if (mini) { fs.writeFileSync(path.join(hedef, 'minimap.png'), mini.png); console.log('  minimap.png'); }
