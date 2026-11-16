@@ -23,6 +23,8 @@ export interface ArayuzBaglami {
   mesaj: (m: string) => void;
   /** Yüklü haritanın adı ve kenar uzunluğu (m): mini harita için. */
   haritaBilgi: () => { ad: string; genislik: number };
+  /** Haritadaki dost NPC'ler (mini harita işaretleri ve NPC listesi). */
+  npcler: () => { ad: string; x: number; y: number }[];
   /** Statü puanı harcandığında oyun kuralları (en çok can/mana vb.) güncellensin. */
   statDegisti: () => void;
   /** Otur / kalk (görev çubuğu düğmesi ve C tuşu). */
@@ -135,14 +137,22 @@ export class OyunArayuzu {
     });
     // Mini harita (re_minimap): oyunun kendi mini harita resmi (Zones/<harita>.dxt → harita/<ad>/minimap.png), oyuncu noktası, koordinat ve yakınlaştırma
     this.genel.davranis.set('re_minimap', (p) => {
-      p.gizleDesen(/^(Group_NpcList|Group_Battle|Group_Toggle|Group_Note|Group_WarMap|scroll_Alpah_line|btn_battle_[apn]|Btn_WarMap|btn_paper|Btn_globalmap|btn_NpcListopen|area_note)$/);
+      p.gizleDesen(/^(Group_NpcList|Group_Battle|Group_Toggle|Group_Note|Group_WarMap|scroll_Alpah_line|btn_battle_[apn]|Btn_WarMap|btn_paper|Btn_globalmap|area_note)$/);
       const hb = this.b.haritaBilgi();
       p.metin('str_zoneid', 'Moradon:');
       const kap = p.alan('Img_MiniMap'); if (!kap) return;
       const kutu = document.createElement('div'); Object.assign(kutu.style, { position: 'absolute', inset: '0', overflow: 'hidden', background: '#000' });
       const harita = document.createElement('div'); Object.assign(harita.style, { position: 'absolute', backgroundImage: `url(/harita/${hb.ad}/minimap.png)`, backgroundSize: '100% 100%' });
       const nokta = document.createElement('div'); Object.assign(nokta.style, { position: 'absolute', width: '9px', height: '9px', marginLeft: '-5px', marginTop: '-5px', borderRadius: '50%', background: '#ffe84a', border: '1px solid #000', boxShadow: '0 0 4px #fff', zIndex: '2' });
-      kutu.append(harita, nokta); kap.appendChild(kutu);
+      kutu.append(harita); kap.appendChild(kutu);
+      // NPC işaretleri (camgöbeği) ve NPC listesi (btn_NpcListopen ile açılır): ad listesi haritadaki NPC'lerden, tekrarsız
+      const npcler = this.b.npcler();
+      const npcNoktalari = npcler.map(() => { const e = document.createElement('div'); Object.assign(e.style, { position: 'absolute', width: '5px', height: '5px', marginLeft: '-3px', marginTop: '-3px', borderRadius: '50%', background: '#4fe3ff', border: '1px solid #000', zIndex: '1' }); kutu.appendChild(e); return e; });
+      kutu.appendChild(nokta);
+      const adlar = [...new Set(npcler.map((n) => n.ad))];
+      for (let i = 0; i < 12; i++) p.metin(`str_NpcName_${i}`, adlar[i] ?? '');
+      p.tikla.set('btn_NpcListopen', () => p.goster('Group_NpcList', true));
+      p.tikla.set('btn_Listminimize', () => p.gizle('Group_NpcList'));
       let yakin = 1;
       p.tikla.set('Btn_ZoomIn', () => { yakin = Math.min(4, yakin * 2); });
       p.tikla.set('Btn_ZoomOut', () => { yakin = Math.max(1, yakin / 2); });
@@ -152,6 +162,7 @@ export class OyunArayuzu {
         const ox = yakin > 1 ? Math.min(0, Math.max(w - w * yakin, w / 2 - px * w * yakin)) : 0, oy = yakin > 1 ? Math.min(0, Math.max(h - h * yakin, h / 2 - py * h * yakin)) : 0;
         Object.assign(harita.style, { width: `${w * yakin}px`, height: `${h * yakin}px`, left: `${ox}px`, top: `${oy}px` });
         nokta.style.left = `${ox + px * w * yakin}px`; nokta.style.top = `${oy + py * h * yakin}px`;
+        npcler.forEach((n, i) => { const e = npcNoktalari[i]; e.style.left = `${ox + (n.x / hb.genislik) * w * yakin}px`; e.style.top = `${oy + (1 - n.y / hb.genislik) * h * yakin}px`; });
         p.metin('Text_Position', `${Math.round(o.konum.x)} ${Math.round(o.konum.y)}`);
       };
     });
