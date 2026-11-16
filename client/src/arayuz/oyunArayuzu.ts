@@ -6,7 +6,7 @@ import { GenelPencereler } from './genelPencereler';
 import { SerbestPencere } from './serbestPencere';
 import { UiPencere } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
-import type { GanimetKutusu, Oyuncu } from '../oyun/varliklar';
+import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -18,6 +18,8 @@ export interface ArayuzBaglami {
   oyuncu: Oyuncu;
   kamera: TakipKamerasi;
   esyaKusan: (i: number) => void;
+  /** Envanterde sürükle-bırak: kaynak yuvadaki eşyayı hedef yuvaya taşır/yer değiştirir. */
+  esyaTasi: (kaynak: YuvaKonumu, hedef: YuvaKonumu) => void;
   ipucuGoster: (e: EsyaTanimi, ev: MouseEvent) => void;
   ipucuGizle: () => void;
   mesaj: (m: string) => void;
@@ -820,18 +822,24 @@ export class OyunArayuzu {
     const imza = `${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}|${o.ekipman.map((e) => e?.no ?? 0).join(',')}|${o.altin}`;
     if (imza === this.sonEnvanterImza) return;
     this.sonEnvanterImza = imza;
-    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null, tikla?: () => void) => {
+    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null, konum: YuvaKonumu, sagTik?: () => void) => {
       el.style.backgroundImage = e ? `url(${e.simge})` : ''; el.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
       el.onmouseleave = () => this.b.ipucuGizle();
-      el.onclick = tikla ?? null;
+      el.onclick = null;
+      // SAĞ tık: giy / çıkar (mağaza açıkken çanta eşyası satılır). SOL tuşla sürükle-bırak: yuvalar arası taşı / yer değiştir.
+      el.oncontextmenu = (ev) => { ev.preventDefault(); if (sagTik) { this.b.ipucuGizle(); sagTik(); } };
+      el.draggable = !!e;
+      el.ondragstart = e ? (ev) => { ev.dataTransfer?.setData('application/x-ke-esya', JSON.stringify(konum)); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move'; this.b.ipucuGizle(); } : null;
+      el.ondragover = (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-esya')) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } };
+      el.ondrop = (ev) => { const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault(); this.b.esyaTasi(JSON.parse(v) as YuvaKonumu, konum); };
     };
     // Mağaza açıkken çanta eşyasına tıklamak onu NPC'ye satar; değilse kuşanır
-    this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, o.envanter[i] ? () => (this.acik.has('magaza') ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));
+    this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, { tur: 'c', i }, o.envanter[i] ? () => (this.acik.has('magaza') ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));
     for (let yuva = 0; yuva < 15; yuva++) {
       const el = this.ekipman(yuva);
-      if (el) yuvaCiz(el, o.ekipman[yuva], o.ekipman[yuva] ? () => this.b.esyaCikar(yuva) : undefined);
+      if (el) yuvaCiz(el, o.ekipman[yuva], { tur: 'e', i: yuva }, o.ekipman[yuva] ? () => this.b.esyaCikar(yuva) : undefined);
     }
     p.metin('text_gold', o.altin.toLocaleString('en-US'));
     p.metin('text_weight', `${o.envanter.filter(Boolean).length} / 28`);

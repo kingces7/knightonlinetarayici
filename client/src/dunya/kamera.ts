@@ -71,6 +71,8 @@ export class TakipKamerasi {
     fark = Math.atan2(Math.sin(fark), Math.cos(fark));
     this.aci += fark * Math.min(1, 2.5 * dt);
   }
+  /** Kamerayı doğrudan `d` radyan döndürür (sol+sağ tuş basılıyken A/D: karakter kamerayla birlikte döner). */
+  aciEkle(d: number): void { this.aci += d; }
   /** Kameranın yatay bakış yönü. */
   ileriYon(): THREE.Vector2 { return new THREE.Vector2(-Math.sin(this.aci), -Math.cos(this.aci)); }
 

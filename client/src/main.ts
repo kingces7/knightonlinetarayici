@@ -200,7 +200,14 @@ async function basla(): Promise<void> {
   try {
     const a = new OyunArayuzu({
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
-      esyaKusan: (i) => hud.esyaKusan(i), ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
+      esyaKusan: (i) => hud.esyaKusan(i),
+      esyaTasi: (k, h) => {
+        const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i];
+        if (!oyuncu.esyaTasi(k, h)) { if (e) hud.mesaj('You cannot move the item there.', 'sistem'); return; }
+        if (e && h.tur === 'e') hud.mesaj(`You equipped ${e.ad}.`, 'sistem'); else if (e && k.tur === 'e') hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
+        envanterYenile();
+      },
+      ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
       otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
@@ -410,7 +417,10 @@ async function basla(): Promise<void> {
         oyuncu.yuruHedef = null; oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; ikiTus = true;
       } else if (z) { oyuncu.yuruHedef = new THREE.Vector2(z.point.x, -z.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; }
     }
-    const donus = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
+    const donusHam = (tuslar.has('KeyA') ? 1 : 0) - (tuslar.has('KeyD') ? 1 : 0);
+    // Sol + sağ tuş birlikteyken karakter kamerayla BİRLİKTE döner (WoW gibi): A/D kamerayı çevirir, karakter her kare kameranın baktığı yöne bakar.
+    if (ikiTus && donusHam !== 0) kamera.aciEkle(-donusHam * DIREKSIYON_HIZI * dt);
+    const donus = ikiTus ? 0 : donusHam;
     // Orijinal: Home/End basılıyken kamera eğimi saniyede 45° değişir (Home = aşağı bakış)
     const egimTus = (tuslar.has('Home') ? 1 : 0) - (tuslar.has('End') ? 1 : 0);
     if (egimTus !== 0) kamera.egimKaydir(egimTus * 45 * dt);
@@ -429,6 +439,7 @@ async function basla(): Promise<void> {
       oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + Math.cos(h), oyuncu.konum.y + Math.sin(h)));
     }
 
+    if (ikiTus) { const f = kamera.ileriYon(); oyuncu.bak(new THREE.Vector2(oyuncu.konum.x + f.x, oyuncu.konum.y + f.y)); oyuncu.yon = oyuncu.hedefYon; } // fareyle dönüş anında karaktere de yansır
     if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       const h = oyuncu.bakisAcisi;

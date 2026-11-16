@@ -20,6 +20,9 @@ export function acıyaYaklas(a: number, hedef: number, adim: number): number {
 /** Bir basamakta çıkılabilecek en büyük yükseklik (m). */
 const BASAMAK = 0.7;
 
+/** Envanter penceresindeki bir yuva: 'c' = çanta, 'e' = ekipman (Knight Online yuva numarası). */
+export interface YuvaKonumu { tur: 'c' | 'e'; i: number }
+
 export abstract class Varlik {
   /** Çarpışma ve zemin için kullanılan harita (main.ts atar). */
   static arazi: Arazi | null = null;
@@ -355,6 +358,33 @@ export class Oyuncu extends Varlik {
   /** Eşya tablosundaki yuva kodu → ekipman yuvası (sunucu ItemSlot sırası). */
   private static readonly YUVA_HARITASI = [6, 6, 8, 6, 8, 4, 10, 1, 12, 13, 0, 3, 9, 5, 7];
   static ekipmanYuvasi(e: EsyaTanimi): number { return Oyuncu.YUVA_HARITASI[e.yuva] ?? -1; }
+  /** Bir eşyanın giyilebileceği ekipman yuvaları (eşya tablosu yuva koduna göre; küpe/yüzük/el için iki yuva da uygundur). */
+  static uygunYuvalar(e: EsyaTanimi): number[] {
+    const ana = Oyuncu.ekipmanYuvasi(e);
+    const ek: Record<number, number[]> = { 0: [6, 8], 10: [0, 2], 12: [9, 11] };
+    return ek[e.yuva] ?? (ana >= 0 ? [ana] : []);
+  }
+  /**
+   * Envanterde sürükle-bırak: `k` (kaynak) yuvasındaki eşyayı `h` (hedef) yuvasına taşır; hedefte eşya varsa yer değiştirirler.
+   * Ekipman yuvasına yalnızca uygun eşya girer; ekipmandan çantaya yer değiştirirken karşıdaki eşya da o yuvaya uymalıdır.
+   * Başarılıysa true (arayüz yenilenmeli).
+   */
+  esyaTasi(k: YuvaKonumu, h: YuvaKonumu): boolean {
+    if (k.tur === h.tur && k.i === h.i) return false;
+    const gecerli = (x: YuvaKonumu) => x.i >= 0 && x.i < (x.tur === 'c' ? this.envanter.length : this.ekipman.length);
+    if (!gecerli(k) || !gecerli(h)) return false;
+    const al = (x: YuvaKonumu): EsyaTanimi | null => (x.tur === 'c' ? this.envanter[x.i] : this.ekipman[x.i]) ?? null;
+    const koy = (x: YuvaKonumu, e: EsyaTanimi | null) => { if (x.tur === 'c') this.envanter[x.i] = e; else this.ekipman[x.i] = e; };
+    const a = al(k); if (!a) return false;
+    const b = al(h);
+    if (h.tur === 'e' && !Oyuncu.uygunYuvalar(a).includes(h.i)) return false;
+    if (k.tur === 'e' && b && !Oyuncu.uygunYuvalar(b).includes(k.i)) return false;
+    if (h.tur === 'e' && a.yuva === 3 && h.i === 6 && this.ekipman[8]) { // iki elli silah sol eli boşaltır
+      const sol = this.ekipman[8]!; if (!this.esyaEkle(sol)) return false; this.ekipman[8] = null;
+    }
+    koy(h, a); koy(k, b);
+    return true;
+  }
   /** Çantadaki i. eşyayı giyer (eski eşya çantaya döner). Giyilemezse null. */
   esyaKusan(i: number): EsyaTanimi | null {
     const e = this.envanter[i]; if (!e) return null;
