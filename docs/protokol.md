@@ -24,7 +24,7 @@ AA 55 | uzunluk (uint16) | veri (uzunluk bayt) | 55 AA
 
 ## 3. Veri tipleri (`ByteBuffer`)
 `uint8/16/32/64`, `int8/16/32/64`, `float` (4 bayt) düz little-endian. **Yazı**: önce uzunluk, sonra baytlar (sonlandırıcı yok):
-tek bayt uzunluk (varsayılan, "SByte") ya da 2 bayt uzunluk ("DByte", bazı paketlerde). Kodlama ANSI (Windows-1252). `bool` = 1 bayt.
+**2 bayt uzunluk (varsayılan, "DByte")**; bazı paketlerde kaynak açıkça `SByte()` çağırır ve uzunluk 1 bayt olur (ör. `WIZ_GAMESTART` isteği, `WIZ_MYINFO` içindeki ad). Bir paketin hangisini kullandığı kaynaktaki `SByte()`/`DByte()` çağrılarından anlaşılır; yanlış seçilirse sunucu bağlantıyı keser. Kodlama ANSI (Windows-1252). `bool` = 1 bayt.
 
 ## 4. Şifreleme (`JvCryption`) — yalnızca login server'da
 - Sabit "özel anahtar": Myko kaynağında ve açık kaynak sunucuda `0x1207500120128966`; **resmî 1298 sunucu `.exe`'sinde klasik `0x1234567890123456`** (gerçek sunucuyla doğrulandı, bkz. §11). Sunucu rastgele 64 bit **açık anahtar** üretir; `tkey = açık ^ özel`. Kütüphanede `JvSifre(açık, özel)` ve `PaketKanali.sifrelemeyiAc(açık, özel)` ikinci parametre alır.
@@ -48,7 +48,7 @@ tek bayt uzunluk (varsayılan, "SByte") ya da 2 bayt uzunluk ("DByte", bazı pak
 ## 6. Oyun sunucusu akışı (port 15001)
 Hesap giriş yapmadan yalnızca şunlar kabul edilir (aksi hâlde bağlantı kesilir): `WIZ_VERSION_CHECK`, `WIZ_LOGIN`, `WIZ_KICKOUT`, `XSafe (0xE9)`.
 1. **`WIZ_VERSION_CHECK (0x2B)`** → cevap: `uint8 0, uint16 sürüm, uint8 0, uint64 0, uint64 0, uint8 0`.
-2. **`WIZ_LOGIN (0x01)`**: `hesap (yazı), şifre (yazı)` → cevap: `int8 sonuç[, uint32 0]` (sonuç 0–2 başarılı; −1 başarısız).
+2. **`WIZ_LOGIN (0x01)`**: `hesap (yazı), şifre (yazı)` → cevap: `int8 ulus[, uint32 0]` — **0 = ulus seçilmemiş, 1 = Karus, 2 = El Morad; −1 başarısız** (Myko'da gerçek çalıştırmada doğrulandı: hesap ulusu 2 → cevap `02 00 00 00 00`).
 3. **`WIZ_SEL_NATION (0x05)`** (yeni hesap, ulus seç): `uint8 ulus` (1 = Karus, 2 = El Morad) → cevap `uint8 ulus` (0 = geçersiz).
 4. **`WIZ_ALLCHAR_INFO_REQ (0x0C)`**: `uint8 1` → cevap: `uint8 1, uint8 1`, ardından 4 karakter yuvasının her biri için:
    `ad (yazı), uint8 ırk, uint16 sınıf, uint8 seviye, uint8 yüz, uint32 saç, uint8 bölge`, ardından 8 slot için `uint32 eşya no, uint16 dayanıklılık`
@@ -110,3 +110,20 @@ Köprü üzerinden **kendi protokol kütüphanemizle** (`kopru/src/deneme-giris.
 
 **Güvenlik notu:** Çalıştırma sırasında Windows Defender `Ebenezer.exe` kopyasını **Trojan:Win32/Bitrep.B** (itibar tabanlı tespit, ciddiyet yüksek) olarak işaretledi; ilk çalıştırmalarda (yaklaşık 10 dakika) engellemedi, sonradan engelledi. Doğrulayamadığımız için bu programlar bir daha çalıştırılmayacak (`kopru/sunucu-baslat.ps1` varsayılan olarak reddeder). Protokol bulgularının geri kalanı için Myko sunucu **kaynağı** derlenip kullanılmalı.
 **Sunucuyu başlatma sırası** (bilgi olarak): billing → AI → **Ebenezer** → Aujard → login. Aujard, Ebenezer'den önce açılırsa "Main Shared Memory Initialize Fail" verip kapanır.
+
+## 12. Myko sunucusuyla gerçek doğrulama (kaynaktan DERLENEN sunucu, 2026-11-16)
+Myko sunucusu (`LILITH_Game-Server`) Visual Studio 2022 Build Tools ile **kaynaktan derlendi ve yerelde çalıştırıldı**; köprü üzerinden `kopru/src/deneme-myko.ts` ile denendi. Derleme/çalıştırma adımları: `docs/sunucu-derleme.md`. Defender derlenen dosyalarda bir şey bulmadı.
+
+**Login server (15100, Myko):** `0x01` → `i16 1098`; `0xF2` → `u64 açık anahtar` (sonrası şifreli, **Myko özel anahtarı `0x1207500120128966`**, bizim `JvSifre` varsayılanı); `0xF3` (`yazı hesap, yazı şifre`, DByte) → `u16 0, u8 1, i16 premium(-1), yazı hesap`;
+`0xF5` (`u16 yankı`) → `u16 yankı, u8 sayı`, sunucu: `yazı lanIp, yazı ip, yazı ad, i16 oyuncu, i16 no, i16 grup, i16 üst sınır, i16 ücretsiz sınır, u8 0, u8 ekran, yazı Karus kral, Karus duyuru, El Morad kral, El Morad duyuru` (§5 ile birebir). `0xF6` haber: `yazı başlık, u16 boyut, içerik…`.
+
+**Oyun sunucusu (15001, Myko) — tam akış çalıştı, şifreleme YOK (anahtarlar 0):**
+1. `0x2B` (boş) → `u8 0, u16 2369 (oyun sürümü), u8 0, u64 0, u64 0, u8 0`.
+2. `0x01` giriş (`yazı hesap, yazı şifre`) → `i8 ulus, u32 0`; ardından sunucu kendiliğinden `0xC0 (01 02 01)` yollar.
+3. `0x0C` (`u8 1`) → `u8 1, u8 1`, her yuva: `yazı ad (**u16 uzunluklu**), u8 ırk, u16 sınıf, u8 seviye, u8 yüz, u32 saç, u8 bölge`, 8 × `u32 eşya no, u16 dayanıklılık`, … (boş yuva: ad uzunluğu 0 ve sıfırlar). Gerçek: `Lilith`, ırk 13, sınıf 206, seviye 65, yüz 6, bölge 21 — veritabanıyla birebir.
+4. `0x04` karakter seç (`yazı hesap, yazı karakter, u8 bInit=1`, **DByte**) → önce `0x54 (4 bayt)`, sonra `0x04`: `u8 1 (başarılı), u8 bölge 21, u16 x, u16 z, u16 y (konum/10), u8 ulus`; ardından `0x6A`.
+5. `0x0D` aşama 1 (`u8 1, yazı karakter` **SByte**) → sunucu sırayla: `0x0E` (`WIZ_MYINFO`, 1596 bayt), `0x5E`, çeşitli `0xE9` (XSafe, **yok sayılmalı**), `0x16`, `0x69`, `0x1D` (NPC/oyuncu bölge listeleri), `0x81`, `0x2E` (duyurular), `0x13` (saat: `u16 yıl, ay, gün, saat, dk…`), `0x14` (hava), `0x64`, `0x2E` (GM listesi), `0x0D` (boş — "oyun başladı"), `0xC4` (karşılama mesajı).
+6. `0x0D` aşama 2 (`u8 2, yazı karakter`) → `0x1F`, `0xE9`'lar, `0x5F`… ; oyuncu dünyaya girer.
+`WIZ_MYINFO` gövdesinin başı gerçek veriyle doğrulandı: `u8 1, u8 0, yazı ad (SByte: 06 "Lilith"), u16 x, z, y, u8 ulus (2), u8 ırk (13), u16 sınıf (206), u8 yüz, u32 saç, …` (alan alan çözümü sonraki iş).
+
+**Düzeltme (önceki sürümlerdeki hata):** yazıların varsayılan uzunluğu 2 bayttır (§3). Kütüphane varsayılanı buna göre düzeltildi.

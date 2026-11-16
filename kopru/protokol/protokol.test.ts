@@ -39,20 +39,20 @@ test('JvSifre: açık anahtar 0 reddedilir (sunucu 0 verirse düz metin konuşul
 
 test('PaketYazici/PaketOkuyucu: sayılar, 64 bit, yazılar (1 ve 2 baytlık uzunluk), ANSI', () => {
   const y = new PaketYazici().u8(255).i8(-2).u16(0xbeef).i16(-300).u32(0xdeadbeef).i32(-70000).u64(0x0102030405060708n).f32(1.5)
-    .yazi('admin').yazi('Çınar', true);
+    .yazi('admin', false).yazi('Çınar');
   const o = new PaketOkuyucu(y.baytlar());
   assert.equal(o.u8(), 255); assert.equal(o.i8(), -2); assert.equal(o.u16(), 0xbeef); assert.equal(o.i16(), -300);
   assert.equal(o.u32(), 0xdeadbeef); assert.equal(o.i32(), -70000); assert.equal(o.u64(), 0x0102030405060708n); assert.equal(o.f32(), 1.5);
-  assert.equal(o.yazi(), 'admin'); assert.equal(o.yazi(true), 'Çınar'.replace('ı', '?')); // 'ı' Windows-1252'de yok -> '?'
+  assert.equal(o.yazi(false), 'admin'); assert.equal(o.yazi(), 'Çınar'.replace('ı', '?')); // 'ı' Windows-1252'de yok -> '?'
   assert.equal(o.kalan, 0);
   // bayt düzeni: little-endian, yazı uzunluğu önde
-  assert.equal(hex(new PaketYazici().u16(0x1234).yazi('ab').baytlar()), '34 12 02 61 62');
-  assert.equal(hex(new PaketYazici().yazi('ab', true).baytlar()), '02 00 61 62');
+  assert.equal(hex(new PaketYazici().u16(0x1234).yazi('ab', false).baytlar()), '34 12 02 61 62');
+  assert.equal(hex(new PaketYazici().yazi('ab').baytlar()), '02 00 61 62');
 });
 
 test('PaketOkuyucu: yetmeyen veride hata verir (sessizce 0 dönmez)', () => {
   assert.throws(() => new PaketOkuyucu(bayt(1)).u16(), RangeError);
-  assert.throws(() => new PaketOkuyucu(bayt(5, 65)).yazi(), RangeError);
+  assert.throws(() => new PaketOkuyucu(bayt(5, 65)).yazi(false), RangeError);
 });
 
 test('cerceveYap: AA 55 | uzunluk | veri | 55 AA', () => {

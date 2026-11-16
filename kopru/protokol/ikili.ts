@@ -36,8 +36,8 @@ export class PaketYazici {
     return this;
   }
   ham(b: Uint8Array): this { for (const x of b) this.#parcalar.push(x); return this; }
-  /** Yazı: uzunluk (1 bayt, `ikiBayt` ise 2 bayt) + ANSI baytlar. */
-  yazi(s: string, ikiBayt = false): this {
+  /** Yazı: uzunluk (varsayılan 2 bayt; `ikiBayt=false` ise 1 bayt) + ANSI baytlar. */
+  yazi(s: string, ikiBayt = true): this {
     const b = ansiKodla(s);
     if (ikiBayt) this.u16(b.length); else this.u8(b.length);
     return this.ham(b);
@@ -69,7 +69,7 @@ export class PaketOkuyucu {
   i32(): number { this.#gerekli(4); const d = this.#g.getInt32(this.konum, true); this.konum += 4; return d; }
   f32(): number { this.#gerekli(4); const d = this.#g.getFloat32(this.konum, true); this.konum += 4; return d; }
   ham(n: number): Uint8Array { this.#gerekli(n); const d = this.#v.subarray(this.konum, this.konum + n); this.konum += n; return d; }
-  yazi(ikiBayt = false): string {
+  yazi(ikiBayt = true): string {
     const n = ikiBayt ? this.u16() : this.u8();
     return KOD_COZ.decode(this.ham(n));
   }

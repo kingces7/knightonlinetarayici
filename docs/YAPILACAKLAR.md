@@ -176,10 +176,12 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
   - [x] Karar: önce hazır `.exe` sunucuyla (Knight All in one + JPKO yedeği) denenecek, sonra Myko'ya geçilecek
   - [x] Köprü (`kopru/`): çerçeve + JvCryption + WebSocket↔TCP köprüsü, 16 test (sahte login server ile uçtan uca)
   - [x] Gerçek sunucu denemesi (resmî 1298 `.exe`'ler): login + oyun sunucusu giriş akışı çalıştı (`docs/protokol.md` §11). SQL'de `KN_online` veritabanı ve kullanıcıya özel ODBC kaydı `KN_online` duruyor (silmek istenirse: `DROP DATABASE KN_online`, `HKCU:\Software\ODBC\ODBC.INI\KN_online`)
-  - [ ] ⚠ **Defender `Ebenezer.exe`'yi `Trojan:Win32/Bitrep.B` olarak işaretledi** (çalıştırmadan sonra). Bu `.exe` sunucuları artık çalıştırılmayacak; kalan akış için **Myko sunucu kaynağını derlemek** gerek (Visual Studio kurulumu — kullanıcıya sorulacak) ya da bir sanal makine
-  - [ ] Karakter listesi (`WIZ_ALLCHAR_INFO_REQ 0x0C`) hep boş geliyor (172 bayt, sıfır) — 1298 biçimi ya da veritabanı sorunu; çözülecek
-  - [ ] Devamı: karakter seç → `GAMESTART` → `WIZ_MYINFO` ayrıştırıcı; sonra mevcut oyuna bağlama
-  - [ ] Client'ın gerçek paket sırasını bir bağlantı kaydıyla doğrula (protokol.md "Doğrulanacaklar")
+  - [x] **Myko sunucusu kaynaktan derlendi ve çalıştırıldı** (VS 2022 Build Tools; `docs/sunucu-derleme.md`, `kopru/myko-baslat.ps1`). Defender derlenen dosyalarda bir şey bulmadı, istisna eklenmedi
+  - [x] Myko'ya karşı tam akış doğrulandı: giriş (şifreli) → sunucu listesi → oyun sunucusu giriş → karakter listesi → karakter seç → oyun başlat (`docs/protokol.md` §12, `kopru/src/deneme-myko.ts`)
+  - [ ] `WIZ_MYINFO` (0x0E) gövdesini alan alan çöz (envanter dahil) ve testle; `0x1D`/`0x07` (çevre oyuncu/NPC), `0x13` saat, `0x14` hava ayrıştırıcıları
+  - [ ] Tarayıcı client'ına bağla: giriş ekranı → karakter seçim ekranı → oyuna giriş (şimdiki tek oyunculu mod yerine sunucu verisiyle)
+  - [ ] Eski 1298 `.exe` sunucuları (Defender: Trojan) çalıştırılmayacak; `kopru/sunucu-baslat.ps1` varsayılan olarak reddeder
+  - [ ] Client'ın (KnightOnLine.exe) gerçek paket sırasını bir bağlantı kaydıyla doğrula (şimdiye kadar yalnızca sunucu tarafı doğrulandı)
 - [ ] Aşama 5 — Oyun sistemleri (çok oyunculu): oyuncular, mob'lar, chat, envanter, savaş, skill'ler
 
 ---

@@ -130,8 +130,8 @@ function sahteGirisSunucusu(s: net.Socket, acikAnahtar: bigint): void {
       else if (opcode === LS.SIFRELEME) { gonder(opcode, new PaketYazici().u64(acikAnahtar).baytlar()); sifre = new JvSifre(acikAnahtar); beklenenSira = 0; }
       else if (opcode === LS.GIRIS) {
         const o = new PaketOkuyucu(govde);
-        const hesap = o.yazi(); const sifreMetni = o.yazi();
-        if (hesap === 'admin' && sifreMetni === 'admin') gonder(opcode, new PaketYazici().u16(0).u8(GIRIS_SONUCU.BASARILI).i16(-1).yazi(hesap).baytlar());
+        const hesap = o.yazi(false); const sifreMetni = o.yazi(false);
+        if (hesap === 'admin' && sifreMetni === 'admin') gonder(opcode, new PaketYazici().u16(0).u8(GIRIS_SONUCU.BASARILI).i16(-1).yazi(hesap, false).baytlar());
         else gonder(opcode, new PaketYazici().u16(0).u8(GIRIS_SONUCU.SIFRE_YANLIS).baytlar());
       }
     }
@@ -156,13 +156,13 @@ test('uçtan uca: tarayıcı protokolü → köprü → (sahte) login server: s�
     kanal.sifrelemeyiAc(new PaketOkuyucu(anahtar.govde).u64());
     assert.equal(kanal.sifreli, true);
 
-    ws.send(kanal.paketYap(LS.GIRIS, new PaketYazici().yazi('admin').yazi('admin').baytlar()));
+    ws.send(kanal.paketYap(LS.GIRIS, new PaketYazici().yazi('admin', false).yazi('admin', false).baytlar()));
     const giris = await cevapAl();
     assert.equal(giris.opcode, LS.GIRIS);
     const o = new PaketOkuyucu(giris.govde);
-    assert.equal(o.u16(), 0); assert.equal(o.u8(), GIRIS_SONUCU.BASARILI); assert.equal(o.i16(), -1); assert.equal(o.yazi(), 'admin');
+    assert.equal(o.u16(), 0); assert.equal(o.u8(), GIRIS_SONUCU.BASARILI); assert.equal(o.i16(), -1); assert.equal(o.yazi(false), 'admin');
 
-    ws.send(kanal.paketYap(LS.GIRIS, new PaketYazici().yazi('admin').yazi('yanlis').baytlar()));
+    ws.send(kanal.paketYap(LS.GIRIS, new PaketYazici().yazi('admin', false).yazi('yanlis', false).baytlar()));
     const red = await cevapAl();
     const o2 = new PaketOkuyucu(red.govde); o2.u16();
     assert.equal(o2.u8(), GIRIS_SONUCU.SIFRE_YANLIS);
