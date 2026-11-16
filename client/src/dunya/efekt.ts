@@ -13,6 +13,8 @@ interface FxParca {
   olusumAraligi?: number; olusumAdedi?: number; yayilimTuru?: number; yayilimAcisi?: number; toplanmaNoktasi?: number[];
   yon?: number[]; parcacikHizi?: number; parcacikDonusHizi?: number; yercekimi?: number; renkAnahtarlari?: number[] | null;
   dokuDonusHizi?: number; olcekHizX?: number; olcekHizY?: number;
+  // mesh
+  meshler?: { konum: number[]; uv: number[]; indeks: number[]; dokular: string[]; fps: number }[]; dokuYonu?: number; u?: number; v?: number; olcekHizi?: number[]; olcekIvmesi?: number[] | null; birimOlcek?: number[] | null;
   // tahta / zemin tahtası
   boyutX?: number; boyutY?: number; boyutZ?: number; dokuDongu?: boolean; yaricap?: number; olcekIvmeX?: number; olcekIvmeY?: number; olcekHizZ?: number; aralik?: number;
 }
@@ -34,7 +36,7 @@ interface Tanecik {
 interface ParcaDurumu {
   p: FxParca; dokular: THREE.Texture[]; olusumSayaci: number; taneler: Tanecik[]; mesh?: THREE.Object3D; mats?: THREE.SpriteMaterial[]; bitti: boolean;
 }
-interface Ornek { azami: number | null; veri: FxVeri; kok: THREE.Object3D; kok0: THREE.Vector3; t: number; sure: number; parcalar: ParcaDurumu[]; grup: THREE.Group; olcek: number }
+interface Ornek { yon: number; azami: number | null; veri: FxVeri; kok: THREE.Object3D; kok0: THREE.Vector3; t: number; sure: number; parcalar: ParcaDurumu[]; grup: THREE.Group; olcek: number }
 
 export class EfektYoneticisi {
   private onbellek = new Map<number, Promise<FxVeri | null>>();
@@ -64,7 +66,7 @@ export class EfektYoneticisi {
     const veri = await this.veri(id); if (!veri) return false;
     const grup = new THREE.Group(); this.sahne.add(grup);
     const parcalar = veri.parcalar.map((p): ParcaDurumu => ({ p, dokular: p.dokular.map((d) => this.doku(d)), olusumSayaci: p.olusumAraligi ?? 0, taneler: [], bitti: false }));
-    this.aktif.push({ azami: secenek.azamiSure ?? null, veri, kok, kok0: kok.getWorldPosition(new THREE.Vector3()), t: 0, sure: secenek.sure ?? Math.min(veri.omur || 2, 2), parcalar, grup, olcek: secenek.olcek ?? 1 });
+    this.aktif.push({ yon: new THREE.Euler().setFromQuaternion(kok.getWorldQuaternion(new THREE.Quaternion()), 'YXZ').y, azami: secenek.azamiSure ?? null, veri, kok, kok0: kok.getWorldPosition(new THREE.Vector3()), t: 0, sure: secenek.sure ?? Math.min(veri.omur || 2, 2), parcalar, grup, olcek: secenek.olcek ?? 1 });
     return true;
   }
 
@@ -102,10 +104,11 @@ export class EfektYoneticisi {
     const son = o.azami === null ? 1 : Math.max(0, Math.min(1, 1 - (o.t - o.azami) / SONME)); // azami süreden sonra hızla sönme
     const omur = p.omur > 0 ? p.omur : o.sure;
     const yayilimBitti = t >= Math.min(omur, o.sure) + p.solmaGiris; // yeni parçacık yaratmayı bırak (kaynak: parça ömrü dolunca Stop)
-    const merkez = o.kok0.clone().add(sahneV(p.konum).multiplyScalar(o.olcek));
+    const R = (v: THREE.Vector3) => v.applyAxisAngle(new THREE.Vector3(0, 1, 0), o.yon); // efekt, kullananın baktığı yöne döner (efekt +Z = karakterin önü)
+    const merkez = o.kok0.clone().add(R(sahneV(p.konum).multiplyScalar(o.olcek)));
     // yayıcı konumu: hız ve ivme (kaynak: CN3FXPartBase::Tick)
     const kt = Math.min(t, omur);
-    const yayici = merkez.clone().add(sahneV(p.hiz).multiplyScalar(kt * o.olcek)).add(sahneV(p.ivme).multiplyScalar(0.5 * kt * kt * o.olcek));
+    const yayici = merkez.clone().add(R(sahneV(p.hiz).multiplyScalar(kt * o.olcek))).add(R(sahneV(p.ivme).multiplyScalar(0.5 * kt * kt * o.olcek)));
 
     if (p.tur === 1) {
       const yon = p.yon ?? [0, 0, 1], aciYay = p.yayilimAcisi ?? 0;
@@ -150,6 +153,31 @@ export class EfektYoneticisi {
       const g = s.mesh as THREE.Mesh, m = g.material as THREE.MeshBasicMaterial, ol = o.olcek;
       g.scale.set(Math.max(0, (p.boyutX ?? 1) + (p.olcekHizX ?? 0) * t) * ol, Math.max(0, (p.boyutZ ?? 1) + (p.olcekHizZ ?? 0) * t) * ol, 1);
       g.position.set(yayici.x, o.kok0.y + 0.05 + (p.aralik ?? 0), yayici.z); m.opacity = alfa; m.map = s.dokular[kare] ?? null; m.needsUpdate = true;
+    } else if (p.tur === 3 && p.meshler?.length) {
+      if (!s.mesh) {
+        const kap = new THREE.Group(); s.mesh = kap; o.grup.add(kap); s.mats = [];
+        for (const mm of p.meshler) {
+          const g = new THREE.BufferGeometry();
+          const konum = new Float32Array(mm.konum.length); for (let n = 0; n < mm.konum.length; n += 3) { konum[n] = mm.konum[n]; konum[n + 1] = mm.konum[n + 1]; konum[n + 2] = -mm.konum[n + 2]; } // z yansıması
+          g.setAttribute('position', new THREE.BufferAttribute(konum, 3)); g.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(mm.uv), 2)); g.setIndex(mm.indeks);
+          const m = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide, fog: false });
+          const ek = p.kaynakKarisim === 5 && p.hedefKarisim === 2 || p.kaynakKarisim === 2 && p.hedefKarisim === 2;
+          if (ek) m.blending = THREE.AdditiveBlending;
+          else if (!(p.kaynakKarisim === 5 && p.hedefKarisim === 6) && D3D_KARISIM[p.kaynakKarisim] !== undefined && D3D_KARISIM[p.hedefKarisim] !== undefined) { m.blending = THREE.CustomBlending; m.blendSrc = D3D_KARISIM[p.kaynakKarisim] as unknown as THREE.BlendingSrcFactor; m.blendDst = D3D_KARISIM[p.hedefKarisim]; }
+          const mesh = new THREE.Mesh(g, m); mesh.renderOrder = 4; kap.add(mesh); s.mats.push(m as unknown as THREE.SpriteMaterial);
+        }
+      }
+      const kap = s.mesh as THREE.Group, ol = o.olcek;
+      kap.position.copy(yayici);
+      kap.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), o.yon).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(p.donusHizi[0] * t, p.donusHizi[1] * t, p.donusHizi[2] * t)));
+      const birim = p.birimOlcek ?? [1, 1, 1], hv = p.olcekHizi ?? [0, 0, 0], iv = p.olcekIvmesi ?? [0, 0, 0];
+      kap.scale.set(Math.max(0, birim[0] + hv[0] * t + 0.5 * iv[0] * t * t) * ol, Math.max(0, birim[1] + hv[1] * t + 0.5 * iv[1] * t * t) * ol, Math.max(0, birim[2] + hv[2] * t + 0.5 * iv[2] * t * t) * ol);
+      kap.children.forEach((c, n) => {
+        const mm = p.meshler![n], m = s.mats![n] as unknown as THREE.MeshBasicMaterial, fps = p.dokuFps > 0 ? p.dokuFps : mm.fps;
+        const kare = mm.dokular.length ? (p.dokuDongu ? Math.floor(t * fps) % mm.dokular.length : Math.min(mm.dokular.length - 1, Math.floor(t * fps))) : -1;
+        if (kare >= 0) { const dk = this.doku(mm.dokular[kare]); if (m.map !== dk) { m.map = dk; m.needsUpdate = true; } }
+        m.opacity = alfa;
+      });
     } else s.bitti = true;
   }
 
@@ -169,6 +197,7 @@ export class EfektYoneticisi {
       const g = sahneV(p.toplanmaNoktasi ?? [0, 0, 0]).multiplyScalar(ol).applyQuaternion(q);
       hiz = g.sub(yerel); if (hiz.lengthSq() > 1e-9) hiz.normalize(); hiz.multiplyScalar(hizDeger);
     }
+    const Y = new THREE.Vector3(0, 1, 0); yerel.applyAxisAngle(Y, o.yon); hiz.applyAxisAngle(Y, o.yon);
     const boyut = rastgele(p.boyut?.[0] ?? 0.3, p.boyut?.[1] ?? 0.3) * ol;
     const omur = rastgele(p.parcacikOmru?.[0] ?? 0.5, p.parcacikOmru?.[1] ?? 0.5);
     const m = this.malzeme(p, s.dokular[0]);

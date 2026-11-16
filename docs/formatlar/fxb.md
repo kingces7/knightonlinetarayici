@@ -12,11 +12,11 @@ N3FXPartBillBoard, N3FXPartBottomBoard, N3FXPartMesh, N3FXParticle** kaynakları
   parça sürümleri 6-10 → parça sonunda sabit sayıda bilinmeyen bayt (`fxb.ts` `EKSTRA` tablosu: yüzlerce örnekte aynı çıktı); paket sürümü ≥ 3 → dosya sonunda 45-93 baytlık bilinmeyen kuyruk.
 - **Doğrulama:** `araclar/oyun/fxb.test.ts` — 1219 dosyanın **1168'i (%96) çözülüyor**; paket sürümü ≤ 2 olanlar baytı baytına tam. Çözülemeyen ~50 dosya (çoğu paket 5-6 ve 3 parça yapısı farklı) için
   yeni sürümlerin parça içi eklentilerinin yeri bulunmalı (şüphe: parçacık sürüm 9-10'da `bChangeColor`/`bAnimKey` bölgesine alan eklenmiş; `heal_cast.fxb` 3. parçası bunun örneği).
-- **Oynatıcı:** `client/src/dunya/efekt.ts` (`EfektYoneticisi`): parçacık (normal/yayılma/toplanma, hız, yerçekimi, renk anahtarları, doku kareleri), tahta ve zemin tahtası. **Mesh parçaları yok** (FX shape okuyucusu gerekir).
+- **Oynatıcı:** `client/src/dunya/efekt.ts` (`EfektYoneticisi`): parçacık (normal/yayılma/toplanma, hız, yerçekimi, renk anahtarları, doku kareleri), tahta ve zemin tahtası. **Mesh parçaları var** (`.n3shape` → `.n3pmesh` geometrisi; araclar/model/n3.ts okuyucusu; yön, ölçek hızı, doku kareleri; doku kaydırma ve şekil içi animasyon anahtarları henüz yok).
   Dönüştürücü: `npm run efekt` (araclar) → `donusturulmus/web/efekt/fx/<fx.tbl no>.json` + `efekt/doku/*.png`.
 - **Oyuna bağlı:** skill kullanılınca (`main.ts beceriKullan`): kendinde efekt (fx.tbl sütun 7), buff'ta hedef efekti de kullanana, saldırı skill'inde vuruş anında hedefte efekt (sütun 12).
   Savaşçı temel skill'lerinden Sprint (2701 + 10029) ve Defense (2701 + 701) ve vuruş efekti (10002 `damage0_1`) çalışıyor; **`heal_cast.fxb` (2601, Stroke/Slash/Crash/Piercing'in kendinde efekti) çözülemiyor.**
-- **Sıradaki:** (1) kalan ~50 dosya: yeni sürüm parça içi alanlarını bulmak, (2) mesh parçası (`.n3shape` FX), (3) uçan efekt (sütun 11) ve bundle yönü/hedefe uçuş (`FX_BUNDLE_MOVE_*`), (4) efekt sesi (fx.tbl sütun 3), (5) HDR doku seçimi, (6) parçacık LOD, (7) sunucu skill'leri bağlanınca oyuncular arası efekt.
+- **Sıradaki:** (1) kalan ~50 dosya: yeni sürüm parça içi alanlarını bulmak, (2) mesh doku kaydırma/anahtar animasyonu ve `Ability_target0_1` şekli, (3) uçan efekt (sütun 11) ve bundle yönü/hedefe uçuş (`FX_BUNDLE_MOVE_*`), (4) efekt sesi (fx.tbl sütun 3), (5) HDR doku seçimi, (6) parçacık LOD, (7) sunucu skill'leri bağlanınca oyuncular arası efekt.
 
 ---
 ## Eski notlar (kaynak bulunmadan önce yazıldı; tarihsel)

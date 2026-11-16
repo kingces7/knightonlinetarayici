@@ -1,7 +1,7 @@
 // Skill efektleri: .fxb paketlerini (fxb.ts, OpenKO kaynağından) web biçimine çevirir.
 //   npm run efekt            -> skill sayfası 2010'daki skill'lerin efektleri
 //   npm run efekt -- 2601 701  -> belirtilen fx.tbl numaraları
-// Çıktı: donusturulmus/web/efekt/fx/<numara>.json + efekt/doku/<ad>.png (parça doku kareleri). Mesh parçaları (tür 3) henüz atlanır.
+// Çıktı: donusturulmus/web/efekt/fx/<numara>.json + efekt/doku/<ad>.png (parça doku kareleri). Mesh parçaları (tür 3): .n3shape → .n3pmesh geometrisi JSON'a gömülür.
 import fs from 'node:fs';
 import path from 'node:path';
 import { CIKTI_DIZINI } from '../ortak/yollar.ts';
@@ -9,9 +9,27 @@ import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { tbldenOku } from '../tbl/tablo.ts';
 import { dokuPng } from '../model/dokuYardim.ts';
 import { dokuKareleri, fxbOku, type FxParca } from './fxb.ts';
+import { pmeshOku, shapeOku } from '../model/n3.ts';
 
 const SAYFA = 2010;
 const guvenli = (yol: string) => yol.toLowerCase().replace(/\.dxt$/, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+
+/** FX mesh parçası: .n3shape'in her parçasının .n3pmesh geometrisi ve doku kareleri. */
+function meshOku(od: OyunDosyalari, shapeYolu: string, hedef: string, yazilan: Set<string>): unknown[] {
+  const sh = shapeOku(od.oku(shapeYolu));
+  return sh.parcalar.map((sp) => {
+    const m = pmeshOku(od.oku(sp.mesh));
+    const dokular: string[] = [];
+    for (const d of sp.dokular) {
+      if (!d) continue;
+      const ad = guvenli(d);
+      if (!yazilan.has(ad)) { const png = dokuPng(od, d, 256); if (png) fs.writeFileSync(path.join(hedef, 'doku', `${ad}.png`), png.png); yazilan.add(ad); }
+      dokular.push(`efekt/doku/${ad}.png`);
+    }
+    const r = (a: ArrayLike<number>) => Array.from(a, (v) => Math.round(v * 10000) / 10000);
+    return { konum: r(m.konum), uv: r(m.uv), indeks: Array.from(m.indeks), dokular, fps: sp.fps, pivot: sp.pivot };
+  });
+}
 
 function main(): number {
   const od = new OyunDosyalari();
@@ -38,8 +56,9 @@ function main(): number {
       const parcalar: Record<string, unknown>[] = [];
       let atlanan = 0;
       for (const p of bundle.parcalar as FxParca[]) {
-        if (p.tur === 3) { atlanan++; continue; } // mesh parçası
         const dokular: string[] = [];
+        let meshler: unknown[] | undefined;
+        if (p.tur === 3) { try { meshler = meshOku(od, p.sekilDosyasi, hedef, yazilan); } catch { atlanan++; continue; } }
         for (const k of dokuKareleri(p)) {
           const ad = guvenli(k);
           if (!yazilan.has(ad)) {
@@ -50,7 +69,7 @@ function main(): number {
           dokular.push(`efekt/doku/${ad}.png`);
         }
         const { dokuAdi: _a, hdrDokuAdi: _h, ...geri } = p as FxParca & { hdrDokuAdi: string };
-        parcalar.push({ ...geri, dokular });
+        parcalar.push({ ...geri, dokular, ...(meshler ? { meshler } : {}) });
       }
       fs.writeFileSync(path.join(hedef, 'fx', `${id}.json`), JSON.stringify({ id, dosya, surum: bundle.surum, omur: bundle.omur, hiz: bundle.hiz, boyutaBagli: bundle.boyutaBagli, parcalar }));
       console.log(`${id}: ${dosya} -> ${parcalar.length} parça${atlanan ? ` (${atlanan} mesh atlandı)` : ''}`);
