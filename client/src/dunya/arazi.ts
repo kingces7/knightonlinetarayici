@@ -138,6 +138,7 @@ export class Arazi {
             c = mix(c, t2 / max(a2, 0.35), a2 * 0.85 * detay);
           }
           c = min(c, vec3(1.0));
+          c = pow(c, vec3(1.55)); // orta/açık tonları koyulaştırır: zemin beyaza/açık griye yanmasın, nesnelerle aynı koyulukta dursun
           float isik = 0.38 + 0.52 * max(dot(normalize(vNormal), gunesYonu), 0.0); // en çok ≈0,9 (eskiden 1,2: zemin beyaza yanıyordu)
           vec3 r = c * isik;
           float sis = smoothstep(sisYakin, sisUzak, vDerinlik);
