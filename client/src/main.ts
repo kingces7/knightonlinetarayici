@@ -23,6 +23,7 @@ import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
 import { ESYA_YONU, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
@@ -181,6 +182,7 @@ async function basla(): Promise<void> {
     if (otur && oyuncu.savastanBeri < OTURMA_SAVAS_BEKLEME) { hud.mesaj('You cannot sit down during combat.', 'sistem'); return; }
     if (otur) { oyuncu.hedef = null; oyuncu.yuruHedef = null; acilacakKutu = null; oyuncu.yuruAcisi = null; oyuncu.model.oynat('bekle'); }
     oyuncu.model.oturPozu(otur);
+    sunucuOturumu?.gonder(WIZ.DURUM_DEGISTI, oturmaIstegi(otur)); // sunucu oturma sırasında yenilenmeyi hızlandırır
     hud.mesaj(otur ? 'You sit down. Health and mana recover quickly.' : 'You stand up.', 'sistem');
   };
   const kalk = () => { if (oyuncu.model?.oturuyor) oyuncu.model.oturPozu(false); };
@@ -263,7 +265,14 @@ async function basla(): Promise<void> {
   try {
     const a = new OyunArayuzu({
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
-      esyaKusan: (i) => hud.esyaKusan(i), sohbetGonder: (mod, m) => sohbetGonder(mod, m),
+      esyaKusan: (i) => hud.esyaKusan(i),
+      statSunucu: (ad) => {
+        if (!sunucuOturumu) return false;
+        if (ad === 'reset') { hud.mesaj('Stat points are reset by an NPC.', 'sistem'); return true; }
+        const no = ['str', 'sta', 'dex', 'int'].indexOf(ad) + 1;
+        if (no > 0 && oyuncu.bonusPuan > 0) sunucuOturumu.gonder(WIZ.STAT_DEGISTI, statArtirmaIstegi(no));
+        return true;
+      }, sohbetGonder: (mod, m) => sohbetGonder(mod, m),
       esyaTasi: (k, h) => {
         const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i];
         if (sunucuOturumu) { // sunucu modu: mesaj sunucu onayından sonra

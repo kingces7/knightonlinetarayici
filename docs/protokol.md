@@ -199,3 +199,9 @@ Canlı test: tarayıcı (kotest) ↔ ikinci oyuncu (kotest1) genel ve özel mesa
 - Cevap: başarıda `u8 1, u32 toplam Noah, u32 işlem tutarı, u8 grup`; hatada `u8 0, u8 kod` (1 genel, 2 geçersiz, 3 Noah yetmiyor, 4 ağırlık). Ardından `0x54` ağırlık.
 - Sunucu NPC'nin tipini, satış grubunu ve ≤ 11 m menzili doğrular; NPC kimliği sunucunun NPC listesinden (0x1D, tür ≠ 1) gelir. Client yerel NPC'yi sunucudakiyle K_NPC numarası + en yakın konum (≤ 5 m) ile eşler.
 Canlı test (kotest): Arrow alım/satım, Noah ve envanter sunucuyla uyumlu. Betik: `client/scripts/magazaSunucuTesti.mjs`.
+
+## Stat puanı (0x28) ve otur/kalk (0x29)
+
+- Stat harca: `u8 stat (1 STR, 2 STA, 3 DEX, 4 INT, 5 CHA)`. Cevap: `u8 stat, u16 yeni değer, u16 azami can, u16 azami mana, u16 vuruş, u32 azami ağırlık, u16 can, u16 mana`. Puan yoksa/stat azamideyse sunucu cevap vermez.
+- Otur/kalk: `u8 1, u32 durum` (1 ayakta, 2 oturuyor); bölgeye `u16 oyuncu, u8 tür, u32 durum` olarak yayılır. Sunucu oturma sırasında yenilenmeyi hızlandırır.
+Betik: `client/scripts/statSunucuTesti.mjs`.

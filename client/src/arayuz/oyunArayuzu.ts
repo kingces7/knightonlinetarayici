@@ -30,6 +30,8 @@ export interface ArayuzBaglami {
   npcler: () => { ad: string; x: number; y: number }[];
   /** Statü puanı harcandığında oyun kuralları (en çok can/mana vb.) güncellensin. */
   statDegisti: () => void;
+  /** Sunucu modunda stat harcama/sıfırlama sunucuda yapılır (true = ele alındı). `ad`: str | sta | dex | int | reset. */
+  statSunucu?: (ad: string) => boolean;
   /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
   sehreDon: () => void;
   /** Oyuncu animasyonu numarasını oynat (selamlama, savaş çığlığı). */
@@ -852,12 +854,14 @@ export class OyunArayuzu {
     this.durumDuzeniReferans(p);
     p.gizleDesen(/^(icon_level_|btn_rebirth_preset|btn_preset|base_perks|Text_HP$|Text_MP$)/); // base_perks: Myko'nun ekstra özellik listesi (şimdilik yok)
     const harca = (ad: 'str' | 'sta' | 'dex' | 'int') => () => {
+      if (this.b.statSunucu?.(ad)) return;
       if (this.b.oyuncu.statArtir(ad)) { this.b.statDegisti(); this.durumCiz(); }
     };
     p.tikla.set('btn_str', harca('str')); p.tikla.set('btn_sta', harca('sta'));
     p.tikla.set('btn_Dex', harca('dex')); p.tikla.set('btn_Int', harca('int'));
     p.tikla.set('btn_Magic', harca('int'));
     p.tikla.set('btn_reset_stat', () => {
+      if (this.b.statSunucu?.('reset')) return;
       const iade = this.b.oyuncu.statSifirla();
       this.b.statDegisti(); this.durumCiz();
       this.b.mesaj(iade > 0 ? `Stat points reset: ${iade} points returned.` : 'There are no stat points to reset.');
