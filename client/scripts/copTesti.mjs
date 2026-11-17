@@ -9,7 +9,7 @@ await s.keyboard.press('KeyI'); await s.waitForTimeout(1500);
 const once = await s.evaluate(() => window.ke.oyuncu.envanter.filter(Boolean).length);
 await s.evaluate(() => {
   const i = window.ke.oyuncu.envanter.findIndex(Boolean); const dt = new DataTransfer(); dt.setData('application/x-ke-esya', JSON.stringify({ tur: 'c', i }));
-  const cop = document.querySelector('.cop-kutusu'); cop.dispatchEvent(new DragEvent('dragover', { dataTransfer: dt, bubbles: true, cancelable: true })); cop.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+  const cop = window.ke.arayuz().pencereler.envanter.bul('area_samma')[0]; cop.dispatchEvent(new DragEvent('dragover', { dataTransfer: dt, bubbles: true, cancelable: true })); cop.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
 });
 await s.waitForTimeout(500);
 const dlg = await s.evaluate(() => { const p = window.ke.arayuz().pencereler.envanter; return { gorunur: [...p.bul('string_Destroy')].some((e) => e.offsetParent !== null), metin: p.bul('string_Destroy')[0]?.textContent }; });

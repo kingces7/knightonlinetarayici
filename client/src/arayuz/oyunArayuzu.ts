@@ -1010,21 +1010,18 @@ export class OyunArayuzu {
   }
 
   /**
-   * Çöp kutusu: envanter penceresinin sağ altında (Noah kutusunun yanında). Bir eşya (çantadan ya da giyiliden) üstüne sürüklenip bırakılınca
+   * Çöp (Destroy) yuvası: ekipman ızgarasının sağ altındaki kırmızı yuva. Bir eşya (çantadan ya da giyiliden) üstüne sürüklenip bırakılınca
    * oyunun kendi "Destroy" onay penceresi açılır; Yes derse eşya yok edilir.
    */
   private copKur(p: UiPencere): void {
-    const alan = document.createElement('div'); alan.className = 'cop-kutusu'; alan.title = 'Drag an item here to destroy it';
-    Object.assign(alan.style, { left: '356px', top: '313px', width: '26px', height: '28px', zIndex: '3' });
-    alan.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
-    p.el.appendChild(alan);
+    // Hedef: oyunun kendi kırmızı "destroy" yuvası (area_samma; aynı yerdeki 14 numaralı alan da dinler).
+    const hedefler = [...p.bul('area_samma'), ...p.bul('14')]; for (const h of hedefler) h.title = 'Drag an item here to destroy it';
     p.gizleDesen(/Destroy/); // onay penceresi (oyunun kendi resimleri) yalnızca bırakınca açılır
     const goster = (a: boolean) => p.gizleDesen(/^(Destroy|img_Destroy_.*|string_Destroy|btn_Destroy_.*)$/, !a);
     let bekleyen: YuvaKonumu | null = null;
-    alan.addEventListener('dragover', (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-esya')) { ev.preventDefault(); alan.classList.add('uzerinde'); } });
-    alan.addEventListener('dragleave', () => alan.classList.remove('uzerinde'));
-    alan.addEventListener('drop', (ev) => {
-      alan.classList.remove('uzerinde'); const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault();
+    for (const alan of hedefler) alan.addEventListener('dragover', (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-esya')) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } });
+    for (const alan of hedefler) alan.addEventListener('drop', (ev) => {
+      const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault();
       const k = JSON.parse(v) as YuvaKonumu, e = k.tur === 'c' ? this.b.oyuncu.envanter[k.i] : this.b.oyuncu.ekipman[k.i]; if (!e) return;
       bekleyen = k; p.metin('string_Destroy', `Are you sure you want to destroy ${e.ad}?`); goster(true);
     });
@@ -1062,7 +1059,7 @@ export class OyunArayuzu {
     };
     // Mağaza açıkken çanta eşyasına tıklamak onu NPC'ye satar; değilse kuşanır
     this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, { tur: 'c', i }, o.envanter[i] ? () => (this.acik.has('magaza') ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));
-    for (let yuva = 0; yuva < 15; yuva++) {
+    for (let yuva = 0; yuva < 14; yuva++) { // 14 = Destroy (çöp) yuvası: eşya konmaz
       const el = this.ekipman(yuva);
       if (el) yuvaCiz(el, o.ekipman[yuva], { tur: 'e', i: yuva }, o.ekipman[yuva] ? () => this.b.esyaCikar(yuva) : undefined);
     }

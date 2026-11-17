@@ -18,6 +18,37 @@ function uzaktaSol(m: THREE.Material): void {
   };
 }
 
+/**
+ * Nehir vadisi: dosyadaki şerit (~12 m) vadinin dibinden dardır; arazi su seviyesinin altında (ya da en çok SU_TASMA üstünde) kaldığı sürece
+ * her satırda şerit iki yana genişler (en çok SU_EN_COK_YAN). Genişlik komşu satırlarla yumuşatılır, kıyı kenarı dalgalanmasın.
+ */
+const SU_TASMA = 0.25, SU_EN_COK_YAN = 34, SU_ADIM = 1.5;
+/** Nehir yüzeyi bu kadar (m) yükseltilir: kıyı şeritleri ıslak kıyı olarak sular altında kalır (kullanıcı isteği: oradaki su artmalı). */
+const SU_YUKSELME = 0.7;
+function vadiyeGenislet(k: number[][], arazi: (x: number, z: number) => number): number[][] {
+  const satir = k.length / 4, sol: number[] = [], sag: number[] = [], yon: number[][] = [], orta: number[][] = [];
+  for (let s = 0; s < satir; s++) {
+    const [a, , , b] = [k[s * 4], k[s * 4 + 1], k[s * 4 + 2], k[s * 4 + 3]];
+    const dx = b[0] - a[0], dz = b[2] - a[2], uz = Math.hypot(dx, dz) || 1, nx = dx / uz, nz = dz / uz;
+    const cx = (k[s * 4 + 1][0] + k[s * 4 + 2][0]) / 2, cz = (k[s * 4 + 1][2] + k[s * 4 + 2][2]) / 2, y = k[s * 4 + 1][1] + SU_YUKSELME;
+    yon.push([nx, nz]); orta.push([cx, cz, uz / 2]);
+    const tara = (isaret: number): number => { let t = uz / 2; while (t < SU_EN_COK_YAN && arazi(cx + isaret * nx * (t + SU_ADIM), cz + isaret * nz * (t + SU_ADIM)) < y + SU_TASMA) t += SU_ADIM; return t; };
+    sol.push(Math.max(uz / 2, tara(-1))); sag.push(Math.max(uz / 2, tara(1)));
+  }
+  const yumusat = (v: number[]) => v.map((_, i) => { let t = 0, n = 0; for (let j = Math.max(0, i - 2); j <= Math.min(v.length - 1, i + 2); j++) { t += v[j]; n++; } return Math.max(v[i], t / n); });
+  const ys = yumusat(sol), yg = yumusat(sag);
+  const sonuc = k.map((x) => { const c = x.slice(); c[1] += SU_YUKSELME; return c; });
+  for (let s = 0; s < satir; s++) {
+    const [nx, nz] = yon[s], [cx, cz, yari] = orta[s], fs = ys[s] / yari, fg = yg[s] / yari;
+    // sol köşeler (0, 1) merkezden uzaklaşır, sağ köşeler (2, 3) de; oranlar korunur (kıyı saydam, orta belirgin)
+    for (const [c, f, isaret] of [[0, fs, -1], [1, fs, -1], [2, fg, 1], [3, fg, 1]] as [number, number, number][]) {
+      const v = sonuc[s * 4 + c], eski = k[s * 4 + c], dist = Math.hypot(eski[0] - cx, eski[2] - cz);
+      v[0] = cx + isaret * nx * dist * f; v[2] = cz + isaret * nz * dist * f;
+    }
+  }
+  return sonuc;
+}
+
 export class Su {
   private kostikler: THREE.Texture[] = [];
   private kostikMalzeme: THREE.MeshBasicMaterial;
@@ -38,14 +69,16 @@ export class Su {
     uzaktaSol(taban); uzaktaSol(kostikM);
     const grup = new THREE.Group(); grup.name = 'su';
     for (const r0 of v.nehirler) {
-      let r = r0;
+      let r = r0, genisletildi = false;
       // Nehir şeridi 4 köşe genişliğinde bir IZGARADIR (her satırda kıyı-orta-orta-kıyı; kıyı köşeleri saydam). Eski dönüştürücü bunu zikzak şerit sanıp çapraz geniş dörtgenler üretiyordu.
       if (r.tur === 'serit' && r.k.length % 4 === 0) {
         const ind: number[] = [];
         for (let s = 0; s + 1 < r.k.length / 4; s++) for (let c = 0; c < 3; c++) { const a = s * 4 + c, b = a + 1, d = a + 4, e = d + 1; ind.push(a, b, d, b, e, d); }
         r = { ...r, ind };
+        const ys = r.k.map((q) => q[1]); // düz (tüm köşeler aynı yükseklikte) şerit = şehir hendeği: plaza sulanmasın diye olduğu gibi kalır
+        if (arazi && Math.max(...ys) - Math.min(...ys) > 0.5) { r = { ...r, k: vadiyeGenislet(r.k, arazi) }; genisletildi = true; }
       }
-      if (arazi) { // her üçgende en az bir köşe arazinin altında değilse (kıyı/yatak sınırı yok) üçgen atılır
+      if (arazi && !genisletildi) { // her üçgende en az bir köşe arazinin altında değilse (kıyı/yatak sınırı yok) üçgen atılır
         const ind: number[] = [];
         for (let i = 0; i + 2 < r.ind.length; i += 3) {
           let enAlt = Infinity;
