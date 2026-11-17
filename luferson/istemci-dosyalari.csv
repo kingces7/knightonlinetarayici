@@ -1,0 +1,44 @@
+yol,tür,var_mı,boyut_bayt
+Misc/Sky/Karus.N3Sky,bölge tablosu (Zones.csv),evet,2026
+Misc/Sky/Karus_hdr.N3Sky,bölge tablosu (Zones.csv),evet,2026
+Zones/1.mob,bölge tablosu (Zones.csv),evet,708
+Zones/karus2004.NaviMesh,bölge tablosu (Zones.csv),evet,9646441
+Zones/karus2004.dxt,bölge tablosu (Zones.csv),evet,349545
+Zones/karus2004.ens,bölge tablosu (Zones.csv),evet,12
+Zones/karus2004.evtsub,bölge tablosu (Zones.csv),evet,8629
+Zones/karus2004.flag,bölge tablosu (Zones.csv),evet,386
+Zones/karus2004.gev,bölge tablosu (Zones.csv),evet,4
+Zones/karus2004.gtd,bölge tablosu (Zones.csv),evet,2478284
+Zones/karus2004.opd,bölge tablosu (Zones.csv),evet,4080816
+Zones/karus2004.opdext,bölge tablosu (Zones.csv),evet,600693
+Zones/karus2004.opdsub,bölge tablosu (Zones.csv),evet,13440
+Zones/karus2004.tct,bölge tablosu (Zones.csv),evet,11188224
+Zones/karus2004.tlt,bölge tablosu (Zones.csv),evet,10064544
+Zones/karus_start.glo,bölge tablosu (Zones.csv),evet,2528
+Misc/Sky/eslant_karus_11.n3sky,gökyüzü,evet,2026
+Misc/Sky/eslant_karus_11_hdr.n3sky,gökyüzü,evet,2026
+Zones/karus 2004.dxt,harita,evet,349598
+Zones/karus2004.gfo,harita,evet,386
+Zones/karus2004.glo,harita,evet,1520
+Zones/karus2004.gmd,harita,evet,84
+Zones/karus_start.DXT,harita,evet,1398123
+Zones/karus_start.gev,harita,evet,4
+Zones/karus_start.gmd,harita,evet,84
+Zones/karus_start.gtd,harita,evet,2455418
+Zones/karus_start.opd,harita,evet,3557180
+Zones/karus_start.opdsub,harita,evet,6356
+Zones/karus_start.tct,harita,evet,11188224
+Zones/karus_start.tlt,harita,evet,16388
+Zones/old_karus.dxt,harita,evet,349607
+Zones/old_karus.ens,harita,evet,12
+Zones/old_karus.evtsub,harita,evet,887
+Zones/old_karus.gev,harita,evet,4
+Zones/old_karus.glo,harita,evet,2528
+Zones/old_karus.gmd,harita,evet,84
+Zones/old_karus.gtd,harita,evet,2455497
+Zones/old_karus.opd,harita,evet,3702742
+Zones/old_karus.opdext,harita,evet,608148
+Zones/old_karus.opdsub,harita,evet,10190
+Zones/old_karus.tct,harita,evet,11188224
+Zones/old_karus.tlt,harita,evet,10133704
+Snd/1_karus.ogg,müzik,evet,1521846
