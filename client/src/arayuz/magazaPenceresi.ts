@@ -56,6 +56,12 @@ export class MagazaPenceresi {
     // Yerine aynı koyulukta sade bir zemin (çizgisiz): öndeki yuvalar ve Buy/Sell düğmeleri değişmez
     const zemin = document.createElement('div'); Object.assign(zemin.style, { position: 'absolute', left: '1px', top: '316px', width: '362px', height: '156px', background: 'rgba(10, 8, 6, .55)', pointerEvents: 'none' });
     this.tabAl.parentElement!.insertBefore(zemin, this.tabAl);
+    // Sepet toplam satırı etiketleri: "Total Noah to purchase / sell" yerine BUY ve SELL; ikisi de AYNI konumda (Sell, Buy'ın konumunu alır)
+    const etiketler = p.bul('text_totalmsg'), etAl = etiketler.find((e) => this.tabAl.contains(e)), etSat = etiketler.find((e) => this.tabSat.contains(e));
+    if (etAl && etSat) for (const k of ['left', 'top', 'width', 'height'] as const) etSat.style[k] = etAl.style[k];
+    for (const el of [etAl, etSat]) if (el) Object.assign(el.style, { display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }); // iki etiket aynı hizalamada
+    p.el.querySelectorAll('span').forEach((sp) => { if (sp.textContent?.trim() === ':') sp.textContent = ''; });
+    for (const [el, yazi] of [[etAl, 'BUY'], [etSat, 'SELL']] as const) { const sp = el?.querySelector('span'); if (sp) sp.textContent = yazi; }
     for (const el of p.bul('img_realmpoint')) el.style.display = 'none'; // Noah simgesinin arkasındaki ikinci ikon
     // Düğme yazıları durum resimlerinin ÜSTÜNDE görünsün
     for (const el of p.tumDugmeler()) el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { y.style.zIndex = '3'; y.style.pointerEvents = 'none'; });
