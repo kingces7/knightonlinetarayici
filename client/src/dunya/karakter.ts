@@ -61,7 +61,7 @@ export class KarakterModeli {
   private giyimNesneleri = new Map<string, { kaynak: number; nesne: THREE.SkinnedMesh | null }>();
   private static giyimDizini: Record<string, number[]> | null = null;
   private static giyimDizinYukle: Promise<void> | null = null;
-  private static readonly DINAMIK_YUVALAR: [string, number][] = [['govde', 4], ['bacak', 10], ['el', 12], ['ayak', 13]];
+  private static readonly DINAMIK_YUVALAR: [string, number][] = [['bas', 1], ['govde', 4], ['bacak', 10], ['el', 12], ['ayak', 13]];
   /** Çıplak ırk modeli mi (parca_<yuva>_ciplak var, parca_<yuva>_giyili yok)? */
   private get irkModeli(): boolean { let v = false; this.kok.traverse((o) => { if (/^parca_[a-z]+_ciplak$/.test(o.name)) v = true; if (/^parca_[a-z]+_giyili$/.test(o.name)) v = false; }); return v; }
   private taban(): THREE.SkinnedMesh | null { let s: THREE.SkinnedMesh | null = null; this.kok.traverse((o) => { const m = o as THREE.SkinnedMesh; if (!s && m.isSkinnedMesh && !o.name.startsWith('giyim_')) s = m; }); return s; }

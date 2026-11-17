@@ -175,7 +175,7 @@ export class SunucuDunyasi {
       if (this.oyuncular.get(k.id) !== o) return;
       // Görünen eşyalar: zırh parçaları ve eldeki silah/kalkan (sunucu kullanıcı kaydındaki giyili yuvalar)
       const e = k.esyalar, kaynak = (no: number) => (no ? esyaKaynagi(no) : 0);
-      o.model?.giyimUygula(k.irk, { govde: kaynak(e.govde.no), bacak: kaynak(e.bacak.no), el: kaynak(e.eldiven.no), ayak: kaynak(e.ayak.no) });
+      o.model?.giyimUygula(k.irk, { bas: kaynak(e.kask.no), govde: kaynak(e.govde.no), bacak: kaynak(e.bacak.no), el: kaynak(e.eldiven.no), ayak: kaynak(e.ayak.no) });
       const sag = esyaTablo(e.sagEl.no), sol = esyaTablo(e.solEl.no);
       o.model?.silahAyarla(sag?.tip ?? (sol && YAY_TURLERI.includes(sol.tip) ? sol.tip : 0)); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
       this.sahne.add(o.grup); this.oyuncuListesi.push(o);
