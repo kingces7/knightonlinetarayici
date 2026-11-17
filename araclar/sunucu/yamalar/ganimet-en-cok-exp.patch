@@ -1,0 +1,31 @@
+--- /tmp/Npc.cpp.orig	2026-11-17 22:06:08.648563000 +0300
++++ oyun-dosyalari/derleme/LILITH_Game-Server/GameServer/Npc.cpp	2026-11-17 22:06:26.089417900 +0300
+@@ -5982,7 +5982,7 @@
+ 	if (GetMap() == nullptr)
+ 		return;
+ 
+-	uint32 nMaxDamage = 0;
++	uint32 nMaxDamage = 0; double dMaxExp = 0.0;
+ 	std::map<CUser*, uint32> fuserdamagelist;
+ 	std::map<CNpc*, uint32> fnpcdamagelist;
+ 	std::map<uint16, CUser*> partyIndex;
+@@ -6035,9 +6035,18 @@
+ 		if (pUser == nullptr || !pUser->isInGame())
+ 			continue;
+ 
+-		if (itr->second > nMaxDamage) {
++		// Ganimet hakki: solo ya da parti farketmeksizin bu canavardan EN COK EXP toplayan (parti = partinin toplam exp'i) kazanir.
++		// Exp, RecvUserExp ile ayni hesaptir: canavar exp'i x hasar payi (solo oyuncuda seviye farki carpani dahil).
++		double dExpDegeri = 0.0;
++		if (itr->second && m_TotalDamage && GetProto() != nullptr) {
++			double dPay = (double)itr->second / (double)m_TotalDamage; if (dPay > 1.0) dPay = 1.0;
++			dExpDegeri = (double)GetProto()->m_iExp * dPay;
++			if (!pUser->isInParty()) dExpDegeri *= GetRewardModifier(pUser->GetLevel());
++		}
++		if (dExpDegeri > dMaxExp || (m_sMaxDamageUserid < 0 && dMaxExp == 0.0)) {
+ 			m_sMaxDamageUserid = pUser->GetID();
+ 			strMaxDamageUser = pUser->GetName();
++			dMaxExp = dExpDegeri;
+ 			nMaxDamage = itr->second;
+ 		}
+ 

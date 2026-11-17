@@ -3,6 +3,7 @@
 // Yüz/saç seçimi bu sürümde yok (oyuncu modelleri hazır görünümlüdür): yüz 1, saç 1 gönderilir.
 import { UiPencere } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
+import { baskinStatlar, statRengiUygula } from './baskinStat';
 import { IRK_ADI, IRK_MESLEKLERI, MESLEK_ADI, STAT_EN_AZ, STAT_TOPLAMI, YENI_KARAKTER_MESAJLARI, irkUlusu, karakterDenetle, sinifKodu, type YeniKarakter } from '../../../kopru/protokol/olustur.ts';
 import type { OlusturmaAraclari } from '../ag/sunucu';
 import { IRK_MODELLERI } from '../oyun/veri';
@@ -149,6 +150,8 @@ export class KarakterOlustur {
   }
   private statCiz(): void {
     for (const [id, s] of STAT_ID) this.p.metin(`text_${id}`, this.stat[s]);
+    const baskin = baskinStatlar(this.meslek) as string[]; // sınıfın baskın statları pastel okyanus mavisi
+    for (const [id, s] of STAT_ID) for (const e of [this.p.alan(`text_${id}`), this.p.alan(`${id}_01`)]) statRengiUygula(e, baskin.includes(s));
     this.p.metin('text_bonus', this.bonus);
     this.durum('');
   }

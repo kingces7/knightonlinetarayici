@@ -13,6 +13,7 @@ import { MagazaPenceresi } from './magazaPenceresi';
 import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
 import { DiyalogPenceresi } from './diyalogPenceresi';
+import { baskinStatlar, sinifMesleki, statRengiUygula } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -1164,6 +1165,11 @@ export class OyunArayuzu {
     p.metin('Text_Weight', `${o.envanter.filter(Boolean).length} / 28`);
     p.metin('Text_BonusPoint', o.bonusPuan);
     p.metin('Text_Strength', o.stat.str); p.metin('Text_Stamina', o.stat.sta); p.metin('Text_Dexterity', o.stat.dex);
+    { // sınıfın baskın statları (etiket ve değer) pastel okyanus mavisi
+      const baskin = baskinStatlar(sinifMesleki(o.sinif)) as string[];
+      const idler: [string, string[]][] = [['str', ['img_str', 'text_13', 'Text_Strength']], ['sta', ['img_sta', 'Text_Stamina']], ['dex', ['img_dex', 'text_15', 'Text_Dexterity']], ['int', ['img_int', 'text_16', 'Text_Intelligence']]];
+      for (const [s, ids] of idler) for (const id of ids) for (const e of p.bul(id)) statRengiUygula(e, baskin.includes(s));
+    }
     p.metin('Text_Intelligence', o.stat.int); p.metin('Text_MagicAttack', Math.max(0, o.stat.int - 30));
     p.metin('Text_Manner', 0);
     for (const d of ['btn_str', 'btn_sta', 'btn_Dex', 'btn_Int', 'btn_Magic']) p.dugmePasif(d, o.bonusPuan <= 0);
