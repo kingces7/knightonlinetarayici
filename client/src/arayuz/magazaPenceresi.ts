@@ -57,8 +57,8 @@ export class MagazaPenceresi {
     for (const id of ['base_tab_itembuy', 'base_tab_itemsell']) for (const el of p.bul(id)) el.style.display = 'none'; // alış/satış sepeti bölümü: bu sürümde yok
     // Sepet bölgesinin arka plan resimleri (şeritler ve kayık hücre resimleri) de gizlenir: yukarı çekilince mağaza ızgarasına bulaşıp bozuk çizgiler çiziyordu
     p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { const yy = parseFloat(r.style.top); if (r.style.backgroundImage.includes('person') && yy >= 300 && yy < 500) r.style.display = 'none'; });
-    // Üst bölümün siyah zemini envanter gibi yarı saydam
-    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (r.style.display !== 'none' && r.style.backgroundImage.includes('person') && parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.55'; });
+    // Üst bölümün siyah zemini envanter ve bankayla aynı saydamlıkta
+    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (r.style.display !== 'none' && r.style.backgroundImage.includes('person') && parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.66'; }); // ölçülerek ayarlandı: alt bölüm, envanter ve banka ile aynı koyuluk
     // Alttaki bölümü (envanter ve alt çerçeve) boşalan yere çek
     const kap = this.canta[0].parentElement!;
     for (const c of Array.from(kap.children) as HTMLElement[]) if (c.style.display !== 'none' && y(c) >= 300) c.style.top = `${y(c) - KAYMA}px`;
