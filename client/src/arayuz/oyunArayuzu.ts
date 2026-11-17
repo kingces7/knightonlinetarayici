@@ -21,7 +21,7 @@ export interface ArayuzBaglami {
   esyaKusan: (i: number) => void;
   /** Envanterde sürükle-bırak: kaynak yuvadaki eşyayı hedef yuvaya taşır/yer değiştirir. */
   esyaTasi: (kaynak: YuvaKonumu, hedef: YuvaKonumu) => void;
-  ipucuGoster: (e: EsyaTanimi, ev: MouseEvent) => void;
+  ipucuGoster: (e: EsyaTanimi, ev: MouseEvent, satin?: boolean) => void;
   ipucuGizle: () => void;
   mesaj: (m: string) => void;
   /** Yüklü haritanın adı ve kenar uzunluğu (m): mini harita için. */
@@ -186,6 +186,7 @@ export class OyunArayuzu {
       };
     });
     this.genel.davranis.set('re_el_cmdlist', (p) => this.komutListesi(p));
+    this.genel.acilista.set('re_el_cmdlist', (p) => this.komutListesi(p)); // her açılışta yeşil çerçeve Private ve PM üzerinde başlar
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
     this.genel.davranis.set('re_el_page_quest', (p) => this.sekmeSeridi(p, 'gorev'));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
@@ -502,7 +503,7 @@ export class OyunArayuzu {
       const e = sayfa[i] ?? null;
       alan.style.backgroundImage = e?.simge ? `url(${e.simge})` : '';
       alan.style.backgroundSize = ESYA_SIMGE; alan.style.backgroundPosition = '0 0';
-      alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
+      alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev, true) : null; // mağaza: alış fiyatı
       alan.onmouseleave = () => this.b.ipucuGizle();
       alan.style.opacity = e && o.altin < e.fiyat ? '0.55' : '1';
       p.metin(String(200 + i), e ? e.fiyat.toLocaleString('en-US') : '');

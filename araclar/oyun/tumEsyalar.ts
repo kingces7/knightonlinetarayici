@@ -34,6 +34,10 @@ function main(): number {
       no, kaynak: Number(s[6]), ad: String(s[2]), aciklama: String(s[3]).replace(/\|\s*/g, ' '), simge: simgeAd,
       tur: SILAH.has(tur) ? 'silah' : tur === KALKAN ? 'kalkan' : ZIRH.has(tur) ? 'zirh' : 'sarf', tip: tur, yuva: Number(s[12]),
       hasar: Number(s[15]), gecikme: Number(s[16]), savunma: Number(s[22]), fiyat: Number(s[20]), sayilabilir: Number(s[23]) > 0,
+      // Orijinal eşya bilgisi (UIImageTooltipDlg) alanları — sütunlar __TABLE_ITEM_BASIC sırasıdır: 13 ırk, 14 sınıf, 17 menzil (0,1 m), 18 ağırlık (0,1), 19 dayanıklılık,
+      // 26 gereken seviye, 30-34 gereken güç/dayanıklılık/çeviklik/zekâ/büyü gücü, 36 eşya sınıfı (1 düşük, 2 orta, 3 yüksek).
+      irk: Number(s[13]), sinif: Number(s[14]), menzil: Number(s[17]), agirlik: Number(s[18]), dayanim: Number(s[19]),
+      gerekSeviye: Number(s[26]), gerekGuc: Number(s[30]), gerekSta: Number(s[31]), gerekCev: Number(s[32]), gerekZeka: Number(s[33]), gerekBuyu: Number(s[34]), sinifDerece: Number(s[36]),
     });
   }
   fs.writeFileSync(path.join(klasor, 'tum.json'), JSON.stringify(liste));

@@ -30,6 +30,8 @@ export class GenelPencereler {
   private z = 2000;
   private sayac = 0;
   readonly davranis = new Map<string, Davranis>();
+  /** Pencere HER açıldığında çalışır (ilk kuruluşta değil): seçimleri/içeriği sıfırlamak için. */
+  readonly acilista = new Map<string, (p: UiPencere) => void>();
 
   constructor(private b: GenelBaglam) {}
 
@@ -69,6 +71,7 @@ export class GenelPencereler {
     if (!this.acikPencereler.has(ad)) {
       this.b.acilirken?.(ad);
       this.acikPencereler.set(ad, p);
+      this.acilista.get(ad)?.(p);
       const bos = this.b.altBos();
       const [sl, st, sr, sb] = p.sinir();
       const ol = Math.max(0.35, Math.min(arayuzOlcegi(), (innerWidth - 16) / (sr - sl), (innerHeight - bos - 8) / (sb - st)));

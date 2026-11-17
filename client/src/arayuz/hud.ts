@@ -1,7 +1,8 @@
 // Oyun arayüzü (HTML katmanı): can/mana çubukları, hedef penceresi, mesaj kutusu, envanter, ganimet penceresi.
 // Oyun içeriği İngilizce olduğu için arayüz yazıları da İngilizce.
 import type { EsyaTanimi } from '../oyun/veri';
-import { gerekenDeneyim } from '../oyun/veri';
+import { gerekenDeneyim, esyaTablo } from '../oyun/veri';
+import { esyaBilgisiOlustur, type OyuncuOzeti } from './esyaBilgisi';
 import type { Canavar, DigerOyuncu, GanimetKutusu, Npc, Oyuncu } from '../oyun/varliklar';
 
 const $ = <T extends HTMLElement>(html: string): T => {
@@ -118,14 +119,13 @@ export class Hud {
 
   ipucuGizle(): void { this.ipucu.classList.add('gizli'); }
 
-  ipucuGoster(e: EsyaTanimi, ev: MouseEvent): void {
-    const st = e.tur === 'silah' ? `Attack Power ${e.hasar}` : e.tur === 'zirh' || e.tur === 'kalkan' ? `Defense ${e.savunma}` : '';
+  /** Oyuncunun seviye/stat/sınıf özeti: eşya bilgisinde yetmeyen şartlar kırmızı gösterilir. */
+  oyuncuOzeti: () => OyuncuOzeti | null = () => null;
+  ipucuGoster(e: EsyaTanimi, ev: MouseEvent, satin = false): void {
+    const tam = esyaTablo(e.sunucuNo ?? e.no); // yeni alanlar (şartlar, ağırlık…) eşya tablosundan
+    const bilgi: EsyaTanimi = { ...e, ...(tam ? { irk: tam.irk, sinif: tam.sinif, menzil: tam.menzil, agirlik: tam.agirlik, dayanim: tam.dayanim, gerekSeviye: tam.gerekSeviye, gerekGuc: tam.gerekGuc, gerekSta: tam.gerekSta, gerekCev: tam.gerekCev, gerekZeka: tam.gerekZeka, gerekBuyu: tam.gerekBuyu, sinifDerece: tam.sinifDerece, tip: e.tip || tam.tip } : {}) };
     this.ipucu.innerHTML = '';
-    this.ipucu.append($(`<div class="ad"></div>`), $(`<div class="st"></div>`), $(`<div class="ac"></div>`), $(`<div class="fi"></div>`));
-    (this.ipucu.children[0] as HTMLElement).textContent = e.adet && e.adet > 1 ? `${e.ad} (${e.adet})` : e.ad;
-    (this.ipucu.children[1] as HTMLElement).textContent = st;
-    (this.ipucu.children[2] as HTMLElement).textContent = e.aciklama;
-    (this.ipucu.children[3] as HTMLElement).textContent = `Price ${e.fiyat.toLocaleString('en-US')} Noah`;
+    this.ipucu.appendChild(esyaBilgisiOlustur(bilgi, this.oyuncuOzeti(), satin));
     this.ipucu.style.left = '0px'; this.ipucu.style.top = '0px';
     this.ipucu.classList.remove('gizli');
     // Eşya bilgisi hiçbir zaman ekran dışına taşmaz: sağa sığmıyorsa imlecin soluna, alta sığmıyorsa yukarı alınır.

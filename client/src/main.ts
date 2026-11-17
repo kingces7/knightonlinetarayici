@@ -99,6 +99,7 @@ async function basla(): Promise<void> {
   await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle(), ganimetYukle()]);
 
   const hud = new Hud();
+  hud.oyuncuOzeti = () => ({ seviye: oyuncu.seviye, sinif: oyuncu.sinif, irk: oyuncu.modelNo ? modeldenIrk(oyuncu.modelNo) : 12, stat: oyuncu.stat });
   const ses = new Ses();
   await ses.yukle();
   if (ayar.bolge) ses.muzikCal(ayar.bolge);
@@ -181,6 +182,7 @@ async function basla(): Promise<void> {
   const oturDegistir = () => {
     if (oyuncu.olu || !oyuncu.model) return;
     const otur = !oyuncu.model.oturuyor;
+    if (otur && hareketEdiyor) return; // koşarken/yürürken C (oturma) devre dışı (kullanıcı isteği)
     if (otur && oyuncu.savastanBeri < OTURMA_SAVAS_BEKLEME) { hud.mesaj('You cannot sit down during combat.', 'sistem'); return; }
     if (otur) { oyuncu.hedef = null; oyuncu.yuruHedef = null; acilacakKutu = null; oyuncu.yuruAcisi = null; oyuncu.model.oynat('bekle'); }
     oyuncu.model.oturPozu(otur);
@@ -335,7 +337,7 @@ async function basla(): Promise<void> {
         if (e && h.tur === 'e') hud.mesaj(`You equipped ${e.ad}.`, 'sistem'); else if (e && k.tur === 'e') hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
         envanterYenile();
       },
-      ipucuGoster: (e, ev) => hud.ipucuGoster(e, ev), ipucuGizle: () => hud.ipucuGizle(),
+      ipucuGoster: (e, ev, satin) => hud.ipucuGoster(e, ev, satin), ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
       partiDavet: () => partiDavetEt(),
       // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).

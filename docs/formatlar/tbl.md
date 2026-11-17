@@ -131,3 +131,7 @@ yazarken dikkate alınmaz. `onek`, `artik`, `kuyruk`, `sifreleme` alanlarına do
 |---|---|
 | `Data/modify_us.tbl` | Bilinen üç yöntemle de açılmıyor (DES'in farklı başlangıç noktaları da denendi). Sunucuya özel olabilir. Açık iş. |
 | `Data/Slander_us.tbl` | 0 bayt, boş dosya. |
+
+## Eşya tablosu sütunları (Item_Org_us.tbl, Myko) — eşya bilgisi için
+`__TABLE_ITEM_BASIC` sırası (client GameDef.h) + Myko'nun eklediği iki sütun: 0 numara, 1 uzantı, 2 ad, 3 açıklama, 6 model kaynağı, 7 simge, 10 tür (Kind), 12 yuva, 13 ırk, 14 meslek, 15 saldırı gücü, 16 saldırı aralığı, 17 menzil (0,1 m), 18 ağırlık (0,1), 19 dayanıklılık, 20 fiyat, 22 savunma, 23 yığınlanır mı, 26 gereken seviye, 30-34 gereken güç/dayanıklılık/çeviklik/zekâ/büyü gücü, 36 **eşya sınıfı: 1 Low, 2 Middle, 3 High Class** (5 = yüksek sınıfın yükseltme çeşidi; metinler Texts_us 4562-4564 "Item Grade : …"). Örnek: Quilted Pauldron 1, Plate Armor Pauldron 2, Chitin Armor Pauldron 3; Dagger 1, Kukry 2, Mirage Dagger 3.
+Eşya bilgisi penceresi: `client/src/arayuz/esyaBilgisi.ts` (orijinal UIImageTooltipDlg satır sırası; yetmeyen şartlar kırmızı). Büyü/direnç gibi uzantı (Item_Ext) alanları henüz gösterilmiyor.
