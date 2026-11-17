@@ -492,11 +492,16 @@ export class OyunArayuzu {
     // Mağaza + envanter tek "Store" penceresi (magazaPenceresi.ts); eski ayrı mağaza/envanter pencereleri kullanılmaz.
     this.magazaAdi = npcAdi; this.magazaSayfalar = sayfalar;
     this.ac('envanter', false);
-    this.magazaYeni ??= new MagazaPenceresi({
-      envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, satinAl: (e) => this.b.magazaSatinAl(e), sat: (y) => this.b.magazaSat(y), tamirEt: (k) => this.b.tamirEt?.(k),
-      ipucu: (e, ev, s, t) => this.b.ipucuGoster(e, ev, s, t), ipucuGizle: () => this.b.ipucuGizle(), mesaj: (m) => this.b.mesaj(m), altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, kapandi: () => {},
-    }, this.b.kok);
-    this.magazaYeni.ac(npcAdi, sayfalar, !!this.b.tamirmi?.());
+    const tamirci = !!this.b.tamirmi?.();
+    if (!this.magazaYeni) {
+      void MagazaPenceresi.olustur({
+        envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, satinAl: (e) => this.b.magazaSatinAl(e), sat: (y) => this.b.magazaSat(y), tamirEt: (k) => this.b.tamirEt?.(k),
+        ipucu: (e, ev, s, t) => this.b.ipucuGoster(e, ev, s, t), ipucuGizle: () => this.b.ipucuGizle(), mesaj: (m) => this.b.mesaj(m),
+        altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, olcek: () => arayuzOlcegi(), kapandi: () => {},
+      }, this.b.kok).then((m) => { this.magazaYeni = m; m.ac(npcAdi, sayfalar, tamirci); });
+      return;
+    }
+    this.magazaYeni.ac(npcAdi, sayfalar, tamirci);
   }
   /**
    * Mağaza ve envanter TEK pencere gibi üst üste durur (orijinal "Store" düzeni): mağaza üstte, envanter hemen altında, ikisi de sağ kenarda.

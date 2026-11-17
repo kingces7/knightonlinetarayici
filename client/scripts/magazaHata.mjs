@@ -1,0 +1,10 @@
+import { chromium } from 'playwright-core';
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1280, height: 800 } });
+const log = []; s.on('console', (m) => log.push(m.text())); s.on('pageerror', (e) => log.push('ERR ' + e.message));
+await s.goto('http://localhost:5173/?giris=0'); await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
+await s.evaluate(() => { window.ke.oyuncu.altin = 50000; window.ke.npcTikla(window.ke.npcler.find((x) => x.tanim.satis > 0)); }); await s.waitForTimeout(1800);
+console.log(await s.evaluate(() => { const e = [...document.querySelectorAll('[data-id="0"].ui-t9')].find((x) => x.offsetParent && x.getBoundingClientRect().top < 290); const r = e.getBoundingClientRect(); const at = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return JSON.stringify({ hit: at === e, atCls: at?.className, atId: at?.dataset.id, ondbl: !!e.ondblclick, bg: e.style.backgroundImage.slice(0, 40) }); }));
+await s.evaluate(() => { const e = [...document.querySelectorAll('[data-id="0"].ui-t9')].find((x) => x.offsetParent && x.getBoundingClientRect().top < 290); e.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })); });
+await s.waitForTimeout(500); console.log(await s.evaluate(() => window.ke.oyuncu.envanter.filter(Boolean).length, 0), log.slice(-5));
+await t.close();

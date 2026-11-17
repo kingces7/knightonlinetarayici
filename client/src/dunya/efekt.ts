@@ -87,10 +87,12 @@ export class EfektYoneticisi {
     return q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), yon.clone().normalize());
   }
 
+  private readonly gecici = new THREE.Quaternion();
   guncelle(dt: number): void {
     for (let i = this.aktif.length - 1; i >= 0; i--) {
       const o = this.aktif[i]; o.t += dt;
       o.kok.getWorldPosition(o.kok0);
+      o.yon = new THREE.Euler().setFromQuaternion(o.kok.getWorldQuaternion(this.gecici), 'YXZ').y; // efekt kullananın şimdiki yönünü izler (geri dönünce efekt yerinde kalmaz, hep arkasında durur)
       if (o.azami !== null && o.t >= o.azami + SONME) { for (const s of o.parcalar) s.bitti = true; }
       let canli = false;
       for (const s of o.parcalar) { if (!s.bitti) { this.parcaGuncelle(o, s, dt); if (!s.bitti) canli = true; } }
