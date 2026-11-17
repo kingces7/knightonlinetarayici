@@ -15,6 +15,6 @@ const b = () => s.evaluate(() => window.ke.arayuz().b);
 await s.evaluate(() => window.ke.arayuz().b.bankaIslem({ tur: 'altin-yatir' })); await s.waitForTimeout(1200); console.log('Noah yatır', JSON.stringify(await d()));
 await s.evaluate(() => { const i = window.ke.oyuncu.envanter.findIndex((e) => e); window.ke.arayuz().b.bankaIslem({ tur: 'esya-yatir', canta: i }); }); await s.waitForTimeout(1200); console.log('eşya yatır', JSON.stringify(await d()));
 await s.evaluate(() => { const j = window.ke.oyuncu.depo.findIndex((e) => e); window.ke.arayuz().b.bankaIslem({ tur: 'banka-ici', kaynak: j, hedef: j + 3 }); }); await s.waitForTimeout(1200); console.log('banka içi taşı (+3 yuva)', JSON.stringify(await d()), JSON.stringify(await s.evaluate(() => window.ke.oyuncu.depo.map((e, i) => e ? i : null).filter((x) => x !== null))));
-await s.evaluate(() => { const j = window.ke.oyuncu.depo.findIndex((e) => e); window.ke.arayuz().b.bankaIslem({ tur: 'esya-cek', banka: j, hedef: 20 }); }); await s.waitForTimeout(1200); console.log('eşya çek', JSON.stringify(await d()));
+await s.evaluate(() => { const j = window.ke.oyuncu.depo.findIndex((e) => e); window.ke.arayuz().b.bankaIslem({ tur: 'esya-cek', banka: j }); }); await s.waitForTimeout(1200); console.log('eşya çek', JSON.stringify(await d()));
 await s.evaluate(() => window.ke.arayuz().b.bankaIslem({ tur: 'altin-cek' })); await s.waitForTimeout(1200); console.log('Noah çek', JSON.stringify(await d()));
 console.log('hatalar', JSON.stringify(hatalar)); await t.close();
