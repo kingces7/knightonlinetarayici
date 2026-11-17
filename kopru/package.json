@@ -8,6 +8,7 @@
   },
   "scripts": {
     "baslat": "node src/baslat.ts",
+    "hesap-sayfasi": "node src/hesap-sayfasi.ts",
     "test": "node --test",
     "kontrol": "tsc --noEmit"
   },
