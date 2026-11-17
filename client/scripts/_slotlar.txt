@@ -1,0 +1,85 @@
+1108|153|Kecoon Raider|120|483|5|5
+1109|153|Kecoon Raider|59|237|5|5
+1110|155|Kecoon warrior|423|78|5|5
+1114|159|Kecoon captain|160|462|5|5
+1115|750|Worm|221|318|5|5
+1116|750|Worm|265|279|5|5
+1117|751|Earth Worm|232|294|5|5
+1118|751|Earth Worm|255|265|5|5
+1119|752|Blood Worm|249|280|5|5
+1121|755|Snatcher|357|227|5|5
+1122|755|Snatcher|426|214|5|5
+1123|754|Carrion crawler|302|232|5|5
+1124|754|Carrion crawler|443|215|5|5
+1125|754|Carrion crawler|381|225|5|5
+1126|250|Bulcan|161|194|5|5
+1127|250|Bulcan|188|414|5|5
+1128|250|Bulcan|64|271|5|5
+1129|250|Bulcan|352|150|5|5
+1130|250|Bulcan|167|264|5|5
+1131|250|Bulcan|56|359|5|5
+1132|250|Bulcan|56|194|5|5
+1133|250|Bulcan|195|224|5|5
+1134|251|Wild bulcan|387|75|5|5
+1135|251|Wild bulcan|267|62|5|5
+1136|251|Wild bulcan|98|158|5|5
+1138|251|Wild bulcan|55|396|5|5
+1139|252|Bulky Bulcan|63|324|5|5
+1141|253|Giant bulcan|351|92|5|5
+1142|253|Giant bulcan|174|109|5|5
+1143|254|Bulture|252|143|5|5
+1144|254|Bulture|36|433|5|5
+1145|254|Bulture|121|377|5|5
+1146|254|Bulture|309|97|5|5
+1147|255|Small Bulcan|329|168|5|5
+1148|255|Small Bulcan|146|208|5|5
+1149|255|Small Bulcan|393|137|5|5
+1150|255|Small Bulcan|231|184|5|5
+1151|450|Glyptodont|236|168|1|5
+1152|1671|Orc Watcher|77|98|5|5
+1153|1671|Orc Watcher|55|212|5|5
+1154|1671|Orc Watcher|77|414|5|5
+1211|850|Bandicoot|193|326|5|5
+1212|850|Bandicoot|299|260|5|5
+1213|850|Bandicoot|162|348|5|5
+1214|851|Wild Bandicoot|145|291|5|5
+1215|851|Wild Bandicoot|367|212|5|5
+1216|851|Wild Bandicoot|403|207|5|5
+1217|852|Scavenger Bandicoot|213|268|5|5
+1218|852|Scavenger Bandicoot|293|211|5|5
+1219|852|Scavenger Bandicoot|434|166|5|5
+1220|853|Rabid Bandicoot|451|135|5|5
+1221|853|Rabid Bandicoot|346|201|5|5
+1222|853|Rabid Bandicoot|247|236|5|5
+1223|854|Cannibal Bandicoot|467|158|5|5
+1224|854|Cannibal Bandicoot|182|178|5|5
+1225|257|Silan|61|143|5|5
+1226|257|Silan|92|106|5|5
+1228|550|Werewolf|114|186|5|5
+1229|550|Werewolf|98|315|5|5
+1377|550|Werewolf|134|143|5|5
+1378|550|Werewolf|60|45|5|5
+1380|550|Werewolf|187|58|5|5
+1381|150|Kecoon|376|160|5|5
+1382|150|Kecoon|126|332|5|5
+1384|150|Kecoon|281|142|5|5
+1385|150|Kecoon|185|448|5|5
+1386|152|Kecoon Fighter|226|86|5|5
+1387|152|Kecoon Fighter|339|103|5|5
+1388|152|Kecoon Fighter|169|477|5|5
+1389|153|Kecoon Raider|132|52|5|5
+1390|153|Kecoon Raider|70|431|5|5
+5071|350|Gavolt|417|158|5|5
+5072|350|Gavolt|472|105|5|5
+5073|350|Gavolt|397|118|5|5
+5074|351|Giant gavolt|434|106|5|5
+5075|351|Giant gavolt|31|406|5|5
+5077|352|Fury Gavolt|314|58|5|5
+5078|354|Gloomwing|287|92|5|5
+5079|354|Gloomwing|474|121|5|5
+7877|603|Chaotic generator|344|435|1|0
+8104|155|Kecoon warrior|48|171|5|5
+8105|251|Wild bulcan|162|231|5|5
+8106|550|Werewolf|113|234|5|5
+8107|550|Werewolf|82|216|5|5
+8108|257|Silan|110|82|5|5

@@ -9,7 +9,7 @@ const KOSTIK_FPS = 16;
 /** Su köşesi arazinin bu kadar (m) üstünden fazla yükseklikteyse "havada" sayılır; üçgenin en alçak köşesi bunun üstündeyse çizilmez. */
 const SU_ASILI_ESIK = -0.15;
 /** Su, kameradan bu uzaklıkta (m) solmaya başlar ve ikincisinde tamamen kaybolur: çok uzaktaki su düz beyaz bir şerit gibi görünüyordu. */
-const SU_SOLMA_BAS = 40, SU_SOLMA_SON = 110;
+const SU_SOLMA_BAS = 70, SU_SOLMA_SON = 200;
 /** Malzemeye uzaklığa göre saydamlaşma ekler (üç.js'in kendi gölgelendiricisine küçük bir ek). */
 function uzaktaSol(m: THREE.Material): void {
   m.onBeforeCompile = (s) => {
@@ -66,7 +66,7 @@ export class Su {
     const kostikler = Array.from({ length: v.kostik }, (_, i) => doku(`su/caust${String(i).padStart(2, '0')}.png`));
     const taban = new THREE.MeshBasicMaterial({ map: dalga, color: 0x8fb4c8, vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const kostikM = new THREE.MeshBasicMaterial({ map: kostikler[0] ?? null, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
-    uzaktaSol(taban); uzaktaSol(kostikM);
+    uzaktaSol(kostikM); // yalnız toplamalı kostik katmanı uzakta solar; ana su sönmez (uzaktaki su sisle karışır: sis rengi + 150-600 m)
     const grup = new THREE.Group(); grup.name = 'su';
     for (const r0 of v.nehirler) {
       let r = r0, genisletildi = false;
