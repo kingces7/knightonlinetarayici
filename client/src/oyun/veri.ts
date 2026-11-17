@@ -2,6 +2,7 @@
 // Not: Gerçek değerler sunucu veritabanında; sunucu bağlandığında oradan gelecek.
 
 export interface EsyaTanimi {
+  /** Görünüm kaynağı (Item_Org 7. sütun): zırh parçası dosya adı bundan türetilir (giyim/<ırk>/<kaynak>.glb); yoksa 0. */ kaynak?: number;
   /** Sunucudaki TAM eşya numarası (son 3 hane yükseltme/ek kodu); sunucuya giden her istekte bu kullanılır. Yerel eşyalarda yoktur. */ sunucuNo?: number;
   no: number; ad: string; aciklama: string; simge: string;
   /** Yığınlanabilir mi (eşya tablosu Countable: iksir, ok, kâğıt…)? `adet` = bu yuvadaki sayı. */ sayilabilir?: boolean; adet?: number; tur: 'silah' | 'zirh' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
@@ -58,8 +59,17 @@ export const OYUNCU_SES_MODELI = 31137;
  * Değerler NPC_Looks numaralarıdır (UPC_DefaultLooks iskeletleri); zırhlı hazır görünümler kullanılır, eşyaya göre giydirme henüz yok.
  * Üretim: npm run karakter -- 31121 31128 31142 31147 31152 31155 (araclar klasöründe).
  */
-export const IRK_MODELLERI: Record<number, number> = { 1: 31142, 2: 31152, 3: 31155, 4: 31147, 11: 31121, 12: OYUNCU_MODELI, 13: 31128 };
-export const irkModeli = (irk: number): number => IRK_MODELLERI[irk] ?? OYUNCU_MODELI;
+/** Çıplak ırk modelleri (araclar: npm run irk): 7000 + ırk numarası. Zırhlar eşyaya göre ayrıca giydirilir (araclar: npm run giyim). */
+export const IRK_MODELLERI: Record<number, number> = { 1: 7001, 2: 7002, 3: 7003, 4: 7004, 11: 7011, 12: 7012, 13: 7013 };
+/** Model numarasından ırk numarası (ırk modeli değilse 0). */
+export const modeldenIrk = (model: number): number => (model > 7000 && model < 7100 ? model - 7000 : 0);
+/** Eşya numarasından görünüm kaynağı (tüm eşya tablosundan; sunucu numarasının son 3 hanesi yükseltme kodudur). */
+/** Ekipman dizisindeki eşyalara görünüm kaynağını ekler (modelin giyinmesi için). */
+export const giyimEkipmani = (ekipman: ({ no: number; sunucuNo?: number; kaynak?: number } | null)[]): ({ no: number; kaynak?: number } | null)[] => ekipman.map((e) => (e ? { no: e.no, kaynak: e.kaynak ?? esyaKaynagi(e.sunucuNo ?? e.no) } : null));
+/** Sunucu eşya numarasının tablo karşılığı (son 3 hane yükseltme kodu): yoksa null. */
+export const esyaTablo = (no: number): EsyaTanimi | null => tumEsya.get(no) ?? tumEsya.get(no - (no % 1000)) ?? esyaBul(no) ?? null;
+export const esyaKaynagi = (no: number): number => (tumEsya.get(no) ?? tumEsya.get(no - (no % 1000)) ?? esyaBul(no))?.kaynak ?? 0;
+export const irkModeli = (irk: number): number => IRK_MODELLERI[irk] ?? IRK_MODELLERI[12];
 
 /**
  * Oyuncu kuralları (sunucu veritabanı + NewChrValue.tbl; araclar: sunucu/oyuncu-disa-aktar.ps1 + npm run oyuncu).

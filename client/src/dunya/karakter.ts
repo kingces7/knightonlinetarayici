@@ -57,7 +57,40 @@ export class KarakterModeli {
   private static readonly GIYIM_YUVALARI: [string, number][] = [['bas', 1], ['govde', 4], ['bacak', 10], ['el', 12], ['ayak', 13]];
   private giyimImzasi = '';
   /** Giyilen eşyaya göre parçaları açar/kapatır: yuvada eşya varsa giyili parça, yoksa çıplak parça görünür. */
-  giyimAyarla(ekipman: ({ no: number } | null)[]): void {
+  // ---- Eşyaya göre giyinme (ırk modelleri): zırh parçası giyim/<ırk>/<kaynak>.glb, modelin iskeletine bağlanır; çıplak parça gizlenir.
+  private giyimNesneleri = new Map<string, { kaynak: number; nesne: THREE.SkinnedMesh | null }>();
+  private static giyimDizini: Record<string, number[]> | null = null;
+  private static giyimDizinYukle: Promise<void> | null = null;
+  private static readonly DINAMIK_YUVALAR: [string, number][] = [['govde', 4], ['bacak', 10], ['el', 12], ['ayak', 13]];
+  /** Çıplak ırk modeli mi (parca_<yuva>_ciplak var, parca_<yuva>_giyili yok)? */
+  private get irkModeli(): boolean { let v = false; this.kok.traverse((o) => { if (/^parca_[a-z]+_ciplak$/.test(o.name)) v = true; if (/^parca_[a-z]+_giyili$/.test(o.name)) v = false; }); return v; }
+  private taban(): THREE.SkinnedMesh | null { let s: THREE.SkinnedMesh | null = null; this.kok.traverse((o) => { const m = o as THREE.SkinnedMesh; if (!s && m.isSkinnedMesh && !o.name.startsWith('giyim_')) s = m; }); return s; }
+  /**
+   * Giyilen eşyalara göre zırh parçalarını yükler/değiştirir. `kaynaklar[yuva]` = eşyanın görünüm kaynağı (0 = çıplak). Yükleme asenkron; her çağrı yalnız değişen yuvalara dokunur.
+   */
+  giyimUygula(irk: number, kaynaklar: Record<string, number>): void {
+    if (!irk) return;
+    if (!KarakterModeli.giyimDizini) { KarakterModeli.giyimDizinYukle ??= fetch('/giyim/dizin.json').then((r) => r.json()).then((d) => { KarakterModeli.giyimDizini = d; }).catch(() => { KarakterModeli.giyimDizini = {}; }); void KarakterModeli.giyimDizinYukle.then(() => this.giyimUygula(irk, kaynaklar)); return; }
+    for (const [yuva] of KarakterModeli.DINAMIK_YUVALAR) {
+      const k = kaynaklar[yuva] ?? 0, mevcut = this.giyimNesneleri.get(yuva);
+      if ((mevcut?.kaynak ?? 0) === k) continue;
+      if (mevcut?.nesne) { mevcut.nesne.removeFromParent(); }
+      this.giyimNesneleri.set(yuva, { kaynak: k, nesne: null });
+      const ciplak = (goster: boolean) => this.kok.traverse((o) => { if (o.name === `parca_${yuva}_ciplak`) o.visible = goster; });
+      if (!k || !(KarakterModeli.giyimDizini[String(irk)] ?? []).includes(k)) { ciplak(true); continue; } // eşyanın bu ırk için görünümü yok: çıplak kalır
+      void yukle(`/giyim/${irk}/${k}.glb`).then((g) => {
+        const t = this.giyimNesneleri.get(yuva); if (!t || t.kaynak !== k) return; // bu arada başka eşya giyildi
+        const kaynakMesh = (() => { let m: THREE.SkinnedMesh | null = null; g.scene.traverse((o) => { const s = o as THREE.SkinnedMesh; if (!m && s.isSkinnedMesh) m = s; }); return m as THREE.SkinnedMesh | null; })();
+        const taban = this.taban(); if (!kaynakMesh || !taban) return;
+        const mesh = new THREE.SkinnedMesh(kaynakMesh.geometry, kaynakMesh.material);
+        mesh.name = `giyim_${yuva}`; mesh.frustumCulled = false; mesh.bind(taban.skeleton, taban.bindMatrix);
+        taban.parent?.add(mesh); t.nesne = mesh; ciplak(false);
+      }).catch(() => ciplak(true));
+    }
+  }
+
+  giyimAyarla(ekipman: ({ no: number; kaynak?: number } | null)[], irk = 0): void {
+    if (irk && this.irkModeli) { const k: Record<string, number> = {}; for (const [y, s] of KarakterModeli.DINAMIK_YUVALAR) k[y] = ekipman[s]?.kaynak ?? 0; this.giyimUygula(irk, k); return; }
     const imza = KarakterModeli.GIYIM_YUVALARI.map(([, y]) => (ekipman[y] ? 1 : 0)).join('');
     if (imza === this.giyimImzasi) return;
     this.giyimImzasi = imza;

@@ -16,6 +16,8 @@
     "paket-dogrula": "node paket/cli.ts dogrula",
     "harita": "node harita/cli.ts",
     "karakter": "node model/cli.ts",
+    "irk": "node model/irk.ts",
+    "giyim": "node model/giyim.ts",
     "esyalar": "node oyun/esyalar.ts && node oyun/yazitipi.ts",
     "itembox": "node oyun/itembox.ts",
     "efekt-deneme": "node oyun/efekt-deneme.ts",

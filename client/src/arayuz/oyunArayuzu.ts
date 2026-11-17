@@ -9,7 +9,7 @@ import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
-import { gerekenDeneyim } from '../oyun/veri';
+import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
 export interface Beceri { no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
@@ -1087,6 +1087,6 @@ export class OyunArayuzu {
     this.hedefCiz(); this.ganimetCiz();
     if (this.acik.has('magaza')) this.magazaCiz();
     if (this.acik.has('depo')) this.depoCiz();
-    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, this.b.oyuncu.ekipman); }
+    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, giyimEkipmani(this.b.oyuncu.ekipman)); }
   }
 }

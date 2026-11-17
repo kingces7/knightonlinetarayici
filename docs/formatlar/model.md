@@ -174,3 +174,8 @@ Köşe = 44 bayt: `x,y,z, nx,ny,nz, D3DCOLOR(ARGB), u,v, u2,v2` (hizasız dizili
 - Köşe alfası: kıyılar 0x30 (şeffaf), orta 0x99/0xFF. İkinci doku koordinatı `Misc/river/caust00..31.dxt` kostik animasyonu içindir (32 kare; kare hızı doğrulanmadı, 16 fps varsayıldı).
 - Doğrulama: köşeler mini haritadaki (Zones/<harita>.dxt) nehir/kanal yataklarının üzerine düşüyor. `moradon` ve `new_runawar` kuyruklarında bu biçim bulunmadı (0 parça): başka biçimde olabilir.
 Önceki "bu haritada su verisi yok" notu yanlıştı; su, N3River kayıtlarıyla `.gtd` içindeydi (`.rvr` dosyası yok).
+
+## Oyuncu ırk modelleri ve eşyaya göre giyinme ✅
+- `Data/UPC_DefaultLooks.tbl`: ırk → iskelet, animasyon, çıplak parçalar (gövde, bacak, yüz, eller, ayaklar, saç). Yüz/saç dosyaları numaralıdır (`upc_el_rm_face01`, `hair00`). `npm run irk` → `karakter/<7000+ırk>.glb` (ırklar 1–4 Karus, 11–13 El Morad); çıplak parçalar `parca_<yuva>_ciplak` düğümleridir.
+- Zırh parçası dosya adı (client GameBase.cpp `MakeResrcFileNameForUPC`): `Item\A_BBBB_CC_D.n3cpart`; A = kaynak/10⁷, BBBB = (kaynak/1000 % 10000) + **ırk numarası**, CC = kaynak/10 % 100, D = kaynak % 10. Kaynak = `Item_Org_us.tbl` 7. sütun. `npm run giyim -- <en çok seviye> <ırklar>` → `giyim/<ırk>/<kaynak>.glb` (iskelet + tek deri parçası) ve `giyim/dizin.json`.
+- Client: `KarakterModeli.giyimUygula` parçayı aynı iskelete bağlar (`SkinnedMesh.bind`) ve çıplak parçayı gizler; kask kaynağı olmayan eşyada (ör. Leather Cap) görünüm değişmez.

@@ -5,7 +5,7 @@
 // Sunucu canavarında hasar/ölüm henüz sunucuya bağlı değil (saldırı paketleri sonraki adım).
 import * as THREE from 'three';
 import { Canavar, DigerOyuncu, type Oyuncu, YON_OFSET } from './varliklar';
-import { canavarTuruSid, irkModeli } from './veri';
+import { canavarTuruSid, esyaKaynagi, esyaTablo, irkModeli } from './veri';
 import type { Hud } from '../arayuz/hud';
 import type { Paket } from '../ag/sunucu';
 import {
@@ -170,6 +170,11 @@ export class SunucuDunyasi {
     this.oyuncular.set(k.id, o);
     o.modelYukle(irkModeli(k.irk)).then(() => {
       if (this.oyuncular.get(k.id) !== o) return;
+      // Görünen eşyalar: zırh parçaları ve eldeki silah/kalkan (sunucu kullanıcı kaydındaki giyili yuvalar)
+      const e = k.esyalar, kaynak = (no: number) => (no ? esyaKaynagi(no) : 0);
+      o.model?.giyimUygula(k.irk, { govde: kaynak(e.govde.no), bacak: kaynak(e.bacak.no), el: kaynak(e.eldiven.no), ayak: kaynak(e.ayak.no) });
+      const sag = esyaTablo(e.sagEl.no), sol = esyaTablo(e.solEl.no);
+      o.model?.silahAyarla(sag?.tip ?? 0); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
       this.sahne.add(o.grup); this.oyuncuListesi.push(o);
     }).catch((e) => { console.warn('Oyuncu modeli yüklenemedi', k.ad, e); this.oyuncular.delete(k.id); });
   }

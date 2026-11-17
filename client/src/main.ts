@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -123,7 +123,8 @@ async function basla(): Promise<void> {
   Varlik.arazi = arazi;
   const baslangic = new THREE.Vector2(...(ayar.baslangic ?? [arazi.genislik / 2, arazi.genislik / 2]));
   oyuncu.isinla(baslangic.x, baslangic.y, arazi);
-  await oyuncu.modelYukle(Number(parametre.get('model')) || OYUNCU_MODELI);
+  void tumEsyalariYukle(); // tüm eşya tablosu: zırh görünüm kaynakları için
+  await oyuncu.modelYukle(Number(parametre.get('model')) || IRK_MODELLERI[12]); // çıplak El Morad erkek + eşyaya göre giyinme
   sahne.add(oyuncu.grup);
 
   // Canavarlar: başlangıç noktasının çevresine, türüne göre ayrı bölgelere (güvenli şehirlerde yok)
@@ -715,7 +716,7 @@ async function basla(): Promise<void> {
     ses.dinleyici.copy(oyuncu.konum);
     // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
     oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
-    oyuncu.model?.giyimAyarla(oyuncu.ekipman);
+    oyuncu.model?.giyimAyarla(giyimEkipmani(oyuncu.ekipman), modeldenIrk(oyuncu.modelNo));
     oyuncu.model?.silahAyarla(oyuncu.ekipman[6]?.tip ?? 0);
     if (oyuncu.model) oyuncu.model.hareketCarpani = oyuncu.hizCarpani;
     if (oyuncu.model) oyuncu.model.savasDurusu = !!oyuncu.hedef && !oyuncu.hedef.olu;
