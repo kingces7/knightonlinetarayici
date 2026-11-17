@@ -613,6 +613,13 @@ export class OyunArayuzu {
   }
   diyalogKapat(): void { this.diyalog?.sessizKapat(); }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
+  /** Oyun alanına (pencere dışına) tıklanınca: envanter, skill, karakter, mağaza, banka, diyalog ve bütün genel pencereler kapanır. */
+  tumPencereleriKapat(): void {
+    for (const a of [...this.acik]) this.ac(a, false);
+    if (this.magazaYeni?.acik) this.magazaYeni.kapat();
+    if (this.diyalog?.acik) this.diyalog.kapat();
+    this.genel.hepsiniKapat();
+  }
   npcPencereleriniKapat(): void {
     if (performance.now() - this.npcPencereAcilis < 400) return;
     if (this.magazaYeni?.acik) this.magazaYeni.kapat();

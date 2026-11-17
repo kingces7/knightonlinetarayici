@@ -102,6 +102,9 @@ export class GenelPencereler {
 
   async degistir(ad: string): Promise<void> { if (this.acik(ad)) this.kapat(ad); else await this.ac(ad); }
 
+  /** Açık olan bütün genel pencereleri kapatır. */
+  hepsiniKapat(): void { for (const ad of [...this.acikPencereler.keys()]) this.kapat(ad); }
+
   /** Esc: en üstteki genel pencereyi kapatır; kapattıysa true. */
   enUsttekiniKapat(): boolean {
     let son: UiPencere | null = null;

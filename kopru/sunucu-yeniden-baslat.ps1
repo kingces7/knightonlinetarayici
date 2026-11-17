@@ -8,6 +8,6 @@ if ($cevrimici -and -not $Zorla) { "Çevrimiçi oyuncu var ($($cevrimici -join '
 Get-Process GameServer -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep 3
 # Derleme klasöründe daha yeni bir GameServer.exe varsa (kaynak değişikliği sonrası derleme) çalıştırma klasörüne kopyalanır.
-$yeniExe = Join-Path (Split-Path $PSScriptRoot -Parent) "oyun-dosyalariderlemeLILITH_Game-ServerdReleaseGameServer.exe"; $hedefExe = Join-Path (Split-Path $PSScriptRoot -Parent) "oyun-dosyalariderlemelistirGameServer.exe"
+$kok = Split-Path $PSScriptRoot -Parent; $yeniExe = Join-Path $kok 'oyun-dosyalari\derleme\LILITH_Game-Server\x64\Release\GameServer.exe'; $hedefExe = Join-Path $kok 'oyun-dosyalari\derleme\calistir\GameServer.exe'
 if ((Test-Path $yeniExe) -and ((Get-Item $yeniExe).LastWriteTime -gt (Get-Item $hedefExe).LastWriteTime)) { Copy-Item $yeniExe $hedefExe -Force; "GameServer.exe güncellendi." }
 & "$PSScriptRoot\myko-baslat.ps1"

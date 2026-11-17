@@ -845,6 +845,8 @@ async function basla(): Promise<void> {
       if (oyuncu.konum.distanceTo(n.konum) < 3) { oyuncu.yuruHedef = null; acilacakNpc = null; npcEtkilesim(n); }
     }
   });
+  // Oyun alanına (pencere dışına) sol tıklayınca açık bütün pencereler kapanır
+  tuval.addEventListener('pointerdown', (e) => { if (e.button === 0) arayuz?.tumPencereleriKapat(); });
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
