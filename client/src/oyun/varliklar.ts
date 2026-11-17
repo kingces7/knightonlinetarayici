@@ -44,7 +44,16 @@ export abstract class Varlik {
   etiketY = 0;
   /** Model yüklenince seçim kutusunu (ve yeşil halkayı) modelin gerçek boyutuna uydurur. */
   protected secimiModeleUydur(kok: THREE.Object3D): void {
-    const kutu = new THREE.Box3().setFromObject(kok), b = kutu.getSize(new THREE.Vector3());
+    // Kutu, kemik hareketi uygulanmamış (bağlama pozundaki) kaynak köşelerden kurulur: model yüklenir yüklenmez iskelet henüz oynamadığı için
+    // THREE'nin kendi deriye göre hesabı (Box3.setFromObject) bazı canavarlarda (Bulcan, Bulture) kutuyu iki katına şişiriyor, ad etiketi çok yukarı çıkıyordu.
+    kok.updateMatrixWorld(true);
+    const kutu = new THREE.Box3();
+    kok.traverse((o) => {
+      const m = o as THREE.Mesh; if (!m.isMesh || !m.geometry) return;
+      if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+      kutu.union(new THREE.Box3().copy(m.geometry.boundingBox!).applyMatrix4(m.matrixWorld));
+    });
+    const b = kutu.getSize(new THREE.Vector3());
     if (!(b.y > 0.1)) return;
     const yaricap = Math.max(0.4, Math.min(8, (b.x + b.z) / 4)), boy = Math.max(0.8, Math.min(14, b.y));
     this.secimKutusu.geometry.dispose();
