@@ -1,0 +1,40 @@
+{
+ "aciklama": "Seviye 2 savasci canavar oldurup ganimeti acar/alirken gelen paketler (Myko GameServer, 0x23/0x24/0x26)",
+ "kayit": [
+  {
+   "asama": "karakter_sec",
+   "opcode": 84,
+   "hex": "85010000"
+  },
+  {
+   "asama": "saldiri_5",
+   "opcode": 84,
+   "hex": "85010000"
+  },
+  {
+   "asama": "saldiri_5",
+   "opcode": 35,
+   "hex": "c120100000000c"
+  },
+  {
+   "asama": "kutu_ac",
+   "opcode": 36,
+   "hex": "100000000100e9a4350800c99e8e0f0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+   "asama": "al_0",
+   "opcode": 38,
+   "hex": "0110000000ff00e9a435080058c300000000"
+  },
+  {
+   "asama": "al_1",
+   "opcode": 38,
+   "hex": "011000000000c99e8e0f010058c300000100"
+  },
+  {
+   "asama": "al_1",
+   "opcode": 84,
+   "hex": "8d010000"
+  }
+ ]
+}

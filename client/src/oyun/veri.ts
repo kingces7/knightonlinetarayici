@@ -86,7 +86,19 @@ export interface OyuncuKurallari {
 export let kurallar: OyuncuKurallari | null = null;
 /** Yeni karakter satırı (NewChrValue.tbl): 110201 = Human Warrior. */
 export const YENI_KARAKTER = '110201';
-export const esyaBul = (no: number): EsyaTanimi | undefined => esyalar.find((e) => e.no === no);
+/** Sunucu modu: Item_Org_us.tbl'deki TÜM eşyalar (araclar: npm run tum-esyalar); sunucu her eşyayı verebilir/düşürebilir. */
+const tumEsya = new Map<number, EsyaTanimi>();
+export async function tumEsyalariYukle(): Promise<void> {
+  if (tumEsya.size) return;
+  try {
+    for (const e of await (await fetch('/esya/tum.json')).json() as EsyaTanimi[]) tumEsya.set(e.no, { ...e, simge: e.simge ? `/esya/${e.simge}` : '' });
+  } catch { /* tüm liste yoksa yalnız küçük liste kullanılır */ }
+}
+export const esyaBul = (no: number): EsyaTanimi | undefined => esyalar.find((e) => e.no === no) ?? tumEsya.get(no);
+/** Sunucu eşya numarası (son 3 hane yükseltme/ek kodu) → tanım; tabloda yoksa eşya yuvada kalsın diye yer tutucu döner (yuva asla kaybolmaz). */
+export function esyaBulSunucu(no: number): EsyaTanimi {
+  return esyaBul(no) ?? esyaBul(no - (no % 1000)) ?? { no, ad: `Item ${no}`, aciklama: '', simge: '', tur: 'sarf', tip: 0, yuva: 0, hasar: 0, gecikme: 0, savunma: 0, fiyat: 0 };
+}
 export async function kurallariYukle(): Promise<void> {
   try { kurallar = await (await fetch('/oyun/oyuncu.json')).json() as OyuncuKurallari; } catch { kurallar = null; }
 }

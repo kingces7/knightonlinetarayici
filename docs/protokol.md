@@ -169,3 +169,12 @@ Komutlar: 1 hazırlama, 2 uçuş, 3 etki (client'ın gönderdiği ve başarıda 
 - Hata: komut 4, `veri[3]` = −100…−104 (bkz. `BECERI_HATALARI` in `kopru/protokol/beceri.ts`).
 - 0x18: `i16 enCokMana, i16 mana`.
 Canlı test (kotest): Stroke (201001) MP 19→17, 10 hasar; Sprint (201002) MP 24→19, buff aktif. Test betiği: `client/scripts/beceriSunucuTesti.mjs`.
+
+## Ganimet (0x23 düşme, 0x24 kutu açma, 0x26 alma)
+
+- Canavar ölünce sunucu `0x23` yollar: `u16 canavar kimliği, u32 torba no, u8 12`. Client kutuyu canavarın yerine koyar ve hemen `0x24` ile içeriği ister.
+- `0x24` (client→sunucu): `u32 torba`. Cevap: `u32 torba, u8 dolu, 8 × (u32 eşya no, u16 adet)`. Noah, eşya numarası `900000000` olarak gelir (adet = miktar).
+- `0x26` (client→sunucu): `u32 torba, u32 eşya no, u16 kutudaki yuva`. Cevap (kod 1): `u8 kod, u32 torba, i8 çanta yuvası (Noah'ta −1), u32 eşya, u16 adet, u32 toplam Noah, u16 kutu yuvası`; ardından `0x54` ağırlık. Kod 0 hata, 6 ağırlık yok, 2 parti Noah (adet yok), 3/4 parti bildirimleri.
+- Çanta yuvası 0–27 = envanter dizisi (14. yuvadan sonrası; sunucudaki `bDstPos − 14`). Yığınlı eşyada (ok, iksir) gelen adet toplam adettir.
+- Eşya tablosu: sunucu her eşyayı düşürebildiği için `npm run tum-esyalar` tüm Item_Org_us.tbl'yi (5.332 eşya, 1.943 simge) `esya/tum.json` yapar; tabloda olmayan numara "Item <no>" yer tutucusuyla çantada yuva tutar.
+Canlı test (kotest): Noah, "Low Quality Gem" ve "Arrow x20" alındı; envanter ve Noah sunucuyla uyumlu. Betik: `client/scripts/ganimetSunucuTesti.mjs`.

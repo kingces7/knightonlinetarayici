@@ -31,6 +31,7 @@
     "ses": "node oyun/ses.ts",
     "silahlar": "node oyun/silahlar.ts",
     "magaza": "node oyun/magaza.ts",
+    "tum-esyalar": "node oyun/tumEsyalar.ts",
     "ganimet": "powershell -ExecutionPolicy Bypass -File sunucu/ganimet-disa-aktar.ps1 && node oyun/ganimet.ts",
     "gokyuzu": "node oyun/gokyuzu.ts"
   },

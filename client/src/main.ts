@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -23,6 +23,7 @@ import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { ALTIN_NO, GANIMET_HATALARI, esyaAlmaIstegi, kutuAcmaIstegi, type AlmaCevabi, type KutuIcerigi } from '../../kopru/protokol/ganimet.ts';
 import { BECERI_HATALARI, BECERI_KOMUTU, beceriIstegi, type BeceriPaketi } from '../../kopru/protokol/beceri.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
@@ -302,7 +303,46 @@ async function basla(): Promise<void> {
     hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
     envanterYenile();
   };
+  /** Sunucu kutusundan al: istek yollanır; envanter/Noah/kutu ancak sunucunun 0x26 cevabıyla değişir. */
+  const sunucuGanimetAl = (k: GanimetKutusu, secim: 'altin' | 'hepsi' | number) => {
+    const gonder = (no: number, yuva: number) => sunucuOturumu?.gonder(WIZ.ESYA_AL, esyaAlmaIstegi(k.agTorba, no, yuva));
+    if ((secim === 'altin' || secim === 'hepsi') && k.altin > 0 && k.agAltinYuva >= 0) gonder(ALTIN_NO, k.agAltinYuva);
+    if (secim === 'hepsi') for (const y of [...k.agYuvalar]) gonder(y.no, y.yuva);
+    else if (typeof secim === 'number' && k.agYuvalar[secim]) gonder(k.agYuvalar[secim].no, k.agYuvalar[secim].yuva);
+  };
+  const kutuBul = (torba: number) => kutular.find((k) => k.agTorba === torba);
+  const ganimetDustuSunucudan = (torba: number, konum: { x: number; z: number } | null) => {
+    const k = new GanimetKutusu(konum?.x ?? oyuncu.konum.x, konum?.z ?? oyuncu.konum.y, 0, []);
+    k.agTorba = torba; k.icerikGeldi = false; kutular.push(k); sahne.add(k.grup);
+    sunucuOturumu?.gonder(WIZ.KUTU_AC, kutuAcmaIstegi(torba)); // içerik hemen istenir: kutuya tıklanınca simgeler hazır olsun
+  };
+  const kutuIcerigiSunucudan = (ic: KutuIcerigi) => {
+    const k = kutuBul(ic.torbaNo); if (!k) return;
+    k.altin = 0; k.esyalar = []; k.agYuvalar = []; k.agAltinYuva = -1;
+    for (const y of ic.yuvalar) {
+      if (y.no === ALTIN_NO) { k.altin += y.adet; k.agAltinYuva = y.yuva; continue; }
+      const t = esyaBulSunucu(y.no); if (t.simge) new Image().src = t.simge;
+      k.esyalar.push(t.sayilabilir ? { ...t, adet: y.adet } : { ...t }); k.agYuvalar.push({ yuva: y.yuva, no: y.no });
+    }
+    k.altinYuvasi = k.altin > 0; k.icerikGeldi = true;
+    if (!ic.dolu || k.bos) k.omur = 0;
+  };
+  const almaCevabiSunucudan = (a: AlmaCevabi) => {
+    if (a.torbaNo === undefined) { const m = GANIMET_HATALARI[a.kod]; if (m) hud.mesaj(m, 'sistem'); return; } // 3/4: parti bildirimleri (parti sonraki adım)
+    const k = kutuBul(a.torbaNo);
+    if (a.altin !== undefined) oyuncu.altin = a.altin;
+    if (a.no === ALTIN_NO) { hud.mesaj(`You obtained ${a.adet ?? ''} Noah.`.replace('  ', ' '), 'odul'); if (k) k.altin = 0; }
+    else if (a.no !== undefined) {
+      const t = esyaBulSunucu(a.no);
+      if (a.cantaYuvasi !== undefined && a.cantaYuvasi >= 0) oyuncu.envanter[a.cantaYuvasi] = t.sayilabilir ? { ...t, adet: a.adet } : { ...t }; // sunucunun yuvası ve (yığınlıysa) toplam adedi
+      hud.mesaj(`You obtained ${t.ad}.`, 'odul');
+      if (k) { const i = k.agYuvalar.findIndex((y) => y.yuva === a.kutuYuvasi); if (i >= 0) { k.esyalar.splice(i, 1); k.agYuvalar.splice(i, 1); } }
+    }
+    envanterYenile();
+    if (k) { if (k.bos) { k.omur = 0; hud.ganimetAc(null); } else hud.ganimetAc(k); }
+  };
   hud.ganimetAl = (k, secim) => {
+    if (k.agTorba) { sunucuGanimetAl(k, secim); return; } // sunucu modu: alma sunucuda yapılır, sonuç 0x26 ile gelir
     const al = (i: number): boolean => {
       const e = k.esyalar[i];
       if (!oyuncu.esyaEkle(e)) { hud.mesaj('Your inventory is full.', 'sistem'); return false; }
@@ -712,6 +752,7 @@ async function basla(): Promise<void> {
      * Giriş sunucusundan geçip karakteri seçer, oyuna girer ve gelen karakter verisini (seviye, statlar, can/mana, altın, eşyalar, konum) oyuncuya uygular.
      */
     sunucuyaBaglan: async (hesap: string, sifre: string, kopru?: string, karakter?: string, secici?: Parameters<typeof sunucuyaBaglan>[4]) => {
+      await tumEsyalariYukle(); // sunucu her eşyayı verebilir: tüm eşya tablosu
       sunucuDunyasi?.tumunuKaldir(); sunucuOturumu?.kapat(); hareketGonderici = null;
       const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter, secici);
       sunucuOturumu = s;
@@ -734,6 +775,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
+        ganimetDustu: ganimetDustuSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

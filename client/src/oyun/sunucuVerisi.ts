@@ -2,7 +2,7 @@
 // Yalnızca `window.ke.sunucuyaBaglan()` çağrılınca devreye girer; varsayılan tek oyunculu mod değişmez.
 import type { BenimBilgim } from '../../../kopru/protokol/paketler.ts';
 import type { Arazi } from '../dunya/arazi';
-import { type EsyaTanimi, esyaBul } from './veri';
+import { type EsyaTanimi, esyaBulSunucu } from './veri';
 import type { Oyuncu } from './varliklar';
 
 export interface UygulamaOzeti {
@@ -12,11 +12,6 @@ export interface UygulamaOzeti {
   esyaEslesen: number;
   /** İstemci listesinde olmayan, atlanan sunucu eşya numaraları (sonraki iş: eşya listesini tüm tabloya genişletmek). */
   esyaEslesmeyen: number[];
-}
-
-/** Sunucu eşya numarasının son 3 hanesi yükseltme/ek kodudur; önce tam, sonra taban numarayla aranır. */
-function esyaBulSunucu(no: number): EsyaTanimi | undefined {
-  return esyaBul(no) ?? esyaBul(no - (no % 1000));
 }
 
 export function sunucuVerisiniUygula(o: Oyuncu, m: BenimBilgim, arazi: Arazi, bolge: number, yuklenenHarita: string): UygulamaOzeti {
@@ -37,7 +32,7 @@ export function sunucuVerisiniUygula(o: Oyuncu, m: BenimBilgim, arazi: Arazi, bo
   m.envanter.forEach((e, i) => {
     if (!e.no || i >= 14 + o.envanter.length) return;
     const t = esyaBulSunucu(e.no);
-    if (!t) { esyaEslesmeyen.push(e.no); return; }
+    if (!t.ad || t.ad.startsWith('Item ')) esyaEslesmeyen.push(e.no); // tabloda yok: yer tutucu yuvada durur
     esyaEslesen++;
     const kopya: EsyaTanimi = t.sayilabilir ? { ...t, adet: e.adet } : { ...t };
     if (i < 14) o.ekipman[i] = kopya; else o.envanter[i - 14] = kopya;

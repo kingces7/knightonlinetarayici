@@ -15,8 +15,9 @@ import {
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
 import { partiPaketi, type PartiPaketi } from '../../../kopru/protokol/parti.ts';
 import { beceriPaketi, manaDegisti, type BeceriPaketi } from '../../../kopru/protokol/beceri.ts';
+import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
 import {
-  SALDIRI_SONUCU, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
+  SALDIRI_SONUCU, esyaDustu, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
 } from '../../../kopru/protokol/savas.ts';
 
 /** Savaş olaylarında ana döngünün yapacağı yan işler (ses, ayağa kalkma, arayüz yenileme). */
@@ -31,6 +32,11 @@ export interface SavasKancalari {
   parti?: (p: PartiPaketi) => void;
   /** Sunucudan skill paketi geldi (bölgedeki biri skill kullandı ya da reddedildi). */
   beceri?: (p: BeceriPaketi) => void;
+  /** Canavar ganimet bıraktı: torba no ve (biliniyorsa) canavarın yeri. */
+  ganimetDustu?: (torbaNo: number, konum: { x: number; z: number } | null) => void;
+  /** Kutu içeriği (0x24) ve alma cevabı (0x26) geldi. */
+  kutuIcerigi?: (k: KutuIcerigi) => void;
+  almaCevabi?: (a: AlmaCevabi) => void;
 }
 
 /** Bu uzaklıktan (m) fazla geride kalan varlık varış noktasına ışınlanır (sekme/bağlantı gecikmesi). */
@@ -80,6 +86,9 @@ export class SunucuDunyasi {
       case WIZ.HAREKET: { this.sayac.oyuncuHareket++; const h = kullaniciHareketi(p.govde); this.oyuncuHareketi(h.id, h.x, h.z, h.hiz, h.yanki); break; }
       case WIZ.BECERI: this.kancalar.beceri?.(beceriPaketi(p.govde)); break;
       case WIZ.MANA_DEGISTI: { const m = manaDegisti(p.govde); if (this.oyuncu) { this.oyuncu.enCokMana = m.enCok; this.oyuncu.mana = m.mana; } break; }
+      case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y } : null); break; }
+      case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
+      case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
       case WIZ.PARTI: this.kancalar.parti?.(partiPaketi(p.govde)); break;
       case WIZ.SALDIRI: this.saldiri(saldiriSonucu(p.govde)); break;
       case WIZ.HEDEF_CAN: this.hedefCan(hedefCan(p.govde)); break;

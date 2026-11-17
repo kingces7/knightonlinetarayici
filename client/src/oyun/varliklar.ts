@@ -547,8 +547,10 @@ export class GanimetKutusu {
   altin: number;
   esyalar: EsyaTanimi[];
   omur = 60;
+  /** Sunucu modu: sunucudaki torba numarası (0 = yerel kutu), eşyaların kutudaki sunucu yuvaları (esyalar ile aynı sırada) ve Noah'ın yuvası. İçerik 0x24 cevabıyla dolar. */
+  agTorba = 0; agYuvalar: { yuva: number; no: number }[] = []; agAltinYuva = -1; icerikGeldi = true;
   /** Kutuda başlangıçta Noah vardıysa ilk yuva Noah'a ayrılır; Noah alınınca öbür eşyalar yukarı kaymaz. */
-  readonly altinYuvasi: boolean;
+  altinYuvasi: boolean;
   readonly secimKutusu: THREE.Mesh;
   private zaman = 0;
 
