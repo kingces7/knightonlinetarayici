@@ -14,6 +14,7 @@ console.log('karakter', await s.evaluate(() => JSON.stringify({ ad: window.ke.oy
 if (hedefTur === 'dusman') await s.evaluate(() => { const o = window.ke.oyuncu; const c = window.ke.canavarlar.filter((c) => c.agModu && !c.olu).sort((a, b) => a.konum.distanceTo(o.konum) - b.konum.distanceTo(o.konum))[0]; if (c) { o.hedef = c; window.__hedef = c; } });
 console.log('hedef', await s.evaluate(() => window.__hedef ? window.__hedef.tur.ad + ' mesafe ' + Math.round(window.__hedef.konum.distanceTo(window.ke.oyuncu.konum)) : 'yok'));
 const once = await s.evaluate(() => ({ mana: window.ke.oyuncu.mana, can: window.ke.oyuncu.can, hedefCan: window.__hedef?.can }));
+console.log('ekip', await s.evaluate(() => JSON.stringify({e8: window.ke.oyuncu.ekipman[8], e6: window.ke.oyuncu.ekipman[6], ok: window.ke.oyuncu.envanter.filter(Boolean).map((e) => [e.no, e.sunucuNo, e.adet]), hedef: !!window.ke.oyuncu.hedef})));
 await s.evaluate((no) => window.ke.beceriKullan(+no), skill); await s.waitForTimeout(900);
 await s.screenshot({ path: `${klasor}/buyu_hazirlik.png` });
 await s.waitForTimeout(1500);

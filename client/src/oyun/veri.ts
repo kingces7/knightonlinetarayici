@@ -68,6 +68,10 @@ export const modeldenIrk = (model: number): number => (model > 7000 && model < 7
 export const giyimEkipmani = (ekipman: ({ no: number; sunucuNo?: number; kaynak?: number } | null)[]): ({ no: number; kaynak?: number } | null)[] => ekipman.map((e) => (e ? { no: e.no, kaynak: e.kaynak ?? esyaKaynagi(e.sunucuNo ?? e.no) } : null));
 /** Sunucu eşya numarasının tablo karşılığı (son 3 hane yükseltme kodu): yoksa null. */
 export const esyaTablo = (no: number): EsyaTanimi | null => tumEsya.get(no) ?? tumEsya.get(no - (no % 1000)) ?? esyaBul(no) ?? null;
+/** Elde taşınan silahın türü: sağ elde silah varsa o, yoksa sol eldeki yay/tatar (yay sol elde taşınır). */
+export const YAY_TURLERI = [70, 71];
+export const elSilahiTipi = (ekipman: ({ tip?: number } | null)[]): number => ekipman[6]?.tip ?? (YAY_TURLERI.includes(ekipman[8]?.tip ?? 0) ? ekipman[8]!.tip! : 0);
+export const OK_NO = 391010000;
 export const esyaKaynagi = (no: number): number => (tumEsya.get(no) ?? tumEsya.get(no - (no % 1000)) ?? esyaBul(no))?.kaynak ?? 0;
 export const irkModeli = (irk: number): number => IRK_MODELLERI[irk] ?? IRK_MODELLERI[12];
 

@@ -35,3 +35,13 @@ export function esyaTasimaCevabi(govde: Uint8Array): TasimaCevabi {
  */
 export function esyaSilmeIstegi(giyili: boolean, yuva: number, no: number): Uint8Array { return new PaketYazici().u8(giyili ? 1 : 0).u8(yuva).u32(no).baytlar(); }
 export function esyaSilmeCevabi(govde: Uint8Array): boolean { return new PaketOkuyucu(govde).u8() === 1; }
+
+/**
+ * Yığın adedi değişti (WIZ_ITEM_COUNT_CHANGE 0x3D): ok atınca, iksir içince… Biçim: `u16 kayıt sayısı`, her kayıt `u8 tür (1 çanta), u8 çanta yuvası (0–27), u32 eşya, u16 yeni adet, u32 ?, u16 dayanıklılık, …`.
+ * Gerçek Myko sunucusuyla doğrulandı (Archery: 200 → 199 ok).
+ */
+export function esyaAdediDegisti(govde: Uint8Array): { yuva: number; no: number; adet: number }[] {
+  const o = new PaketOkuyucu(govde); const n = o.u16(); const sonuc: { yuva: number; no: number; adet: number }[] = [];
+  for (let i = 0; i < n && o.kalan >= 14; i++) { o.u8(); const yuva = o.u8(), no = o.u32(), adet = o.u16(); o.u32(); o.u16(); sonuc.push({ yuva, no, adet }); }
+  return sonuc;
+}

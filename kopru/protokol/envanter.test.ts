@@ -21,3 +21,8 @@ test('eşya silme: istek 6 bayt, cevap 1 = başarılı', () => {
   const b = esyaSilmeIstegi(false, 3, 389010000); assert.equal(b.length, 6); assert.deepEqual([...b.slice(0, 2)], [0, 3]);
   assert.equal(esyaSilmeCevabi(Uint8Array.of(1)), true); assert.equal(esyaSilmeCevabi(Uint8Array.of(0)), false);
 });
+
+import { esyaAdediDegisti } from './envanter.ts';
+test('gerçek sunucu: ok atınca yığın adedi (200 → 199)', () => {
+  assert.deepEqual(esyaAdediDegisti(bayt('01000101d0564e17c700000000a00f00000000000000000000')), [{ yuva: 1, no: 391010000, adet: 199 }]);
+});

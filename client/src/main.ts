@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -217,7 +217,19 @@ async function basla(): Promise<void> {
     const animNo = arayuz?.beceriAnimNo(no);
     if (hedef) { oyuncu.savastanBeri = 0; if (!hareketEdiyor) oyuncu.bak(hedef.konum); }
     const sure = (v.hazirlik ?? 0) * 0.1;
-    if (sure > 0) { // süreli büyü
+    if (v.tip === 2 && hedef) { // okçuluk: 1 hazırla (yay gerilir) → ≈1,05 sn sonra 2 uçuş (ok harcanır, hasar işlenir) → ok hedefe varınca 3 etki. Sunucu uçuşu 0,31–1,25 sn arasında kabul eder.
+      buyuHazirlik = { no, hedefId };
+      const veri = () => [Math.round(hedef.konum.x), Math.round(hedef.grup.position.y), Math.round(hedef.konum.y), 1];
+      gonder(BECERI_KOMUTU.HAZIRLAMA);
+      if (!hareketEdiyor) { oyuncu.animKilidi = 1.4; oyuncu.model?.beceriOynat(animNo ?? 26, true); }
+      setTimeout(() => {
+        if (buyuHazirlik?.no !== no || oyuncu.olu) return; buyuHazirlik = null;
+        sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.UCUS, no, benimSoketNo, hedefId, veri()));
+        ucanEfektOynat(efektNo(no).ucan, oyuncu.grup, hedefGrup);
+        const ucus = Math.max(0.25, Math.min(0.7, oyuncu.konum.distanceTo(hedef.konum) / 28));
+        setTimeout(() => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.ETKI, no, benimSoketNo, hedefId, veri())), ucus * 1000 + 50);
+      }, 1050);
+    } else if (sure > 0) { // süreli büyü
       buyuHazirlik = { no, hedefId };
       gonder(BECERI_KOMUTU.HAZIRLAMA);
       if (!hareketEdiyor) oyuncu.animKilidi = Math.max(sure, oyuncu.model?.beceriOynat(animNo) ?? 0);
@@ -261,10 +273,15 @@ async function basla(): Promise<void> {
     if (hazir > simdiSn()) { hud.mesaj(`${v.ad} is not ready yet.`, 'sistem'); return; }
     if (oyuncu.mana < v.msp) { hud.mesaj('Not enough MP.', 'sistem'); return; }
     let hedef: Canavar | null = null, dost: DigerOyuncu | null = null;
-    if (v.tip === 1 || (v.tip === 3 && v.moral === 7)) { // düşmana (yakın dövüş ya da büyü)
+    if (v.tip === 2) { // okçuluk: yay (sol elde) ve ok gerekir
+      if (!YAY_TURLERI.includes(oyuncu.ekipman[8]?.tip ?? 0) && !YAY_TURLERI.includes(oyuncu.ekipman[6]?.tip ?? 0)) { hud.mesaj('You need to equip a bow first.', 'sistem'); return; }
+      if (!oyuncu.envanter.some((e) => e && (e.sunucuNo ?? e.no) === OK_NO && (e.adet ?? 1) > 0)) { hud.mesaj('You are out of arrows.', 'sistem'); return; }
+      if (!sunucuOturumu) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
+    }
+    if (v.tip === 1 || v.tip === 2 || (v.tip === 3 && v.moral === 7)) { // düşmana (yakın dövüş, okçuluk ya da büyü)
       hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
-      const menzil = v.tip === 1 ? menzilDe(hedef) + 0.5 : (v.menzil ?? 25);
+      const menzil = v.tip === 1 ? menzilDe(hedef) + 0.5 : v.tip === 2 ? 35 : (v.menzil ?? 25);
       if (oyuncu.konum.distanceTo(hedef.konum) > menzil) { hud.mesaj('The target is too far away.', 'sistem'); return; }
     } else if (v.tip === 3 || v.tip === 4) { // kendine ya da dosta (iyileştirme, buff)
       if ((v.moral ?? 1) !== 1) { if (secilenOyuncu && digerOyuncular.includes(secilenOyuncu) && oyuncu.konum.distanceTo(secilenOyuncu.konum) <= (v.menzil ?? 25)) dost = secilenOyuncu; }
@@ -747,7 +764,7 @@ async function basla(): Promise<void> {
     // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
     oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
     oyuncu.model?.giyimAyarla(giyimEkipmani(oyuncu.ekipman), modeldenIrk(oyuncu.modelNo));
-    oyuncu.model?.silahAyarla(oyuncu.ekipman[6]?.tip ?? 0);
+    oyuncu.model?.silahAyarla(elSilahiTipi(oyuncu.ekipman));
     if (oyuncu.model) oyuncu.model.hareketCarpani = oyuncu.hizCarpani;
     if (oyuncu.model) oyuncu.model.savasDurusu = !!oyuncu.hedef && !oyuncu.hedef.olu;
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);
@@ -1033,7 +1050,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

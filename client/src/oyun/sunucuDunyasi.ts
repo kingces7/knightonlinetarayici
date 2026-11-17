@@ -5,7 +5,7 @@
 // Sunucu canavarında hasar/ölüm henüz sunucuya bağlı değil (saldırı paketleri sonraki adım).
 import * as THREE from 'three';
 import { Canavar, DigerOyuncu, type Oyuncu, YON_OFSET } from './varliklar';
-import { canavarTuruSid, esyaKaynagi, esyaTablo, irkModeli } from './veri';
+import { YAY_TURLERI, canavarTuruSid, esyaKaynagi, esyaTablo, irkModeli } from './veri';
 import type { Hud } from '../arayuz/hud';
 import type { Paket } from '../ag/sunucu';
 import {
@@ -19,7 +19,7 @@ import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts'
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
-import { esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
+import { esyaAdediDegisti, esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
 import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
 import {
   SALDIRI_SONUCU, esyaDustu, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
@@ -45,6 +45,8 @@ export interface SavasKancalari {
   /** Eşya taşıma/giyme isteğinin sonucu (0x1F). */
   tasimaCevabi?: (c: TasimaCevabi) => void;
   esyaSilindi?: (tamam: boolean) => void;
+  /** Yığın adedi değişti (ok atınca…): çanta yuvası, eşya, yeni adet. */
+  esyaAdedi?: (l: { yuva: number; no: number; adet: number }[]) => void;
   /** Sohbet mesajı geldi; özel sohbet alıcı sorgusunun sonucu (bulundu mu). */
   magaza?: (c: MagazaCevabi) => void;
   statDegisti?: () => void;
@@ -103,6 +105,7 @@ export class SunucuDunyasi {
       case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y, yaricap: c.secimYaricapi } : null, c ?? null); break; }
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
+      case WIZ.ESYA_ADEDI: this.kancalar.esyaAdedi?.(esyaAdediDegisti(p.govde)); break;
       case WIZ.ESYA_SIL: this.kancalar.esyaSilindi?.(esyaSilmeCevabi(p.govde)); break;
       case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;
       case WIZ.BANKA: this.kancalar.banka?.(bankaCevabi(p.govde)); break;
@@ -174,7 +177,7 @@ export class SunucuDunyasi {
       const e = k.esyalar, kaynak = (no: number) => (no ? esyaKaynagi(no) : 0);
       o.model?.giyimUygula(k.irk, { govde: kaynak(e.govde.no), bacak: kaynak(e.bacak.no), el: kaynak(e.eldiven.no), ayak: kaynak(e.ayak.no) });
       const sag = esyaTablo(e.sagEl.no), sol = esyaTablo(e.solEl.no);
-      o.model?.silahAyarla(sag?.tip ?? 0); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
+      o.model?.silahAyarla(sag?.tip ?? (sol && YAY_TURLERI.includes(sol.tip) ? sol.tip : 0)); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
       this.sahne.add(o.grup); this.oyuncuListesi.push(o);
     }).catch((e) => { console.warn('Oyuncu modeli yüklenemedi', k.ad, e); this.oyuncular.delete(k.id); });
   }

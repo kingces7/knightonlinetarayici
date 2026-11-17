@@ -225,3 +225,9 @@ Client: `client/src/arayuz/karakterOlustur.ts` (oyunun `re_ka_charactercreate` /
 
 CastTime > 0 olan skill'lerde (Mage Flash/Shiver/Flame…, Priest Tiny healing…) client sırayla yollar: `komut 1` (hazırlama, sunucu hemen yankılar), CastTime × 100 ms sonra `komut 2` (uçuş), kısa süre sonra `komut 3` (etki: MP düşer 0x18, hasar/iyileştirme/ölüm paketleri gelir). Doğrudan `komut 3` yollanırsa cevap gelmez. Hazırlanırken yürümek `komut 6` (iptal) ile bozar. Hedef türü (MORAL): 1 kendi, 2 dost (kendin dahil), 7 düşman.
 Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, seviye atladı); Priest Tiny healing kendine yollandı (MP düştü). Betik: `client/scripts/buyuTesti.mjs`.
+
+## Okçuluk (Archery, skill 202003 / tip 2)
+- Gerekenler: elde yay (sol ya da sağ el, tür 70/71), çantada ok (391010000), seviye ≥ 3. Menzil yayın menzili.
+- Akış: `0x31` komut 1 (hazırlama) → 312–1250 ms içinde komut 2 (uçuş; veri `[x, 0, z, sıra]`) → komut 3 (etki). Ok uçuş anında harcanır.
+- Ok adedi değişimi `0x3D` ile gelir (`esyaAdediDegisti`: yuva, eşya, yeni adet).
+- Client: ~1050 ms'de uçuş, ok efekti hedefe varınca etki gönderilir. Test: `client/scripts/buyuTesti.mjs <klasör> 0 202003 dusman` (kotest2/RogTest1).

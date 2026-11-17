@@ -44,7 +44,9 @@ export function matrisDordey(m: number[]): [number, number, number, number] {
 
 function main(): number {
   const od = new OyunDosyalari();
-  const esyalarYolu = path.join(CIKTI_DIZINI, 'web', 'esya', 'esyalar.json');
+  // Tüm eşya tablosu varsa (npm run tum-esyalar) bütün silahlar (yay, asa, hançer…), yoksa küçük liste
+  const tumYolu = path.join(CIKTI_DIZINI, 'web', 'esya', 'tum.json');
+  const esyalarYolu = fs.existsSync(tumYolu) ? tumYolu : path.join(CIKTI_DIZINI, 'web', 'esya', 'esyalar.json');
   const esyalar = JSON.parse(fs.readFileSync(esyalarYolu, 'utf8')) as { no: number; tur: string }[];
   const tablo = tbldenOku(od.oku('Data/Item_Org_us.tbl'), 'windows-1252').satirlar;
   const hedef = path.join(CIKTI_DIZINI, 'web', 'silah');
@@ -54,7 +56,7 @@ function main(): number {
   for (const e of esyalar.filter((x) => x.tur === 'silah')) {
     const satir = tablo.find((x) => Number(x[0]) === e.no) ?? tablo.find((x) => Number(x[0]) === e.no - (e.no % 1000));
     if (!satir) { yok++; continue; }
-    const s = String(satir[7]).padStart(8, '0');
+    const s = String(Number(satir[6]) > 0 ? satir[6] : satir[7]).padStart(8, '0');
     const yol = `item/${s[0]}_${s.slice(1, 5)}_${s.slice(5, 7)}_${s[7]}.n3cplug`;
     if (!od.var(yol)) { yok++; continue; }
     try {
