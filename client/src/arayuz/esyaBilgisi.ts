@@ -3,7 +3,7 @@
 //       gereken seviye/güç/dayanıklılık/çeviklik/zekâ/büyü gücü (yetmeyen kırmızı) → Item Grade (yeşil) → fiyat. Ağırlık ve zırh/silah açıklaması gösterilmez.
 import type { EsyaTanimi } from '../oyun/veri';
 
-export interface OyuncuOzeti { seviye: number; sinif: number; irk: number; stat: { str: number; sta: number; dex: number; int: number; cha: number } }
+export interface OyuncuOzeti { altin?: number; seviye: number; sinif: number; irk: number; stat: { str: number; sta: number; dex: number; int: number; cha: number } }
 
 /** Eşya türü (Item.Kind) → orijinal tür yazısı (IDS_ITEM_CLASS_*). */
 const TUR_YAZISI: Record<number, string> = {
@@ -61,7 +61,7 @@ export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: 
   if (e.aciklama && !donanim) { const a = satir(e.aciklama, '#d0d0d0'); a.classList.add('aciklama'); kok.appendChild(a); } // silah/zırhta açıklama gösterilmez
   if (e.fiyat > 0 || satin) {
     const fiyat = satin ? e.fiyat : Math.max(1, Math.floor(e.fiyat / 6));
-    kok.appendChild(satir(`${satin ? 'Purchasing' : 'Selling'} Price : ${fiyat.toLocaleString('en-US')}`));
+    kok.appendChild(satir(`${satin ? 'Purchasing' : 'Selling'} Price : ${fiyat.toLocaleString('en-US')}`, satin && o && o.altin !== undefined && o.altin < fiyat ? KIRMIZI : AKSA)); // paran yetmiyorsa fiyat kırmızı
   }
   if (tamir > 0) kok.appendChild(satir(`Repair Cost : ${tamir.toLocaleString('en-US')}`, YESIL)); // tamir modunda eşyanın tamir ücreti
   return kok;

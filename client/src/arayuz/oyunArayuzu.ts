@@ -11,6 +11,7 @@ import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
 import { MagazaPenceresi } from './magazaPenceresi';
 import { adetKutusu } from './adetKutusu';
+import { yuvaSurukle } from './yuvaSurukle';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -540,12 +541,12 @@ export class OyunArayuzu {
     };
     // SAĞ tık: çanta eşyası bankaya, banka eşyası çantaya (ilk boş yuva)
     p.el.addEventListener('contextmenu', (ev) => { const k = yuvaBul(ev.target); if (!k) return; ev.preventDefault(); this.b.ipucuGizle(); tasi(k, null); });
-    // SÜRÜKLE-BIRAK: yuvadan yuvaya (çanta ↔ banka, banka içinde, çanta içinde)
-    p.el.addEventListener('dragstart', (ev) => { const k = yuvaBul(ev.target); if (!k) { ev.preventDefault(); return; } ev.dataTransfer?.setData('application/x-ke-depo', JSON.stringify(k)); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move'; this.b.ipucuGizle(); });
-    p.el.addEventListener('dragover', (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-depo')) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } });
-    p.el.addEventListener('drop', (ev) => {
-      const v = ev.dataTransfer?.getData('application/x-ke-depo'); if (!v) return; ev.preventDefault();
-      tasi(JSON.parse(v) as { yer: 'depo' | 'canta'; i: number }, yuvaBul(ev.target));
+    // SÜRÜKLE-BIRAK (fare olaylarıyla; tarayıcının HTML5 sürüklemesine bağlı değil): sol tuşla tut → yuvaya bırak
+    // çanta ↔ banka (herhangi bir yuva), banka içinde (aynı sayfa), çanta içinde
+    yuvaSurukle<Yuva>(p.el, {
+      yuvaBul,
+      kaynakEleman: (k) => (dolu(k) ? (k.yer === 'depo' ? this.depoUst()[k.i - this.depoSayfa * 24] : this.depoAlt()[k.i]) ?? null : null),
+      birak: (k, h) => { if (h) tasi(k, h); },
     });
   }
   private depoCiz(): void {
@@ -553,7 +554,7 @@ export class OyunArayuzu {
     const imza = `${this.depoSayfa}|${o.altin}|${o.depoAltin}|${o.depo.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}|${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}`;
     if (imza === this.depoImza) return;
     this.depoImza = imza;
-    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => { el.draggable = !!e;
+    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => { el.draggable = false;
       el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0'; el.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; el.onmouseleave = () => this.b.ipucuGizle();
     };

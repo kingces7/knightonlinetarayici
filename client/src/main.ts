@@ -99,7 +99,7 @@ async function basla(): Promise<void> {
   await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle(), ganimetYukle()]);
 
   const hud = new Hud();
-  hud.oyuncuOzeti = () => ({ seviye: oyuncu.seviye, sinif: oyuncu.sinif, irk: oyuncu.modelNo ? modeldenIrk(oyuncu.modelNo) : 12, stat: oyuncu.stat });
+  hud.oyuncuOzeti = () => ({ altin: oyuncu.altin, seviye: oyuncu.seviye, sinif: oyuncu.sinif, irk: oyuncu.modelNo ? modeldenIrk(oyuncu.modelNo) : 12, stat: oyuncu.stat });
   const ses = new Ses();
   await ses.yukle();
   if (ayar.bolge) ses.muzikCal(ayar.bolge);

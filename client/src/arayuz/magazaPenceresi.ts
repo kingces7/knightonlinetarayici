@@ -2,6 +2,7 @@
 // Üstte mağaza (6×4, sayfalı, fiyat yuvaların altında), altta envanter (7×4) + ağırlık + Noah. Pencerenin ortadaki alış/satış sepeti bu sürümde olmadığı için gizlenir ve alttaki bölüm yukarı çekilir.
 // Kullanım: mağaza eşyasına SAĞ tık, ÇİFT tık ya da envantere SÜRÜKLEME = kaç tane alınacağı sorulur; envanter eşyasına SAĞ tık (ya da mağazaya sürükleme) = sat. Tamirci NPC'de "Repair" modu.
 import { UiPencere } from './orijinal';
+import { yuvaSurukle } from './yuvaSurukle';
 import type { EsyaTanimi } from '../oyun/veri';
 import type { YuvaKonumu } from '../oyun/varliklar';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
@@ -72,31 +73,38 @@ export class MagazaPenceresi {
     // Tamirci düğmesi
     Object.assign(this.tamirDugme.style, { position: 'absolute', left: '8px', top: '36px', width: '50px', height: '22px', lineHeight: '20px', textAlign: 'center', font: '700 12px Segoe UI, sans-serif', color: '#ffe9a8', border: '1px solid #8f6128', background: 'rgba(40,30,18,.9)', cursor: 'pointer', display: 'none', zIndex: '2', borderRadius: '3px' });
     this.tamirDugme.textContent = 'Repair'; this.tamirDugme.addEventListener('click', () => this.tamirModuDegistir(!this.tamirModu)); p.el.appendChild(this.tamirDugme);
+    // Fare tekerleği (Mouse3 topu): aşağı çevirince sonraki sayfa, yukarı çevirince önceki sayfa
+    p.el.addEventListener('wheel', (ev) => { ev.preventDefault(); ev.stopPropagation(); const n = this.sayfalar.length || 1, yeni = Math.max(0, Math.min(n - 1, this.sayfa + (ev.deltaY > 0 ? 1 : ev.deltaY < 0 ? -1 : 0))); if (yeni !== this.sayfa) { this.sayfa = yeni; this.imza = ''; this.ciz(); } }, { passive: false });
     this.baglantilar();
     addEventListener('resize', () => this.yerlestir());
   }
 
   /** Yuva etkileşimleri (bir kez kurulur; içerik her çizimde yenilenir). */
   private baglantilar(): void {
-    const suruklenebilir = (el: HTMLElement, veri: () => object | null) => {
-      el.draggable = true;
-      el.ondragstart = (ev) => { const v = veri(); if (!v) { ev.preventDefault(); return; } ev.dataTransfer?.setData(SURUKLE, JSON.stringify(v)); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move'; this.k.ipucuGizle(); };
-    };
-    const birak = (el: HTMLElement, kabul: (v: { k: string; i: number }) => void) => {
-      el.ondragover = (ev) => { if (ev.dataTransfer?.types.includes(SURUKLE)) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } };
-      el.ondrop = (ev) => { const v = ev.dataTransfer?.getData(SURUKLE); if (!v) return; ev.preventDefault(); kabul(JSON.parse(v)); };
-    };
     const sayfa = () => this.sayfalar[this.sayfa] ?? [];
+    const al = (e: EsyaTanimi | undefined) => { if (!e) return; if (e.sayilabilir) this.adetSor(e); else this.k.satinAl(e); }; // yığınlanmayan eşya sorusuz 1 adet; yığınsa kaç tane sorulur
     this.magaza.forEach((el, i) => {
-      suruklenebilir(el, () => (sayfa()[i] ? { k: 'magaza', i } : null));
-      const al = () => { const e = sayfa()[i]; if (!e) return; if (e.sayilabilir) this.adetSor(e); else this.k.satinAl(e); }; // yığınlanmayan eşya (küpe, silah, zırh…) sorusuz 1 adet alınır
-      el.ondblclick = al; el.oncontextmenu = (ev) => { ev.preventDefault(); al(); }; // çift ya da sağ tık: kaç tane?
-      birak(el, (v) => { if (v.k === 'canta') this.satSor(v.i); }); // envanterden mağazaya bırak = sat (yığınsa kaç tane sorulur)
+      el.draggable = false;
+      el.ondblclick = () => al(sayfa()[i]); el.oncontextmenu = (ev) => { ev.preventDefault(); al(sayfa()[i]); }; // çift ya da sağ tık: al
     });
     this.canta.forEach((el, i) => {
-      suruklenebilir(el, () => (this.k.envanter()[i] ? { k: 'canta', i } : null));
-      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.satSor(i); } };
-      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (!e) return; if (e.sayilabilir) this.adetSor(e); else this.k.satinAl(e); } }); // mağazadan envantere sürükle = al (kaç tane sorulur)
+      el.draggable = false;
+      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.satSor(i); } }; // sağ tık: sat
+    });
+    // SÜRÜKLE-BIRAK (fare olaylarıyla, her tarayıcıda çalışır): mağaza eşyasını envantere bırak = al (yığınsa kaç tane sorulur); envanter eşyasını mağazaya bırak = sat (yığınsa kaç tane sorulur)
+    type Yuva = { k: 'magaza' | 'canta'; i: number };
+    yuvaSurukle<Yuva>(this.p.el, {
+      yuvaBul: (hedef) => {
+        const el = (hedef as HTMLElement | null)?.closest?.('.ui-t9') as HTMLElement | null; if (!el) return null;
+        const m = this.magaza.indexOf(el); if (m >= 0) return { k: 'magaza', i: m };
+        const c = this.canta.indexOf(el); return c >= 0 ? { k: 'canta', i: c } : null;
+      },
+      kaynakEleman: (k) => (k.k === 'magaza' ? (sayfa()[k.i] ? this.magaza[k.i] : null) : (this.k.envanter()[k.i] ? this.canta[k.i] : null)),
+      birak: (k, h) => {
+        if (!h) return;
+        if (k.k === 'magaza' && h.k === 'canta') al(sayfa()[k.i]);
+        else if (k.k === 'canta' && h.k === 'magaza') this.satSor(k.i);
+      },
     });
   }
 
@@ -181,7 +189,7 @@ export class MagazaPenceresi {
     const p = this.p, sayfa = this.sayfalar[this.sayfa] ?? [];
     p.metin('string_page', this.sayfa + 1); p.metin('string_max_page', `/${this.sayfalar.length || 1}`);
     this.agirlikYazi.textContent = `Weight: ${env.filter(Boolean).length} / 28`; this.altinYazi.textContent = `${altin.toLocaleString('en-US')} Noah`;
-    this.magaza.forEach((el, i) => { const e = sayfa[i] ?? null; this.simge(el, e, true, 0); const f = this.fiyat[i]?.querySelector('span'); if (f) f.textContent = ''; el.style.opacity = e && altin < e.fiyat ? '0.55' : '1'; });
+    this.magaza.forEach((el, i) => { const e = sayfa[i] ?? null; this.simge(el, e, true, 0); const f = this.fiyat[i]?.querySelector('span'); if (f) f.textContent = ''; el.style.opacity = '1'; }); // paran yetmeyen eşyalar soluklaştırılmaz; yetmeyen fiyat bilgi kutusunda kırmızı görünür
     this.canta.forEach((el, i) => {
       const e = env[i] ?? null, tamir = e && this.tamirModu ? tamirUcreti(e.fiyat, e.dayanim ?? 0, e.suru ?? (e.dayanim ?? 0)) : 0;
       this.simge(el, e, false, tamir); const a = this.cantaAdet[i]?.querySelector('span'); if (a) a.textContent = e && (e.adet ?? 1) > 1 ? String(e.adet) : '';
