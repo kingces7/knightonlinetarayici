@@ -159,3 +159,13 @@ Kaynak: `GameServer/AttackHandler.cpp` (`CUser::Attack`, `Regene`), `User.cpp` (
 - **Yeniden doğma:** istek `0x12` (`u8 1`); sunucu canı doldurur (`0x17`) ve `0x12` ile yeni konumu yollar (`u16 x, z, y ×10`; Moradon başlangıç ≈ 265, 304).
 - **Canavar sunucuda yeniden doğunca** aynı kimlikle `0x0A` (giriş) yollanır; istemci ölü canavarı canlandırır.
 - **İstemci (`client/src/oyun/sunucuDunyasi.ts`, `main.ts`):** sunucu canavarına vuruşta yerel hasar hesaplanmaz, `0x08` yollanır; sonuçlar sunucudan gelir. Tarayıcıda doğrulandı: vuruş, ıska, canavarın karşı vuruşu, canavarın ölümü, seviye atlama (2→3), oyuncunun ölümü ve sunucudan yeniden doğma. Skill'ler ve ganimet toplama henüz bağlı değil.
+
+## Skill (WIZ_MAGIC_PROCESS, 0x31) ve MP (WIZ_MSP_CHANGE, 0x18)
+
+İstek ve yanıt aynı yapıdadır: `u8 komut, u32 skillNo, u16 kullanan, u16 hedef, 7 × i16 veri`.
+Komutlar: 1 hazırlama, 2 uçuş, 3 etki (client'ın gönderdiği ve başarıda sunucunun yaydığı), 4 başarısız, 5 buff türü, 6 iptal.
+- Canavara skill (Type 1): `komut=3, kullanan=kendi soket no, hedef=canavar no`. Sunucu MP'yi düşer (0x18), hasarı 0x22 ile bildirir, çevreye 0x31 komut 3 yayar.
+- Buff (Type 4, Sprint/Defense): `hedef=kendimiz`. Kabulde 0x18 ile MP düşer, 0x31 komut 3 gelir; client buff'ı o zaman başlatır.
+- Hata: komut 4, `veri[3]` = −100…−104 (bkz. `BECERI_HATALARI` in `kopru/protokol/beceri.ts`).
+- 0x18: `i16 enCokMana, i16 mana`.
+Canlı test (kotest): Stroke (201001) MP 19→17, 10 hasar; Sprint (201002) MP 24→19, buff aktif. Test betiği: `client/scripts/beceriSunucuTesti.mjs`.

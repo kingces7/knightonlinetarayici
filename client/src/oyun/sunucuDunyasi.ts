@@ -14,6 +14,7 @@ import {
 } from '../../../kopru/protokol/paketler.ts';
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
 import { partiPaketi, type PartiPaketi } from '../../../kopru/protokol/parti.ts';
+import { beceriPaketi, manaDegisti, type BeceriPaketi } from '../../../kopru/protokol/beceri.ts';
 import {
   SALDIRI_SONUCU, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
 } from '../../../kopru/protokol/savas.ts';
@@ -28,6 +29,8 @@ export interface SavasKancalari {
   yenidenDogdu?: (x: number, z: number) => void;
   /** Sunucudan parti paketi geldi (davet, hata…). */
   parti?: (p: PartiPaketi) => void;
+  /** Sunucudan skill paketi geldi (bölgedeki biri skill kullandı ya da reddedildi). */
+  beceri?: (p: BeceriPaketi) => void;
 }
 
 /** Bu uzaklıktan (m) fazla geride kalan varlık varış noktasına ışınlanır (sekme/bağlantı gecikmesi). */
@@ -75,6 +78,8 @@ export class SunucuDunyasi {
         break;
       }
       case WIZ.HAREKET: { this.sayac.oyuncuHareket++; const h = kullaniciHareketi(p.govde); this.oyuncuHareketi(h.id, h.x, h.z, h.hiz, h.yanki); break; }
+      case WIZ.BECERI: this.kancalar.beceri?.(beceriPaketi(p.govde)); break;
+      case WIZ.MANA_DEGISTI: { const m = manaDegisti(p.govde); if (this.oyuncu) { this.oyuncu.enCokMana = m.enCok; this.oyuncu.mana = m.mana; } break; }
       case WIZ.PARTI: this.kancalar.parti?.(partiPaketi(p.govde)); break;
       case WIZ.SALDIRI: this.saldiri(saldiriSonucu(p.govde)); break;
       case WIZ.HEDEF_CAN: this.hedefCan(hedefCan(p.govde)); break;

@@ -26,6 +26,8 @@ export const WIZ = {
   SALDIRI: 0x08,
   SOHBET: 0x10,
   PARTI: 0x2f,
+  BECERI: 0x31,
+  MANA_DEGISTI: 0x18,
   OLUM: 0x11,
   YENIDEN_DOGUS: 0x12,
   CAN_DEGISTI: 0x17,

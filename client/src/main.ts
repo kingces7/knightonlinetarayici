@@ -23,6 +23,7 @@ import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { BECERI_HATALARI, BECERI_KOMUTU, beceriIstegi, type BeceriPaketi } from '../../kopru/protokol/beceri.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
@@ -185,6 +186,38 @@ async function basla(): Promise<void> {
 
   const simdiSn = () => performance.now() / 1000;
   /** Skill kullanımı (sunucu MagicInstance): seviye, MP, tekrar kullanım süresi; Type1 hedef ister, Type4 buff kendine uygulanır. */
+  let benimSoketNo = 0;
+  /** Skill efekt numaraları (Sprint'te altın toplanma yok: kullanıcı kararı). */
+  const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(no === 201002 ? { kendi: null } : {}) });
+  /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Burada yalnız animasyon, ses ve istek vardır. */
+  const sunucuBecerisi = (no: number, v: NonNullable<typeof kurallar>['beceri'][string], hedef: Canavar | null) => {
+    oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // aynı skill'in art arda gönderilmemesi için yerel bekleme (sunucu da kontrol eder)
+    sunucuOturumu!.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.ETKI, no, benimSoketNo, v.tip === 1 && hedef ? hedef.agKimlik : benimSoketNo));
+    if (v.tip === 1 && hedef) {
+      oyuncu.savastanBeri = 0;
+      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; }
+      ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
+    }
+  };
+  /** Sunucudan gelen skill paketi: başarıda efektler (ve kendi buff'ımız), reddedilirse mesaj. */
+  const beceriSunucudan = (p: BeceriPaketi) => {
+    const benim = p.kullanan === benimSoketNo;
+    const kaynak = benim ? oyuncu.grup : sunucuDunyasi?.oyuncular.get(p.kullanan)?.grup ?? null;
+    if (p.komut === BECERI_KOMUTU.BASARISIZ) {
+      if (benim) { oyuncu.beceriBekleme.delete(p.no); hud.mesaj(BECERI_HATALARI[p.veri[3]] ?? 'The skill failed.', 'sistem'); }
+      return;
+    }
+    if (p.komut !== BECERI_KOMUTU.ETKI) return;
+    const e = efektNo(p.no), v = kurallar?.beceri[String(p.no)];
+    if (e.kendi && kaynak) void efektler.oynat(e.kendi, kaynak, { sure: v?.tip4 ? 1.2 : 0.6 });
+    const hedefGrup = p.hedef === benimSoketNo ? oyuncu.grup : sunucuDunyasi?.canavarlar.get(p.hedef)?.grup ?? sunucuDunyasi?.oyuncular.get(p.hedef)?.grup ?? null;
+    if (e.hedef && hedefGrup) void efektler.oynat(e.hedef, hedefGrup, v?.tip4 ? { sure: 1.2 } : { sure: 0.15, azamiSure: 0.25 });
+    if (benim && v?.tip4) { // buff sunucuda kabul edildi
+      oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== p.no);
+      oyuncu.buflar.push({ no: p.no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
+      hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
+    }
+  };
   const beceriKullan = (no: number) => {
     const v = kurallar?.beceri[String(no)];
     if (!v || oyuncu.olu) return;
@@ -199,8 +232,8 @@ async function basla(): Promise<void> {
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
       if (oyuncu.konum.distanceTo(hedef.konum) > menzilDe(hedef) + 0.5) { hud.mesaj('The target is too far away.', 'sistem'); return; }
     } else if (v.tip !== 4) { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
-    if (hedef?.agModu) { hud.mesaj('Skills are not connected to the server yet.', 'sistem'); return; } // sunucu canavarına skill: sonraki adım
     kalk();
+    if (sunucuOturumu) { sunucuBecerisi(no, v, hedef); return; } // sunucu modu: kuralları sunucu uygular (MP, hasar, buff, bekleme)
     // Efekt istisnaları: Sprint'te altın toplanma (Ability_cast) yok, yalnız mavi rüzgâr izi (kullanıcı kararı); Defense tabloya uygun altın efektini kullanır.
     const efektId = { ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(no === 201002 ? { kendi: null } : {}) };
     if (efektId?.kendi) void efektler.oynat(efektId.kendi, oyuncu.grup, { sure: v.tip4 ? 1.2 : 0.6 }); // kullanan kişide efekt
@@ -454,8 +487,10 @@ async function basla(): Promise<void> {
     // Yenilenme (savaş dışında hızlı)
     const oturuyor = !!oyuncu.model?.oturuyor;
     const yenilenme = oyuncu.savastanBeri > 6 ? 8 : 0.6;
+    if (!sunucuOturumu) { // sunucu modunda can/mana sunucudan gelir (0x17, 0x18)
     oyuncu.can = Math.min(oyuncu.enCok, oyuncu.can + yenilenme * dt + (oturuyor ? oyuncu.enCok * OTURMA_CAN_ORANI * dt : 0));
     oyuncu.mana = Math.min(oyuncu.enCokMana, oyuncu.mana + 3 * dt + (oturuyor ? oyuncu.enCokMana * OTURMA_MANA_ORANI * dt : 0));
+    }
 
     // Klavye (Knight Online gibi): A/D karakteri döndürür (basılı kaldıkça 360° sürekli), W karakterin baktığı yöne ilerler, S geri gider.
     // Kamera karakterle birlikte döner ve ilerlerken yavaşça karakterin arkasına geçer.
@@ -671,7 +706,7 @@ async function basla(): Promise<void> {
   (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
-    efektSayisi: () => efektTanecikleri.length,
+    efektSayisi: () => efektTanecikleri.length, beceriKullan: (no: number) => beceriKullan(no),
     /**
      * Sunucu modu (Aşama 4, deneysel): köprü + Myko sunucusu çalışırken konsoldan `await ke.sunucuyaBaglan(hesap, sifre)`.
      * Giriş sunucusundan geçip karakteri seçer, oyuna girer ve gelen karakter verisini (seviye, statlar, can/mana, altın, eşyalar, konum) oyuncuya uygular.
@@ -689,6 +724,7 @@ async function basla(): Promise<void> {
       yonetici = null;
       for (const c of canavarlar) { sahne.remove(c.grup); hud.etiketKaldir(c); }
       canavarlar.length = 0; oyuncu.hedef = null; oyuncu.saldiriyor = false;
+      benimSoketNo = s.benim.soketNo;
       sunucuDunyasi = new SunucuDunyasi(sahne, canavarlar, digerOyuncular, hud, s.benim.soketNo, oyuncu, {
         canavarSaldirdi: (c) => ses.modelSesi(c.tur.model, 'saldir', c.konum),
         canavarVuruldu: (c) => ses.modelSesi(c.tur.model, 'darbe', c.konum),
@@ -697,6 +733,7 @@ async function basla(): Promise<void> {
           if (oyuncu.olu) { oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.model?.oynatRastgele('olum', 3, false, 0.1); } else oyuncu.model?.oynatRastgele('darbe', 3, false, 0.05);
         },
         seviyeAtlandi: () => envanterYenile(),
+        beceri: (p) => beceriSunucudan(p),
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

@@ -1,0 +1,2097 @@
+{
+ "aciklama": "Seviye 2 savasci Stroke vb. skill kullanirken gelen paketler (Myko, 2026-11-17).",
+ "beceri": 201007,
+ "hedefId": 8194,
+ "paketler": [
+  {
+   "asama": "hedef",
+   "opcode": 34,
+   "hex": "02200109010000090100000000010001"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019c1fd40da20800001000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a51fd60b2e0900001200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a71fc20ba20800000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a81fae0b060900000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01af1fba0eca0800000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b21fba0ec00800001400"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f930d830500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f930d830500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c71f240ebe0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c41fca0d220600001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01f91fa20dc00300000a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ff1f0a0a960500001500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010120b009a00500000e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010020b3099a0500001e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010f20120c1a0400000a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010e203a0ce80300000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011120a40bc00300000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011220ea0b100400000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015020560e200800000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "014e20240e200800000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "014f20740e480800001400"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0152207e0e3e0800000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f20870b1f0800002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f20870b1f0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0161207c0b5c0800001700"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f20a40d7b0700002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f20a40d7b0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016d205c0de40700000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0171209209240900000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0173208809060900000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "017520a609560900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0170205c0dda0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0172209c09f20800000200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ba202e0ef00500001400"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b920f20ddc0500000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01bb202e0edc0500000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c420f00aa00500000d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016c20a20db20700000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011320960c4e0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019c1fd40da20800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a51fd60b2e0900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a91f510bf00800000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a61fe10b360900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a71fc20ba20800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a81fae0b060900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01af1fba0eca0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b01fa30ee10800000100"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b21fba0ec00800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c31fb60dc80500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c71f240ebe0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c41fca0d220600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c61fb60d040600000100"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 10,
+   "hex": "01f51ffd0001c800000000000000000000c80000000000000000000011b60dca0300000000000000000000000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01f51fb60dca0300001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01f91fa20dc00300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ff1f0a0a960500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0103208209640500001400"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010120b009a00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0100208c09830500001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010f20120c1a0400000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011020b90bf50300000200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010e203a0ce80300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011120a40bc00300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011720ac0c6b0600001e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011620bc0c860600001500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015020560e200800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "014e20240e200800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "014f20740e480800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0152207e0e3e0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015d209a0b480800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015e20540b840800000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0161207c0b5c0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0160202b0b480800000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016e20980dee0700000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016d205c0de40700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0171209209240900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0173208809060900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0172209c09f20800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 10,
+   "hex": "027420"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b720600e040600000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ba202e0ef00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b820240e4a0600000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b920f20ddc0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01bb202e0edc0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c220400bbe0500001800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c520040b820500000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c420f00aa00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01d120ac0dc00300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016c20a20db20700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 233,
+   "hex": "ba0200000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011320960c4e0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019b1fca0dc00800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019e1fde0d060900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019f1f1a0eac0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019d1fc00dca0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a91f510bf00800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a61fe10b360900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b01fa30ee10800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b31fec0eac0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f920d870500000200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c61fb60d040600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01f51fb60dca0300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010220d809640500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0103208209640500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011020b90bf50300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011420c60c9a0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011220ea0be30300002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011220ea0be30300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011720830c560600001e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011620bc0c860600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011520da0cae0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015120740e340800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f207c0b140800000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015d209a0b480800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015e20540b840800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0160202b0b480800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f20a40d7c0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016e20980dee0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b720600e040600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b820240e4a0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c220400bbe0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c520040b820500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c320dc0a640500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019c1fbf0dca0800002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019c1fbf0dca0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a51ff50b4d0900002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a51ff50b4d0900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a71fb30bcc0800002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a71fb30bcc0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a81fae0bd90800002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a81fae0bd90800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 10,
+   "hex": "01b11ff20201bc02000000000000000000c80000000000000000000006eb0e970800000000000000000000000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b11feb0e970800002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b11feb0e970800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f920d870500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c31fb60d9b0500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c31fb60d9b0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c71ff70dc50500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c71ff70dc50500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c41fe50d460600002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c41fe50d460600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ff1fff096a0500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ff1fff096a0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0101208409950500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0101208409950500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010f20fa0bf30300002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010f20fa0bf30300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011120cc0bd40300002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011120cc0bd40300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f207c0b140800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0161209b0b7b0800002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0161209b0b7b0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f20a40d7c0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0172209c091f0900002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0172209c091f0900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ba20580efe0500002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ba20580efe0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b9201a0ef00500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b9201a0ef00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01bb20010edc0500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01bb20010edc0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c120e60a5a0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c4201d0ba00500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c4201d0ba00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016c20770da30700002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016c20770da30700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011320c10c5c0600002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011320c10c5c0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a91f7e0bf60800002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a91f7e0bf60800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a61fc00b180900002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a61fc00b180900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b01fc20ec10800002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b01fc20ec10800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 10,
+   "hex": "02f51f"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010320a7097e0500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010320a7097e0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0100207d09580500002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0100207d09580500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011020df0bdd0300002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011020df0bdd0300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011220ea0bf20300000a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011620e10c6d0600002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011620e10c6d0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015d209a0b1b0800002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015d209a0b1b0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015e20540b570800002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015e20540b570800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0160204b0b670800002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0160204b0b670800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016e206c0de10700002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016e206c0de10700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 10,
+   "hex": "027520"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0170205c0dda0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b720350ef50500002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b720350ef50500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b8200f0e210600002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b8200f0e210600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c2205f0b9e0500002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c2205f0b9e0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c520180b590500002c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c520180b590500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019c1fc00dca0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a51fea0b420900000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a71fae0bde0800000c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a81fae0bde0800000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b11ff60eac0800000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01af1fba0eca0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b21fba0ec00800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f900db40500002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f900db40500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c31fb60daa0500000a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c71fe80dc80500000a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c41fe80d4a0600000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01f91fa20dc00300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ff1f000a6e0500000200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0101208809960500000200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010f20f40be80300000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010e203a0ce80300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011120e00bde0300000e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011220ea0bf20300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011720560c560600002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011720560c560600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015020560e200800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "014e20240e200800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "014f20740e480800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0152207e0e3e0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f20710b3f0800002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f20710b3f0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016120860b660800001400"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f209e0da80700002d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f209e0da80700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016d205c0de40700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0171209209240900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0173208809060900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0172209c09380900001000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ba204c0efa0500000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b920060ee60500000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01bb20060edc0500000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c420040ba00500001000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 10,
+   "hex": "02d120"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 233,
+   "hex": "ba0200000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016c20840da80700000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011320eb0c6a0600001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019c1fc00dca0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019b1fb60dc00800000d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019e1fd40d100900000900"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019f1f390e8c0800001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019d1fa20dd40800001500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a51fea0b420900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a91fa40bfc0800001900"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a61fc20b1a0900000100"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a71fae0bde0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a81fae0bde0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b11ff60eac0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b01fc40ec00800000100"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b31fec0e840800001a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c31fb60daa0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c71fe80dc80500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c41fe80d4a0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c61fb60d040600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ff1f000a6e0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010220ce093c0500001b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010320cc09980500001e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0101208809960500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0100208209650500000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010f20f40be80300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011020060cc60300001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011420ab0c760600001e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011120e00bde0300000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011620da0c720600000500"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011520ee0cae0600000d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0151207e0e2a0800000900"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015d209a0b160800000300"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015e20540b3e0800001000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016120860b660800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016020400b5c0800000b00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016e20520dda0700001200"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0172209c09380900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b720240ef00500000c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01ba204c0efa0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b8201a0e360600000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b920060ee60500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01bb20060edc0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c2204a0bb40500001400"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c520180b5a0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c320e60a500500000e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c420040ba00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016c20840da80700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011320020d720600000f00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019b1fb60dc00800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019e1fd40d100900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019f1f130e740800001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "019d1fa20dd40800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a91fa40bfc0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01a61fc20b1a0900000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b01fc40ec00800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b31fec0e840800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c51f8e0ddc0500001a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010220ce093c0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "010320d809a00500000900"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0100208209650500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011020120cc00300000800"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011420820c610600001e00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011720650c560600000a00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011620da0c720600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "011520ee0cae0600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "0151207e0e2a0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015f20720b3e0800000100"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015d209a0b160800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "015e20540b3e0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016020400b5c0800000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016f20980dd50700001d00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "016e20520dda0700000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b720240ef00500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01b8201a0e360600000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c120040b3c0500001c00"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c2204a0bb40500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c520180b5a0500000000"
+  },
+  {
+   "asama": "hedef",
+   "opcode": 11,
+   "hex": "01c320e60a500500000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 49,
+   "hex": "042f1103000100010000000000000099ff000000000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "011320020d720600000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01a51fca0b220900002c00"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01a51fca0b220900000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01c51f8e0ddc0500000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01c41fd00d230600002d00"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01c41fd00d230600000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01ff1fef09970500002d00"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01ff1fef09970500000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "010320d809a00500000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "010120b209a40500002c00"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "010120b209a40500000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "011020120cc00300000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "011720650c560600000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "015f20720b3e0800000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "016f20980dda0700000300"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "017020520dc60700000e00"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01c120040b3c0500000000"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01c420e40abf0500002c00"
+  },
+  {
+   "asama": "beceri_1",
+   "opcode": 11,
+   "hex": "01c420e40abf0500000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 49,
+   "hex": "042f1103000100010000000000000099ff000000000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "019b1f960ddf0800002c00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "019b1f960ddf0800000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "019e1ffc0dfb0800002d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "019e1ffc0dfb0800000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "019d1fc70dec0800002d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "019d1fc70dec0800000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01af1fc40ef20800001b00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01b21fce0eca0800000e00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01b31fc10e920800002c00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01b31fc10e920800000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01f91fac0dca0300000900"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "010220f609270500002c00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "010220f609270500000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0100209f09870500002d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0100209f09870500000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "010e203a0c100400001a00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "011220ea0bf20300000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "011620c90c9b0600002d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "011620c90c9b0600000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0115201b0dae0600002d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0115201b0dae0600000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0150203b0efc0700001e00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "014e203f0e440800001e00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "014f20880e200800001d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "015220920e160800001d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "015120920e010800002c00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "015120920e010800000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "016f20980dda0700000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "016d20700dc60700001800"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0171209209060900001400"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "0173209209fc0800000900"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "017020520dc60700000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01c2201e0ba90500002c00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01c2201e0ba90500000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01c320bd0a3b0500002d00"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 11,
+   "hex": "01c320bd0a3b0500000000"
+  },
+  {
+   "asama": "beceri_2",
+   "opcode": 233,
+   "hex": "ba0200000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 49,
+   "hex": "042f1103000100010000000000000099ff000000000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "019c1fc00dca0800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "019f1f3b0e890800002d00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "019f1f3b0e890800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01a51fc20b1a0900000700"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01a71fae0bde0800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01a81fae0bde0800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01b11ff60eac0800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01af1fc40ef20800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01b21fce0eca0800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c31fb60daa0500000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c71fe80dc80500000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c41fb80dfd0500001d00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c61f9b0de00500001e00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01f91fac0dca0300000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01ff1fec09a00500000500"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "010120c409aa0500000c00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "010f20f40be80300000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "010e203a0c100400000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "011420820c340600002d00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "011420820c340600000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "011120e00bde0300000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "0117208e0c680600002d00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "0117208e0c680600000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "015020130ee50700001d00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "014e20180e2d0800001d00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "014f20880e200800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "015220920e160800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "016120860b660800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "016d20700dc60700000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "0171209209060900000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "0173209209fc0800000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "0172209c09380900000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01ba204c0efa0500000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01b920060ee60500000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01bb20060edc0500000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c120ef0a130500002c00"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c120ef0a130500000000"
+  },
+  {
+   "asama": "beceri_3",
+   "opcode": 11,
+   "hex": "01c420f00ab40500000b00"
+  }
+ ]
+}
