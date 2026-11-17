@@ -32,6 +32,8 @@ export interface ArayuzBaglami {
   statDegisti: () => void;
   /** Sunucu modunda stat harcama/sıfırlama sunucuda yapılır (true = ele alındı). `ad`: str | sta | dex | int | reset. */
   statSunucu?: (ad: string) => boolean;
+  /** Eşyayı yok et (çöp kutusu, onaydan sonra). Sunucu modunda sunucuya gider. */
+  esyaAt?: (k: YuvaKonumu) => void;
   /** Sunucu modunda banka işlemi sunucuya gider (true = ele alındı; sonuç sunucudan gelince uygulanır). */
   bankaIslem?: (i: { tur: 'esya-yatir'; canta: number } | { tur: 'esya-cek'; banka: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
   /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
@@ -544,7 +546,7 @@ export class OyunArayuzu {
       const i = this.cubukSira(alan);
       alan.style.overflow = 'hidden';
       const bek = document.createElement('div');
-      Object.assign(bek.style, { position: 'absolute', inset: '0', display: 'none', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.55)', color: '#fff', font: 'bold 14px sans-serif', pointerEvents: 'none' });
+      Object.assign(bek.style, { position: 'absolute', inset: '0', display: 'none', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }); // bekleme: yuvarlak (saat yönünde) süpürme, sayı yok
       bek.className = 'cubuk-bekleme'; alan.appendChild(bek);
       alan.addEventListener('click', () => this.cubukKullan(i));
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[this.cubukSayfa * 8 + i] = null; this.cubukKaydet(); });
@@ -645,7 +647,15 @@ export class OyunArayuzu {
       }
       const kalan = no ? (o.beceriBekleme.get(no) ?? 0) - simdi : 0;
       const bek = alan.querySelector<HTMLElement>('.cubuk-bekleme');
-      if (bek) { const goster = kalan > 0; bek.style.display = goster ? 'flex' : 'none'; if (goster) bek.textContent = kalan.toFixed(kalan < 10 ? 1 : 0); }
+      if (bek) {
+        const goster = kalan > 0; bek.style.display = goster ? 'flex' : 'none';
+        if (goster) { // yeni bekleme başladıysa toplam süre kaydedilir; geçen oran kadar açı açılır (12 yönünden saat yönünde)
+          const onceki = Number(bek.dataset.toplam ?? 0), sonKalan = Number(bek.dataset.kalan ?? 0);
+          const toplam = kalan > sonKalan + 0.3 || !onceki ? kalan : onceki; bek.dataset.toplam = String(toplam); bek.dataset.kalan = String(kalan);
+          const aci = Math.max(0, Math.min(1, 1 - kalan / toplam)) * 360;
+          bek.style.background = `conic-gradient(from 0deg, rgba(0,0,0,0) 0deg ${aci}deg, rgba(0,0,0,0.62) ${aci}deg 360deg)`;
+        } else { bek.dataset.toplam = '0'; bek.dataset.kalan = '0'; }
+      }
     }
   }
 
@@ -991,11 +1001,35 @@ export class OyunArayuzu {
   private envanterKur(): void {
     const p = this.pencereler.envanter;
     p.tikla.set('btn_close', () => this.ac('envanter', false)); // sağ üstteki çarpı
-    p.gizleDesen(/(Destroy|_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^btn_gold$|^base_(inven_notice|bag|LockImg|cos)$)/);
+    p.gizleDesen(/(_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^btn_gold$|^base_(inven_notice|bag|LockImg|cos)$)/);
     for (let i = 28; i <= 39; i++) p.goster(String(i), false);
+    this.copKur(p);
     // Karakter alanı: animasyonlu oyuncu önizlemesi
     const kap = p.bul('area_char')[0];
     if (kap && this.b.oyuncu.modelNo) { this.onizleme = new KarakterOnizleme(kap, this.b.oyuncu.modelNo); void this.onizleme.baslat(); }
+  }
+
+  /**
+   * Çöp kutusu: envanter penceresinin sağ altında (Noah kutusunun yanında). Bir eşya (çantadan ya da giyiliden) üstüne sürüklenip bırakılınca
+   * oyunun kendi "Destroy" onay penceresi açılır; Yes derse eşya yok edilir.
+   */
+  private copKur(p: UiPencere): void {
+    const alan = document.createElement('div'); alan.className = 'cop-kutusu'; alan.title = 'Drag an item here to destroy it';
+    Object.assign(alan.style, { left: '356px', top: '313px', width: '26px', height: '28px', zIndex: '3' });
+    alan.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>';
+    p.el.appendChild(alan);
+    p.gizleDesen(/Destroy/); // onay penceresi (oyunun kendi resimleri) yalnızca bırakınca açılır
+    const goster = (a: boolean) => p.gizleDesen(/^(Destroy|img_Destroy_.*|string_Destroy|btn_Destroy_.*)$/, !a);
+    let bekleyen: YuvaKonumu | null = null;
+    alan.addEventListener('dragover', (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-esya')) { ev.preventDefault(); alan.classList.add('uzerinde'); } });
+    alan.addEventListener('dragleave', () => alan.classList.remove('uzerinde'));
+    alan.addEventListener('drop', (ev) => {
+      alan.classList.remove('uzerinde'); const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault();
+      const k = JSON.parse(v) as YuvaKonumu, e = k.tur === 'c' ? this.b.oyuncu.envanter[k.i] : this.b.oyuncu.ekipman[k.i]; if (!e) return;
+      bekleyen = k; p.metin('string_Destroy', `Are you sure you want to destroy ${e.ad}?`); goster(true);
+    });
+    p.tikla.set('btn_Destroy_ok', () => { goster(false); if (bekleyen) this.b.esyaAt?.(bekleyen); bekleyen = null; });
+    p.tikla.set('btn_Destroy_cancel', () => { goster(false); bekleyen = null; });
   }
 
   /** Çanta yuvaları: kutunun alt yarısındaki 28 alan (kimlik 0..27); ekipman alanları üstte. */

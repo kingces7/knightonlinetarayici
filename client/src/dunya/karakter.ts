@@ -142,9 +142,11 @@ export class KarakterModeli {
     return b;
   }
   /** Koşarken/yürürken saldırı: üst gövde 14 numaralı animasyonu bir kez oynar, alt gövde hareket animasyonuna devam eder. */
-  ustSaldiri(): void {
+  ustSaldiri(skillAnimNo?: number): void {
     if (this.ustSaldiriAktif || this.oturAsama !== 'yok' || (this.aktifAd !== 'kos' && this.aktifAd !== 'yuru')) return;
-    const saldiri = [...this.klipler.values()][14], hareket = this.klipler.get(this.aktifAd);
+    // Skill kullanılırken skill tablosundaki animasyon (yürüyerek de) üst gövdede oynar; numara yoksa/26 ise silahın hareket-saldırısı (14).
+    const skillAd = skillAnimNo && skillAnimNo !== 26 ? this.klipNo(skillAnimNo) : null;
+    const saldiri = (skillAd ? this.klipler.get(skillAd) : undefined) ?? [...this.klipler.values()][14], hareket = this.klipler.get(this.aktifAd);
     if (!saldiri || !hareket || !this.aktif) return;
     const ust = this.bol(saldiri).ust, alt = this.bol(hareket).alt;
     if (!ust.tracks.length || !alt.tracks.length) return;

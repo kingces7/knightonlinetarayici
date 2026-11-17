@@ -33,6 +33,7 @@ export const WIZ = {
   KUTU_AC: 0x24,
   ESYA_AL: 0x26,
   ESYA_TASI: 0x1f,
+  ESYA_SIL: 0x3f,
   PARTI: 0x2f,
   BECERI: 0x31,
   MANA_DEGISTI: 0x18,

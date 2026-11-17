@@ -19,7 +19,7 @@ import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts'
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
-import { esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
+import { esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
 import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
 import {
   SALDIRI_SONUCU, esyaDustu, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
@@ -38,12 +38,13 @@ export interface SavasKancalari {
   /** Sunucudan skill paketi geldi (bölgedeki biri skill kullandı ya da reddedildi). */
   beceri?: (p: BeceriPaketi) => void;
   /** Canavar ganimet bıraktı: torba no ve (biliniyorsa) canavarın yeri. */
-  ganimetDustu?: (torbaNo: number, konum: { x: number; z: number } | null) => void;
+  ganimetDustu?: (torbaNo: number, konum: { x: number; z: number; yaricap: number } | null) => void;
   /** Kutu içeriği (0x24) ve alma cevabı (0x26) geldi. */
   kutuIcerigi?: (k: KutuIcerigi) => void;
   almaCevabi?: (a: AlmaCevabi) => void;
   /** Eşya taşıma/giyme isteğinin sonucu (0x1F). */
   tasimaCevabi?: (c: TasimaCevabi) => void;
+  esyaSilindi?: (tamam: boolean) => void;
   /** Sohbet mesajı geldi; özel sohbet alıcı sorgusunun sonucu (bulundu mu). */
   magaza?: (c: MagazaCevabi) => void;
   statDegisti?: () => void;
@@ -99,9 +100,10 @@ export class SunucuDunyasi {
       case WIZ.HAREKET: { this.sayac.oyuncuHareket++; const h = kullaniciHareketi(p.govde); this.oyuncuHareketi(h.id, h.x, h.z, h.hiz, h.yanki); break; }
       case WIZ.BECERI: this.kancalar.beceri?.(beceriPaketi(p.govde)); break;
       case WIZ.MANA_DEGISTI: { const m = manaDegisti(p.govde); if (this.oyuncu) { this.oyuncu.enCokMana = m.enCok; this.oyuncu.mana = m.mana; } break; }
-      case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y } : null); break; }
+      case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y, yaricap: c.secimYaricapi } : null); break; }
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
+      case WIZ.ESYA_SIL: this.kancalar.esyaSilindi?.(esyaSilmeCevabi(p.govde)); break;
       case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;
       case WIZ.BANKA: this.kancalar.banka?.(bankaCevabi(p.govde)); break;
       case WIZ.STAT_DEGISTI: { // stat puanı harcandı: sunucu yeni değeri ve türev değerleri bildirir

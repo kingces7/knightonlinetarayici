@@ -27,7 +27,7 @@ import { ALTIN_NO as BANKA_ALTIN, BANKA_ISLEMI, SAYFA_YUVASI, bankaAcIstegi, ban
 import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
-import { ESYA_YONU, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
+import { ESYA_YONU, esyaSilmeCevabi, esyaSilmeIstegi, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
 import { ALTIN_NO, GANIMET_HATALARI, esyaAlmaIstegi, kutuAcmaIstegi, type AlmaCevabi, type KutuIcerigi } from '../../kopru/protokol/ganimet.ts';
 import { BECERI_HATALARI, BECERI_KOMUTU, beceriIstegi, type BeceriPaketi } from '../../kopru/protokol/beceri.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
@@ -202,7 +202,7 @@ async function basla(): Promise<void> {
     sunucuOturumu!.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.ETKI, no, benimSoketNo, v.tip === 1 && hedef ? hedef.agKimlik : benimSoketNo));
     if (v.tip === 1 && hedef) {
       oyuncu.savastanBeri = 0;
-      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; }
+      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } else oyuncu.model?.ustSaldiri(arayuz?.beceriAnimNo(no)); // yürürken: üst gövde skill animasyonu, bacaklar yürümeye devam
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
     }
   };
@@ -248,7 +248,7 @@ async function basla(): Promise<void> {
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
     if (v.tip === 1 && hedef) {
-      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } // skill tablosundaki animasyon (yürürken oynatılmaz: yürüme sürer)
+      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } else oyuncu.model?.ustSaldiri(arayuz?.beceriAnimNo(no)); // skill tablosundaki animasyon; yürürken üst gövdede oynar
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v, hedefEfekt: efektId?.hedef ?? null });
     } else if (v.tip4) {
@@ -266,7 +266,7 @@ async function basla(): Promise<void> {
   try {
     const a = new OyunArayuzu({
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
-      esyaKusan: (i) => hud.esyaKusan(i),
+      esyaKusan: (i) => hud.esyaKusan(i), esyaAt: (k) => esyaAt(k),
       bankaIslem: (i) => bankaIslemSunucu(i),
       statSunucu: (ad) => {
         if (!sunucuOturumu) return false;
@@ -353,6 +353,20 @@ async function basla(): Promise<void> {
     sunucuOturumu?.gonder(WIZ.SOHBET, sohbetIstegi(SOHBET_TURU.OZEL, b.mesaj));
     arayuz?.sohbetYaz(`[To ${b.ad}] ${b.mesaj}`, '#8cff8c');
   };
+  /** Çöp kutusu: sunucu modunda sunucu onayıyla, yerelde hemen. */
+  const silmeBekleyen: { k: YuvaKonumu; e: EsyaTanimi }[] = [];
+  const esyaAt = (k: YuvaKonumu) => {
+    const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i]; if (!e) return;
+    if (sunucuOturumu) { silmeBekleyen.push({ k, e }); sunucuOturumu.gonder(WIZ.ESYA_SIL, esyaSilmeIstegi(k.tur === 'e', k.i, e.sunucuNo ?? e.no)); return; }
+    if (k.tur === 'c') oyuncu.envanter[k.i] = null; else oyuncu.ekipman[k.i] = null;
+    hud.mesaj(`You destroyed ${e.ad}.`, 'sistem'); envanterYenile();
+  };
+  const silmeSunucudan = (tamam: boolean) => {
+    const b = silmeBekleyen.shift(); if (!b) return;
+    if (!tamam) { hud.mesaj('You cannot destroy that item.', 'sistem'); return; }
+    if (b.k.tur === 'c') oyuncu.envanter[b.k.i] = null; else oyuncu.ekipman[b.k.i] = null;
+    hud.mesaj(`You destroyed ${b.e.ad}.`, 'sistem'); envanterYenile();
+  };
   hud.esyaKusan = (i) => {
     if (sunucuOturumu) { // sunucu modu
       const e = oyuncu.envanter[i]; if (!e) return;
@@ -385,8 +399,14 @@ async function basla(): Promise<void> {
     else if (typeof secim === 'number' && k.agYuvalar[secim]) gonder(k.agYuvalar[secim].no, k.agYuvalar[secim].yuva);
   };
   const kutuBul = (torba: number) => kutular.find((k) => k.agTorba === torba);
-  const ganimetDustuSunucudan = (torba: number, konum: { x: number; z: number } | null) => {
-    const k = new GanimetKutusu(konum?.x ?? oyuncu.konum.x, konum?.z ?? oyuncu.konum.y, 0, []);
+  /** Ganimet kutusu canavarın görüntüsünün üstünde değil, yanında belirir (canavar boyutuna göre ~1,6–2,4 m yana; yön torba/kimlik numarasından türetilir, böylece aynı yerde ölenlerin kutuları üst üste binmez). */
+  const kutuYani = (x: number, z: number, tohum: number, yaricap = 0.8): [number, number] => {
+    const aci = (tohum * 2.399963) % (Math.PI * 2), uzak = 1.6 + yaricap * 0.9;
+    return [x + Math.cos(aci) * uzak, z + Math.sin(aci) * uzak];
+  };
+  const ganimetDustuSunucudan = (torba: number, konum: { x: number; z: number; yaricap: number } | null) => {
+    const [kx, kz] = kutuYani(konum?.x ?? oyuncu.konum.x, konum?.z ?? oyuncu.konum.y, torba, konum?.yaricap);
+    const k = new GanimetKutusu(kx, kz, 0, []);
     k.agTorba = torba; k.icerikGeldi = false; kutular.push(k); sahne.add(k.grup);
     sunucuOturumu?.gonder(WIZ.KUTU_AC, kutuAcmaIstegi(torba)); // içerik hemen istenir: kutuya tıklanınca simgeler hazır olsun
   };
@@ -602,6 +622,9 @@ async function basla(): Promise<void> {
     hud.mesaj(`You bought ${e.ad} for ${e.fiyat.toLocaleString('en-US')} Noah.`, 'odul');
   };
   // Oyun imleci: tıklayınca ikinci resim, canavarın üstünde kılıç resmi (stil.css .imlec-*)
+  addEventListener('pointerdown', (e) => { if (e.button === 2) document.body.classList.add('kamera-donuyor'); });
+  addEventListener('pointerup', (e) => { if (e.button === 2) document.body.classList.remove('kamera-donuyor'); });
+  addEventListener('blur', () => document.body.classList.remove('kamera-donuyor'));
   addEventListener('pointerdown', () => document.body.classList.add('imlec-basili'));
   addEventListener('pointerup', () => document.body.classList.remove('imlec-basili'));
   tuval.addEventListener('pointermove', (e) => {
@@ -849,7 +872,8 @@ async function basla(): Promise<void> {
           c.ganimetBirakildi = true;
           const g = ganimetUret(c.tur);
           for (const e of g.esyalar) if (e.simge) new Image().src = e.simge; // simgeler kutu açılmadan önce yüklensin (açılınca anında görünsün)
-          const k = new GanimetKutusu(c.konum.x, c.konum.y, g.altin, g.esyalar);
+          const [kx, kz] = kutuYani(c.konum.x, c.konum.y, c.tur.sid + Math.floor(c.konum.x * 7), c.secimYaricapi);
+          const k = new GanimetKutusu(kx, kz, g.altin, g.esyalar);
           kutular.push(k); sahne.add(k.grup);
         }
         if (c.oluSuresi > 5) c.grup.visible = false;
@@ -857,6 +881,7 @@ async function basla(): Promise<void> {
       }
       c.sahneyeYerlestir(arazi);
     }
+    canavarlariAyir(dt);
     for (let i = kutular.length - 1; i >= 0; i--) {
       const k = kutular[i];
       k.guncelle(dt, arazi);
@@ -866,8 +891,25 @@ async function basla(): Promise<void> {
 
   const npcleriGuncelle = (dt: number) => { for (const n of npcler) { n.model?.guncelle(dt); n.sahneyeYerlestir(arazi); } };
 
+  /**
+   * Canavarlar birbirinin içine girmesin: yakın çiftler yumuşakça ayrılır (yalnız görüntü konumu; sunucu kuralları değişmez).
+   * Çarpışma yarıçapı modelin gövde boyutundan (secimYaricapi × 0,7, en az 0,5 m); kare başına itme hızı sınırlıdır, titreme olmasın.
+   */
+  const canavarlariAyir = (dt: number) => {
+    const canli = canavarlar.filter((c) => !c.olu && c.grup.visible);
+    for (let i = 0; i < canli.length; i++) for (let j = i + 1; j < canli.length; j++) {
+      const a = canli[i], b = canli[j];
+      const dx = b.konum.x - a.konum.x, dy = b.konum.y - a.konum.y;
+      const r = Math.max(0.5, a.secimYaricapi * 0.7) + Math.max(0.5, b.secimYaricapi * 0.7);
+      if (Math.abs(dx) > r || Math.abs(dy) > r) continue;
+      const d = Math.hypot(dx, dy); if (d >= r) continue;
+      const nx = d > 0.001 ? dx / d : Math.cos(i * 2.4), ny = d > 0.001 ? dy / d : Math.sin(i * 2.4);
+      const it = Math.min((r - d) / 2, 2.5 * dt); // her biri yarım örtüşme kadar, saniyede en çok 2,5 m
+      a.konum.x -= nx * it; a.konum.y -= ny * it; b.konum.x += nx * it; b.konum.y += ny * it;
+    }
+  };
   const izdusum = (c: Canavar | Npc | Oyuncu | DigerOyuncu) => {
-    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : c.boy + 0.1; // canavar adı isabet alanının hemen üstünde
+    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : Math.max(c.boy, c.etiketY) + 0.1; // canavar adı isabet alanının hemen üstünde
     kamera.kamera.updateMatrixWorld(); // bu karenin kamera konumuna göre (önceki kareye göre kayma/gecikme olmasın)
     const ekran = p.project(kamera.kamera);
     return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
@@ -941,7 +983,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

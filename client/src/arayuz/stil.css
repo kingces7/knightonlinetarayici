@@ -81,3 +81,9 @@ body.imlec-saldir, body.imlec-saldir * { cursor: url('/arayuz/doku/cursorattack.
 
 /* Yığınlanan eşyanın adedi (yuvanın sağ altı) */
 .ui-t9[data-adet]:not([data-adet=""])::after { content: attr(data-adet); position: absolute; right: 2px; bottom: 0; font: bold 11px Verdana, sans-serif; color: #fff; text-shadow: 0 0 2px #000, 0 1px 2px #000; pointer-events: none; }
+
+/* Sağ tuşla etrafa bakarken imleç gizlenir, bırakınca geri gelir */
+body.kamera-donuyor, body.kamera-donuyor * { cursor: none !important; }
+.cop-kutusu { position: absolute; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; border: 1px solid rgba(214,170,90,.55); background: rgba(20,14,8,.55); }
+.cop-kutusu.uzerinde { background: rgba(120,40,30,.7); border-color: #ff9a6a; }
+.cop-kutusu svg { width: 70%; height: 70%; fill: none; stroke: #e6c27a; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }

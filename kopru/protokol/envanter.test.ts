@@ -15,3 +15,9 @@ test('gerçek sunucu: başarılı taşıma cevabı (özet) ve hata', () => {
   assert.deepEqual(c, { basarili: true, hasar: 4, savunma: 70, azamiAgirlik: 3300, azamiCan: 71, azamiMana: 51, statEk: [0, 0, 0, 0, 0], can: 71, mana: 51 });
   assert.deepEqual(esyaTasimaCevabi(bayt('0100')), { basarili: false });
 });
+
+import { esyaSilmeCevabi, esyaSilmeIstegi } from './envanter.ts';
+test('eşya silme: istek 6 bayt, cevap 1 = başarılı', () => {
+  const b = esyaSilmeIstegi(false, 3, 389010000); assert.equal(b.length, 6); assert.deepEqual([...b.slice(0, 2)], [0, 3]);
+  assert.equal(esyaSilmeCevabi(Uint8Array.of(1)), true); assert.equal(esyaSilmeCevabi(Uint8Array.of(0)), false);
+});

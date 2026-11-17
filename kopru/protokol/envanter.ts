@@ -27,3 +27,11 @@ export function esyaTasimaCevabi(govde: Uint8Array): TasimaCevabi {
   for (let i = 0; i < 6; i++) o.u16(); o.u32(); for (let i = 0; i < 7; i++) o.u16(); o.u32();
   return { basarili: true, hasar, savunma, azamiAgirlik, azamiCan, azamiMana, statEk, can: o.u16(), mana: o.u16() };
 }
+
+/**
+ * Eşyayı yok et / çöpe at (WIZ_ITEM_REMOVE 0x3F). Kaynak: GameServer/ItemHandler.cpp (ItemRemove).
+ * İstek (client → sunucu): `u8 tür (0 çanta, 1 giyili), u8 yuva (çanta 0–27 / giyili 0–13), u32 eşya (yuvadaki TAM numara)`. Cevap: `u8 1` başarılı, `u8 0` hata.
+ * Sunucu silinen (yığınlanamayan) eşyayı bir süre geri alınabilir diye saklayabilir (trashitem ayarı).
+ */
+export function esyaSilmeIstegi(giyili: boolean, yuva: number, no: number): Uint8Array { return new PaketYazici().u8(giyili ? 1 : 0).u8(yuva).u32(no).baytlar(); }
+export function esyaSilmeCevabi(govde: Uint8Array): boolean { return new PaketOkuyucu(govde).u8() === 1; }
