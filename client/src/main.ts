@@ -638,14 +638,22 @@ async function basla(): Promise<void> {
       const miktar = i.tur === 'altin-yatir' ? o.altin : o.depoAltin; if (miktar <= 0) return true;
       sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(i.tur === 'altin-yatir' ? BANKA_ISLEMI.YATIR : BANKA_ISLEMI.CEK, id, BANKA_ALTIN, 0, 0, 0, miktar));
       bankaBekleyen.push(() => { if (i.tur === 'altin-yatir') { o.depoAltin += miktar; o.altin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah deposited.`, 'sistem'); } else { o.altin += miktar; o.depoAltin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah withdrawn.`, 'sistem'); } });
+    } else if (i.tur === 'banka-ici') { // aynı sayfada banka yuvasından yuvasına (sunucu WAREHOUSE_MOVE: hedef boş olmalı)
+      const e = o.depo[i.kaynak]; if (!e || o.depo[i.hedef]) return true;
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.BANKA_ICI_TASI, id, e.sunucuNo ?? e.no, Math.floor(i.kaynak / SAYFA_YUVASI), i.kaynak % SAYFA_YUVASI, i.hedef % SAYFA_YUVASI, e.adet ?? 1));
+      bankaBekleyen.push(() => { o.depo[i.hedef] = e; o.depo[i.kaynak] = null; });
+    } else if (i.tur === 'canta-ici') { // çanta içinde yuvadan yuvaya (sunucu WAREHOUSE_INVENMOVE)
+      const e = o.envanter[i.kaynak]; if (!e || o.envanter[i.hedef]) return true;
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.CANTA_ICI_TASI, id, e.sunucuNo ?? e.no, 0, i.kaynak, i.hedef, e.adet ?? 1));
+      bankaBekleyen.push(() => { o.envanter[i.hedef] = e; o.envanter[i.kaynak] = null; });
     } else if (i.tur === 'esya-yatir') {
       const e = o.envanter[i.canta]; if (!e) return true;
-      const j = o.depo.indexOf(null); if (j < 0) { hud.mesaj('Your warehouse is full.', 'sistem'); return true; }
+      const j = i.hedef ?? o.depo.indexOf(null); if (j < 0 || o.depo[j]) { hud.mesaj('Your warehouse is full.', 'sistem'); return true; }
       sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.YATIR, id, e.sunucuNo ?? e.no, Math.floor(j / SAYFA_YUVASI), i.canta, j % SAYFA_YUVASI, e.adet ?? 1));
       bankaBekleyen.push(() => { o.depo[j] = e; o.envanter[i.canta] = null; });
     } else {
       const e = o.depo[i.banka]; if (!e) return true;
-      const f = o.envanter.indexOf(null); if (f < 0) { hud.mesaj('Your inventory is full.', 'sistem'); return true; }
+      const f = i.hedef ?? o.envanter.indexOf(null); if (f < 0 || o.envanter[f]) { hud.mesaj('Your inventory is full.', 'sistem'); return true; }
       sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.CEK, id, e.sunucuNo ?? e.no, Math.floor(i.banka / SAYFA_YUVASI), i.banka % SAYFA_YUVASI, f, e.adet ?? 1));
       bankaBekleyen.push(() => { o.envanter[f] = e; o.depo[i.banka] = null; });
     }

@@ -39,7 +39,8 @@ export interface ArayuzBaglami {
   /** Eşyayı yok et (çöp kutusu, onaydan sonra). Sunucu modunda sunucuya gider. */
   esyaAt?: (k: YuvaKonumu) => void;
   /** Sunucu modunda banka işlemi sunucuya gider (true = ele alındı; sonuç sunucudan gelince uygulanır). */
-  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number } | { tur: 'esya-cek'; banka: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
+  /** Banka işlemleri (sunucu modunda true döner = işlem sunucuya gitti). `hedef` verilirse eşya o yuvaya konur (sürükle-bırak); yoksa ilk boş yuvaya. */
+  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number; hedef?: number } | { tur: 'esya-cek'; banka: number; hedef?: number } | { tur: 'banka-ici'; kaynak: number; hedef: number } | { tur: 'canta-ici'; kaynak: number; hedef: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
   /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
   sehreDon: () => void;
   /** Oyuncu animasyonu numarasını oynat (selamlama, savaş çığlığı). */
@@ -456,23 +457,47 @@ export class OyunArayuzu {
     p.tikla.set('btn_gold', () => { if (this.b.bankaIslem?.({ tur: 'altin-yatir' })) return; if (o.altin > 0) { o.depoAltin += o.altin; this.b.mesaj(`${o.altin.toLocaleString('en-US')} Noah deposited.`); o.altin = 0; this.depoImza = ''; } });
     p.tikla.set('btn_gold_warehouse', () => { if (this.b.bankaIslem?.({ tur: 'altin-cek' })) return; if (o.depoAltin > 0) { o.altin += o.depoAltin; this.b.mesaj(`${o.depoAltin.toLocaleString('en-US')} Noah withdrawn.`); o.depoAltin = 0; this.depoImza = ''; } });
     // Yuva tıklamaları pencere düzeyinde ve tıklama anında çözülür (yuvalar pencere gizliyken konumlanmamış olur).
-    p.el.addEventListener('click', (ev) => {
-      const el = (ev.target as HTMLElement).closest('.ui-t9') as HTMLElement | null; if (!el) return;
-      const ust = this.depoUst().indexOf(el);
-      if (ust >= 0) {
-        const j = this.depoSayfa * 24 + ust, e = o.depo[j]; if (!e) return;
-        if (this.b.bankaIslem?.({ tur: 'esya-cek', banka: j })) return;
-        if (!o.esyaEkle(e)) { this.b.mesaj('Your inventory is full.'); return; }
-        o.depo[j] = null; this.depoImza = ''; return;
+    // Yuva çözümü olay anında yapılır: { yer: 'depo' (sayfadaki sıra → genel yuva) | 'canta', i }
+    const yuvaBul = (hedef: EventTarget | null): { yer: 'depo' | 'canta'; i: number } | null => {
+      const el = (hedef as HTMLElement | null)?.closest('.ui-t9') as HTMLElement | null; if (!el) return null;
+      const ust = this.depoUst().indexOf(el); if (ust >= 0) return { yer: 'depo', i: this.depoSayfa * 24 + ust };
+      const alt = this.depoAlt().indexOf(el); return alt >= 0 ? { yer: 'canta', i: alt } : null;
+    };
+    const depoSayfaBitisi = (j: number) => Math.floor(j / 24) === this.depoSayfa;
+    /** Eşyayı kaynak yuvadan hedef yuvaya taşır (hedef yoksa ilk boş yuva). Sunucu modunda işlem sunucuya gider. */
+    const tasi = (k: { yer: 'depo' | 'canta'; i: number }, h: { yer: 'depo' | 'canta'; i: number } | null) => {
+      const e = k.yer === 'depo' ? o.depo[k.i] : o.envanter[k.i]; if (!e) return;
+      const dolu = (x: { yer: 'depo' | 'canta'; i: number }) => (x.yer === 'depo' ? o.depo[x.i] : o.envanter[x.i]);
+      if (h && h.yer === k.yer && h.i === k.i) return;
+      if (h && dolu(h)) h = null; // hedef dolu: ilk boş yuvaya düşer
+      if (k.yer === 'canta' && (!h || h.yer === 'depo')) { // çantadan bankaya
+        const hedef = h ? h.i : o.depo.indexOf(null);
+        if (hedef < 0) { this.b.mesaj('Your warehouse is full.'); return; }
+        if (this.b.bankaIslem?.({ tur: 'esya-yatir', canta: k.i, hedef })) return;
+        o.depo[hedef] = e; o.envanter[k.i] = null;
+      } else if (k.yer === 'depo' && (!h || h.yer === 'canta')) { // bankadan çantaya
+        const hedef = h ? h.i : o.envanter.indexOf(null);
+        if (hedef < 0) { this.b.mesaj('Your inventory is full.'); return; }
+        if (this.b.bankaIslem?.({ tur: 'esya-cek', banka: k.i, hedef })) return;
+        o.envanter[hedef] = e; o.depo[k.i] = null;
+      } else if (k.yer === 'depo' && h) { // banka içinde taşıma (aynı sayfada)
+        if (!depoSayfaBitisi(h.i) || !depoSayfaBitisi(k.i)) return;
+        if (this.b.bankaIslem?.({ tur: 'banka-ici', kaynak: k.i, hedef: h.i })) return;
+        o.depo[h.i] = e; o.depo[k.i] = null;
+      } else if (k.yer === 'canta' && h) { // çanta içinde taşıma
+        if (this.b.bankaIslem?.({ tur: 'canta-ici', kaynak: k.i, hedef: h.i })) return;
+        o.envanter[h.i] = e; o.envanter[k.i] = null;
       }
-      const alt = this.depoAlt().indexOf(el);
-      if (alt >= 0) {
-        const e = o.envanter[alt]; if (!e) return;
-        if (this.b.bankaIslem?.({ tur: 'esya-yatir', canta: alt })) return;
-        const bos = o.depo.indexOf(null);
-        if (bos < 0) { this.b.mesaj('Your warehouse is full.'); return; }
-        o.depo[bos] = e; o.envanter[alt] = null; this.depoImza = '';
-      }
+      this.depoImza = ''; this.sonEnvanterImza = '';
+    };
+    // SAĞ tık: çanta eşyası bankaya, banka eşyası çantaya (ilk boş yuva)
+    p.el.addEventListener('contextmenu', (ev) => { const k = yuvaBul(ev.target); if (!k) return; ev.preventDefault(); this.b.ipucuGizle(); tasi(k, null); });
+    // SÜRÜKLE-BIRAK: yuvadan yuvaya (çanta ↔ banka, banka içinde, çanta içinde)
+    p.el.addEventListener('dragstart', (ev) => { const k = yuvaBul(ev.target); if (!k) { ev.preventDefault(); return; } ev.dataTransfer?.setData('application/x-ke-depo', JSON.stringify(k)); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move'; this.b.ipucuGizle(); });
+    p.el.addEventListener('dragover', (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-depo')) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } });
+    p.el.addEventListener('drop', (ev) => {
+      const v = ev.dataTransfer?.getData('application/x-ke-depo'); if (!v) return; ev.preventDefault();
+      tasi(JSON.parse(v) as { yer: 'depo' | 'canta'; i: number }, yuvaBul(ev.target));
     });
   }
   private depoCiz(): void {
@@ -480,7 +505,7 @@ export class OyunArayuzu {
     const imza = `${this.depoSayfa}|${o.altin}|${o.depoAltin}|${o.depo.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}|${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}`;
     if (imza === this.depoImza) return;
     this.depoImza = imza;
-    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => {
+    const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null) => { el.draggable = !!e;
       el.style.backgroundImage = e?.simge ? `url(${e.simge})` : ''; el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0'; el.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; el.onmouseleave = () => this.b.ipucuGizle();
     };
