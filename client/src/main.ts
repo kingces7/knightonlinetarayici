@@ -202,7 +202,9 @@ async function basla(): Promise<void> {
   /** Skill kullanımı (sunucu MagicInstance): seviye, MP, tekrar kullanım süresi; Type1 hedef ister, Type4 buff kendine uygulanır. */
   let benimSoketNo = 0;
   /** Skill efekt numaraları (Sprint'te altın toplanma yok: kullanıcı kararı). */
-  const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null, ucan: null }, ...([201002, 202002].includes(no) ? { kendi: null } : {}) });
+  /** Sprint (tüm sınıf ve terfi sayfalarında xx2002, hız buff'ı): altın toplanma efekti (Ability_cast 2701) yok, yalnız rüzgâr izi (kullanıcı kararı). */
+  const sprintMi = (no: number) => no % 1000 === 2 && kurallar?.beceri[String(no)]?.tip4?.turu === 6;
+  const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null, ucan: null }, ...(sprintMi(no) ? { kendi: null } : {}) });
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Burada yalnız animasyon, ses ve istek vardır. */
   /** Süreli büyü (hazırlık > 0): hazırlanırken hedef/skill; yürümek iptal eder. */
   let buyuHazirlik: { no: number; hedefId: number } | null = null;
@@ -305,7 +307,7 @@ async function basla(): Promise<void> {
     kalk();
     if (sunucuOturumu) { sunucuBecerisi(no, v, hedef, dost); return; } // sunucu modu: kuralları sunucu uygular (MP, hasar, buff, bekleme)
     // Efekt istisnaları: Sprint'te altın toplanma (Ability_cast) yok, yalnız mavi rüzgâr izi (kullanıcı kararı); Defense tabloya uygun altın efektini kullanır.
-    const efektId = { ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(no === 201002 ? { kendi: null } : {}) };
+    const efektId = { ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(sprintMi(no) ? { kendi: null } : {}) };
     if (efektId?.kendi) void efektler.oynat(efektId.kendi, oyuncu.grup, { sure: v.tip4 ? 1.2 : 0.6 }); // kullanan kişide efekt
     oyuncu.mana -= v.msp;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
