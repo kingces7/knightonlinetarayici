@@ -126,8 +126,15 @@ export class Hud {
     (this.ipucu.children[1] as HTMLElement).textContent = st;
     (this.ipucu.children[2] as HTMLElement).textContent = e.aciklama;
     (this.ipucu.children[3] as HTMLElement).textContent = `Price ${e.fiyat.toLocaleString('en-US')} Noah`;
-    this.ipucu.style.left = `${ev.clientX + 16}px`; this.ipucu.style.top = `${ev.clientY + 12}px`;
+    this.ipucu.style.left = '0px'; this.ipucu.style.top = '0px';
     this.ipucu.classList.remove('gizli');
+    // Eşya bilgisi hiçbir zaman ekran dışına taşmaz: sağa sığmıyorsa imlecin soluna, alta sığmıyorsa yukarı alınır.
+    const r = this.ipucu.getBoundingClientRect(), ke = 6;
+    let x = ev.clientX + 16, y = ev.clientY + 12;
+    if (x + r.width > innerWidth - ke) x = ev.clientX - r.width - 16;
+    if (y + r.height > innerHeight - ke) y = ev.clientY - r.height - 12;
+    x = Math.max(ke, Math.min(x, innerWidth - r.width - ke)); y = Math.max(ke, Math.min(y, innerHeight - r.height - ke));
+    this.ipucu.style.left = `${x}px`; this.ipucu.style.top = `${y}px`;
   }
 
   /** Orijinal ganimet penceresi (re_droppeditem) bunu dinler; eski panel CSS ile gizlenir. */

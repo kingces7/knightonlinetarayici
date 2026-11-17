@@ -800,7 +800,7 @@ export class OyunArayuzu {
       ['Recommend', () => this.b.mesaj('Recommend is not available yet.')],
       ['Individual_Battle', () => this.b.mesaj('Individual battle is not available yet.')],
     ];
-    const doldur = (kap: HTMLElement | undefined, satirlar: [string, () => void][], renk: string) => {
+    const doldur = (kap: HTMLElement | undefined, satirlar: [string, () => void][], renk: string, varsayilan = 0) => {
       if (!kap) return;
       kap.replaceChildren();
       Object.assign(kap.style, { overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', scrollbarWidth: 'none' });
@@ -812,10 +812,11 @@ export class OyunArayuzu {
         s.addEventListener('dblclick', calistir);
         s.addEventListener('pointerdown', (e) => e.stopPropagation());
         kap.appendChild(s);
+        if (satirlar[varsayilan]?.[0] === ad) { secili = s; s.style.borderColor = '#31e05a'; } // pencere açıldığında yeşil seçim çerçevesi hazır durur (orijinal görünüm)
       }
     };
-    doldur(p.alan('list_curtailment'), UST.map((ad): [string, () => void] => [ad, () => this.sohbetKomutu('/' + ad.toLowerCase().replace(/ /g, '') + ' ')]), '#f5e800');
-    doldur(p.alan('list_content'), ALT, '#ffffff');
+    doldur(p.alan('list_curtailment'), UST.map((ad): [string, () => void] => [ad, () => this.sohbetKomutu('/' + ad.toLowerCase().replace(/ /g, '') + ' ')]), '#f5e800', 0);
+    doldur(p.alan('list_content'), ALT, '#ffffff', 1); // üstte Private, altta Town seçili başlar
   }
   /** Komut listesinden sohbet girişine ön ek yazar ve odaklar. */
   private sohbetKomutu(onEk: string): void { const g = this.sohbetGiris; if (!g) return; g.value = onEk; g.focus(); }

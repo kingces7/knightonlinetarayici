@@ -540,6 +540,12 @@ async function basla(): Promise<void> {
       if (yeni && yeni !== oyuncu.hedef) { oyuncu.hedef = yeni; oyuncu.saldiriyor = false; }
       if (e.code === 'KeyZ' && yeni) oyuncu.bak(yeni.konum); // orijinal: en yakın düşmanı seçince ona döner (RotateTo)
     }
+    // B: yanındaki en yakın NPC'yi seçer ve onunla konuşur/alışveriş açar (tıklamayla aynı; menzil 5 m — orijinaldeki "en yakın dost" seçimine benzer, abartılı değil)
+    if (!e.repeat && e.code === 'KeyB' && !oyuncu.olu) {
+      const n = npcler.filter((x) => x.konum.distanceTo(oyuncu.konum) < 5).sort((p, q) => p.konum.distanceTo(oyuncu.konum) - q.konum.distanceTo(oyuncu.konum))[0];
+      if (n) { e.preventDefault(); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; oyuncu.bak(n.konum); npcEtkilesim(n); }
+      else hud.mesaj('There is no NPC nearby.', 'sistem');
+    }
     if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
     if (!e.repeat && e.code === 'KeyR' && oyuncu.saldiriyor) { oyuncu.saldiriyor = false; hud.mesaj('Auto attack off.', 'sistem'); } // R: sürekli saldırıyı aç/kapa (orijinal CommandToggleAttackContinous)
     else if (!e.repeat && e.code === 'KeyR') {

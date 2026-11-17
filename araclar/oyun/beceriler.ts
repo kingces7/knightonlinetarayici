@@ -47,8 +47,8 @@ function main(): number {
     const ad = String(s[2] || s[1]).trim();
     liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[21]) === 0 && tip1.has(no) ? tip1.get(no) : Number(s[4]), efektKendi: Number(s[7]) || null, efektHedef: Number(s[12]) || null, efektUcan: Number(s[11]) || null, simge });
   }
-  // Kullanıcı kararı: Warrior Crash'in kendinde efekti yok (tablodaki 2601 heal_cast parıltısı kaldırıldı); vuruş efekti (hedefte) kalır.
-  for (const b of liste) if (b.no === 101005 || b.no === 201005) b.efektKendi = null;
+  // Kullanıcı kararı: yakın dövüş skill'lerinde (Stroke, Slash, Crash, Piercing — tüm sınıflar) kendinde parıltı yok; tablodaki 2601 heal_cast yalnızca iyileştirme skill'lerinde kalır.
+  for (const b of liste) if (tip1.has(Number(b.no)) && b.efektKendi === 2601) b.efektKendi = null;
   liste.sort((a, b) => Number(a.sayfa) - Number(b.sayfa) || Number(a.sira) - Number(b.sira) || Number(a.no) - Number(b.no));
   fs.writeFileSync(path.join(hedef, 'beceriler.json'), JSON.stringify(liste, null, 1));
   console.log(`${liste.length} skill (sayfalar ${SAYFALAR.join(', ')}) -> ${hedef}`);
