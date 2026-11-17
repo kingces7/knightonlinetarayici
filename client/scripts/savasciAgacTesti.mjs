@@ -14,6 +14,7 @@ await s.evaluate(() => {
   window.ke.oyuncu.isinla(430, 217, window.ke.arazi);
 });
 await s.waitForTimeout(5000);
+if (process.env.KO_YAY) { const i = await s.evaluate(() => window.ke.oyuncu.envanter.findIndex((e) => e && /Bow/.test(e.ad))); if (i >= 0) { await s.evaluate((i) => window.ke.hud.esyaKusan(i), i); await s.waitForTimeout(1500); } console.log('yay', await s.evaluate(() => [window.ke.oyuncu.ekipman[6]?.ad, window.ke.oyuncu.ekipman[8]?.ad])); }
 console.log('puanlar', await s.evaluate(() => [window.ke.oyuncu.seviye, window.ke.oyuncu.skillPuanlari.join(','), window.ke.oyuncu.mana + '/' + window.ke.oyuncu.enCokMana]));
 for (const no of nolar) {
   const hazir = await s.evaluate(() => {

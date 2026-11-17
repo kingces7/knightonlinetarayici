@@ -203,6 +203,8 @@ async function basla(): Promise<void> {
   let benimSoketNo = 0;
   /** Skill efekt numaraları (Sprint'te altın toplanma yok: kullanıcı kararı). */
   /** Sprint (tüm sınıf ve terfi sayfalarında xx2002, hız buff'ı): altın toplanma efekti (Ability_cast 2701) yok, yalnız rüzgâr izi (kullanıcı kararı). */
+  /** Skill adı (sunucu tablosunda boş ya da küçük harfliyse client tablosundaki ad), baş harfi büyük. */
+  const buyuAdi = (v: { ad: string }, no: number) => { const s = (arayuz?.beceriAdi(no) || v.ad || 'The skill').trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
   const sprintMi = (no: number) => no % 1000 === 2 && kurallar?.beceri[String(no)]?.tip4?.turu === 6;
   const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null, ucan: null }, ...(sprintMi(no) ? { kendi: null } : {}) });
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Burada yalnız animasyon, ses ve istek vardır. */
@@ -273,7 +275,7 @@ async function basla(): Promise<void> {
     if (benim && v?.tip4) { // buff sunucuda kabul edildi
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== p.no);
       oyuncu.buflar.push({ no: p.no, ad: v.ad || arayuz?.beceriAdi(p.no) || '', bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
-      hud.mesaj(`${v.ad || arayuz?.beceriAdi(p.no) || 'The skill'} is active for ${v.tip4.sure} seconds.`, 'sistem');
+      hud.mesaj(`${buyuAdi(v, p.no)} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
   const beceriKullan = (no: number) => {
@@ -321,7 +323,7 @@ async function basla(): Promise<void> {
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
       oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
       if (efektId?.hedef) void efektler.oynat(efektId.hedef, oyuncu.grup, { sure: 1.2 }); // buff'ta hedef efekti de kullanana uygulanır
-      hud.mesaj(`${v.ad || arayuz?.beceriAdi(no) || 'The skill'} is active for ${v.tip4.sure} seconds.`, 'sistem');
+      hud.mesaj(`${buyuAdi(v, no)} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
 
