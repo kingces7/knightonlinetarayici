@@ -197,7 +197,7 @@ async function basla(): Promise<void> {
   const kalk = () => { if (oyuncu.model?.oturuyor) { oyuncu.model.oturPozu(false); sunucuOturumu?.gonder(WIZ.DURUM_DEGISTI, oturmaIstegi(false)); } }; // sunucuya da bildirilir (yenilenme hızı oturma durumuna bağlı)
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
   /** GM hızlanması: yetkisi GM olan karakter Shift'e basılı tutunca bu kat hızlanır. */
-  const GM_SHIFT_HIZI = 3.5, GM_SHIFT2_HIZI = 5; // Shift: 3,5 kat; Shift + 2: 5 kat
+  const GM_SHIFT_HIZI = 5, GM_SHIFT2_HIZI = 7; // Shift: 5 kat; Shift + 2: 7 kat
   const gmCarpan = () => { if (!oyuncu.gm || !(tuslar.has('ShiftLeft') || tuslar.has('ShiftRight'))) return 1; return tuslar.has('Digit2') || tuslar.has('Numpad2') ? GM_SHIFT2_HIZI : GM_SHIFT_HIZI; };
   const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani * gmCarpan(); // hız buff'ı (Sprint) dahil
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
