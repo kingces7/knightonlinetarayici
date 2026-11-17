@@ -898,6 +898,7 @@ async function basla(): Promise<void> {
     };
     const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= menzilDe(oyuncu.hedef);
     hareketEdiyor = ilerigeri !== 0 || !!oyuncu.yuruHedef;
+    if (hareketEdiyor && arayuz?.npcPencereAcik()) arayuz.npcPencereleriniKapat(); // NPC mağazası/bankası açıkken hareket edince kapanır
     if (buyuHazirlik && hareketEdiyor) { sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.IPTAL, buyuHazirlik.no, benimSoketNo, buyuHazirlik.hedefId)); buyuHazirlik = null; oyuncu.animKilidi = 0; hud.mesaj('Casting was cancelled.', 'sistem'); }
     if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;

@@ -432,6 +432,7 @@ export class OyunArayuzu {
   // ---------------------------------------------------------------- banka (re_el_warehouse)
   /** Bankayı açar: üstte depo sayfası (6×4), altta çanta; yuvaya tıklayınca eşya öbür tarafa geçer. */
   depoAc(): void {
+    this.npcPencereAcilis = performance.now();
     this.depoSayfa = 0; this.depoImza = ''; this.ac('depo', true);
     // Sağ kenara boşluksuz yaslanır (mağaza gibi), üstten 10 px; görev çubuğunun üstünde kalacak şekilde ölçeklenir.
     const p = this.pencereler.depo; p.olcekAyarla(1);
@@ -568,6 +569,15 @@ export class OyunArayuzu {
   /** Tamir modu (orijinaldeki INV_STATE_REPAIR): açıkken çanta/giyili eşyaya tıklamak onu tamir ettirir, bilgi kutusu tamir ücretini gösterir. */
   private tamirModu = false;
   private magazaYeni: MagazaPenceresi | null = null;
+  private npcPencereAcilis = 0;
+  /** Mağaza ya da banka (NPC penceresi) açık mı? */
+  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo'); }
+  /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
+  npcPencereleriniKapat(): void {
+    if (performance.now() - this.npcPencereAcilis < 400) return;
+    if (this.magazaYeni?.acik) this.magazaYeni.kapat();
+    if (this.acik.has('depo')) this.ac('depo', false);
+  }
   private tamirModuDegistir(ac: boolean): void {
     this.tamirModu = ac; this.sonEnvanterImza = ''; this.b.ipucuGizle();
     document.body.classList.toggle('tamir-modu', ac);
@@ -575,6 +585,7 @@ export class OyunArayuzu {
     if (ac) this.b.mesaj('Repair mode: click an item to repair it.');
   }
   magazaAc(npcAdi: string, sayfalar: EsyaTanimi[][]): void {
+    this.npcPencereAcilis = performance.now();
     // Mağaza + envanter tek "Store" penceresi (magazaPenceresi.ts); eski ayrı mağaza/envanter pencereleri kullanılmaz.
     this.magazaAdi = npcAdi; this.magazaSayfalar = sayfalar;
     this.ac('envanter', false);
