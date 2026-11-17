@@ -21,7 +21,7 @@ export function sunucuVerisiniUygula(o: Oyuncu, m: BenimBilgim, arazi: Arazi, bo
   o.azamiDeneyimSunucu = Number(m.azamiDeneyim);
   o.altin = m.altin;
   o.bonusPuan = m.bosPuan;
-  o.gm = m.yetki === 0;
+  o.gm = m.yetki === 0; o.kenarPayi = o.gm ? 0.1 : 2; // GM: sunucunun izin verdiği son sınıra (harita genişliği) kadar
   o.skillPuanlari = [...m.skillPuanlari];
   o.stat = { str: m.statlar.str.deger, sta: m.statlar.sta.deger, dex: m.statlar.dex.deger, int: m.statlar.int.deger, cha: m.statlar.cha.deger };
   o.enCok = m.azamiCan; o.can = m.can;

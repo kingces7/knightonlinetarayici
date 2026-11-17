@@ -1006,8 +1006,8 @@ async function basla(): Promise<void> {
     } else if (oyuncu.saldiriSayaci <= 0.4 || !oyuncu.model?.aktifAd.startsWith('saldir')) {
       oyuncu.model?.oynat('bekle');
     }
-    oyuncu.konum.x = THREE.MathUtils.clamp(oyuncu.konum.x, 2, arazi.genislik - 2);
-    oyuncu.konum.y = THREE.MathUtils.clamp(oyuncu.konum.y, 2, arazi.genislik - 2);
+    oyuncu.konum.x = THREE.MathUtils.clamp(oyuncu.konum.x, oyuncu.kenarPayi, arazi.genislik - oyuncu.kenarPayi);
+    oyuncu.konum.y = THREE.MathUtils.clamp(oyuncu.konum.y, oyuncu.kenarPayi, arazi.genislik - oyuncu.kenarPayi);
     // Adım sesi: koşarken 2 m'de, yürürken 1 m'de bir (adım uzunluğu henüz orijinalden doğrulanmadı)
     adimMesafe += oyuncu.konum.distanceTo(oncekiKonum);
     if (adimMesafe >= (kosuyor ? 2 : 1)) { adimMesafe = 0; ses.adim(kosuyor); }

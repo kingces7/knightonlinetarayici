@@ -144,6 +144,8 @@ export abstract class Varlik {
   geriGit(yon: THREE.Vector2, adim: number): void { this.hareketEt(yon.clone().multiplyScalar(adim)); }
 
   /** `fark` kadar ilerlemeyi dener: duvarlardan kayarak, dik yamaçlara tırmanmadan. */
+  /** Harita kenarından en çok ne kadar yaklaşılabilir (m). Sunucu x, z < harita genişliği olmak şartıyla kabul eder; oyun yöneticisi (GM) kenara kadar gidebilir. */
+  kenarPayi = 2;
   protected hareketEt(fark: THREE.Vector2): void {
     const arazi = Varlik.arazi;
     if (!arazi) { this.konum.add(fark); return; }
@@ -155,7 +157,7 @@ export abstract class Varlik {
       const mesafe = Math.hypot(nx - this.konum.x, nz - this.konum.y);
       // Dik yamaç: arazi bir adımda belirgin yükseliyorsa (eğim > ~54°) geçilmez. Köprü/kat zeminleri bundan muaf.
       if (!z.kat && z.y - y > 0.25 && (z.y - y) / Math.max(mesafe, 0.05) > 1.4) return false;
-      if (nx < 2 || nz < 2 || nx > arazi.genislik - 2 || nz > arazi.genislik - 2) return false;
+      if (nx < this.kenarPayi || nz < this.kenarPayi || nx > arazi.genislik - this.kenarPayi || nz > arazi.genislik - this.kenarPayi) return false;
       this.konum.set(nx, nz);
       return true;
     };
