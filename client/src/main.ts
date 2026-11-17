@@ -635,7 +635,7 @@ async function basla(): Promise<void> {
     if (!aktifBanka) return true;
     const id = aktifBanka.id, o = oyuncu;
     if (i.tur === 'altin-yatir' || i.tur === 'altin-cek') {
-      const miktar = i.tur === 'altin-yatir' ? o.altin : o.depoAltin; if (miktar <= 0) return true;
+      const mevcutAltin = i.tur === 'altin-yatir' ? o.altin : o.depoAltin, miktar = Math.max(0, Math.min(i.miktar ?? mevcutAltin, mevcutAltin)); if (miktar <= 0) return true;
       sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(i.tur === 'altin-yatir' ? BANKA_ISLEMI.YATIR : BANKA_ISLEMI.CEK, id, BANKA_ALTIN, 0, 0, 0, miktar));
       bankaBekleyen.push(() => { if (i.tur === 'altin-yatir') { o.depoAltin += miktar; o.altin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah deposited.`, 'sistem'); } else { o.altin += miktar; o.depoAltin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah withdrawn.`, 'sistem'); } });
     } else if (i.tur === 'banka-ici') { // aynı sayfada banka yuvasından yuvasına (sunucu WAREHOUSE_MOVE: hedef boş olmalı)

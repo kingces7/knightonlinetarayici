@@ -41,7 +41,7 @@ export interface ArayuzBaglami {
   esyaAt?: (k: YuvaKonumu) => void;
   /** Sunucu modunda banka işlemi sunucuya gider (true = ele alındı; sonuç sunucudan gelince uygulanır). */
   /** Banka işlemleri (sunucu modunda true döner = işlem sunucuya gitti). `hedef` verilirse eşya o yuvaya konur (sürükle-bırak); yoksa ilk boş yuvaya. */
-  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number; hedef?: number; adet?: number } | { tur: 'esya-cek'; banka: number; hedef?: number; adet?: number } | { tur: 'banka-ici'; kaynak: number; hedef: number } | { tur: 'canta-ici'; kaynak: number; hedef: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
+  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number; hedef?: number; adet?: number } | { tur: 'esya-cek'; banka: number; hedef?: number; adet?: number } | { tur: 'banka-ici'; kaynak: number; hedef: number } | { tur: 'canta-ici'; kaynak: number; hedef: number } | { tur: 'altin-yatir'; miktar?: number } | { tur: 'altin-cek'; miktar?: number }) => boolean;
   /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
   sehreDon: () => void;
   /** Oyuncu animasyonu numarasını oynat (selamlama, savaş çığlığı). */
@@ -455,8 +455,20 @@ export class OyunArayuzu {
       if (yeni !== this.depoSayfa) { this.depoSayfa = yeni; this.depoImza = ''; }
     }, { passive: false });
     // Noah: çantadaki tüm Noah'yı yatır / depodakinin tamamını çek
-    p.tikla.set('btn_gold', () => { if (this.b.bankaIslem?.({ tur: 'altin-yatir' })) return; if (o.altin > 0) { o.depoAltin += o.altin; this.b.mesaj(`${o.altin.toLocaleString('en-US')} Noah deposited.`); o.altin = 0; this.depoImza = ''; } });
-    p.tikla.set('btn_gold_warehouse', () => { if (this.b.bankaIslem?.({ tur: 'altin-cek' })) return; if (o.depoAltin > 0) { o.altin += o.depoAltin; this.b.mesaj(`${o.depoAltin.toLocaleString('en-US')} Noah withdrawn.`); o.depoAltin = 0; this.depoImza = ''; } });
+    // Noah: kaç tane yatırılacağı / çekileceği sorulur (hepsini tek tıkla aktarmaz)
+    const noahSor = (yatir: boolean) => {
+      const toplam = yatir ? o.altin : o.depoAltin; if (toplam <= 0) { this.b.mesaj(yatir ? 'You have no Noah to deposit.' : 'There is no Noah in the warehouse.'); return; }
+      adetKutusu(p.el, {
+        ad: 'Noah', soru: yatir ? 'How much Noah do you want to deposit?' : 'How much Noah do you want to withdraw?', maks: toplam, onayYazisi: yatir ? 'Deposit' : 'Withdraw', birimFiyat: 0,
+        onay: (miktar) => {
+          if (this.b.bankaIslem?.({ tur: yatir ? 'altin-yatir' : 'altin-cek', miktar })) return;
+          if (yatir) { o.depoAltin += miktar; o.altin -= miktar; } else { o.altin += miktar; o.depoAltin -= miktar; }
+          this.b.mesaj(`${miktar.toLocaleString('en-US')} Noah ${yatir ? 'deposited' : 'withdrawn'}.`); this.depoImza = ''; this.sonEnvanterImza = '';
+        },
+      });
+    };
+    p.tikla.set('btn_gold', () => noahSor(true));
+    p.tikla.set('btn_gold_warehouse', () => noahSor(false));
     // Yuva tıklamaları pencere düzeyinde ve tıklama anında çözülür (yuvalar pencere gizliyken konumlanmamış olur).
     // Yuva çözümü olay anında yapılır: { yer: 'depo' (sayfadaki sıra → genel yuva) | 'canta', i }
     const yuvaBul = (hedef: EventTarget | null): { yer: 'depo' | 'canta'; i: number } | null => {
