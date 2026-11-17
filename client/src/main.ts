@@ -540,10 +540,10 @@ async function basla(): Promise<void> {
       if (yeni && yeni !== oyuncu.hedef) { oyuncu.hedef = yeni; oyuncu.saldiriyor = false; }
       if (e.code === 'KeyZ' && yeni) oyuncu.bak(yeni.konum); // orijinal: en yakın düşmanı seçince ona döner (RotateTo)
     }
-    // B: yanındaki en yakın NPC'yi seçer ve onunla konuşur/alışveriş açar (tıklamayla aynı; menzil 5 m — orijinaldeki "en yakın dost" seçimine benzer, abartılı değil)
+    // B: yanındaki en yakın NPC'yi seçer (sol tıkla aynı: yalnız hedef halkası; menzil 5 m)
     if (!e.repeat && e.code === 'KeyB' && !oyuncu.olu) {
       const n = npcler.filter((x) => x.konum.distanceTo(oyuncu.konum) < 5).sort((p, q) => p.konum.distanceTo(oyuncu.konum) - q.konum.distanceTo(oyuncu.konum))[0];
-      if (n) { e.preventDefault(); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; oyuncu.bak(n.konum); npcEtkilesim(n); }
+      if (n) { e.preventDefault(); secilenNpc = n; oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null; }
       else hud.mesaj('There is no NPC nearby.', 'sistem');
     }
     if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
@@ -564,6 +564,8 @@ async function basla(): Promise<void> {
   const isin = new THREE.Raycaster();
   let acilacakKutu: GanimetKutusu | null = null;
   let acilacakNpc: Npc | null = null;
+  /** Sol tık / B ile seçilen NPC (yalnız hedef halkası; dükkân/konuşma sağ tıkla açılır). */
+  let secilenNpc: Npc | null = null;
   /** NPC'ye tıklayınca: satış grubu olan tüccar mağaza açar; diğer NPC işlevleri henüz yok. */
   /** Açık mağaza: hangi NPC'nin hangi satış grubu (sunucu alım/satımı bunu ister). */
   let aktifMagaza: { npc: Npc; grup: number } | null = null;
@@ -707,7 +709,14 @@ async function basla(): Promise<void> {
   tuval.addEventListener('pointerup', (e) => {
     if (e.button !== 2 || oyuncu.olu || performance.now() - sag.t > 350 || Math.hypot(e.clientX - sag.x, e.clientY - sag.y) > 6) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
-    const k = tiklananGanimetKutusu(); if (k) kutuyaGit(k);
+    const k = tiklananGanimetKutusu(); if (k) { kutuyaGit(k); return; }
+    // Sağ tık NPC'ye: yanına gider ve dükkânını/konuşmasını açar (sol tık yalnızca seçer)
+    const npcVurus = isin.intersectObjects(npcler.map((x) => x.secimKutusu))[0];
+    if (npcVurus) {
+      const n = npcler.find((x) => x.secimKutusu === npcVurus.object)!;
+      secilenNpc = n; oyuncu.hedef = null; oyuncu.yuruHedef = n.konum.clone(); acilacakKutu = null; acilacakNpc = n;
+      if (oyuncu.konum.distanceTo(n.konum) < 3) { oyuncu.yuruHedef = null; acilacakNpc = null; npcEtkilesim(n); }
+    }
   });
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
@@ -715,8 +724,8 @@ async function basla(): Promise<void> {
     const npcVurus = isin.intersectObjects(npcler.map((n) => n.secimKutusu))[0];
     if (npcVurus) {
       const n = npcler.find((x) => x.secimKutusu === npcVurus.object)!;
-      oyuncu.hedef = null; oyuncu.yuruHedef = n.konum.clone(); acilacakKutu = null; acilacakNpc = n;
-      if (oyuncu.konum.distanceTo(n.konum) < 3) { oyuncu.yuruHedef = null; acilacakNpc = null; npcEtkilesim(n); }
+      // Sol tık NPC'ye yalnızca onu seçer (hedef halkası); alışveriş/konuşma SAĞ tıkla açılır.
+      secilenNpc = n; oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       return;
     }
     const tiklananKutu = tiklananGanimetKutusu();
@@ -741,7 +750,7 @@ async function basla(): Promise<void> {
       return;
     }
     const zemin = isin.intersectObject(arazi.mesh)[0];
-    if (zemin) { secilenOyuncu = null; oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; }
+    if (zemin) { secilenOyuncu = null; secilenNpc = null; oyuncu.yuruHedef = new THREE.Vector2(zemin.point.x, -zemin.point.z); oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null; sol.basili = true; sol.x = e.clientX; sol.y = e.clientY; }
   });
   // Sol tuş basılı tutulup sürüklenince karakter imlecin gösterdiği yöne yürür (her karede yeniden hedeflenir) ve oraya döner
   addEventListener('pointermove', (e) => { if (sol.basili && !(e.buttons & 2)) { sol.x = e.clientX; sol.y = e.clientY; } }); // sağ tuş basılıyken imleç konumu dondurulur (orijinalde imleç geri alınır)
@@ -981,7 +990,10 @@ async function basla(): Promise<void> {
     }
   };
   const izdusum = (c: Canavar | Npc | Oyuncu | DigerOyuncu) => {
-    const p = c.grup.position.clone(); p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : Math.max(c.boy, c.etiketY) + 0.1; // canavar adı isabet alanının hemen üstünde
+    const p = c.grup.position.clone();
+    // Oyuncu adları baş kemiğinin hizasına oturur: model grubun orijininden yana kaydığında (yakın zumda) ad karakterin soluna/sağına kaymasın.
+    if ((c instanceof Oyuncu || c instanceof DigerOyuncu) && c.model) { const b = new THREE.Vector3(); if (c.model.basKonumu(b)) { p.x = b.x; p.z = b.z; } }
+    p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : Math.max(c.boy, c.etiketY) + 0.1; // canavar adı isabet alanının hemen üstünde
     kamera.kamera.updateMatrixWorld(); // bu karenin kamera konumuna göre (önceki kareye göre kayma/gecikme olmasın)
     const ekran = p.project(kamera.kamera);
     return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
@@ -1017,7 +1029,9 @@ async function basla(): Promise<void> {
     hud.digerEtiketGuncelle(digerOyuncular, izdusum);
     hud.oyuncuEtiketGuncelle(oyuncu.ad, izdusum(oyuncu), oyuncu.partide);
     // Hedef (agro) halkası: oyunun kendi yeşil halka resmi (Misc/target_symbol_plane), seçili canavarın ayağında
-    const th = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
+    if (oyuncu.hedef) secilenNpc = null; // canavar hedefi seçilince NPC seçimi kalkar
+    if (secilenNpc && secilenNpc.konum.distanceTo(oyuncu.konum) > 40) secilenNpc = null;
+    const th: { grup: THREE.Group; secimYaricapi: number } | null = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : secilenNpc;
     halka.visible = !!th;
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);

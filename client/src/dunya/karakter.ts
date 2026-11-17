@@ -161,6 +161,13 @@ export class KarakterModeli {
     this.savasDurusuDeger = d;
     if (this.aktifAd === 'bekle') { this.aktifAd = ''; this.calistir('bekle', true, 0.2); }
   }
+  private basKemigi: THREE.Object3D | null | undefined;
+  /** Başın dünya konumu (ad etiketini karakterin görünen merkezine oturtmak için); baş kemiği yoksa false. */
+  basKonumu(hedef: THREE.Vector3): boolean {
+    if (this.basKemigi === undefined) { this.basKemigi = null; this.kok.traverse((o) => { if (!this.basKemigi && (o as THREE.Bone).isBone && /head/i.test(o.name)) this.basKemigi = o; }); }
+    if (!this.basKemigi) return false;
+    this.basKemigi.getWorldPosition(hedef); return true;
+  }
   private klipNo(no: number): string | undefined {
     if (!no) return undefined;
     for (const ad of this.klipler.keys()) if (ad.startsWith(`${no}_`)) return ad;

@@ -816,7 +816,7 @@ export class OyunArayuzu {
       }
     };
     doldur(p.alan('list_curtailment'), UST.map((ad): [string, () => void] => [ad, () => this.sohbetKomutu('/' + ad.toLowerCase().replace(/ /g, '') + ' ')]), '#f5e800', 0);
-    doldur(p.alan('list_content'), ALT, '#ffffff', 1); // üstte Private, altta Town seçili başlar
+    doldur(p.alan('list_content'), ALT, '#ffffff', 0); // üstte Private, altta PM seçili başlar (kullanıcı isteği)
   }
   /** Komut listesinden sohbet girişine ön ek yazar ve odaklar. */
   private sohbetKomutu(onEk: string): void { const g = this.sohbetGiris; if (!g) return; g.value = onEk; g.focus(); }
