@@ -111,6 +111,8 @@ async function basla(): Promise<void> {
   const oyuncu = new Oyuncu();
   let sunucuOturumu: SunucuOturumu | null = null;
   let sunucuDunyasi: SunucuDunyasi | null = null;
+  let pvpSaldiriyor = false; // R ile seçili oyuncuya sürekli temel saldırı
+  let pvpSonCanSn = 0;
   let secilenOyuncu: DigerOyuncu | null = null; // tıklanarak seçilen diğer oyuncu (parti daveti için)
   let partidayiz = false; // davet gönderdiysek parti kurulmuştur (sonraki davetler PARTY_INSERT)
   /** Parti üyeleri, sunucunun gönderdiği sırayla (ilk üye = lider). */
@@ -425,6 +427,8 @@ async function basla(): Promise<void> {
       },
       gorevler: () => [...gorevDurumlari.entries()],
       parti: () => ({ uyeler: partiListesi(), benimId: benimSoketNo }),
+      hedefOyuncu: () => (secilenOyuncu && digerOyuncular.includes(secilenOyuncu) ? secilenOyuncu : null),
+      partiSec: (id) => { const d = digerOyuncular.find((x) => x.kimlik === id); if (d) { secilenOyuncu = d; oyuncu.hedef = null; } }, // parti penceresinde üyeye tıklayınca o oyuncu seçilir (buff/iyileştirme ona gider)
       partiAyril: (id) => sunucuOturumu?.gonder(WIZ.PARTI, partidenCikarIstegi(id)),
       partiLider: (id) => sunucuOturumu?.gonder(WIZ.PARTI, liderDevretIstegi(id)),
       partiDagit: () => sunucuOturumu?.gonder(WIZ.PARTI, partiyiDagitIstegi()),
@@ -644,6 +648,9 @@ async function basla(): Promise<void> {
       else hud.mesaj('There is no NPC nearby.', 'sistem');
     }
     if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
+    if (!e.repeat && e.code === 'KeyR' && !oyuncu.hedef && sunucuOturumu && secilenOyuncu && digerOyuncular.includes(secilenOyuncu)) { // PvP: R seçili oyuncuya sürekli saldırıyı aç/kapa
+      pvpSaldiriyor = !pvpSaldiriyor; hud.mesaj(pvpSaldiriyor ? 'Auto attack on.' : 'Auto attack off.', 'sistem'); return;
+    }
     if (!e.repeat && e.code === 'KeyR' && oyuncu.saldiriyor) { oyuncu.saldiriyor = false; hud.mesaj('Auto attack off.', 'sistem'); } // R: sürekli saldırıyı aç/kapa (orijinal CommandToggleAttackContinous)
     else if (!e.repeat && e.code === 'KeyR') {
       if (!oyuncu.hedef || oyuncu.hedef.olu) { hud.mesaj('Select a target first.', 'sistem'); return; } // hedefi oyuncu seçer: R kendiliğinden en yakın canavara agro almaz
@@ -1035,6 +1042,8 @@ async function basla(): Promise<void> {
       // Orijinal: darbe, silahın hareket izi hedefe değdiği anda (saldırı animasyonunun ortalarında) işler; sabit 0,45 sn yerine klibin ≈%55'i.
       vurusZamanlayici.push({ kalan: animSure > 0 ? Math.max(0.2, Math.min(0.8, animSure * 0.55)) : 0.45, hedef: h });
     };
+    const pvpHedef = secilenOyuncu && digerOyuncular.includes(secilenOyuncu) ? secilenOyuncu : null;
+    if (!pvpHedef || oyuncu.olu || oyuncu.hedef) pvpSaldiriyor = false;
     const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= menzilDe(oyuncu.hedef);
     hareketEdiyor = ilerigeri !== 0 || !!oyuncu.yuruHedef;
     if (hareketEdiyor && arayuz?.npcPencereAcik()) arayuz.npcPencereleriniKapat(); // NPC mağazası/bankası açıkken hareket edince kapanır
@@ -1057,6 +1066,22 @@ async function basla(): Promise<void> {
         if (acilacakNpc) { const n = acilacakNpc; acilacakNpc = null; npcEtkilesim(n); }
         oyuncu.model?.oynat('bekle');
       } else { if (oyuncu.animKilidi <= 0) oyuncu.model?.oynat(hareketAnimi()); if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true); }
+    } else if (pvpHedef && pvpSaldiriyor && !oyuncu.hedef) { // PvP temel saldırı: menzile yürü, bak, vur (isabet/hasarı sunucu belirler)
+      const menzil = SALDIRI_MENZILI + 0.3;
+      if (oyuncu.konum.distanceTo(pvpHedef.konum) > menzil) {
+        oyuncu.yuru(pvpHedef.konum, hizAl() * dt, menzil - 0.5);
+        if (oyuncu.animKilidi <= 0) oyuncu.model?.oynat(hareketAnimi());
+        hareketEdiyor = true;
+      } else {
+        oyuncu.bak(pvpHedef.konum);
+        if (oyuncu.saldiriSayaci <= 0 && oyuncu.animKilidi <= 0 && !pvpHedef.olu) {
+          oyuncu.blinkBitis = 0; oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); oyuncu.savastanBeri = 0;
+          oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
+          ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
+          const id = pvpHedef.kimlik; setTimeout(() => { sunucuOturumu?.gonder(WIZ.SALDIRI, saldiriIstegi(id, (oyuncu.silah?.gecikme ?? 100) + 10, 10)); sunucuOturumu?.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(id)); }, 350);
+        }
+        if (oyuncu.saldiriSayaci > 0 && oyuncu.saldiriSayaci < 0.4 && oyuncu.animKilidi <= 0) oyuncu.model?.oynat('bekle');
+      }
     } else if (oyuncu.hedef && oyuncu.saldiriyor) {
       const h = oyuncu.hedef;
       if (oyuncu.konum.distanceTo(h.konum) > menzilDe(h)) { // menzil dışı: hedefe yürü (hareket eden canavarı da izler)
@@ -1204,7 +1229,9 @@ async function basla(): Promise<void> {
     for (let i = ucanEfektler.length - 1; i >= 0; i--) { const u = ucanEfektler[i]; u.t += dt; u.nesne.position.lerpVectors(u.bas, u.bit, Math.min(1, u.t / u.sure)); if (u.t > u.sure + 0.6) { sahne.remove(u.nesne); ucanEfektler.splice(i, 1); } }
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
-    hud.guncelle(oyuncu, oyuncu.hedef);
+    if (secilenOyuncu && !digerOyuncular.includes(secilenOyuncu)) { secilenOyuncu = null; pvpSaldiriyor = false; }
+    if (sunucuOturumu && secilenOyuncu && !oyuncu.hedef && simdiSn() - pvpSonCanSn > 1) { pvpSonCanSn = simdiSn(); sunucuOturumu.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(secilenOyuncu.kimlik)); } // seçili oyuncunun canı saniyede bir istenir
+    hud.guncelle(oyuncu, oyuncu.hedef, !oyuncu.hedef && secilenOyuncu ? secilenOyuncu : null);
     arayuz?.guncelle(dt);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
     kamera.kamera.updateMatrixWorld(); // etiketler bu karenin kamera konumuna göre hesaplanır (gecikme/kayma olmasın)
@@ -1263,7 +1290,7 @@ async function basla(): Promise<void> {
         diyalog: diyalogSunucudan, gorev: (g) => { void gorevSunucudan(g); }, ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
-          else if (p.tur === 'uye') { const i = partiUyeleri.findIndex((u) => u.id === p.uye.id); if (i >= 0) partiUyeleri[i] = p.uye; else { partiUyeleri.push(p.uye); if (p.uye.id !== benimSoketNo) hud.mesaj(`${p.uye.ad} joined the party.`, 'sistem'); } partidayiz = true; }
+          else if (p.tur === 'uye') { const i = partiUyeleri.findIndex((u) => u.id === p.uye.id); if (i >= 0) partiUyeleri[i] = p.uye; else { partiUyeleri.push(p.uye); if (p.uye.id !== benimSoketNo) hud.mesaj(`${p.uye.ad} joined the party.`, 'sistem'); } partidayiz = true; if (partiUyeleri.length >= 2 && arayuz && !arayuz.genel.acik('re_el_party')) void arayuz.genel.ac('re_el_party'); }
           else if (p.tur === 'cikti') { const u = partiUyeleri.find((x) => x.id === p.id); if (p.id === benimSoketNo) { partiTemizle(); hud.mesaj('You left the party.', 'sistem'); } else if (u) { partiUyeleri = partiUyeleri.filter((x) => x.id !== p.id); hud.mesaj(`${u.ad} left the party.`, 'sistem'); if (partiUyeleri.length < 2) partiTemizle(); } }
           else if (p.tur === 'dagildi') { partiTemizle(); hud.mesaj('The party was disbanded.', 'sistem'); }
           else if (p.tur === 'can') { const u = partiUyeleri.find((x) => x.id === p.id); if (u) { u.enCokCan = p.enCokCan; u.can = p.can; u.enCokMana = p.enCokMana; u.mana = p.mana; } }

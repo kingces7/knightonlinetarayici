@@ -261,6 +261,9 @@ export class SunucuDunyasi {
     if (s.saldiran === this.benimSoketNo) { // bizim saldırımız
       const c = this.canavarlar.get(s.hedef);
       if (c && s.sonuc === SALDIRI_SONUCU.ISKA) this.hud.mesaj(`You missed ${c.tur.ad}.`, 'bilgi');
+      const dd = this.oyuncular.get(s.hedef); // PvP: başka oyuncuya temel saldırı
+      if (dd && s.sonuc === SALDIRI_SONUCU.ISKA) this.hud.mesaj(`You missed ${dd.ad}.`, 'bilgi');
+      if (dd && (s.sonuc === SALDIRI_SONUCU.HEDEF_OLDU || s.sonuc === SALDIRI_SONUCU.HEDEF_OLDU_TAMAM)) this.hud.mesaj(`You defeated ${dd.ad}.`, 'sistem');
       if (c && (s.sonuc === SALDIRI_SONUCU.HEDEF_OLDU || s.sonuc === SALDIRI_SONUCU.HEDEF_OLDU_TAMAM)) this.hud.mesaj(`${c.tur.ad} has been defeated.`, 'sistem');
       return;
     }
@@ -273,7 +276,13 @@ export class SunucuDunyasi {
   }
 
   private hedefCan(h: { id: number; enCok: number; can: number; hasar: number; saldiran: number }): void {
-    const c = this.canavarlar.get(h.id); if (!c) return;
+    const c = this.canavarlar.get(h.id);
+    if (!c) { // başka bir oyuncu (PvP): can çubuğu için can/azami can saklanır
+      const d = this.oyuncular.get(h.id); if (!d) return;
+      d.enCok = Math.max(1, h.enCok); d.can = h.can;
+      if (h.hasar > 0 && h.saldiran === this.benimSoketNo) this.hud.mesaj(`You hit ${d.ad} for ${h.hasar} damage.`, 'bilgi');
+      return;
+    }
     c.enCok = h.enCok; c.can = h.can;
     if (h.hasar > 0 && h.saldiran === this.benimSoketNo) {
       this.hud.mesaj(`You hit ${c.tur.ad} for ${h.hasar} damage.`, 'bilgi');

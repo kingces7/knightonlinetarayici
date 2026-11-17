@@ -313,3 +313,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] `moradon/` klasörü: `node araclar/oyun/moradon-paketi.ts` ile üretilir (canavar, drop, NPC, boss listeleri + görünüm paketi listesi).
 - [x] PvP robotu: `kopru/pvp-robotu-baslat.ps1` / `pvp-robotu-durdur.ps1` (PvPRobot, Moradon 272,300, can 1501, savunma 600).
 - [ ] Kecoon Boss (K_MONSTER 32601, Moradon 158,462, 60 sn doğuş) veritabanında; sunucu yeniden başlatılınca oyunda görünür (kullanıcı oyundayken yeniden başlatılmadı). Doğuş süresini ben seçtim, istenirse değişir.
+
+## PvP temel saldırı, parti, sunucu güncellemesi (2026-11-18)
+- [x] R ile seçili oyuncuya sürekli temel saldırı (yakın dövüş silahıyla; yayla sunucu R saldırısını reddeder — orijinal kural). Seçili oyuncunun canı hedef çerçevesinde (saniyede bir istenir).
+- [x] Parti: üye oluşunca parti penceresi kendiliğinden açılır; pencerede üyeye tıklamak onu seçer (buff/iyileştirme ona gider).
+- [ ] Kecoon Boss sunucuda yüklü değil: kullanıcı oyundan çıkınca `araclar\sunucu\sunucu-guncelle.ps1` (veritabanı + yeniden başlatma) çalıştırılacak.
+- [ ] Yay ile R temel saldırısı (PvP/canavar) — orijinalde ok atma ayrı yol; bakılacak.

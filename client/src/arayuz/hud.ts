@@ -88,7 +88,7 @@ export class Hud {
     el.querySelector('b')!.textContent = yazi ?? `${Math.ceil(deger)} / ${enCok}`;
   }
 
-  guncelle(o: Oyuncu, hedef: Canavar | null): void {
+  guncelle(o: Oyuncu, hedef: Canavar | null, oyuncuHedef: { ad: string; seviye: number; can: number; enCok: number } | null = null): void {
     this.durum.querySelector('.sev')!.textContent = `Lv ${o.seviye}`;
     this.cubuk(this.durum.querySelector('.can')!, o.can, o.enCok);
     this.cubuk(this.durum.querySelector('.mana')!, o.mana, o.enCokMana);
@@ -98,6 +98,10 @@ export class Hud {
       this.hedef.classList.remove('gizli');
       this.hedef.querySelector('.ad')!.textContent = `${hedef.tur.ad}  (Lv ${hedef.tur.seviye})`;
       this.cubuk(this.hedef.querySelector('.can')!, hedef.can, hedef.enCok);
+    } else if (oyuncuHedef) { // seçili başka oyuncu (PvP)
+      this.hedef.classList.remove('gizli');
+      this.hedef.querySelector('.ad')!.textContent = `${oyuncuHedef.ad}  (Lv ${oyuncuHedef.seviye})`;
+      this.cubuk(this.hedef.querySelector('.can')!, oyuncuHedef.can, oyuncuHedef.enCok);
     } else this.hedef.classList.add('gizli');
     this.olum.classList.toggle('gizli', !o.olu);
   }

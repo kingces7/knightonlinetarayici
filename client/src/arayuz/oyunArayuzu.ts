@@ -31,7 +31,7 @@ export interface ArayuzBaglami {
   /** NPC diyaloğunda düğme seçildi (sunucuya gider) / diyalog kapatıldı. */
   /** Parti: üye listesi ve işlemler (sunucu WIZ_PARTY). */
   parti?: () => { uyeler: { id: number; ad: string; enCokCan: number; can: number; seviye: number; sinif: number; enCokMana: number; mana: number }[]; benimId: number };
-  partiAyril?: (id: number) => void; partiLider?: (id: number) => void; partiDagit?: () => void;
+  hedefOyuncu?: () => { ad: string; seviye: number; can: number; enCok: number } | null; partiSec?: (id: number) => void; partiAyril?: (id: number) => void; partiLider?: (id: number) => void; partiDagit?: () => void;
   /** Boş skill puanını bir ağaca ver (5–8). */
   skillPuaniVer?: (agac: number) => void;
   diyalogSec?: (sira: number) => void; diyalogKapandi?: () => void;
@@ -443,7 +443,8 @@ export class OyunArayuzu {
   }
   private hedefCubukHedef: unknown = null; private hedefCubukSon = 0; private hedefCubukOran = 1;
   private hedefCiz(): void {
-    const h = this.hedefCubugu, hd = this.b.oyuncu.hedef;
+    const h = this.hedefCubugu, hd0 = this.b.oyuncu.hedef, op = !hd0 ? this.b.hedefOyuncu?.() ?? null : null;
+    const hd = hd0 ?? (op ? { olu: false, tur: { ad: op.ad, seviye: op.seviye }, can: op.can, enCok: op.enCok } : null); // seçili başka oyuncu (PvP) de aynı çerçevede görünür
     if (!hd || hd.olu) { if (h.el.style.display !== 'none') h.el.style.display = 'none'; return; }
     h.el.style.display = '';
     // Seviye farkına göre renk çubuğu (grpg_level_0..3); eşikler tahmin: orijinal kural bilinmiyor
@@ -628,7 +629,7 @@ export class OyunArayuzu {
   private partiKur(p: UiPencere): void {
     this.partiPenceresi = p; p.goster('Base_menu', false);
     for (let i = 0; i < 8; i++) {
-      for (const e of p.bul(`base_choice${i}`)) { e.style.pointerEvents = 'auto'; e.style.cursor = 'pointer'; e.addEventListener('click', () => { this.partiSecili = i; this.partiCiz(p); }); }
+      for (const e of p.bul(`base_choice${i}`)) { e.style.pointerEvents = 'auto'; e.style.cursor = 'pointer'; e.addEventListener('click', () => { this.partiSecili = i; const u = this.b.parti?.().uyeler[i]; if (u) this.b.partiSec?.(u.id); this.partiCiz(p); }); }
       for (const id of [`btn_up_${i}`, `btn_down_${i}`, `btn_commander_zoom_${i}`]) p.goster(id, false); // sıra değiştirme okları bu sürümde yok
     }
     const sec = () => this.b.parti?.().uyeler[this.partiSecili];
