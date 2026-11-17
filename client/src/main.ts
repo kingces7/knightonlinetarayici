@@ -346,7 +346,7 @@ async function basla(): Promise<void> {
         if (sunucuOturumu) { const p = (m: number) => Math.round(m * 10); const y = p(arazi.yukseklikAl(x, z)); sunucuOturumu.gonder(WIZ.HAREKET, new PaketYazici().u16(p(x)).u16(p(z)).u16(y).i16(0).u8(0).u16(p(x)).u16(p(z)).u16(y).baytlar()); }
         hud.mesaj('You returned to town.', 'sistem');
       },
-      emote: (no) => { if (oyuncu.olu || !oyuncu.model) return; kalk(); oyuncu.yuruHedef = null; oyuncu.animKilidi = oyuncu.model.numaraOynat(no) || 0; }, otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i) => magazaSat(i), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
+      emote: (no) => { if (oyuncu.olu || !oyuncu.model) return; kalk(); oyuncu.yuruHedef = null; oyuncu.animKilidi = oyuncu.model.numaraOynat(no) || 0; }, otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i, adet) => magazaSat(i, adet), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -572,7 +572,7 @@ async function basla(): Promise<void> {
   /** NPC'ye tıklayınca: satış grubu olan tüccar mağaza açar; diğer NPC işlevleri henüz yok. */
   /** Açık mağaza: hangi NPC'nin hangi satış grubu (sunucu alım/satımı bunu ister). */
   let aktifMagaza: { npc: Npc; grup: number } | null = null;
-  const magazaBekleyen: { tur: 'al' | 'sat'; e: EsyaTanimi; yuva: number }[] = [];
+  const magazaBekleyen: { tur: 'al' | 'sat'; e: EsyaTanimi; yuva: number; adet?: number }[] = [];
   /** Yerel NPC'nin sunucudaki kimliği: aynı K_NPC numarası ve en yakın konum (en çok 5 m). */
   const npcSunucuKimligi = (n: Npc): number => {
     let en = 0, mesafe = 5;
@@ -613,8 +613,9 @@ async function basla(): Promise<void> {
       if (var_) var_.adet = (var_.adet ?? 1) + (b.e.adet ?? 1); else oyuncu.envanter[b.yuva] = { ...b.e, sunucuNo: b.e.no };
       hud.mesaj(`You bought ${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
     } else if (b?.tur === 'sat') {
-      oyuncu.envanter[b.yuva] = null;
-      hud.mesaj(`You sold ${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
+      const kalan = (b.e.adet ?? 1) - (b.adet ?? b.e.adet ?? 1); const yuvadaki = oyuncu.envanter[b.yuva];
+      if (kalan > 0 && yuvadaki) yuvadaki.adet = kalan; else oyuncu.envanter[b.yuva] = null; // kısmi satışta kalan yığın yuvada durur
+      hud.mesaj(`You sold ${(b.adet ?? 1) > 1 ? `${b.adet} × ` : ''}${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
     }
     envanterYenile();
   };
@@ -668,18 +669,21 @@ async function basla(): Promise<void> {
     hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
   };
   /** Mağazaya satış (sunucu NPCHandler.cpp): fiyat = alış fiyatı / 6 (varsayılan kural). */
-  const magazaSat = (yuva: number) => {
+  /** Mağazaya satış; `adet` verilirse yığının yalnız o kadarı satılır (varsayılan: tamamı). */
+  const magazaSat = (yuva: number, adet?: number) => {
     const e = oyuncu.envanter[yuva]; if (!e) return;
+    const toplam = e.adet ?? 1, n = Math.max(1, Math.min(adet ?? toplam, toplam));
     if (sunucuOturumu) { // sunucu modu: fiyatı ve satışı sunucu belirler
       const h = magazaHazir(); if (!h) return;
-      magazaBekleyen.push({ tur: 'sat', e, yuva });
-      sunucuOturumu.gonder(WIZ.ESYA_ALIM_SATIM, satisIstegi(h.grup, h.id, [{ no: e.sunucuNo ?? e.no, yuva, adet: e.adet ?? 1 }]));
+      magazaBekleyen.push({ tur: 'sat', e, yuva, adet: n });
+      sunucuOturumu.gonder(WIZ.ESYA_ALIM_SATIM, satisIstegi(h.grup, h.id, [{ no: e.sunucuNo ?? e.no, yuva, adet: n }]));
       return;
     }
-    const fiyat = Math.floor(e.fiyat / 6) * (e.adet ?? 1); // yığının tamamı satılır
+    const fiyat = Math.floor(e.fiyat / 6) * n;
     if (fiyat <= 0) { hud.mesaj('This item cannot be sold.', 'sistem'); return; }
-    oyuncu.envanter[yuva] = null; oyuncu.altin += fiyat;
-    hud.mesaj(`You sold ${e.adet && e.adet > 1 ? `${e.adet} × ` : ''}${e.ad} for ${fiyat.toLocaleString('en-US')} Noah.`, 'odul');
+    if (n < toplam) e.adet = toplam - n; else oyuncu.envanter[yuva] = null; // yığının kalanı yuvada durur
+    oyuncu.altin += fiyat;
+    hud.mesaj(`You sold ${n > 1 ? `${n} × ` : ''}${e.ad} for ${fiyat.toLocaleString('en-US')} Noah.`, 'odul');
   };
   /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */
   const magazaSatinAl = (e: EsyaTanimi) => {

@@ -9,11 +9,20 @@ import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 const SIMGE = '142.22% 142.22%';
 const SURUKLE = 'application/x-ke-islem';
 /** Gizlenen sepet bölümünün yüksekliği (pencere tasarımı px): alttaki kısım bu kadar yukarı çekilir. */
-const KAYMA = 184;
+const KAYMA = 160; // envanter eskisinden biraz daha aşağıda: mağaza ızgarasının altında nefes payı kalır
+
+/** Oyunun kendi arayüz dokusundan (512×512 atlas, /arayuz/doku) bir parçayı elemana çizer: uv = [u0, v0, u1, v1]. */
+function sprite(el: HTMLElement, doku: string, uv: [number, number, number, number], w: number, h: number): void {
+  const rw = (uv[2] - uv[0]) * 512, rh = (uv[3] - uv[1]) * 512;
+  Object.assign(el.style, { backgroundImage: `url(/arayuz/doku/${doku}.png)`, backgroundRepeat: 'no-repeat', backgroundSize: `${(512 * w) / rw}px ${(512 * h) / rh}px`, backgroundPosition: `${-(uv[0] * 512 * w) / rw}px ${-(uv[1] * 512 * h) / rh}px` });
+}
+const UV_PANEL: [number, number, number, number] = [0.005859375, 0.26171875, 0.708984375, 0.6640625]; // Transaction penceresinin koyu ızgara zemini
+const UV_DUGME: [number, number, number, number] = [0.71484375, 0.005859375, 0.85546875, 0.052734375]; // oyunun düğme dokusu
+const UV_KUTU: [number, number, number, number] = [0.5078125, 0.861328125, 0.8203125, 0.90625]; // altın çubuğu (sayı kutusu)
 
 export interface MagazaKancalari {
   envanter: () => (EsyaTanimi | null)[]; altin: () => number;
-  satinAl: (e: EsyaTanimi) => void; sat: (yuva: number) => void; tamirEt: (k: YuvaKonumu) => void;
+  satinAl: (e: EsyaTanimi) => void; sat: (yuva: number, adet?: number) => void; tamirEt: (k: YuvaKonumu) => void;
   ipucu: (e: EsyaTanimi, ev: MouseEvent, satin: boolean, tamir: number) => void; ipucuGizle: () => void;
   mesaj: (m: string) => void; altBos: () => number; olcek: () => number; kapandi: () => void;
 }
@@ -82,41 +91,60 @@ export class MagazaPenceresi {
       suruklenebilir(el, () => (sayfa()[i] ? { k: 'magaza', i } : null));
       const al = () => { const e = sayfa()[i]; if (e) this.adetSor(e); };
       el.ondblclick = al; el.oncontextmenu = (ev) => { ev.preventDefault(); al(); }; // çift ya da sağ tık: kaç tane?
-      birak(el, (v) => { if (v.k === 'canta') this.k.sat(v.i); }); // envanterden mağazaya bırak = sat
+      birak(el, (v) => { if (v.k === 'canta') this.satSor(v.i); }); // envanterden mağazaya bırak = sat (yığınsa kaç tane sorulur)
     });
     this.canta.forEach((el, i) => {
       suruklenebilir(el, () => (this.k.envanter()[i] ? { k: 'canta', i } : null));
-      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.k.sat(i); } };
+      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.satSor(i); } };
       birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (e) this.adetSor(e); } }); // mağazadan envantere sürükle = al (kaç tane sorulur)
     });
   }
 
-  /** "Kaç tane?" sorusu: sayı kutusu, ± düğmeleri, toplam fiyat; Enter onaylar, Esc iptal eder. */
+  /** Satış: yığınsa (111 adet vb.) kaç tane satılacağı sorulur; tek eşya hemen satılır. */
+  private satSor(yuva: number): void {
+    const e = this.k.envanter()[yuva]; if (!e) return;
+    const n = e.adet ?? 1;
+    if (!e.sayilabilir || n <= 1) { this.k.sat(yuva); return; }
+    this.soruKutusu(e, 'How many do you want to sell?', n, 'Sell', (adet) => this.k.sat(yuva, adet), Math.max(1, Math.floor(e.fiyat / 6)));
+  }
+  /** Alış: kaç tane alınacağı sorulur (para ve boş yuvaya göre üst sınır). */
   private adetSor(e: EsyaTanimi): void {
-    this.soruKapat(); this.k.ipucuGizle();
     const bosYuva = this.k.envanter().filter((x) => !x).length;
     const parayla = Math.floor(this.k.altin() / Math.max(1, e.fiyat));
     const maks = Math.max(0, e.sayilabilir ? Math.min(parayla, 9999) : Math.min(parayla, bosYuva));
     if (maks < 1) { this.k.mesaj(parayla < 1 ? 'You do not have enough Noah.' : 'Your inventory is full.'); return; }
+    this.soruKutusu(e, 'How many do you want to buy?', maks, 'Buy', (n) => { if (e.sayilabilir) this.k.satinAl({ ...e, adet: n }); else for (let i = 0; i < n; i++) this.k.satinAl(e); }, e.fiyat);
+  }
+  /** Adet sorusu: oyunun kendi doku parçalarıyla (koyu zemin, altın çerçeve, oyun düğmeleri, altın çubuğu biçiminde sayı kutusu). Enter onaylar, Esc iptal eder. */
+  private soruKutusu(e: EsyaTanimi, soru: string, maks: number, onayYazisi: string, onay: (n: number) => void, birimFiyat: number): void {
+    this.soruKapat(); this.k.ipucuGizle();
     const kutu = document.createElement('div'); this.soru = kutu;
-    Object.assign(kutu.style, { position: 'absolute', left: '52px', top: '150px', width: '260px', padding: '12px 14px 14px', zIndex: '20', background: 'linear-gradient(#26201a, #120e0a)', border: '2px solid #b9803a', borderRadius: '4px', boxShadow: '0 0 0 1px #000, 0 6px 18px #000c', font: '13px Verdana, "Segoe UI", sans-serif', color: '#fff', textAlign: 'center' });
-    const baslik = document.createElement('div'); baslik.textContent = e.ad; Object.assign(baslik.style, { fontWeight: '700', color: '#ffe9a8', marginBottom: '4px' });
-    const alt = document.createElement('div'); alt.textContent = 'How many do you want to buy?'; alt.style.marginBottom = '8px';
-    const satir = document.createElement('div'); Object.assign(satir.style, { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' });
-    const dugme = (yazi: string, f: () => void) => { const d = document.createElement('div'); d.textContent = yazi; Object.assign(d.style, { minWidth: '28px', height: '24px', lineHeight: '24px', border: '1px solid #8f6128', background: 'rgba(60,45,28,.95)', color: '#ffe9a8', cursor: 'pointer', fontWeight: '700', borderRadius: '3px', userSelect: 'none', padding: '0 6px' }); d.addEventListener('click', f); return d; };
+    Object.assign(kutu.style, { position: 'absolute', left: '42px', top: '140px', width: '280px', height: '150px', zIndex: '20', boxSizing: 'border-box', border: '2px solid #8f6128', boxShadow: '0 0 0 1px #000, 0 6px 18px #000c', font: '12px Verdana, "Segoe UI", sans-serif', color: '#fff', textAlign: 'center' });
+    sprite(kutu, 'ui_marketing', UV_PANEL, 276, 146);
+    const yazi = (t: string, stil: Partial<CSSStyleDeclaration>) => { const x = document.createElement('div'); x.textContent = t; Object.assign(x.style, { position: 'absolute', left: '0', right: '0', ...stil }); return x; };
+    const ad = yazi(e.ad, { top: '10px', fontWeight: '700', color: '#ffe9a8', fontSize: '13px', textShadow: '0 1px 2px #000' });
+    const alt = yazi(soru, { top: '30px', color: '#ffffff' });
+    const toplam = yazi('', { top: '88px', color: '#ffff80', fontWeight: '700' });
+    const dugme = (t: string, sol: number, ust: number, gen: number, f: () => void) => {
+      const b = document.createElement('div'); b.textContent = t;
+      Object.assign(b.style, { position: 'absolute', left: `${sol}px`, top: `${ust}px`, width: `${gen}px`, height: '24px', lineHeight: '24px', fontWeight: '700', color: 'rgb(255,255,128)', textShadow: '0 1px 2px #000', cursor: 'pointer', userSelect: 'none' });
+      sprite(b, 'ui_marketing', UV_DUGME, gen, 24); b.addEventListener('click', f); kutu.appendChild(b); return b;
+    };
     const giris = document.createElement('input'); giris.type = 'text'; giris.value = '1'; giris.inputMode = 'numeric';
-    Object.assign(giris.style, { width: '70px', height: '24px', textAlign: 'center', background: '#0b0907', color: '#ffff80', border: '1px solid #8f6128', font: '700 14px Verdana, sans-serif', outline: 'none' });
-    const toplam = document.createElement('div'); Object.assign(toplam.style, { marginTop: '8px', color: '#ffff80' });
+    Object.assign(giris.style, { position: 'absolute', left: '96px', top: '54px', width: '88px', height: '26px', boxSizing: 'border-box', textAlign: 'center', background: 'transparent', color: '#ffff80', border: '0', font: '700 14px Verdana, sans-serif', outline: 'none' });
+    const cerceve = document.createElement('div'); Object.assign(cerceve.style, { position: 'absolute', left: '96px', top: '54px', width: '88px', height: '26px' }); sprite(cerceve, 'ui_marketing', UV_KUTU, 88, 26);
     const sayi = () => Math.max(1, Math.min(maks, Math.floor(Number(giris.value.replace(/\D/g, '')) || 1)));
-    const yenile = () => { toplam.textContent = `Total: ${(sayi() * e.fiyat).toLocaleString('en-US')} Noah`; };
+    const yenile = () => { toplam.textContent = `Total: ${(sayi() * birimFiyat).toLocaleString('en-US')} Noah`; };
     giris.addEventListener('input', () => { giris.value = giris.value.replace(/\D/g, ''); yenile(); });
     giris.addEventListener('blur', () => { giris.value = String(sayi()); yenile(); });
-    const onay = () => { const n = sayi(); this.soruKapat(); if (e.sayilabilir) this.k.satinAl({ ...e, adet: n }); else for (let i = 0; i < n; i++) this.k.satinAl(e); };
-    giris.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Enter') onay(); else if (ev.key === 'Escape') this.soruKapat(); });
-    satir.append(dugme('−', () => { giris.value = String(Math.max(1, sayi() - 1)); yenile(); }), giris, dugme('+', () => { giris.value = String(Math.min(maks, sayi() + 1)); yenile(); }), dugme('Max', () => { giris.value = String(maks); yenile(); }));
-    const dugmeler = document.createElement('div'); Object.assign(dugmeler.style, { display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' });
-    dugmeler.append(dugme('OK', onay), dugme('Cancel', () => this.soruKapat()));
-    kutu.append(baslik, alt, satir, toplam, dugmeler); this.p.el.appendChild(kutu); yenile(); giris.focus(); giris.select();
+    const tamam = () => { const n = sayi(); this.soruKapat(); onay(n); };
+    giris.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Enter') tamam(); else if (ev.key === 'Escape') this.soruKapat(); });
+    kutu.append(ad, alt, cerceve, giris, toplam);
+    dugme('-', 60, 54, 30, () => { giris.value = String(Math.max(1, sayi() - 1)); yenile(); });
+    dugme('+', 190, 54, 30, () => { giris.value = String(Math.min(maks, sayi() + 1)); yenile(); });
+    dugme('Max', 226, 54, 44, () => { giris.value = String(maks); yenile(); });
+    dugme(onayYazisi, 52, 114, 80, tamam); dugme('Cancel', 148, 114, 80, () => this.soruKapat());
+    this.p.el.appendChild(kutu); yenile(); giris.focus(); giris.select();
   }
   private soruKapat(): void { this.soru?.remove(); this.soru = null; }
 

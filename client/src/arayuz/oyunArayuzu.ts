@@ -57,7 +57,7 @@ export interface ArayuzBaglami {
   /** Sunucu modunda sohbet mesajı sunucuya gider (true = ele alındı; false = yerel yankı). `mod`: normal | shout | party | clan. */
   sohbetGonder?: (mod: string, mesaj: string) => boolean;
   /** NPC'ye çantadaki eşyayı sat (çanta yuvası). */
-  magazaSat: (yuva: number) => void;
+  magazaSat: (yuva: number, adet?: number) => void;
   /** NPC mağazasından eşya satın al. */
   magazaSatinAl: (e: EsyaTanimi) => void;
   /** Skill kullan (skill numarası). */
@@ -503,7 +503,7 @@ export class OyunArayuzu {
     const tamirci = !!this.b.tamirmi?.();
     if (!this.magazaYeni) {
       void MagazaPenceresi.olustur({
-        envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, satinAl: (e) => this.b.magazaSatinAl(e), sat: (y) => this.b.magazaSat(y), tamirEt: (k) => this.b.tamirEt?.(k),
+        envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, satinAl: (e) => this.b.magazaSatinAl(e), sat: (y, adet) => this.b.magazaSat(y, adet), tamirEt: (k) => this.b.tamirEt?.(k),
         ipucu: (e, ev, s, t) => this.b.ipucuGoster(e, ev, s, t), ipucuGizle: () => this.b.ipucuGizle(), mesaj: (m) => this.b.mesaj(m),
         altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, olcek: () => arayuzOlcegi(), kapandi: () => {},
       }, this.b.kok).then((m) => { this.magazaYeni = m; m.ac(npcAdi, sayfalar, tamirci); });
