@@ -244,3 +244,8 @@ Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, s
 - Oyuncu yeni bir bölgeye girince sunucu yalnızca **kimlik listesi** yollar: `0x1C` (`u16 adet`, `u16 id`ler) NPC/canavar, `0x15` alt komut 1 (`u8 1, u16 adet, u16 id`ler) oyuncu. Ayrıntı client'tan istenir: `0x1D` / `0x16` (`u16 adet`, `u16 id`ler; en çok 1000). Yanıt aynı opcode'la kayıtlarla gelir.
 - Client bunu yapmadığı için yalnızca oyuna girilen yerin canavarları görünüyordu (başka slotlarda 0-2 canavar). Düzeltme: `sunucuDunyasi.ts npcBolgesi/oyuncuBolgesi`; listede olmayan (ölü olmayan) canavar/oyuncular kaldırılır.
 - Doğrulama: `kopru/src/slot-tarayici.ts` (robot oyuncu slotları gezip sayar). Düzeltmeden önce 29 slot eksik, sonra 0.
+
+## Dayanıklılık ve tamir
+- `0x38` (sunucu→client): `u8 yuva` (0–13 giyili, 14+ çanta), `u16 dayanıklılık`. Envanter listesindeki her eşya da dayanıklılık taşır.
+- Tamir (`0x3B`): client→sunucu `u8 yer (1 giyili, 2 çanta), u8 yuva, u16 NPC kimliği, u32 eşya no`; cevap `u8 sonuç, u32 kalan Noah`. Ücret = ((fiyat−10)/10000 + fiyat^0,75) × eksik/azami. Yalnız tamirci NPC (tür 22: Armor/Weapon/Sundries) tamir eder.
+- Client: tamirci mağazasında `Repair` düğmesi tamir modunu açar; eşyaya gelince "Repair Cost", tıklayınca tamir. Mağaza ve envanter sağ kenarda üst üste tek pencere gibi açılır.

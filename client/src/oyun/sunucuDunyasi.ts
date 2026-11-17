@@ -19,7 +19,7 @@ import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts'
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
-import { esyaAdediDegisti, esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
+import { dayanimDegisti, esyaTamirCevabi, esyaAdediDegisti, esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
 import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
 import {
   SALDIRI_SONUCU, esyaDustu, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
@@ -49,6 +49,10 @@ export interface SavasKancalari {
   esyaSilindi?: (tamam: boolean) => void;
   /** Yığın adedi değişti (ok atınca…): çanta yuvası, eşya, yeni adet. */
   esyaAdedi?: (l: { yuva: number; no: number; adet: number }[]) => void;
+  /** Dayanıklılık değişti (yuva 0-13 giyili, 14+ çanta). */
+  dayanim?: (yuva: number, dayanim: number) => void;
+  /** Tamir cevabı. */
+  tamirCevabi?: (c: { basarili: boolean; altin: number }) => void;
   /** Sohbet mesajı geldi; özel sohbet alıcı sorgusunun sonucu (bulundu mu). */
   magaza?: (c: MagazaCevabi) => void;
   statDegisti?: () => void;
@@ -109,6 +113,8 @@ export class SunucuDunyasi {
       case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y, yaricap: c.secimYaricapi } : null, c ?? null); break; }
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
+      case WIZ.DAYANIM: { const d = dayanimDegisti(p.govde); this.kancalar.dayanim?.(d.yuva, d.dayanim); break; }
+      case WIZ.ESYA_TAMIR: this.kancalar.tamirCevabi?.(esyaTamirCevabi(p.govde)); break;
       case WIZ.ESYA_ADEDI: this.kancalar.esyaAdedi?.(esyaAdediDegisti(p.govde)); break;
       case WIZ.ESYA_SIL: this.kancalar.esyaSilindi?.(esyaSilmeCevabi(p.govde)); break;
       case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;

@@ -2,6 +2,7 @@
 // Not: Gerçek değerler sunucu veritabanında; sunucu bağlandığında oradan gelecek.
 
 export interface EsyaTanimi {
+  /** Şimdiki dayanıklılık (sunucu: giyili/çanta yuvası kaydı ve WIZ_DURATION); yoksa azami (`dayanim`) sayılır. */ suru?: number;
   /** Görünüm kaynağı (Item_Org 7. sütun): zırh parçası dosya adı bundan türetilir (giyim/<ırk>/<kaynak>.glb); yoksa 0. */ kaynak?: number;
   /** Sunucudaki TAM eşya numarası (son 3 hane yükseltme/ek kodu); sunucuya giden her istekte bu kullanılır. Yerel eşyalarda yoktur. */ sunucuNo?: number;
   no: number; ad: string; aciklama: string; simge: string;

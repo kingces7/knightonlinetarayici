@@ -45,3 +45,21 @@ export function esyaAdediDegisti(govde: Uint8Array): { yuva: number; no: number;
   for (let i = 0; i < n && o.kalan >= 14; i++) { o.u8(); const yuva = o.u8(), no = o.u32(), adet = o.u16(); o.u32(); o.u16(); sonuc.push({ yuva, no, adet }); }
   return sonuc;
 }
+
+/** `WIZ_DURATION (0x38)`: `u8 yuva` (0–13 giyili, 14 ve sonrası çanta = yuva − 14), `u16 dayanıklılık`. Kaynak: User.cpp SendDurability. */
+export function dayanimDegisti(govde: Uint8Array): { yuva: number; dayanim: number } {
+  const o = new PaketOkuyucu(govde); return { yuva: o.u8(), dayanim: o.u16() };
+}
+/** Tamir isteği (`WIZ_ITEM_REPAIR 0x3B`, NPCHandler.cpp ItemRepair): `u8 yer (1 giyili, 2 çanta), u8 yuva, u16 NPC kimliği, u32 eşya no`. */
+export function esyaTamirIstegi(yer: 1 | 2, yuva: number, npcKimligi: number, esyaNo: number): Uint8Array {
+  return new PaketYazici().u8(yer).u8(yuva).u16(npcKimligi).u32(esyaNo).baytlar();
+}
+/** Tamir cevabı: `u8 sonuç (1 tamam), u32 kalan Noah`. */
+export function esyaTamirCevabi(govde: Uint8Array): { basarili: boolean; altin: number } {
+  const o = new PaketOkuyucu(govde); return { basarili: o.u8() === 1, altin: o.u32() };
+}
+/** Tamir ücreti (sunucu ItemRepair): ((fiyat−10)/10000 + fiyat^0,75) × eksik dayanıklılık / azami dayanıklılık. */
+export function tamirUcreti(fiyat: number, azami: number, simdiki: number): number {
+  if (azami <= 1 || simdiki >= azami) return 0;
+  return Math.floor(((fiyat - 10) / 10000 + Math.pow(fiyat, 0.75)) * (azami - simdiki) / azami);
+}

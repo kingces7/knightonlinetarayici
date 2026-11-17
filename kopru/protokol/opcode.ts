@@ -35,6 +35,10 @@ export const WIZ = {
   ESYA_TASI: 0x1f,
   ESYA_SIL: 0x3f,
   ESYA_ADEDI: 0x3d,
+  /** Sunucu → client: eşyanın dayanıklılığı değişti (u8 yuva: 0-13 giyili, 14+ çanta; u16 dayanıklılık). */
+  DAYANIM: 0x38,
+  /** Client → sunucu: eşya tamir isteği; cevap ESYA_TAMIR_SONUCU. */
+  ESYA_TAMIR: 0x3b,
   PARTI: 0x2f,
   BECERI: 0x31,
   MANA_DEGISTI: 0x18,

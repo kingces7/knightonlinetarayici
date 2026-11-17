@@ -9,6 +9,7 @@ import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
+import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
@@ -21,7 +22,9 @@ export interface ArayuzBaglami {
   esyaKusan: (i: number) => void;
   /** Envanterde sürükle-bırak: kaynak yuvadaki eşyayı hedef yuvaya taşır/yer değiştirir. */
   esyaTasi: (kaynak: YuvaKonumu, hedef: YuvaKonumu) => void;
-  ipucuGoster: (e: EsyaTanimi, ev: MouseEvent, satin?: boolean) => void;
+  ipucuGoster: (e: EsyaTanimi, ev: MouseEvent, satin?: boolean, tamir?: number) => void;
+  /** Tamir modunda tıklanan eşyayı tamir ettirir; açık mağaza tamirci NPC'ye mi ait? */
+  tamirEt?: (k: YuvaKonumu) => void; tamirmi?: () => boolean;
   ipucuGizle: () => void;
   mesaj: (m: string) => void;
   /** Yüklü haritanın adı ve kenar uzunluğu (m): mini harita için. */
@@ -76,6 +79,9 @@ const ARKA_PLAN_SAYDAMLIK = 0.55;
 const SISTEM_SARI = '#e8e84a';
 const ESYA_SIMGE = '142.22% 142.22%';
 type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza' | 'depo';
+
+/** Eşyanın tamir ücreti (sunucu formülü); tamir gerekmiyorsa 0. */
+function tamirUcretiHesapla(e: EsyaTanimi): number { const azami = e.dayanim ?? 0; return tamirUcreti(e.fiyat, azami, e.suru ?? azami); }
 
 export class OyunArayuzu {
   private b: ArayuzBaglami;
@@ -471,14 +477,44 @@ export class OyunArayuzu {
 
   // ---------------------------------------------------------------- NPC mağazası (re_tradeinventory)
   /** Mağazayı açar (envanterle birlikte). Sayfalar: satış grubunun sayfaları. */
+  /** Tamir modu (orijinaldeki INV_STATE_REPAIR): açıkken çanta/giyili eşyaya tıklamak onu tamir ettirir, bilgi kutusu tamir ücretini gösterir. */
+  private tamirModu = false;
+  private tamirModuDegistir(ac: boolean): void {
+    this.tamirModu = ac; this.sonEnvanterImza = ''; this.b.ipucuGizle();
+    document.body.classList.toggle('tamir-modu', ac);
+    const d = this.pencereler.magaza.bul('btn_ok1')[0]; if (d) d.style.filter = ac ? 'brightness(1.6) sepia(1) hue-rotate(60deg)' : '';
+    if (ac) this.b.mesaj('Repair mode: click an item to repair it.');
+  }
   magazaAc(npcAdi: string, sayfalar: EsyaTanimi[][]): void {
+    this.tamirModuDegistir(false);
+    const tamirci = !!this.b.tamirmi?.(); const rb = this.pencereler.magaza.bul('btn_ok1')[0]; if (rb) { rb.style.display = tamirci ? '' : 'none'; }
     this.magazaAdi = npcAdi; this.magazaSayfalar = sayfalar; this.magazaSayfa = 0; this.magazaImza = '';
     this.ac('magaza', true); this.ac('envanter', true);
+    this.magazaYerlestir();
+  }
+  /**
+   * Mağaza ve envanter TEK pencere gibi üst üste durur (orijinal "Store" düzeni): mağaza üstte, envanter hemen altında, ikisi de sağ kenarda.
+   * Birlikte ekrana sığmıyorsa ikisi aynı oranda küçülür.
+   */
+  private magazaYerlestir(): void {
+    const m = this.pencereler.magaza, e = this.pencereler.envanter;
+    m.olcekAyarla(1); e.olcekAyarla(1);
+    const [ml, mt, mr, mb] = m.sinir(), [el, et, er, eb] = e.sinir();
+    const hM = mb - mt, hE = eb - et, gen = Math.max(mr - ml, er - el);
+    const altBos = this.gorev.boyut[1] * this.gorevOlcegi() + 14;
+    const ol = Math.max(0.4, Math.min(arayuzOlcegi(), (innerHeight - altBos - 8) / (hM + hE), (innerWidth - 16) / gen));
+    m.olcekAyarla(ol); e.olcekAyarla(ol);
+    const y0 = 4, cx = innerWidth - (gen * ol) / 2 - 2;
+    m.el.style.left = `${cx - ((ml + mr) / 2) * ol}px`; m.el.style.top = `${y0 - mt * ol}px`;
+    e.el.style.left = `${cx - ((el + er) / 2) * ol}px`; e.el.style.top = `${y0 + hM * ol - et * ol}px`;
+    m.el.style.zIndex = String(++this.z); e.el.style.zIndex = String(++this.z);
   }
   private magazaKur(): void {
     const p = this.pencereler.magaza;
     p.gizleDesen(/^(edit_message|btn_ok|at[0-9]+)$/); // at0-at11: öne çıkan eşya alanı (kullanılmıyor)
-    for (const el of p.tumDugmeler()) if (/close|cancel/i.test(el.dataset.id ?? '')) p.tikla.set(el.dataset.id!, () => this.ac('magaza', false)); // sağ üstteki çarpı (close) ve btn_cancel
+    for (const el of p.tumDugmeler()) if (/close|cancel/i.test(el.dataset.id ?? '')) p.tikla.set(el.dataset.id!, () => { this.tamirModuDegistir(false); this.ac('magaza', false); }); // sağ üstteki çarpı (close) ve btn_cancel
+    p.tikla.set('btn_ok1', () => this.tamirModuDegistir(!this.tamirModu)); // tamirci NPC'de: Repair (tamir modu aç/kapat)
+    const rb = p.bul('btn_ok1')[0]; if (rb) { rb.title = 'Repair'; rb.style.color = '#ffe9a8'; rb.style.font = '700 13px Segoe UI, sans-serif'; rb.style.textShadow = '0 1px 2px #000'; rb.style.display = 'flex'; rb.style.alignItems = 'center'; rb.style.justifyContent = 'center'; rb.textContent = 'Repair'; }
     for (let i = 0; i < 28; i++) {
       const alan = p.alan(`a${i}`); if (!alan) continue;
       alan.addEventListener('click', () => { const e = this.magazaSayfalar[this.magazaSayfa]?.[i]; if (e) this.b.magazaSatinAl(e); });
@@ -1060,15 +1096,16 @@ export class OyunArayuzu {
 
   private envanterCiz(): void {
     const o = this.b.oyuncu, p = this.pencereler.envanter;
-    const imza = `${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}`).join(',')}|${o.ekipman.map((e) => e?.no ?? 0).join(',')}|${o.altin}`;
+    const imza = `${o.envanter.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}d${e?.suru ?? ''}`).join(',')}|${o.ekipman.map((e) => `${e?.no ?? 0}d${e?.suru ?? ''}`).join(',')}|${o.altin}|${this.tamirModu}`;
     if (imza === this.sonEnvanterImza) return;
     this.sonEnvanterImza = imza;
     const yuvaCiz = (el: HTMLElement, e: EsyaTanimi | null, konum: YuvaKonumu, sagTik?: () => void) => {
       el.style.backgroundImage = e ? `url(${e.simge})` : ''; el.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       el.style.backgroundSize = ESYA_SIMGE; el.style.backgroundPosition = '0 0';
-      el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null;
+      const tamirUcreti = e && this.tamirModu ? tamirUcretiHesapla(e) : 0;
+      el.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev, false, tamirUcreti) : null;
       el.onmouseleave = () => this.b.ipucuGizle();
-      el.onclick = null;
+      el.onclick = this.tamirModu && e ? () => this.b.tamirEt?.(konum) : null;
       // SAĞ tık: giy / çıkar (mağaza açıkken çanta eşyası satılır). SOL tuşla sürükle-bırak: yuvalar arası taşı / yer değiştir.
       el.oncontextmenu = (ev) => { ev.preventDefault(); if (sagTik) { this.b.ipucuGizle(); sagTik(); } };
       el.draggable = !!e;
@@ -1106,6 +1143,7 @@ export class OyunArayuzu {
     this.hedefCiz(); this.ganimetCiz();
     if (this.acik.has('magaza')) this.magazaCiz();
     if (this.acik.has('depo')) this.depoCiz();
+    if (!this.acik.has('magaza') && this.tamirModu) this.tamirModuDegistir(false);
     if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, giyimEkipmani(this.b.oyuncu.ekipman)); }
   }
 }

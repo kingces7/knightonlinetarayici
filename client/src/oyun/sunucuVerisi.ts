@@ -34,7 +34,7 @@ export function sunucuVerisiniUygula(o: Oyuncu, m: BenimBilgim, arazi: Arazi, bo
     const t = esyaBulSunucu(e.no);
     if (!t.ad || t.ad.startsWith('Item ')) esyaEslesmeyen.push(e.no); // tabloda yok: yer tutucu yuvada durur
     esyaEslesen++;
-    const kopya: EsyaTanimi = t.sayilabilir ? { ...t, adet: e.adet } : { ...t };
+    const kopya: EsyaTanimi = t.sayilabilir ? { ...t, adet: e.adet } : { ...t, suru: e.dayaniklilik };
     if (i < 14) o.ekipman[i] = kopya; else o.envanter[i - 14] = kopya;
   });
 

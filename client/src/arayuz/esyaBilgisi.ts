@@ -26,7 +26,7 @@ function satir(metin: string, renk = AKSA, ortali = false): HTMLElement {
 }
 
 /** Eşya bilgisi gövdesini üretir. `satin`: mağaza penceresindeki eşya (alış fiyatı), değilse satış fiyatı. */
-export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: boolean): HTMLElement {
+export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: boolean, tamir = 0): HTMLElement {
   const kok = document.createElement('div'); kok.className = 'esya-bilgi';
   // Yükseltme: orijinal ad sonuna (+N) ekler (N = eşya numarasının son hanesi); yükseltilmiş eşyanın adı mor görünür.
   const arti = (e.sunucuNo ?? e.no) % 10, adMetni = arti > 0 && !/\(\+\d+\)/.test(e.ad) ? `${e.ad}(+${arti})` : e.ad;
@@ -44,7 +44,7 @@ export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: 
     kok.appendChild(satir(`Attack Speed : ${g <= 89 ? 'Very Fast' : g <= 110 ? 'Fast' : g <= 130 ? 'Normal' : g <= 150 ? 'Slow' : 'Very Slow'}`));
   }
   if (e.menzil) kok.appendChild(satir(`Effective Range : ${(e.menzil / 10).toFixed(2)}`));
-  if (e.dayanim && e.dayanim !== 1) { kok.appendChild(satir(`Max Durability : ${e.dayanim}`)); kok.appendChild(satir(`Current Durability : ${e.dayanim}`)); }
+  if (e.dayanim && e.dayanim !== 1) { kok.appendChild(satir(`Max Durability : ${e.dayanim}`)); const su = Math.min(e.suru ?? e.dayanim, e.dayanim); kok.appendChild(satir(`Current Durability : ${su}`, su <= 0 ? KIRMIZI : AKSA)); }
   if (e.savunma) kok.appendChild(satir(`Defense Ability : ${e.savunma}`));
   const gerek = (yazi: string, deger: number | undefined, sahip: number | undefined) => {
     if (deger && deger > 0) kok.appendChild(satir(`${yazi} : ${deger}`, o && (sahip ?? 0) < deger ? KIRMIZI : AKSA));
@@ -63,5 +63,6 @@ export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: 
     const fiyat = satin ? e.fiyat : Math.max(1, Math.floor(e.fiyat / 6));
     kok.appendChild(satir(`${satin ? 'Purchasing' : 'Selling'} Price : ${fiyat.toLocaleString('en-US')}`));
   }
+  if (tamir > 0) kok.appendChild(satir(`Repair Cost : ${tamir.toLocaleString('en-US')}`, YESIL)); // tamir modunda eşyanın tamir ücreti
   return kok;
 }

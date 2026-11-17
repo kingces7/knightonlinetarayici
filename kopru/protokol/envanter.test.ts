@@ -26,3 +26,12 @@ import { esyaAdediDegisti } from './envanter.ts';
 test('gerçek sunucu: ok atınca yığın adedi (200 → 199)', () => {
   assert.deepEqual(esyaAdediDegisti(bayt('01000101d0564e17c700000000a00f00000000000000000000')), [{ yuva: 1, no: 391010000, adet: 199 }]);
 });
+
+import { dayanimDegisti, esyaTamirIstegi, esyaTamirCevabi, tamirUcreti } from './envanter.ts';
+test('dayanıklılık paketi, tamir isteği/cevabı ve ücret formülü', () => {
+  assert.deepEqual(dayanimDegisti(bayt('06e803')), { yuva: 6, dayanim: 1000 });
+  assert.deepEqual([...esyaTamirIstegi(1, 6, 0x2001, 120110000)], [1, 6, 0x01, 0x20, ...[...Buffer.from([0, 0, 0, 0])].map((_, i) => Buffer.alloc(4).fill(0) && (120110000 >> (8 * i)) & 255)]);
+  assert.deepEqual(esyaTamirCevabi(bayt('01e8030000')), { basarili: true, altin: 1000 });
+  assert.equal(tamirUcreti(1000, 8000, 8000), 0);
+  assert.ok(tamirUcreti(1000, 8000, 4000) > 0);
+});

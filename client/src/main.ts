@@ -27,7 +27,7 @@ import { ALTIN_NO as BANKA_ALTIN, BANKA_ISLEMI, SAYFA_YUVASI, bankaAcIstegi, ban
 import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
-import { ESYA_YONU, esyaSilmeCevabi, esyaSilmeIstegi, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
+import { ESYA_YONU, esyaSilmeCevabi, esyaSilmeIstegi, esyaTamirIstegi, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
 import { ALTIN_NO, GANIMET_HATALARI, esyaAlmaIstegi, kutuAcmaIstegi, type AlmaCevabi, type KutuIcerigi } from '../../kopru/protokol/ganimet.ts';
 import { BECERI_HATALARI, BECERI_KOMUTU, beceriIstegi, type BeceriPaketi } from '../../kopru/protokol/beceri.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
@@ -337,7 +337,7 @@ async function basla(): Promise<void> {
         if (e && h.tur === 'e') hud.mesaj(`You equipped ${e.ad}.`, 'sistem'); else if (e && k.tur === 'e') hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
         envanterYenile();
       },
-      ipucuGoster: (e, ev, satin) => hud.ipucuGoster(e, ev, satin), ipucuGizle: () => hud.ipucuGizle(),
+      ipucuGoster: (e, ev, satin, tamir) => hud.ipucuGoster(e, ev, satin, tamir), tamirEt: (k) => tamirEt(k), tamirmi: () => !!aktifMagaza && aktifMagaza.npc.tanim.tur === 22, ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
       partiDavet: () => partiDavetEt(),
       // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
@@ -586,6 +586,23 @@ async function basla(): Promise<void> {
     if (!id) { hud.mesaj('This merchant is not available on the server.', 'sistem'); return null; }
     if (oyuncu.konum.distanceTo(aktifMagaza.npc.konum) > MAGAZA_MENZILI - 0.5) { hud.mesaj('You are too far from the merchant.', 'sistem'); return null; }
     return { id, grup: aktifMagaza.grup };
+  };
+  /** Tamir (sunucu ItemRepair): istek yollanır, sonuç 0x3B ile gelir. Eşya yalnızca tamirci NPC'nin (Blacksmith/Armor/Weapon/Sundries) mağazası açıkken tamir edilir. */
+  const tamirBekleyen: { k: YuvaKonumu; e: EsyaTanimi }[] = [];
+  const tamirEt = (k: YuvaKonumu) => {
+    const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i]; if (!e) return;
+    if (!sunucuOturumu) { hud.mesaj('Repairs need a server connection.', 'sistem'); return; }
+    const azami = e.dayanim ?? 0, simdiki = e.suru ?? azami;
+    if (azami <= 1 || simdiki >= azami) { hud.mesaj('This item does not need repairs.', 'sistem'); return; }
+    const h = magazaHazir(); if (!h) return;
+    tamirBekleyen.push({ k, e });
+    sunucuOturumu.gonder(WIZ.ESYA_TAMIR, esyaTamirIstegi(k.tur === 'e' ? 1 : 2, k.i, h.id, e.sunucuNo ?? e.no));
+  };
+  const tamirCevabiSunucudan = (c: { basarili: boolean; altin: number }) => {
+    const b = tamirBekleyen.shift(); oyuncu.altin = c.altin;
+    if (!c.basarili) { hud.mesaj('The item could not be repaired (not enough Noah?).', 'sistem'); envanterYenile(); return; }
+    if (b) { b.e.suru = b.e.dayanim ?? b.e.suru; hud.mesaj(`${b.e.ad} has been repaired.`, 'sistem'); }
+    envanterYenile();
   };
   const magazaSunucudan = (c: MagazaCevabi) => {
     const b = magazaBekleyen.shift();
@@ -1075,7 +1092,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

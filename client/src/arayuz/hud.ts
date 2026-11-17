@@ -121,11 +121,11 @@ export class Hud {
 
   /** Oyuncunun seviye/stat/sınıf özeti: eşya bilgisinde yetmeyen şartlar kırmızı gösterilir. */
   oyuncuOzeti: () => OyuncuOzeti | null = () => null;
-  ipucuGoster(e: EsyaTanimi, ev: MouseEvent, satin = false): void {
+  ipucuGoster(e: EsyaTanimi, ev: MouseEvent, satin = false, tamir = 0): void {
     const tam = esyaTablo(e.sunucuNo ?? e.no); // yeni alanlar (şartlar, ağırlık…) eşya tablosundan
     const bilgi: EsyaTanimi = { ...e, ...(tam ? { irk: tam.irk, sinif: tam.sinif, menzil: tam.menzil, agirlik: tam.agirlik, dayanim: tam.dayanim, gerekSeviye: tam.gerekSeviye, gerekGuc: tam.gerekGuc, gerekSta: tam.gerekSta, gerekCev: tam.gerekCev, gerekZeka: tam.gerekZeka, gerekBuyu: tam.gerekBuyu, sinifDerece: tam.sinifDerece, tip: e.tip || tam.tip } : {}) };
     this.ipucu.innerHTML = '';
-    this.ipucu.appendChild(esyaBilgisiOlustur(bilgi, this.oyuncuOzeti(), satin));
+    this.ipucu.appendChild(esyaBilgisiOlustur(bilgi, this.oyuncuOzeti(), satin, tamir));
     this.ipucu.style.left = '0px'; this.ipucu.style.top = '0px';
     this.ipucu.classList.remove('gizli');
     // Eşya bilgisi hiçbir zaman ekran dışına taşmaz: sağa sığmıyorsa imlecin soluna, alta sığmıyorsa yukarı alınır.

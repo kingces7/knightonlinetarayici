@@ -14,5 +14,5 @@ await s.mouse.click(345, 50); await s.waitForTimeout(500); console.log('depo X s
 await s.evaluate((g) => window.ke.npcTikla(window.ke.npcler.find((x) => x.tanim.satis === g)), n); await s.waitForTimeout(1200);
 await s.screenshot({ path: klasor + '/magaza.png' });
 console.log('mağaza düğmeleri', await s.evaluate(() => [...document.querySelectorAll('[data-id]')].filter((e) => e.offsetParent && /close|cancel|exit|btn_x|ok/i.test(e.dataset.id)).map((e) => e.dataset.id + '@' + Math.round(e.getBoundingClientRect().left) + ',' + Math.round(e.getBoundingClientRect().top))));
-await s.mouse.click(351, 52); await s.waitForTimeout(500); console.log('mağaza X sonrası açık mı', await gorunur('btn_cancel'));
+const xk = await s.evaluate(() => { const e = [...document.querySelectorAll('[data-id=close]')].find((x) => x.offsetParent); const r = e.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }); await s.mouse.click(xk[0], xk[1]); await s.waitForTimeout(500); console.log('mağaza X sonrası açık mı', await gorunur('btn_cancel'));
 await t.close();
