@@ -266,3 +266,13 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] **Bilgi penceresi taşması:** Kullanıcı yazıların taştığını bildirdi; geliştirme ortamında yeniden üretilemedi (1280×800 ve 1920×1080'de yazı pencerede kırpılıyor, köşeden büyütünce açılıyor). Uzun sözcükler artık satır kırıyor. Sürerse kullanıcıdan ekran görüntüsü iste.
 
 - [ ] **Skill combo (orijinal):** `MagicSkillMng.cpp` — yakın dövüş skill'i (`CastTime == 0`) tablodaki `iNumCombo` kadar animasyon adımı (`iAct[0..2]`) oynatır; her adım `saldırıHızı × 1,2 sn`; adımlar sürerken (`m_iSkillStep > 0`) sürekli saldırı (R) bekler, bitince kendiliğinden devam eder; son adımdan sonra `iReCastTime / 10` sn skill bekleme başlar. Bizde şimdilik skill tek animasyon; "R beklemesi/devamı" yapıldı, çok adımlı combo ve `SkillMagicTable Type1` (iNumCombo, iAct) henüz okunmuyor.
+
+## Sunucu bağlantısı: kalanlar (2026-11-17)
+- [ ] Parti tam: üye listesi, ayrılma, lider, üye canı (0x2F alt komutları; şimdilik yalnız davet/kabul)
+- [ ] NPC konuşmaları ve görevler (WIZ_NPC_EVENT 0x20, SELECT_MSG, Lua görevleri): NPC'lere tıklayınca sunucu diyalogu
+- [ ] Diğer oyuncuların ekipmanı/görünümü (WIZ_USER_LOOK_CHANGE) ve kendi giysi değişimimizin başkalarına görünmesi
+- [ ] Eşya kullanma (iksir, kâğıt…): WIZ_ITEM_USE; eşya yere atma (0x1F tür 5)
+- [ ] Takas (0x30), pazar/mağaza açma, klan, dost listesi
+- [ ] Parti/klan dışındaki küçük paketler: WIZ_ROTATE (0x09), emote (0x29 tür 4), hava/saat
+- [ ] İstemcide tanımı olmayan canavar/NPC modelleri (`bilinmeyenTurler`): tüm K_MONSTER (2.169) için model + tür tablosu
+- [ ] Eşyalarda 413 simge yok (genel simge yer tutucu), yükseltme/ek kod gösterimi
