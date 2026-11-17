@@ -12,12 +12,12 @@ const SURUKLE = 'application/x-ke-islem';
 const KAYMA = 160; // envanter eskisinden biraz daha aşağıda: mağaza ızgarasının altında nefes payı kalır
 
 /** Oyunun kendi arayüz dokusundan (512×512 atlas, /arayuz/doku) bir parçayı elemana çizer: uv = [u0, v0, u1, v1]. */
-function sprite(el: HTMLElement, doku: string, uv: [number, number, number, number], w: number, h: number): void {
+export function sprite(el: HTMLElement, doku: string, uv: [number, number, number, number], w: number, h: number): void {
   const rw = (uv[2] - uv[0]) * 512, rh = (uv[3] - uv[1]) * 512;
   Object.assign(el.style, { backgroundImage: `url(/arayuz/doku/${doku}.png)`, backgroundRepeat: 'no-repeat', backgroundSize: `${(512 * w) / rw}px ${(512 * h) / rh}px`, backgroundPosition: `${-(uv[0] * 512 * w) / rw}px ${-(uv[1] * 512 * h) / rh}px` });
 }
-const UV_DUGME: [number, number, number, number] = [0.71484375, 0.005859375, 0.85546875, 0.052734375]; // oyunun düğme dokusu
-const UV_KUTU: [number, number, number, number] = [0.5078125, 0.861328125, 0.8203125, 0.90625]; // altın çubuğu (sayı kutusu)
+export const UV_DUGME: [number, number, number, number] = [0.71484375, 0.005859375, 0.85546875, 0.052734375]; // oyunun düğme dokusu
+export const UV_KUTU: [number, number, number, number] = [0.5078125, 0.861328125, 0.8203125, 0.90625]; // altın çubuğu (sayı kutusu)
 
 export interface MagazaKancalari {
   envanter: () => (EsyaTanimi | null)[]; altin: () => number;

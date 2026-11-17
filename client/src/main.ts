@@ -648,14 +648,24 @@ async function basla(): Promise<void> {
       bankaBekleyen.push(() => { o.envanter[i.hedef] = e; o.envanter[i.kaynak] = null; });
     } else if (i.tur === 'esya-yatir') {
       const e = o.envanter[i.canta]; if (!e) return true;
-      const j = i.hedef ?? o.depo.indexOf(null); if (j < 0 || o.depo[j]) { hud.mesaj('Your warehouse is full.', 'sistem'); return true; }
-      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.YATIR, id, e.sunucuNo ?? e.no, Math.floor(j / SAYFA_YUVASI), i.canta, j % SAYFA_YUVASI, e.adet ?? 1));
-      bankaBekleyen.push(() => { o.depo[j] = e; o.envanter[i.canta] = null; });
+      const j = i.hedef ?? o.depo.indexOf(null), n = Math.max(1, Math.min(i.adet ?? e.adet ?? 1, e.adet ?? 1));
+      const mevcut = j >= 0 ? o.depo[j] : null, ayni = !!mevcut && !!e.sayilabilir && mevcut.no === e.no; // aynı yığına ekleme
+      if (j < 0 || (mevcut && !ayni)) { hud.mesaj('Your warehouse is full.', 'sistem'); return true; }
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.YATIR, id, e.sunucuNo ?? e.no, Math.floor(j / SAYFA_YUVASI), i.canta, j % SAYFA_YUVASI, n));
+      bankaBekleyen.push(() => {
+        if (mevcut && ayni) mevcut.adet = (mevcut.adet ?? 1) + n; else o.depo[j] = e.sayilabilir ? { ...e, adet: n } : e;
+        const kalan = (e.adet ?? 1) - n; o.envanter[i.canta] = kalan > 0 && e.sayilabilir ? { ...e, adet: kalan } : null;
+      });
     } else {
       const e = o.depo[i.banka]; if (!e) return true;
-      const f = i.hedef ?? o.envanter.indexOf(null); if (f < 0 || o.envanter[f]) { hud.mesaj('Your inventory is full.', 'sistem'); return true; }
-      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.CEK, id, e.sunucuNo ?? e.no, Math.floor(i.banka / SAYFA_YUVASI), i.banka % SAYFA_YUVASI, f, e.adet ?? 1));
-      bankaBekleyen.push(() => { o.envanter[f] = e; o.depo[i.banka] = null; });
+      const f = i.hedef ?? o.envanter.indexOf(null), n = Math.max(1, Math.min(i.adet ?? e.adet ?? 1, e.adet ?? 1));
+      const mevcut = f >= 0 ? o.envanter[f] : null, ayni = !!mevcut && !!e.sayilabilir && mevcut.no === e.no;
+      if (f < 0 || (mevcut && !ayni)) { hud.mesaj('Your inventory is full.', 'sistem'); return true; }
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.CEK, id, e.sunucuNo ?? e.no, Math.floor(i.banka / SAYFA_YUVASI), i.banka % SAYFA_YUVASI, f, n));
+      bankaBekleyen.push(() => {
+        if (mevcut && ayni) mevcut.adet = (mevcut.adet ?? 1) + n; else o.envanter[f] = e.sayilabilir ? { ...e, adet: n } : e;
+        const kalan = (e.adet ?? 1) - n; o.depo[i.banka] = kalan > 0 && e.sayilabilir ? { ...e, adet: kalan } : null;
+      });
     }
     return true;
   };

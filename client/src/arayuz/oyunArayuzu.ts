@@ -10,6 +10,7 @@ import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
 import { MagazaPenceresi } from './magazaPenceresi';
+import { adetKutusu } from './adetKutusu';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -40,7 +41,7 @@ export interface ArayuzBaglami {
   esyaAt?: (k: YuvaKonumu) => void;
   /** Sunucu modunda banka işlemi sunucuya gider (true = ele alındı; sonuç sunucudan gelince uygulanır). */
   /** Banka işlemleri (sunucu modunda true döner = işlem sunucuya gitti). `hedef` verilirse eşya o yuvaya konur (sürükle-bırak); yoksa ilk boş yuvaya. */
-  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number; hedef?: number } | { tur: 'esya-cek'; banka: number; hedef?: number } | { tur: 'banka-ici'; kaynak: number; hedef: number } | { tur: 'canta-ici'; kaynak: number; hedef: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
+  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number; hedef?: number; adet?: number } | { tur: 'esya-cek'; banka: number; hedef?: number; adet?: number } | { tur: 'banka-ici'; kaynak: number; hedef: number } | { tur: 'canta-ici'; kaynak: number; hedef: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
   /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
   sehreDon: () => void;
   /** Oyuncu animasyonu numarasını oynat (selamlama, savaş çığlığı). */
@@ -463,32 +464,64 @@ export class OyunArayuzu {
       const ust = this.depoUst().indexOf(el); if (ust >= 0) return { yer: 'depo', i: this.depoSayfa * 24 + ust };
       const alt = this.depoAlt().indexOf(el); return alt >= 0 ? { yer: 'canta', i: alt } : null;
     };
-    const depoSayfaBitisi = (j: number) => Math.floor(j / 24) === this.depoSayfa;
-    /** Eşyayı kaynak yuvadan hedef yuvaya taşır (hedef yoksa ilk boş yuva). Sunucu modunda işlem sunucuya gider. */
-    const tasi = (k: { yer: 'depo' | 'canta'; i: number }, h: { yer: 'depo' | 'canta'; i: number } | null) => {
-      const e = k.yer === 'depo' ? o.depo[k.i] : o.envanter[k.i]; if (!e) return;
-      const dolu = (x: { yer: 'depo' | 'canta'; i: number }) => (x.yer === 'depo' ? o.depo[x.i] : o.envanter[x.i]);
-      if (h && h.yer === k.yer && h.i === k.i) return;
-      if (h && dolu(h)) h = null; // hedef dolu: ilk boş yuvaya düşer
-      if (k.yer === 'canta' && (!h || h.yer === 'depo')) { // çantadan bankaya
-        const hedef = h ? h.i : o.depo.indexOf(null);
-        if (hedef < 0) { this.b.mesaj('Your warehouse is full.'); return; }
-        if (this.b.bankaIslem?.({ tur: 'esya-yatir', canta: k.i, hedef })) return;
-        o.depo[hedef] = e; o.envanter[k.i] = null;
-      } else if (k.yer === 'depo' && (!h || h.yer === 'canta')) { // bankadan çantaya
-        const hedef = h ? h.i : o.envanter.indexOf(null);
-        if (hedef < 0) { this.b.mesaj('Your inventory is full.'); return; }
-        if (this.b.bankaIslem?.({ tur: 'esya-cek', banka: k.i, hedef })) return;
-        o.envanter[hedef] = e; o.depo[k.i] = null;
-      } else if (k.yer === 'depo' && h) { // banka içinde taşıma (aynı sayfada)
-        if (!depoSayfaBitisi(h.i) || !depoSayfaBitisi(k.i)) return;
-        if (this.b.bankaIslem?.({ tur: 'banka-ici', kaynak: k.i, hedef: h.i })) return;
-        o.depo[h.i] = e; o.depo[k.i] = null;
-      } else if (k.yer === 'canta' && h) { // çanta içinde taşıma
-        if (this.b.bankaIslem?.({ tur: 'canta-ici', kaynak: k.i, hedef: h.i })) return;
-        o.envanter[h.i] = e; o.envanter[k.i] = null;
+    type Yuva = { yer: 'depo' | 'canta'; i: number };
+    const dolu = (x: Yuva) => (x.yer === 'depo' ? o.depo[x.i] : o.envanter[x.i]);
+    /** Aynı eşyanın bankada (herhangi bir sayfada) bulunan yığını: sağ tıkta üstüne yığılır. */
+    const bankadaAyniYigin = (e: EsyaTanimi) => (e.sayilabilir ? o.depo.findIndex((x) => !!x && x.no === e.no) : -1);
+    /** Bulunulan sayfadaki ilk boş yuva; sayfa doluysa sayfaya en yakın boş yuva. */
+    const bankaBosYuva = () => {
+      const a = this.depoSayfa * 24, b = a + 23;
+      for (let j = a; j <= b; j++) if (!o.depo[j]) return j;
+      let en = -1, uzak = 1e9;
+      for (let j = 0; j < o.depo.length; j++) if (!o.depo[j]) { const m = j < a ? a - j : j - b; if (m < uzak) { uzak = m; en = j; } }
+      return en;
+    };
+    /** Seçilen adetle (yığınsa) işlemi uygular; yerel modda envanter/banka dizilerini kendisi günceller. */
+    const aktar = (k: Yuva, hedef: number, n: number) => {
+      const e = dolu(k)!;
+      if (k.yer === 'canta') {
+        if (this.b.bankaIslem?.({ tur: 'esya-yatir', canta: k.i, hedef, adet: n })) return;
+        const m = o.depo[hedef]; if (m && e.sayilabilir && m.no === e.no) m.adet = (m.adet ?? 1) + n; else o.depo[hedef] = e.sayilabilir ? { ...e, adet: n } : e;
+        const kalan = (e.adet ?? 1) - n; o.envanter[k.i] = kalan > 0 && e.sayilabilir ? { ...e, adet: kalan } : null;
+      } else {
+        if (this.b.bankaIslem?.({ tur: 'esya-cek', banka: k.i, hedef, adet: n })) return;
+        const m = o.envanter[hedef]; if (m && e.sayilabilir && m.no === e.no) m.adet = (m.adet ?? 1) + n; else o.envanter[hedef] = e.sayilabilir ? { ...e, adet: n } : e;
+        const kalan = (e.adet ?? 1) - n; o.depo[k.i] = kalan > 0 && e.sayilabilir ? { ...e, adet: kalan } : null;
       }
       this.depoImza = ''; this.sonEnvanterImza = '';
+    };
+    /** Yığınlanabilir eşyada (1'den çok) "kaç tane?" kutusu açılır; diğerlerinde doğrudan aktarılır. */
+    const adetliAktar = (k: Yuva, hedef: number) => {
+      const e = dolu(k)!, toplam = e.adet ?? 1;
+      if (!e.sayilabilir || toplam <= 1) { aktar(k, hedef, toplam); return; }
+      this.b.ipucuGizle();
+      adetKutusu(p.el, { ad: e.ad, soru: k.yer === 'canta' ? 'How many do you want to deposit?' : 'How many do you want to withdraw?', maks: toplam, onayYazisi: k.yer === 'canta' ? 'Deposit' : 'Withdraw', birimFiyat: 0, onay: (n) => aktar(k, hedef, n) });
+    };
+    /** Eşyayı kaynak yuvadan hedef yuvaya taşır (hedef yoksa otomatik: bankada aynı yığın → bulunulan sayfanın boş yuvası → en yakın boş yuva). */
+    const tasi = (k: Yuva, h: Yuva | null) => {
+      const e = dolu(k); if (!e) return;
+      if (h && h.yer === k.yer && h.i === k.i) return;
+      const hedefDolu = h ? dolu(h) : null;
+      const yiginUstu = !!h && !!hedefDolu && !!e.sayilabilir && hedefDolu.no === e.no && h.yer !== k.yer; // aynı eşyanın yığınının üstüne bırakma
+      if (h && hedefDolu && !yiginUstu) h = null; // başka eşyanın üstü: otomatik yuvaya düşer
+      if (k.yer === 'canta' && (!h || h.yer === 'depo')) { // çantadan bankaya
+        let hedef = h ? h.i : bankadaAyniYigin(e);
+        if (hedef < 0) hedef = bankaBosYuva();
+        if (hedef < 0) { this.b.mesaj('Your warehouse is full.'); return; }
+        adetliAktar(k, hedef);
+      } else if (k.yer === 'depo' && (!h || h.yer === 'canta')) { // bankadan çantaya
+        let hedef = h ? h.i : (e.sayilabilir ? o.envanter.findIndex((x) => !!x && x.no === e.no) : -1);
+        if (hedef < 0) hedef = o.envanter.indexOf(null);
+        if (hedef < 0) { this.b.mesaj('Your inventory is full.'); return; }
+        adetliAktar(k, hedef);
+      } else if (k.yer === 'depo' && h) { // banka içinde taşıma (aynı sayfada; sunucu: hedef boş olmalı)
+        if (Math.floor(h.i / 24) !== this.depoSayfa || Math.floor(k.i / 24) !== this.depoSayfa) return;
+        if (this.b.bankaIslem?.({ tur: 'banka-ici', kaynak: k.i, hedef: h.i })) return;
+        o.depo[h.i] = e; o.depo[k.i] = null; this.depoImza = ''; this.sonEnvanterImza = '';
+      } else if (k.yer === 'canta' && h) { // çanta içinde taşıma
+        if (this.b.bankaIslem?.({ tur: 'canta-ici', kaynak: k.i, hedef: h.i })) return;
+        o.envanter[h.i] = e; o.envanter[k.i] = null; this.depoImza = ''; this.sonEnvanterImza = '';
+      }
     };
     // SAĞ tık: çanta eşyası bankaya, banka eşyası çantaya (ilk boş yuva)
     p.el.addEventListener('contextmenu', (ev) => { const k = yuvaBul(ev.target); if (!k) return; ev.preventDefault(); this.b.ipucuGizle(); tasi(k, null); });
