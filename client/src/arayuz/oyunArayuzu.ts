@@ -777,6 +777,7 @@ export class OyunArayuzu {
       Object.assign(bek.style, { position: 'absolute', inset: '0', display: 'none', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }); // bekleme: yuvarlak (saat yönünde) süpürme, sayı yok
       bek.className = 'cubuk-bekleme'; alan.appendChild(bek);
       alan.addEventListener('click', () => this.cubukKullan(i));
+      this.skillIpucuBagla(alan, () => this.cubukBeceri[this.cubukSayfa * 8 + i]);
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[this.cubukSayfa * 8 + i] = null; this.cubukKaydet(); });
       alan.draggable = false; // sürükleme fare olaylarıyla (skillSurukleKur)
     }
@@ -954,6 +955,7 @@ export class OyunArayuzu {
       p.tikla.set(`btn_${grup[0]}${t}`, () => sec(t + 1));
       p.tikla.set(`btn_${4 + t}`, () => this.b.skillPuaniVer?.(5 + t));
     }
+    for (const id of ['btn_public', 'btn_master', ...[0, 1, 2].map((t) => `btn_${grup[0]}${t}`)]) for (const e of p.bul(id)) e.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { if (/rgb\(69, 224, 252\)|#45e0fc/i.test(y.style.color)) { y.dataset.renk0 = '#f4ecd2'; y.style.color = '#f4ecd2'; } }); // sekme düğmelerinin mavi durum rengi açık krem
     sekmeRengi();
     if (usta) { p.goster('btn_master'); p.goster('string_7'); p.goster('btn_7'); p.tikla.set('btn_master', () => sec(4)); p.tikla.set('btn_7', () => this.b.skillPuaniVer?.(8)); }
   }
@@ -969,7 +971,7 @@ export class OyunArayuzu {
         alan.style.backgroundImage = b?.simge ? `url(/beceri/${b.simge})` : '';
         alan.style.backgroundSize = '100% 100%';
         alan.style.opacity = b && o.seviye < b.seviye ? '0.45' : '1';
-        alan.title = b ? `${b.ad} (MP ${b.msp}) — ${b.aciklama}` : '';
+        alan.removeAttribute('title');
       }
       const kalan = no ? (o.beceriBekleme.get(no) ?? 0) - simdi : 0;
       const bek = alan.querySelector<HTMLElement>('.cubuk-bekleme');
@@ -983,6 +985,58 @@ export class OyunArayuzu {
         } else { bek.dataset.toplam = '0'; bek.dataset.kalan = '0'; }
       }
     }
+  }
+
+  // ---------------------------------------------------------------- aktif buff göstergesi (Sprint, Swift, Gain…)
+  /**
+   * Etkin buff'ların simgeleri (şeffaf, çerçevesiz). Her simgenin üzerinde skill çubuğundaki bekleme animasyonuyla aynı daire vardır, ama SAAT YÖNÜNÜN TERSİNE açılır:
+   * geçen süre kadar koyu bir dilim 12 yönünden başlayıp sola doğru büyür; süre bitince simge kaybolur.
+   */
+  private buffSeridi: HTMLElement | null = null;
+  private buffImza = '';
+  private buffleriCiz(): void {
+    if (!this.buffSeridi) {
+      this.buffSeridi = document.createElement('div');
+      Object.assign(this.buffSeridi.style, { position: 'fixed', left: '6px', top: '108px', display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '300px', zIndex: '9', pointerEvents: 'none' });
+      this.b.kok.appendChild(this.buffSeridi);
+    }
+    const o = this.b.oyuncu, simdi = performance.now() / 1000, liste = o.buflar.filter((x) => x.bitis > simdi && x.sure);
+    const imza = liste.map((x) => x.no).join(',');
+    if (imza !== this.buffImza) {
+      this.buffImza = imza; this.buffSeridi.replaceChildren();
+      for (const x of liste) {
+        const b = this.beceriBul(x.no), kutu = document.createElement('div'); kutu.dataset.no = String(x.no);
+        Object.assign(kutu.style, { position: 'relative', width: '28px', height: '28px', opacity: '0.82', borderRadius: '4px', overflow: 'hidden', backgroundImage: b?.simge ? `url(/beceri/${b.simge})` : '', backgroundSize: '100% 100%', backgroundColor: b?.simge ? '' : 'rgba(143,214,230,.35)' });
+        const kaplama = document.createElement('div'); kaplama.className = 'buff-kaplama';
+        Object.assign(kaplama.style, { position: 'absolute', inset: '0', transform: 'scaleX(-1)' }); // aynalı: saat yönünün tersine açılır
+        kutu.appendChild(kaplama); this.buffSeridi.appendChild(kutu);
+      }
+    }
+    for (const kutu of Array.from(this.buffSeridi.children) as HTMLElement[]) {
+      const x = liste.find((y) => String(y.no) === kutu.dataset.no); if (!x) continue;
+      const toplam = x.sure ?? 1, gecen = Math.max(0, Math.min(1, 1 - (x.bitis - simdi) / toplam)) * 360;
+      (kutu.firstElementChild as HTMLElement).style.background = `conic-gradient(from 0deg, rgba(0,0,0,0.62) 0deg ${gecen}deg, rgba(0,0,0,0) ${gecen}deg 360deg)`;
+    }
+  }
+
+  // ---------------------------------------------------------------- skill ipucu (üzerine gelince ad, açıklama, hasar, MP, süreler)
+  private skillIpucu: HTMLElement | null = null;
+  private skillIpucuBagla(alan: HTMLElement, no: () => number | null | undefined): void {
+    alan.addEventListener('mouseenter', (ev) => {
+      const n = no(); const b = n ? this.beceriBul(n) : undefined; if (!b) return;
+      if (!this.skillIpucu) { this.skillIpucu = document.createElement('div'); Object.assign(this.skillIpucu.style, { position: 'fixed', zIndex: '2147483000', pointerEvents: 'none', maxWidth: '260px', padding: '7px 10px', background: 'rgba(22,17,12,.94)', border: '1px solid #c9a24a', borderRadius: '4px', color: '#f4ecd2', font: '12px Verdana, sans-serif', lineHeight: '1.4', boxShadow: '0 3px 10px rgba(0,0,0,.6)' }); document.body.appendChild(this.skillIpucu); }
+      const satir = (t: string, renk = '#f4ecd2') => (t ? `<div style="color:${renk}">${t.replace(/</g, '&lt;')}</div>` : '');
+      const pasif = this.pasifMi(b.no);
+      this.skillIpucu.innerHTML = satir(b.ad, '#ffe9a8') + satir(b.aciklama, '#d8d0b8') + satir(this.beceriHasarYazisi(b.no), '#ffd98a') + satir(pasif ? 'Passive skill' : `MP ${b.msp}`) + satir(this.beceriSureYazisi(b.no), '#bfc6cc');
+      this.skillIpucu.style.display = ''; this.skillIpucuKonumla(ev);
+    });
+    alan.addEventListener('mousemove', (ev) => this.skillIpucuKonumla(ev));
+    alan.addEventListener('mouseleave', () => { if (this.skillIpucu) this.skillIpucu.style.display = 'none'; });
+  }
+  private skillIpucuKonumla(ev: MouseEvent): void {
+    const k = this.skillIpucu; if (!k) return;
+    const w = k.offsetWidth, h = k.offsetHeight;
+    k.style.left = `${Math.max(4, Math.min(innerWidth - w - 4, ev.clientX + 16))}px`; k.style.top = `${Math.max(4, Math.min(innerHeight - h - 4, ev.clientY + 16))}px`;
   }
 
   // ---------------------------------------------------------------- sohbet ve bilgi (hasar) pencereleri
@@ -1305,6 +1359,7 @@ export class OyunArayuzu {
       const alan = p.alan(String(i)); if (!alan) continue;
       alan.draggable = false;
       alan.addEventListener('click', () => { if (this.beceriler[i]) { this.seciliBeceri = i; this.beceriCiz(); } });
+      this.skillIpucuBagla(alan, () => this.beceriler[i]?.no);
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); if (this.beceriler[i]) this.hizliKoy(this.beceriler[i].no); });
       alan.addEventListener('dblclick', () => { if (this.beceriler[i] && !this.pasifMi(this.beceriler[i].no)) this.b.beceriKullan(this.beceriler[i].no); });
     }
@@ -1326,7 +1381,7 @@ export class OyunArayuzu {
       alan.style.backgroundSize = '100% 100%';
       alan.style.opacity = b && !this.beceriAcik(b) ? '0.4' : '1';
       alan.style.outline = b && i === this.seciliBeceri ? '1px solid #f0d48a' : '';
-      alan.title = b?.aciklama ?? '';
+      alan.removeAttribute('title');
     }
     const s = this.beceriler[this.seciliBeceri];
     p.metin('string_info', s ? s.aciklama : '');
@@ -1437,6 +1492,7 @@ export class OyunArayuzu {
     const o = this.b.oyuncu, h = this.hpbar;
     this.simgeleriUygula();
     this.cubukCiz();
+    this.buffleriCiz();
     this.fpsSayac += dt;
     if (this.fpsSayac > 0.5) { this.fps = Math.round(1 / Math.max(dt, 1e-4)); this.fpsSayac = 0; h.metin('text_fps', `${this.fps} fps`); }
     h.metin('Text_HP', `${Math.ceil(o.can)}/${o.enCok}`); h.metin('Text_MSP', `${Math.ceil(o.mana)}/${o.enCokMana}`);

@@ -290,7 +290,7 @@ async function basla(): Promise<void> {
     if (e.hedef && hedefGrup && !kivilcim) void efektler.oynat(e.hedef, hedefGrup, v?.tip4 ? { sure: 1.2 } : { sure: 0.15, azamiSure: 0.25 });
     if (benim && v?.tip4) { // buff sunucuda kabul edildi
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== p.no);
-      oyuncu.buflar.push({ no: p.no, ad: v.ad || arayuz?.beceriAdi(p.no) || '', bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
+      oyuncu.buflar.push({ no: p.no, ad: v.ad || arayuz?.beceriAdi(p.no) || '', bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac, sure: v.tip4.sure });
       hud.mesaj(`${buyuAdi(v, p.no)} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
@@ -298,7 +298,7 @@ async function basla(): Promise<void> {
   type Kural = NonNullable<typeof kurallar>['beceri'][string];
   let alanHedefi: { no: number; v: Kural } | null = null;
   let alanBasildi = false; const alanNoktasi = new THREE.Vector2();
-  const alanHalka = new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 64), new THREE.MeshBasicMaterial({ color: 0x8fd6e6, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthTest: false }));
+  const alanHalka = new THREE.Mesh(new THREE.RingGeometry(0.98, 1, 96), new THREE.MeshBasicMaterial({ color: 0x8fd6e6, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthTest: false }));
   alanHalka.rotation.x = -Math.PI / 2; alanHalka.renderOrder = 999; alanHalka.visible = false; sahne.add(alanHalka);
   const alanHedeflemeBasla = (no: number, v: Kural) => {
     if (alanHedefi?.no === no) { alanHedeflemeBitir(); hud.mesaj('Area targeting cancelled.', 'sistem'); return; }
@@ -357,7 +357,7 @@ async function basla(): Promise<void> {
     } else if (v.tip4) {
       // Buff skill'lerinde (Sprint, Defense…) karakter animasyonu oynatılmaz (kullanıcı isteği); yalnız efekt çıkar.
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
-      oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
+      oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac, sure: v.tip4.sure });
       if (efektId?.hedef) void efektler.oynat(efektId.hedef, oyuncu.grup, { sure: 1.2 }); // buff'ta hedef efekti de kullanana uygulanır
       hud.mesaj(`${buyuAdi(v, no)} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
@@ -868,7 +868,7 @@ async function basla(): Promise<void> {
   });
   // Oyun alanına (pencere dışına) sol tıklayınca açık bütün pencereler kapanır
   tuval.addEventListener('pointerdown', (e) => { if (e.button === 0) arayuz?.tumPencereleriKapat(); });
-  tuval.addEventListener('pointermove', (e) => { if (!alanHedefi) return; const n = alanYeri(e); if (n) alanHalka.position.set(n.x, n.y + 0.2, n.z); });
+  tuval.addEventListener('pointermove', (e) => { if (!alanHedefi) return; const n = alanYeri(e); if (n) alanHalka.position.set(n.x, n.y + 0.06, n.z); });
   tuval.addEventListener('pointerdown', (e) => {
     if (!alanHedefi) return;
     e.stopImmediatePropagation(); // alan seçerken tıklama yürüme/seçme yapmaz

@@ -524,7 +524,7 @@ export class Oyuncu extends Varlik {
   /** Skill/büyü animasyonu sürerken (sn) boşta animasyonu araya girmez. */
   animKilidi = 0;
   beceriBekleme = new Map<number, number>();
-  buflar: { no: number; ad: string; bitis: number; hiz: number; ac: number }[] = [];
+  buflar: { no: number; ad: string; bitis: number; hiz: number; ac: number; /** toplam süre (sn): buff göstergesindeki geri sayım dairesi için */ sure?: number }[] = [];
   /** Koşma/yürüme hız çarpanı (sunucu m_bSpeedAmount / 100); buff yoksa 1. */
   get hizCarpani(): number { return this.buflar.reduce((m, b) => Math.max(m, b.hiz > 0 ? b.hiz / 100 : 1), 1); }
   /** Buff'lardan gelen ek savunma (sunucu m_sACAmount). */

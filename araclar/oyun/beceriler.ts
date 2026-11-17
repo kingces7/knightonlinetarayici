@@ -19,7 +19,8 @@ const terfiSayfasi = (p: number) => (p >= 1050 && p <= 1129) || (p >= 2050 && p 
 
 export function simgeAdaylari(simgeNo: number, sayfa: number): string[] {
   const nn = String(simgeNo % 100).padStart(2, '0');
-  return [`UI/skillicon_${nn}_${sayfa}.dxt`, `UI/skillicon_${nn}_1010.dxt`];
+  const kendi = Math.floor(simgeNo / 100); // simge numarasının sınıf sayfası (104004 → 1040)
+  return [`UI/skillicon_${nn}_${sayfa}.dxt`, `UI/skillicon_${nn}_${kendi}.dxt`, `UI/skillicon_${nn}_1010.dxt`];
 }
 
 function main(): number {
