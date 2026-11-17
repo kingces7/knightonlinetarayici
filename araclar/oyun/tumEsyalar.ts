@@ -12,6 +12,7 @@ import { simgeYolu } from './esyalar.ts';
 
 const SILAH = new Set([11, 21, 22, 31, 32, 41, 42, 51, 52, 61, 62, 70, 71, 110]);
 const ZIRH = new Set([210, 220, 230, 240]);
+const KALKAN = 60; // sol el yuvası (sunucu ItemSlot1HLeftHand); modeli .n3cplug, kolun üstüne takılır
 
 function main(): number {
   const od = new OyunDosyalari();
@@ -31,7 +32,7 @@ function main(): number {
     if (yazilan.has(simge)) simgeAd = `ikon/${simge}.png`; else ikonYok++;
     liste.push({
       no, kaynak: Number(s[6]), ad: String(s[2]), aciklama: String(s[3]).replace(/\|\s*/g, ' '), simge: simgeAd,
-      tur: SILAH.has(tur) ? 'silah' : ZIRH.has(tur) ? 'zirh' : 'sarf', tip: tur, yuva: Number(s[12]),
+      tur: SILAH.has(tur) ? 'silah' : tur === KALKAN ? 'kalkan' : ZIRH.has(tur) ? 'zirh' : 'sarf', tip: tur, yuva: Number(s[12]),
       hasar: Number(s[15]), gecikme: Number(s[16]), savunma: Number(s[22]), fiyat: Number(s[20]), sayilabilir: Number(s[23]) > 0,
     });
   }

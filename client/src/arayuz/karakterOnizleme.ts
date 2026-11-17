@@ -2,7 +2,7 @@
 // Ayrı küçük bir WebGL çizicisi kullanır; yalnızca envanter açıkken çizilir. Sürükleyerek döndürülebilir.
 import * as THREE from 'three';
 import { KarakterModeli } from '../dunya/karakter';
-import { elSilahiTipi, modeldenIrk } from '../oyun/veri';
+import { elSilahiTipi, modeldenIrk, solSilahTipi } from '../oyun/veri';
 
 export class KarakterOnizleme {
   private cizici: THREE.WebGLRenderer;
@@ -54,7 +54,7 @@ export class KarakterOnizleme {
   ciz(dt: number, silah = 0, kalkan = 0, ekipman: ({ no: number } | null)[] = []): void {
     if (!this.model) return;
     this.model.giyimAyarla(ekipman, modeldenIrk(this.modelNo));
-    this.model.silahAyarla(elSilahiTipi(ekipman as { tip?: number }[]));
+    this.model.silahAyarla(elSilahiTipi(ekipman as { tip?: number }[]), solSilahTipi(ekipman as { tip?: number }[]));
     void this.model.plugTak('sag', silah); void this.model.plugTak('sol', kalkan);
     this.model.guncelle(dt);
     this.model.kok.rotation.y = this.donus;

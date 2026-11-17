@@ -397,18 +397,32 @@ export class Oyuncu extends Varlik {
     const b = al(h);
     if (h.tur === 'e' && !Oyuncu.uygunYuvalar(a).includes(h.i)) return false;
     if (k.tur === 'e' && b && !Oyuncu.uygunYuvalar(b).includes(k.i)) return false;
-    if (h.tur === 'e' && a.yuva === 3 && h.i === 6 && this.ekipman[8]) { // iki elli silah sol eli boşaltır
-      const sol = this.ekipman[8]!; if (!this.esyaEkle(sol)) return false; this.ekipman[8] = null;
-    }
+    if (h.tur === 'e' && this.elCakismasi(a, h.i, k.tur === 'e' ? k.i : -1)) return false;
+    if (k.tur === 'e' && b && this.elCakismasi(b, k.i, h.tur === 'e' ? h.i : -1)) return false;
     koy(h, a); koy(k, b);
     return true;
+  }
+  /**
+   * Sunucu kuralı (ItemHandler IsValidSlotPos): iki elli silah (yuva 3 sağ, 4 sol: yay) ancak öbür el BOŞKEN giyilir; tek elli silah/kalkan ise öbür elde iki elli silah YOKKEN.
+   * `yok`: bu hamlede boşalacak yuva (eşya o yuvadan geliyorsa öbür elde saymaz). true = çatışma var, giyilemez.
+   */
+  elCakismasi(e: EsyaTanimi, hedef: number, yok = -1): boolean {
+    if (hedef !== 6 && hedef !== 8) return false;
+    const diger = hedef === 6 ? 8 : 6;
+    const o = diger === yok ? null : this.ekipman[diger];
+    if (e.yuva === 3 || e.yuva === 4) return !!o;
+    if (e.yuva <= 2) return !!o && (o.yuva === 3 || o.yuva === 4);
+    return false;
   }
   /** Çantadaki i. eşyayı giyer (eski eşya çantaya döner). Giyilemezse null. */
   esyaKusan(i: number): EsyaTanimi | null {
     const e = this.envanter[i]; if (!e) return null;
-    const p = Oyuncu.ekipmanYuvasi(e); if (p < 0) return null;
+    let p = Oyuncu.ekipmanYuvasi(e); if (p < 0) return null;
+    if (e.yuva === 0) { // iki ele de uygun silah: sağ el boşsa ya da sol elde çatışma varsa sağa, sağ el doluysa ve çifte silah mümkünse sola
+      const sag = this.ekipman[6]; p = !sag || this.elCakismasi(e, 8) ? 6 : 8;
+    }
+    if (this.elCakismasi(e, p)) return null;
     this.envanter[i] = this.ekipman[p]; this.ekipman[p] = e;
-    if (e.yuva === 3 && this.ekipman[8]) { const sol = this.ekipman[8]!; if (this.esyaEkle(sol)) this.ekipman[8] = null; } // iki elli silah sol eli boşaltır
     return e;
   }
   /** Ekipman yuvasındaki eşyayı çantaya alır. Yer yoksa false. */
@@ -515,7 +529,7 @@ export class Oyuncu extends Varlik {
     return true;
   }
   /** Savaş formüllerine (savas.ts) verilen oyuncu görüntüsü. */
-  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, esyaSavunma: this.ekipman.reduce((t, e) => t + (e?.savunma ?? 0), 0), acEk: this.acEk }; }
+  get savasVeri(): SavasOyuncusu { return { sinif: this.sinif, seviye: this.seviye, stat: this.stat, silah: this.silah, solSilah: this.ekipman[8], esyaSavunma: this.ekipman.reduce((t, e) => t + (e?.savunma ?? 0), 0), acEk: this.acEk }; }
   /** Toplam vuruş gücü (sunucu m_sTotalHit) ve toplam savunma (m_sTotalAc). */
   toplamVurus(): number { return toplamVurus(this.savasVeri); }
   savunma(): number { return toplamSavunma(this.savasVeri); }

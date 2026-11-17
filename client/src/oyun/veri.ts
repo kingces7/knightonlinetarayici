@@ -5,7 +5,7 @@ export interface EsyaTanimi {
   /** Görünüm kaynağı (Item_Org 7. sütun): zırh parçası dosya adı bundan türetilir (giyim/<ırk>/<kaynak>.glb); yoksa 0. */ kaynak?: number;
   /** Sunucudaki TAM eşya numarası (son 3 hane yükseltme/ek kodu); sunucuya giden her istekte bu kullanılır. Yerel eşyalarda yoktur. */ sunucuNo?: number;
   no: number; ad: string; aciklama: string; simge: string;
-  /** Yığınlanabilir mi (eşya tablosu Countable: iksir, ok, kâğıt…)? `adet` = bu yuvadaki sayı. */ sayilabilir?: boolean; adet?: number; tur: 'silah' | 'zirh' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
+  /** Yığınlanabilir mi (eşya tablosu Countable: iksir, ok, kâğıt…)? `adet` = bu yuvadaki sayı. */ sayilabilir?: boolean; adet?: number; tur: 'silah' | 'zirh' | 'kalkan' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
 }
 
 export interface CanavarTuru {
@@ -72,6 +72,8 @@ export const esyaTablo = (no: number): EsyaTanimi | null => tumEsya.get(no) ?? t
 export const YAY_TURLERI = [70, 71];
 export const elSilahiTipi = (ekipman: ({ tip?: number } | null)[]): number => ekipman[6]?.tip ?? (YAY_TURLERI.includes(ekipman[8]?.tip ?? 0) ? ekipman[8]!.tip! : 0);
 export const OK_NO = 391010000;
+/** Sol eldeki (2. yuva) eşyanın türü (kalkan 60, çift silahın ikinci silahı, yay). */
+export const solSilahTipi = (ekipman: ({ tip?: number } | null)[]): number => ekipman[8]?.tip ?? 0;
 export const esyaKaynagi = (no: number): number => (tumEsya.get(no) ?? tumEsya.get(no - (no % 1000)) ?? esyaBul(no))?.kaynak ?? 0;
 export const irkModeli = (irk: number): number => IRK_MODELLERI[irk] ?? IRK_MODELLERI[12];
 

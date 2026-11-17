@@ -13,7 +13,7 @@ export async function animBilgisiYukle(): Promise<void> {
 }
 
 /** silah.json: eşya numarası → takılacak eklem (iskelet ön-sıra numarası; 12 sağ el, 7 sol el). araclar: npm run silahlar */
-let silahBilgisi: Record<string, { eklem: number }> = {};
+let silahBilgisi: Record<string, { eklem: number; kalkan?: number }> = {};
 export async function silahBilgisiYukle(): Promise<void> {
   try { silahBilgisi = await (await fetch('/silah/silah.json')).json(); } catch { silahBilgisi = {}; }
 }
@@ -102,6 +102,9 @@ export class KarakterModeli {
   }
 
   // ---- Elde taşınan eşyalar (.n3cplug → /silah/<eşya no>.glb): ilgili el kemiğine takılır.
+  private static readonly EKLEM_SAG = 12; // UPC_DefaultLooks.tbl iJointRH / iJointLH / iJointLH2 (sütun 18-20; oyuncu ırklarında hep 12/7/5)
+  private static readonly EKLEM_SOL = 7;
+  private static readonly EKLEM_KALKAN = 5;
   private plugler = new Map<string, { no: number; nesne: THREE.Object3D; kemik: THREE.Object3D }>();
   private kemikBul(i: number): THREE.Object3D | null {
     let sonuc: THREE.Object3D | null = null;
@@ -115,7 +118,9 @@ export class KarakterModeli {
     if (eski) { eski.kemik.remove(eski.nesne); this.plugler.delete(yuva); }
     const bilgi = no ? silahBilgisi[String(no)] : undefined;
     if (!bilgi) return;
-    const kemik = this.kemikBul(bilgi.eklem); if (!kemik) return;
+    // Orijinal (PlayerBase::PlugSet): bağlanacak eklem eşyanın dosyasındaki değil, ELİN yuvasına göre looks tablosundan gelir: sağ el ucu (RH), sol el ucu (LH), kalkan = sol kol (LH2).
+    const eklem = yuva === 'sag' ? KarakterModeli.EKLEM_SAG : bilgi.kalkan ? KarakterModeli.EKLEM_KALKAN : KarakterModeli.EKLEM_SOL;
+    const kemik = this.kemikBul(eklem); if (!kemik) return;
     try {
       const g = await yukle(`/silah/${no}.glb`);
       if (this.plugler.get(yuva)) return; // bu arada başka bir istek takmış
@@ -132,6 +137,7 @@ export class KarakterModeli {
    */
   private static readonly SILAH_AILESI: Record<number, [number, number, number, number, number]> = {
     0: [86, 87, 88, 0, 0], // silahsız: yumruk
+    1000: [44, 45, 46, 118, 119], // çift silah (ANI_DUAL_BREATH_A, ATTACK_A0/A1, SKILL_DUAL0/1)
     11: [38, 39, 40, 116, 117], 21: [32, 33, 34, 128, 129], 22: [50, 51, 52, 134, 135],
     31: [68, 69, 70, 112, 113], 32: [71, 72, 73, 132, 133], 41: [56, 57, 58, 120, 121], 42: [62, 63, 64, 122, 123],
     51: [74, 75, 76, 126, 127], 52: [80, 81, 82, 124, 125], 70: [92, 96, 97, 0, 0], 71: [93, 96, 97, 0, 0], 110: [98, 99, 100, 0, 0],
@@ -205,10 +211,14 @@ export class KarakterModeli {
   /** Numaralı animasyonu (ör. 104 selamlama) bir kez oynatır; süresini (sn) döndürür, yoksa 0. */
   numaraOynat(no: number): number { const ad = this.klipNo(no); return ad ? this.oynat(ad, false, 0.1) : 0; }
   /** Eldeki silahın türüne göre bekleme/saldırı/skill animasyonlarını seçer (0 = silahsız). Silah değişince bekleme yenilenir. */
-  silahAyarla(tip: number): void {
-    if (tip === this.silahTipi) return;
-    this.silahTipi = tip;
-    this.aile = this.klipNo(32) ? (KarakterModeli.SILAH_AILESI[tip] ?? KarakterModeli.SILAH_AILESI[21]) : null; // numaralı animasyonu olmayan modellerde (canavar) yok
+  silahAyarla(tip: number, solTip = 0): void {
+    // Orijinal JudgeAnimationBreath: sağda kılıç/balta + solda kılıç/balta = çift silah (ANI_DUAL); sağ el boş + solda kalkan = kalkan duruşu; yoksa sağ eldeki silaha göre.
+    const cift = (t: number) => t === 21 || t === 31;
+    const anahtar = cift(tip) && cift(solTip) ? 1000 : !tip && solTip === 60 ? 1060 : tip;
+    if (anahtar === this.silahTipi) return;
+    this.silahTipi = anahtar;
+    const aile = anahtar === 1000 ? KarakterModeli.SILAH_AILESI[1000] : anahtar === 1060 ? KarakterModeli.SILAH_AILESI[110] : (KarakterModeli.SILAH_AILESI[tip] ?? KarakterModeli.SILAH_AILESI[21]);
+    this.aile = this.klipNo(32) ? aile : null; // numaralı animasyonu olmayan modellerde (canavar) yok
     if (this.aktifAd === 'bekle') { this.aktifAd = ''; this.calistir('bekle', true, 0.2); }
   }
   /** Fiziksel skill animasyonu: silah türüne özgü skill hareketi (A ya da B), yoksa büyü hareketi. Süreyi döndürür. */

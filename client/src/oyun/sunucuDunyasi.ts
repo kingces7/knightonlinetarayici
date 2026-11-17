@@ -183,7 +183,10 @@ export class SunucuDunyasi {
     const c = this.canavarlar.get(id); if (!c) return;
     const hedef = new THREE.Vector2(x, z);
     if (c.konum.distanceTo(hedef) > ISINLAMA_ESIGI) { c.konum.copy(hedef); c.agHedef = null; return; }
-    c.agHedef = hedef; c.agHiz = hiz;
+    // Hız 0 = "varış noktası şurası": sunucu çoğu hareketten hemen sonra aynı noktaya bir de hız-0 paketi yollar (Npc.cpp: "Move to target... then stop").
+    // Orijinal client bunda durmaz: yalnızca hedefi günceller ve önceki hızla yürümeye devam eder (PlayerNPC::MoveTo/Tick). Durursak canavar donup sonra yürür.
+    if (hiz > 0) c.agHiz = hiz; else if (c.agHiz <= 0) c.agHiz = Math.max(0.5, c.konum.distanceTo(hedef)); // hiç hızı yoksa kalan yolu 1 sn'de alır (orijinal)
+    c.agHedef = hedef;
   }
 
   // ---------------------------------------------------------------- diğer oyuncular
@@ -199,7 +202,7 @@ export class SunucuDunyasi {
       const e = k.esyalar, kaynak = (no: number) => (no ? esyaKaynagi(no) : 0);
       o.model?.giyimUygula(k.irk, { bas: kaynak(e.kask.no), govde: kaynak(e.govde.no), bacak: kaynak(e.bacak.no), el: kaynak(e.eldiven.no), ayak: kaynak(e.ayak.no) });
       const sag = esyaTablo(e.sagEl.no), sol = esyaTablo(e.solEl.no);
-      o.model?.silahAyarla(sag?.tip ?? (sol && YAY_TURLERI.includes(sol.tip) ? sol.tip : 0)); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
+      o.model?.silahAyarla(sag?.tip ?? (sol && YAY_TURLERI.includes(sol.tip) ? sol.tip : 0), sol?.tip ?? 0); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
       this.sahne.add(o.grup); this.oyuncuListesi.push(o);
     }).catch((e) => { console.warn('Oyuncu modeli yüklenemedi', k.ad, e); this.oyuncular.delete(k.id); });
   }

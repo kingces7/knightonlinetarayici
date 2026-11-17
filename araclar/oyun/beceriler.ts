@@ -25,6 +25,10 @@ function main(): number {
   const satirlar = tbldenOku(od.oku('Data/SkillMagicTable_us.tbl'), 'windows-1252').satirlar;
   const hedef = path.join(CIKTI_DIZINI, 'web', 'beceri');
   fs.mkdirSync(path.join(hedef, 'ikon'), { recursive: true });
+  // Yakın dövüş skill'lerinin (Type 1, CastTime 0) animasyonu ana tablodaki iSelfAnimID1 DEĞİL, skill_magic_1.tbl'deki iAct[0] numarasıdır (orijinal MagicSkillMng::StartSkillMagicAtTargetPacket → AnimationAdd(iAct[i])).
+  // Sütunlar: 0 numara, 6 kombo sayısı, 9..11 iAct. Numara oyuncu iskeletindeki animasyon numarasıdır (ör. 126 = skill_spear_A, 128 = skill_sword01_A).
+  const tip1 = new Map<number, number>();
+  for (const s of tbldenOku(od.oku('Data/skill_magic_1.tbl'), 'windows-1252').satirlar) if (Number(s[6]) >= 1 && Number(s[9]) > 0) tip1.set(Number(s[0]), Number(s[9]));
   const liste: Record<string, unknown>[] = [];
   for (const s of satirlar) {
     const SAYFA = Number(s[16]);
@@ -41,8 +45,10 @@ function main(): number {
       } catch { /* sonraki aday */ }
     }
     const ad = String(s[2] || s[1]).trim();
-    liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[4]), efektKendi: Number(s[7]) || null, efektHedef: Number(s[12]) || null, efektUcan: Number(s[11]) || null, simge });
+    liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[21]) === 0 && tip1.has(no) ? tip1.get(no) : Number(s[4]), efektKendi: Number(s[7]) || null, efektHedef: Number(s[12]) || null, efektUcan: Number(s[11]) || null, simge });
   }
+  // Kullanıcı kararı: Warrior Crash'in kendinde efekti yok (tablodaki 2601 heal_cast parıltısı kaldırıldı); vuruş efekti (hedefte) kalır.
+  for (const b of liste) if (b.no === 101005 || b.no === 201005) b.efektKendi = null;
   liste.sort((a, b) => Number(a.sayfa) - Number(b.sayfa) || Number(a.sira) - Number(b.sira) || Number(a.no) - Number(b.no));
   fs.writeFileSync(path.join(hedef, 'beceriler.json'), JSON.stringify(liste, null, 1));
   console.log(`${liste.length} skill (sayfalar ${SAYFALAR.join(', ')}) -> ${hedef}`);

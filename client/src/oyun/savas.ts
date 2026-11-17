@@ -39,6 +39,8 @@ export interface SavasOyuncusu {
   sinif: number; seviye: number;
   stat: { str: number; sta: number; dex: number; int: number; cha: number };
   silah: EsyaTanimi | null;
+  /** Sol eldeki (2. yuva) silah: çift silahta vuruş gücüne eklenir (kalkanın hasarı 0 olduğundan katkısı yok). */
+  solSilah?: EsyaTanimi | null;
   /** Giyilen tüm eşyaların savunma toplamı (sunucu m_sItemAc). */
   esyaSavunma: number;
   /** Aktif buff'lardan gelen ek savunma (sunucu m_sACAmount). */
@@ -47,8 +49,11 @@ export interface SavasOyuncusu {
 
 /** SetUserAbility: toplam vuruş gücü (m_sTotalHit), STR tabanlı (haydut hariç). Silahsızken güç en az 3. */
 export function toplamVurus(o: SavasOyuncusu): number {
-  const guc = Math.max(3, o.silah?.hasar ?? 0);
-  const kat = silahKatsayisi(o.sinif, o.silah);
+  // Sunucu SetUserAbility: güç = sağ el hasarı + sol el (yay tam, diğer silahlar YARISI); en az 3. Katsayı sağ eldeki silaha, yoksa soldakine göre (SetCoefficient).
+  const sol = o.solSilah ?? null;
+  const solGuc = sol ? (sol.tip === 70 || sol.tip === 71 ? sol.hasar : Math.floor(sol.hasar / 2)) : 0;
+  const guc = Math.max(3, (o.silah?.hasar ?? 0) + solGuc);
+  const kat = silahKatsayisi(o.sinif, o.silah ?? sol);
   const str = o.stat.str;
   const baseAp = str > 150 ? str - 150 - (str === 160 ? 1 : 0) : 0;
   return Math.floor(0.005 * guc * (str + 40) + kat * guc * o.seviye * str + 3) + baseAp;

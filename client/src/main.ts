@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, solSilahTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -765,7 +765,7 @@ async function basla(): Promise<void> {
     // Elde taşınan silah/kalkan modeli (ekipman değişince yenilenir)
     oyuncu.grup.visible = !oyuncu.blinkli || Math.floor(simdiSn() * 6) % 2 === 0; // göz kırpma: titreşir
     oyuncu.model?.giyimAyarla(giyimEkipmani(oyuncu.ekipman), modeldenIrk(oyuncu.modelNo));
-    oyuncu.model?.silahAyarla(elSilahiTipi(oyuncu.ekipman));
+    oyuncu.model?.silahAyarla(elSilahiTipi(oyuncu.ekipman), solSilahTipi(oyuncu.ekipman));
     if (oyuncu.model) oyuncu.model.hareketCarpani = oyuncu.hizCarpani;
     if (oyuncu.model) oyuncu.model.savasDurusu = !!oyuncu.hedef && !oyuncu.hedef.olu;
     void oyuncu.model?.plugTak('sag', oyuncu.ekipman[6]?.no ?? 0);

@@ -51,9 +51,9 @@ function main(): number {
   const tablo = tbldenOku(od.oku('Data/Item_Org_us.tbl'), 'windows-1252').satirlar;
   const hedef = path.join(CIKTI_DIZINI, 'web', 'silah');
   fs.mkdirSync(hedef, { recursive: true });
-  const bilgi: Record<string, { eklem: number }> = {};
+  const bilgi: Record<string, { eklem: number; kalkan?: number }> = {};
   let tamam = 0, yok = 0;
-  for (const e of esyalar.filter((x) => x.tur === 'silah')) {
+  for (const e of esyalar.filter((x) => x.tur === 'silah' || x.tur === 'kalkan')) {
     const satir = tablo.find((x) => Number(x[0]) === e.no) ?? tablo.find((x) => Number(x[0]) === e.no - (e.no % 1000));
     if (!satir) { yok++; continue; }
     const s = String(Number(satir[6]) > 0 ? satir[6] : satir[7]).padStart(8, '0');
@@ -69,7 +69,7 @@ function main(): number {
       const mi = g.mesh(`silah_${e.no}`, [{ konum: mesh.konum, normal: mesh.normal, uv: mesh.uv, indeks: mesh.indeks, malzeme: mz }]);
       g.dugum({ ad: `silah_${e.no}`, mesh: mi, konum: p.konum, donus: matrisDordey(p.matris) }, true);
       fs.writeFileSync(path.join(hedef, `${e.no}.glb`), g.glb());
-      bilgi[String(e.no)] = { eklem: p.eklem };
+      bilgi[String(e.no)] = e.tur === 'kalkan' ? { eklem: p.eklem, kalkan: 1 } : { eklem: p.eklem };
       tamam++;
     } catch (err) { yok++; console.log(`  uyarı ${e.no}: ${(err as Error).message}`); }
   }
