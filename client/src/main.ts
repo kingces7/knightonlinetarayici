@@ -197,9 +197,9 @@ async function basla(): Promise<void> {
   const kalk = () => { if (oyuncu.model?.oturuyor) { oyuncu.model.oturPozu(false); sunucuOturumu?.gonder(WIZ.DURUM_DEGISTI, oturmaIstegi(false)); } }; // sunucuya da bildirilir (yenilenme hızı oturma durumuna bağlı)
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
   /** GM hızlanması: yetkisi GM olan karakter Shift'e basılı tutunca bu kat hızlanır. */
-  const GM_SHIFT_HIZI = 2.5;
-  const gmHizli = () => oyuncu.gm && (tuslar.has('ShiftLeft') || tuslar.has('ShiftRight'));
-  const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani * (gmHizli() ? GM_SHIFT_HIZI : 1); // hız buff'ı (Sprint) dahil
+  const GM_SHIFT_HIZI = 3.5, GM_SHIFT2_HIZI = 5; // Shift: 3,5 kat; Shift + 2: 5 kat
+  const gmCarpan = () => { if (!oyuncu.gm || !(tuslar.has('ShiftLeft') || tuslar.has('ShiftRight'))) return 1; return tuslar.has('Digit2') || tuslar.has('Numpad2') ? GM_SHIFT2_HIZI : GM_SHIFT_HIZI; };
+  const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani * gmCarpan(); // hız buff'ı (Sprint) dahil
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
 
   const simdiSn = () => performance.now() / 1000;
@@ -574,7 +574,8 @@ async function basla(): Promise<void> {
     tuslar.add(e.code);
     // Ses aç/kapat: orijinalde tuşu yok (M mini haritaya ayrıldı); Shift+M
     if (!e.repeat && e.code === 'KeyM' && e.shiftKey) { hud.mesaj(ses.sessizDegistir() ? 'Sound is off.' : 'Sound is on.', 'sistem'); return; }
-    if (!e.repeat && arayuz?.tus(e.code)) { e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
+    if (!e.repeat && !(oyuncu.gm && e.shiftKey && e.code === 'Digit2') && arayuz?.tus(e.code)) { // GM: Shift+2 hızlanma kombinasyonudur, 2. skill çubuğu yuvasını kullanmaz
+      e.preventDefault(); if (e.code === 'Escape') { /* pencere kapandı */ } return; }
     // Hedef seçimi: Z en yakın canavar, Q ve Tab bir sonraki yakın canavar (yalnızca seçer); R seçili hedefe temel saldırıyı başlatır
     const yakinlar = () => canavarlar.filter((c) => !c.olu && c.konum.distanceTo(oyuncu.konum) < 40).sort((a, b) => a.konum.distanceTo(oyuncu.konum) - b.konum.distanceTo(oyuncu.konum));
     if (!e.repeat && (e.code === 'KeyZ' || e.code === 'KeyQ' || e.code === 'Tab')) {
