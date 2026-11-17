@@ -266,6 +266,7 @@ async function basla(): Promise<void> {
   };
   const beceriKullan = (no: number) => {
     const v = kurallar?.beceri[String(no)];
+    if (!v && !oyuncu.olu) { hud.mesaj("This skill is not available on the server yet.", "sistem"); return; } // ör. Magic blade: sunucu veritabanında tanımı yok
     if (!v || oyuncu.olu) return;
     if (oyuncu.blinkli) { hud.mesaj('You cannot use skills while blinking.', 'sistem'); return; } // sunucu: m_bCanUseSkills = false (10 sn)
     if (oyuncu.seviye < v.seviye) { hud.mesaj(`${v.ad} requires level ${v.seviye}.`, 'sistem'); return; }

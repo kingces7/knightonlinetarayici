@@ -235,3 +235,7 @@ Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, s
 ## Başkasını iyileştirme (Priest, tip 3 / moral 2)
 - Seçili oyuncunun soket no'su `hedef` olarak gider; akış kendi büyülerimizle aynı (1 → 2 → 3). Hedef oyuncu da aynı `0x31` komut 1/2/3 paketlerini ve `0x17` (can değişimi: en çok, şimdiki) alır.
 - Test: `client/scripts/iyilestirTesti.mjs <skill> <png öneki>` (PriTest1 + robot KoTest). Sonuç: hedef 1-2-3'ü aldı, sunucu reddetmedi. Hedefteki iyileşme efekti (heal_cast.fxb) çözülemediği için görünmüyor.
+
+## Mage büyüleri (203xxx)
+- Sunucu veritabanında yalnız şunlar tanımlı: Stroke 203001, Flash 203002 (lv1), Shiver 203003 (lv3), Flame 203005 (lv5), Cold wave 203007 (lv7), Spark 203009 (lv9), Whipping 203011 (buff). `Magic blade` (203010) tabloda var ama sunucuda yok.
+- Hepsi süreli büyü: hazırlama (1) → CastTime×100 ms → uçuş (2) → etki (3); hedefteki efektler (101 ateş/şimşek patlaması, 201 buz bulutu, 301 şimşek) etki anında oynar. Test: `client/scripts/seriBuyu.mjs <klasör> 1 <skill> dusman` (hedef çevresinde kare montajı üretir).
