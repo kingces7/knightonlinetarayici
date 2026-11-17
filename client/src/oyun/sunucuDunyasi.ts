@@ -15,6 +15,7 @@ import {
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
 import { partiPaketi, type PartiPaketi } from '../../../kopru/protokol/parti.ts';
 import { beceriPaketi, manaDegisti, type BeceriPaketi } from '../../../kopru/protokol/beceri.ts';
+import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
 import { esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
 import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
@@ -42,6 +43,7 @@ export interface SavasKancalari {
   /** Eşya taşıma/giyme isteğinin sonucu (0x1F). */
   tasimaCevabi?: (c: TasimaCevabi) => void;
   /** Sohbet mesajı geldi; özel sohbet alıcı sorgusunun sonucu (bulundu mu). */
+  magaza?: (c: MagazaCevabi) => void;
   sohbet?: (s: SohbetPaketi) => void;
   ozelHedef?: (bulundu: boolean) => void;
 }
@@ -97,6 +99,7 @@ export class SunucuDunyasi {
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
       case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;
+      case WIZ.ESYA_ALIM_SATIM: this.kancalar.magaza?.(magazaCevabi(p.govde)); break;
       case WIZ.SOHBET: this.kancalar.sohbet?.(sohbetPaketi(p.govde)); break;
       case WIZ.SOHBET_HEDEFI: this.kancalar.ozelHedef?.(ozelHedefCevabi(p.govde).bulundu); break;
       case WIZ.PARTI: this.kancalar.parti?.(partiPaketi(p.govde)); break;
@@ -112,8 +115,10 @@ export class SunucuDunyasi {
   }
 
   // ---------------------------------------------------------------- canavarlar
+  /** Sunucudaki dost NPC'ler (mağaza, banka…): client'ın yerel NPC'leri bunlarla (K_NPC no + konum) eşleştirilir; alım/satım sunucu kimliğiyle yapılır. */
+  readonly dostNpclar = new Map<number, NpcBilgisi>();
   private ekle(n: NpcBilgisi): void {
-    if (n.tur !== 1) return; // dost NPC: yerelde
+    if (n.tur !== 1) { this.dostNpclar.set(n.id, n); return; } // dost NPC: görüntüsü yerelde, kimliği burada
     const var_ = this.canavarlar.get(n.id);
     if (var_) { if (var_.olu) var_.agCanlan(n.x, n.z); else { var_.konum.set(n.x, n.z); var_.agHedef = null; } return; } // zaten var: yeniden doğdu ya da yeni konum
     const tur = canavarTuruSid(n.protoNo, 1);

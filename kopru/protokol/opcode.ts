@@ -26,6 +26,7 @@ export const WIZ = {
   SALDIRI: 0x08,
   SOHBET: 0x10,
   SOHBET_HEDEFI: 0x35,
+  ESYA_ALIM_SATIM: 0x21,
   KUTU_AC: 0x24,
   ESYA_AL: 0x26,
   ESYA_TASI: 0x1f,

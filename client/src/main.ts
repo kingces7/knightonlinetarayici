@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
-import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
+import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
 import { Gokyuzu } from './dunya/gokyuzu';
@@ -23,6 +23,7 @@ import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
 import { ESYA_YONU, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
 import { ALTIN_NO, GANIMET_HATALARI, esyaAlmaIstegi, kutuAcmaIstegi, type AlmaCevabi, type KutuIcerigi } from '../../kopru/protokol/ganimet.ts';
@@ -478,15 +479,52 @@ async function basla(): Promise<void> {
   let acilacakKutu: GanimetKutusu | null = null;
   let acilacakNpc: Npc | null = null;
   /** NPC'ye tıklayınca: satış grubu olan tüccar mağaza açar; diğer NPC işlevleri henüz yok. */
+  /** Açık mağaza: hangi NPC'nin hangi satış grubu (sunucu alım/satımı bunu ister). */
+  let aktifMagaza: { npc: Npc; grup: number } | null = null;
+  const magazaBekleyen: { tur: 'al' | 'sat'; e: EsyaTanimi; yuva: number }[] = [];
+  /** Yerel NPC'nin sunucudaki kimliği: aynı K_NPC numarası ve en yakın konum (en çok 5 m). */
+  const npcSunucuKimligi = (n: Npc): number => {
+    let en = 0, mesafe = 5;
+    for (const d of sunucuDunyasi?.dostNpclar.values() ?? []) { if (d.protoNo !== n.tanim.sid) continue; const u = Math.hypot(d.x - n.konum.x, d.z - n.konum.y); if (u < mesafe) { mesafe = u; en = d.id; } }
+    return en;
+  };
+  /** Sunucu mağaza işlemi için ortak denetim: açık mağaza + sunucu kimliği + menzil. */
+  const magazaHazir = (): { id: number; grup: number } | null => {
+    if (!aktifMagaza) return null;
+    const id = npcSunucuKimligi(aktifMagaza.npc);
+    if (!id) { hud.mesaj('This merchant is not available on the server.', 'sistem'); return null; }
+    if (oyuncu.konum.distanceTo(aktifMagaza.npc.konum) > MAGAZA_MENZILI - 0.5) { hud.mesaj('You are too far from the merchant.', 'sistem'); return null; }
+    return { id, grup: aktifMagaza.grup };
+  };
+  const magazaSunucudan = (c: MagazaCevabi) => {
+    const b = magazaBekleyen.shift();
+    if (!c.basarili) { hud.mesaj(MAGAZA_HATALARI[c.hata ?? 1] ?? 'The transaction failed.', 'sistem'); return; }
+    if (c.altin !== undefined) oyuncu.altin = c.altin;
+    if (b?.tur === 'al') {
+      const var_ = b.e.sayilabilir ? oyuncu.envanter[b.yuva] : null;
+      if (var_) var_.adet = (var_.adet ?? 1) + (b.e.adet ?? 1); else oyuncu.envanter[b.yuva] = { ...b.e, sunucuNo: b.e.no };
+      hud.mesaj(`You bought ${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
+    } else if (b?.tur === 'sat') {
+      oyuncu.envanter[b.yuva] = null;
+      hud.mesaj(`You sold ${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
+    }
+    envanterYenile();
+  };
   const npcEtkilesim = (n: Npc) => {
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
-    if (sayfalar && arayuz) { arayuz.magazaAc(n.ad, sayfalar); return; }
+    if (sayfalar && arayuz) { aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); return; }
     if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
     hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
   };
   /** Mağazaya satış (sunucu NPCHandler.cpp): fiyat = alış fiyatı / 6 (varsayılan kural). */
   const magazaSat = (yuva: number) => {
     const e = oyuncu.envanter[yuva]; if (!e) return;
+    if (sunucuOturumu) { // sunucu modu: fiyatı ve satışı sunucu belirler
+      const h = magazaHazir(); if (!h) return;
+      magazaBekleyen.push({ tur: 'sat', e, yuva });
+      sunucuOturumu.gonder(WIZ.ESYA_ALIM_SATIM, satisIstegi(h.grup, h.id, [{ no: e.sunucuNo ?? e.no, yuva, adet: e.adet ?? 1 }]));
+      return;
+    }
     const fiyat = Math.floor(e.fiyat / 6) * (e.adet ?? 1); // yığının tamamı satılır
     if (fiyat <= 0) { hud.mesaj('This item cannot be sold.', 'sistem'); return; }
     oyuncu.envanter[yuva] = null; oyuncu.altin += fiyat;
@@ -494,6 +532,16 @@ async function basla(): Promise<void> {
   };
   /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */
   const magazaSatinAl = (e: EsyaTanimi) => {
+    if (sunucuOturumu) { // sunucu modu: Noah, ağırlık ve yer kontrolü sunucuda
+      const h = magazaHazir(); if (!h) return;
+      const yuva = e.sayilabilir ? oyuncu.envanter.findIndex((x) => x && x.no === e.no) : -1;
+      const hedef = yuva >= 0 ? yuva : oyuncu.envanter.indexOf(null);
+      if (hedef < 0) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
+      const k = magazaKonum(h.grup, e.no); if (!k) return;
+      magazaBekleyen.push({ tur: 'al', e, yuva: hedef });
+      sunucuOturumu.gonder(WIZ.ESYA_ALIM_SATIM, satinAlmaIstegi(h.grup, h.id, [{ no: e.no, yuva: hedef, adet: e.adet ?? 1, sayfa: k.sayfa, sira: k.sira }]));
+      return;
+    }
     if (oyuncu.altin < e.fiyat) { hud.mesaj('You do not have enough Noah.', 'sistem'); return; }
     if (!oyuncu.esyaEkle(e)) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
     oyuncu.altin -= e.fiyat;
@@ -808,6 +856,8 @@ async function basla(): Promise<void> {
   (window as unknown as { ke: unknown }).ke = { npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
+    /** Geliştirme: karakteri (x, z)'ye ışınlar ve sunucuya "durağan" konum paketiyle bildirir (Town ile aynı yöntem). */
+    sunucuIsinla: (x: number, z: number) => { oyuncu.isinla(x, z, arazi); if (sunucuOturumu) { const p = (v: number) => Math.round(v * 10); const y = p(arazi.yukseklikAl(x, z)); sunucuOturumu.gonder(WIZ.HAREKET, new PaketYazici().u16(p(x)).u16(p(z)).u16(y).i16(0).u8(0).u16(p(x)).u16(p(z)).u16(y).baytlar()); } },
     efektSayisi: () => efektTanecikleri.length, beceriKullan: (no: number) => beceriKullan(no),
     /**
      * Sunucu modu (Aşama 4, deneysel): köprü + Myko sunucusu çalışırken konsoldan `await ke.sunucuyaBaglan(hesap, sifre)`.
@@ -837,7 +887,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, magaza: magazaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

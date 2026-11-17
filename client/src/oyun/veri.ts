@@ -128,6 +128,12 @@ export async function magazaYukle(): Promise<void> {
     magazaVeri = m;
   } catch { magazaVeri = null; }
 }
+/** Mağaza grubunda eşyanın (sayfa, sayfadaki sıra) konumu: sunucu satın almada bunu doğrular. */
+export function magazaKonum(grup: number, no: number): { sayfa: number; sira: number } | null {
+  const g = magazaVeri?.gruplar[String(grup)]; if (!g) return null;
+  for (let s = 0; s < g.length; s++) { const i = g[s].indexOf(no); if (i >= 0) return { sayfa: s, sira: i }; }
+  return null;
+}
 /** Satış grubunun sayfaları (boş yuvalar atılır). Grup yoksa null. */
 export function magazaSayfalari(grup: number): EsyaTanimi[][] | null {
   const g = magazaVeri?.gruplar[String(grup)];

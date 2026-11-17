@@ -192,3 +192,10 @@ Canlı test (kotest): Noah, "Low Quality Gem" ve "Arrow x20" alındı; envanter 
 - Gelen: `u8 tür, u8 ulus, i16 gönderen, u8+ad, u16+mesaj, i8 rütbe, u8 sistem`.
 - Özel mesaj: önce `0x35: u8 1, u16+ad` (cevap `u8 1, i16 sonuç`; 0 = çevrimdışı), sonra tür 2 ile `0x10`. Sunucu yalnız alıcıya yollar, gönderen yankı almaz (client "[To ad]" satırını kendisi yazar).
 Canlı test: tarayıcı (kotest) ↔ ikinci oyuncu (kotest1) genel ve özel mesaj. Betik: `client/scripts/sohbetSunucuTesti.mjs`.
+
+## NPC mağazası (0x21)
+
+- Satın alma: `u8 1, i32 satış grubu, u16 NPC kimliği, u8 adet, her eşya: i32 eşya, u8 çanta yuvası, u16 adet, u8 sayfa, u8 sayfadaki sıra (0–23)`. Satış: `u8 2, i32 grup, u16 NPC, u8 adet, her eşya: i32 eşya, u8 çanta yuvası, u16 adet` (yığının tamamı; fiyat = alış fiyatı / 6, 0 olabilir).
+- Cevap: başarıda `u8 1, u32 toplam Noah, u32 işlem tutarı, u8 grup`; hatada `u8 0, u8 kod` (1 genel, 2 geçersiz, 3 Noah yetmiyor, 4 ağırlık). Ardından `0x54` ağırlık.
+- Sunucu NPC'nin tipini, satış grubunu ve ≤ 11 m menzili doğrular; NPC kimliği sunucunun NPC listesinden (0x1D, tür ≠ 1) gelir. Client yerel NPC'yi sunucudakiyle K_NPC numarası + en yakın konum (≤ 5 m) ile eşler.
+Canlı test (kotest): Arrow alım/satım, Noah ve envanter sunucuyla uyumlu. Betik: `client/scripts/magazaSunucuTesti.mjs`.

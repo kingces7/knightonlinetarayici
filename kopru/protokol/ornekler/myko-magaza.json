@@ -1,0 +1,30 @@
+{
+ "aciklama": "Moradon mağaza NPC alım/satım (Myko GameServer, 0x21)",
+ "kayit": [
+  {
+   "asama": "al",
+   "opcode": 84,
+   "hex": "9a010000"
+  },
+  {
+   "asama": "al",
+   "opcode": 33,
+   "hex": "0181b700003f00000000"
+  },
+  {
+   "asama": "sat",
+   "opcode": 84,
+   "hex": "8d010000"
+  },
+  {
+   "asama": "sat",
+   "opcode": 33,
+   "hex": "018cb700000b00000000"
+  },
+  {
+   "asama": "hata",
+   "opcode": 33,
+   "hex": "0001"
+  }
+ ]
+}
