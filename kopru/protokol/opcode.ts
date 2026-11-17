@@ -49,6 +49,10 @@ export const WIZ = {
   AGIRLIK_DEGISTI: 0x54,
   KULLANICI_LISTESI: 0x16,
   NPC_LISTESI: 0x1d,
+  /** Sunucu → client: bölgedeki NPC kimlik listesi (0x1C); client bilmediklerini NPC_LISTESI (0x1D) ile ister. */
+  NPC_BOLGESI: 0x1c,
+  /** Sunucu → client: bölge değişimi (0x15: alt komut 0 başla, 1 kullanıcı kimlikleri, 2 bitti); client bilmediklerini KULLANICI_LISTESI (0x16) ile ister. */
+  KULLANICI_BOLGESI: 0x15,
   TUM_KARAKTER_BILGISI: 0x0c,
   OYUN_BASLAT: 0x0d,
   BENIM_BILGIM: 0x0e,

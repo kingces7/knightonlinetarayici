@@ -239,3 +239,8 @@ Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, s
 ## Mage büyüleri (203xxx)
 - Sunucu veritabanında yalnız şunlar tanımlı: Stroke 203001, Flash 203002 (lv1), Shiver 203003 (lv3), Flame 203005 (lv5), Cold wave 203007 (lv7), Spark 203009 (lv9), Whipping 203011 (buff). `Magic blade` (203010) tabloda var ama sunucuda yok.
 - Hepsi süreli büyü: hazırlama (1) → CastTime×100 ms → uçuş (2) → etki (3); hedefteki efektler (101 ateş/şimşek patlaması, 201 buz bulutu, 301 şimşek) etki anında oynar. Test: `client/scripts/seriBuyu.mjs <klasör> 1 <skill> dusman` (hedef çevresinde kare montajı üretir).
+
+## Bölge listeleri (0x1C NPC, 0x15 oyuncu) — canavarların görünmemesinin nedeni
+- Oyuncu yeni bir bölgeye girince sunucu yalnızca **kimlik listesi** yollar: `0x1C` (`u16 adet`, `u16 id`ler) NPC/canavar, `0x15` alt komut 1 (`u8 1, u16 adet, u16 id`ler) oyuncu. Ayrıntı client'tan istenir: `0x1D` / `0x16` (`u16 adet`, `u16 id`ler; en çok 1000). Yanıt aynı opcode'la kayıtlarla gelir.
+- Client bunu yapmadığı için yalnızca oyuna girilen yerin canavarları görünüyordu (başka slotlarda 0-2 canavar). Düzeltme: `sunucuDunyasi.ts npcBolgesi/oyuncuBolgesi`; listede olmayan (ölü olmayan) canavar/oyuncular kaldırılır.
+- Doğrulama: `kopru/src/slot-tarayici.ts` (robot oyuncu slotları gezip sayar). Düzeltmeden önce 29 slot eksik, sonra 0.

@@ -1043,6 +1043,7 @@ async function basla(): Promise<void> {
       canavarlar.length = 0; oyuncu.hedef = null; oyuncu.saldiriyor = false;
       benimSoketNo = s.benim.soketNo;
       sunucuDunyasi = new SunucuDunyasi(sahne, canavarlar, digerOyuncular, hud, s.benim.soketNo, oyuncu, {
+        gonder: (op, govde) => sunucuOturumu?.gonder(op, govde),
         canavarSaldirdi: (c) => ses.modelSesi(c.tur.model, 'saldir', c.konum),
         canavarVuruldu: (c) => ses.modelSesi(c.tur.model, 'darbe', c.konum),
         oyuncuVuruldu: () => {

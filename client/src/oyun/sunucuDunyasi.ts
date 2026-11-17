@@ -9,7 +9,7 @@ import { YAY_TURLERI, canavarTuruSid, esyaKaynagi, esyaTablo, irkModeli } from '
 import type { Hud } from '../arayuz/hud';
 import type { Paket } from '../ag/sunucu';
 import {
-  GIRIS_CIKIS, kullaniciGirisCikis, kullaniciHareketi, kullaniciListesi, npcGirisCikis, npcHareket, npcListesi,
+  GIRIS_CIKIS, kullaniciGirisCikis, kullaniciHareketi, kullaniciListesi, npcGirisCikis, npcHareket, npcListesi, npcBolgesi, kullaniciBolgesi, kimlikIstegi,
   type KullaniciBilgisi, type NpcBilgisi,
 } from '../../../kopru/protokol/paketler.ts';
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
@@ -27,6 +27,8 @@ import {
 
 /** Savaş olaylarında ana döngünün yapacağı yan işler (ses, ayağa kalkma, arayüz yenileme). */
 export interface SavasKancalari {
+  /** Sunucuya paket yollar (bölge listesindeki bilmediğimiz NPC/oyuncuların ayrıntısını istemek için). */
+  gonder?: (opcode: number, govde: Uint8Array) => void;
   canavarSaldirdi?: (c: Canavar) => void;
   canavarVuruldu?: (c: Canavar, hasar: number) => void;
   /** Kendi canımız değişti (düştüyse `hasar` > 0). */
@@ -86,6 +88,8 @@ export class SunucuDunyasi {
 
   paketIsle(p: Paket): void {
     switch (p.opcode) {
+      case WIZ.NPC_BOLGESI: this.npcBolgesi(npcBolgesi(p.govde)); break;
+      case WIZ.KULLANICI_BOLGESI: { const l = kullaniciBolgesi(p.govde); if (l) this.oyuncuBolgesi(l); break; }
       case WIZ.NPC_LISTESI: { this.sayac.liste++; for (const n of npcListesi(p.govde).npcler) this.ekle(n); break; }
       case WIZ.NPC_GIRIS_CIKIS: {
         const g = npcGirisCikis(p.govde);
@@ -147,6 +151,24 @@ export class SunucuDunyasi {
       if (this.canavarlar.get(n.id) !== c) return; // yüklenirken sunucu çıkış yolladıysa ekleme
       this.sahne.add(c.grup); this.liste.push(c);
     }).catch((e) => { console.warn('Canavar modeli yüklenemedi', tur.ad, e); this.canavarlar.delete(n.id); });
+  }
+
+  /**
+   * Bölge değişince sunucu yalnızca bölgedeki NPC KİMLİKLERİNİ yollar (0x1C); ayrıntı client'tan istenir (0x1D). Yeni bölgedeki canavarlar böyle görünür,
+   * listede olmayanlar (bölgeden çıkılanlar) kaldırılır; ölüler (ganimeti beklenen) kalır.
+   */
+  private npcBolgesi(idler: number[]): void {
+    const liste = new Set(idler);
+    for (const [id, c] of [...this.canavarlar]) if (!liste.has(id) && !c.olu) this.kaldir(id);
+    const eksik = idler.filter((id) => !this.canavarlar.has(id) && !this.dostNpclar.has(id));
+    if (eksik.length) this.kancalar.gonder?.(WIZ.NPC_LISTESI, kimlikIstegi(eksik));
+  }
+  /** Aynısı oyuncular için (0x15 → 0x16). */
+  private oyuncuBolgesi(idler: number[]): void {
+    const liste = new Set(idler);
+    for (const id of [...this.oyuncular.keys()]) if (!liste.has(id)) this.oyuncuKaldir(id);
+    const eksik = idler.filter((id) => id !== this.benimSoketNo && !this.oyuncular.has(id));
+    if (eksik.length) this.kancalar.gonder?.(WIZ.KULLANICI_LISTESI, kimlikIstegi(eksik));
   }
 
   private kaldir(id: number): void {

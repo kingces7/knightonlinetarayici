@@ -1,6 +1,6 @@
 // Sunucudan gelen paketlerin anlamlı verilere çevrilmesi (Myko sunucu kaynağından; docs/protokol.md §6, §12).
 // Her çözümleyici paketi sonuna kadar tüketmeyi hedefler; artakalan bayt varsa `kalan` alanında bildirilir (kaynakla uyumun sınaması).
-import { PaketOkuyucu } from './ikili.ts';
+import { PaketOkuyucu, PaketYazici } from './ikili.ts';
 
 // ---------- sabitler (shared/globals.h) ----------
 export const SLOT_MAX = 14;        // giyili eşya yuvası
@@ -263,4 +263,19 @@ export function kullaniciGirisCikis(govde: Uint8Array): { tur: number; id: numbe
 export function kullaniciHareketi(govde: Uint8Array): { id: number; x: number; z: number; y: number; hiz: number; yanki: number; kalan: number } {
   const o = new PaketOkuyucu(govde);
   return { id: o.u16(), x: konumCoz(o.u16()), z: konumCoz(o.u16()), y: konumCoz(o.u16()), hiz: o.i16() / 10, yanki: o.u8(), kalan: o.kalan };
+}
+
+/** `WIZ_NPC_REGION (0x1C)`: `u16 adet`, ardından `u16 id`ler (bölgedeki canlı NPC/canavarlar). Ayrıntıyı client `0x1D` ile ister. */
+export function npcBolgesi(govde: Uint8Array): number[] {
+  const o = new PaketOkuyucu(govde); const n = o.u16();
+  return Array.from({ length: n }, () => o.u16());
+}
+/** `WIZ_REGIONCHANGE (0x15)`: `u8 alt komut` (0 başla, 1 liste, 2 bitti); alt komut 1'de `u16 adet` + `u16 id`ler. Başka alt komutta null. */
+export function kullaniciBolgesi(govde: Uint8Array): number[] | null {
+  const o = new PaketOkuyucu(govde); if (o.u8() !== 1) return null; const n = o.u16();
+  return Array.from({ length: n }, () => o.u16());
+}
+/** `WIZ_REQ_NPCIN (0x1D)` / `WIZ_REQ_USERIN (0x16)` isteği: `u16 adet`, `u16 id`ler (sunucu en çok 1000 kabul eder). */
+export function kimlikIstegi(idler: number[]): Uint8Array {
+  const y = new PaketYazici().u16(Math.min(idler.length, 1000)); for (const id of idler.slice(0, 1000)) y.u16(id); return y.baytlar();
 }
