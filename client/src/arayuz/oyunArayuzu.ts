@@ -521,13 +521,13 @@ export class OyunArayuzu {
       const yiginUstu = !!h && !!hedefDolu && !!e.sayilabilir && hedefDolu.no === e.no && h.yer !== k.yer; // aynı eşyanın yığınının üstüne bırakma
       if (h && hedefDolu && !yiginUstu) h = null; // başka eşyanın üstü: otomatik yuvaya düşer
       if (k.yer === 'canta' && (!h || h.yer === 'depo')) { // çantadan bankaya
-        let hedef = h ? h.i : bankadaAyniYigin(e);
-        if (hedef < 0) hedef = bankaBosYuva();
+        let hedef = bankadaAyniYigin(e); // bankada aynı eşyanın yığını varsa, hangi yuvaya bırakılırsa bırakılsın üstüne yığılır
+        if (hedef < 0) hedef = h ? h.i : bankaBosYuva();
         if (hedef < 0) { this.b.mesaj('Your warehouse is full.'); return; }
         adetliAktar(k, hedef);
       } else if (k.yer === 'depo' && (!h || h.yer === 'canta')) { // bankadan çantaya
-        let hedef = h ? h.i : (e.sayilabilir ? o.envanter.findIndex((x) => !!x && x.no === e.no) : -1);
-        if (hedef < 0) hedef = o.envanter.indexOf(null);
+        let hedef = e.sayilabilir ? o.envanter.findIndex((x) => !!x && x.no === e.no) : -1; // çantada aynı yığın varsa üstüne yığılır
+        if (hedef < 0) hedef = h ? h.i : o.envanter.indexOf(null);
         if (hedef < 0) { this.b.mesaj('Your inventory is full.'); return; }
         adetliAktar(k, hedef);
       } else if (k.yer === 'depo' && h) { // banka içinde taşıma (aynı sayfada; sunucu: hedef boş olmalı)
