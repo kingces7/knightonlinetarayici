@@ -761,6 +761,8 @@ export class OyunArayuzu {
     this.b.mesaj('The skill bar is full.');
   }
   /** Skill'in oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1). */
+  /** Skill'in client tablosundaki adı (sunucu tablosunda adı boş olan skill'ler için). */
+  beceriAdi(no: number): string | undefined { return this.beceriBul(no)?.ad; }
   beceriAnimNo(no: number): number | undefined { return this.beceriBul(no)?.anim; }
   /** Skill'in efekt numaraları (fx.tbl): kendinde ve hedefte oynayan. */
   beceriEfekt(no: number): { kendi: number | null; hedef: number | null; ucan: number | null } { const b = this.beceriBul(no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null, ucan: b?.efektUcan ?? null }; }

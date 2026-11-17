@@ -293,5 +293,5 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 **Novice/Master skill'leri (2026-11-17)**
 - [x] Skill verisi: 1328 skill (temel + terfi sayfaları 1050–1129, 2050–2129; `npm run beceriler`), sunucu kuralları 1216 skill (`araclar/sunucu/oyuncu-disa-aktar.ps1`; tür 0–9).
 - [x] Skill penceresi: sekmeler (Basic / 3 ağaç / Master), sayfalama (6 yuva), boş skill puanı ve ağaç puanları, `P` düğmesiyle puan verme (`WIZ_SKILLPT_CHANGE 0x32`, sunucu yalnız reddederken cevap verir), ağaç puanı yetmeyen skill soluk.
-- [ ] Novice/Master skill'lerinin **kullanımı**: tür 3 (büyü/hasar), 5–9 (iyileştirme, diriltme, dönüşüm…) için efekt/animasyon; ağaç puanıyla açılan skill'lerin sunucuda gerçek denemesi; Master sekmesi; Rogue/Mage/Priest ağaçları; Kurian.
+- [~] Novice/Master skill'lerinin **kullanımı**: Warrior ağaçları sunucuda denendi (saldırı skill'leri animasyon + vuruş efekti, buff'lar, Binding, Provoke alan skill'i); kalan: Rogue/Mage/Priest ağaçları, Master sekmesi, Kurian, parti skill'leri (Descent, Sacrifice) ve bazı iyileştirmelerin (Rise, Frenzy, Regeneration) sunucuda "failed" vermesinin nedeni.
 - [ ] Skill puanı sıfırlama (Kaishan, `btn_reset_skill`), Karus tarafı testi.

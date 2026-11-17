@@ -216,10 +216,13 @@ async function basla(): Promise<void> {
   };
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Hazırlık süresi olan büyülerde sıra 1 (hazırla) → bekle → 2 (uçuş) → 3 (etki). */
   const sunucuBecerisi = (no: number, v: NonNullable<typeof kurallar>['beceri'][string], hedef: Canavar | null, dost: DigerOyuncu | null) => {
-    const hedefId = hedef ? hedef.agKimlik : dost ? dost.kimlik : benimSoketNo;
+    // Alan skill'leri (moral ≥ 10: düşman alanı, kendi çevresi…): sunucu hedef kimliğini −1 ister; etki merkezi sData[0], sData[2] konumundadır (hedef varsa hedefin, yoksa kendi konumu)
+    const alan = (v.moral ?? 0) >= 10;
+    const merkez = hedef ?? oyuncu, alanVeri = alan ? [Math.round(merkez.konum.x), Math.round(merkez.grup.position.y), Math.round(merkez.konum.y)] : [];
+    const hedefId = alan ? 0xffff : hedef ? hedef.agKimlik : dost ? dost.kimlik : benimSoketNo;
     const hedefGrup = hedef ? hedef.grup : dost ? dost.grup : oyuncu.grup;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // aynı skill'in art arda gönderilmemesi için yerel bekleme (sunucu da kontrol eder)
-    const gonder = (komut: number) => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(komut, no, benimSoketNo, hedefId));
+    const gonder = (komut: number) => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(komut, no, benimSoketNo, hedefId, alanVeri));
     const animNo = arayuz?.beceriAnimNo(no);
     if (hedef) { oyuncu.savastanBeri = 0; if (!hareketEdiyor) oyuncu.bak(hedef.konum); }
     const sure = (v.hazirlik ?? 0) * 0.1;
@@ -247,9 +250,9 @@ async function basla(): Promise<void> {
       }, sure * 1000);
     } else {
       gonder(BECERI_KOMUTU.ETKI);
-      if (v.tip === 1 && hedef) oyuncu.animKilidi = oyuncu.model?.beceriOynat(animNo) || 0.8; // duruyorken de koşarken/yürürken de AYNI (tam gövde) skill animasyonu; bitince hareket animasyonuna döner
+      if ((v.tip === 1 || v.tip === 7) && (hedef || animNo)) oyuncu.animKilidi = oyuncu.model?.beceriOynat(animNo) || 0.8; // duruyorken de koşarken/yürürken de AYNI (tam gövde) skill animasyonu; bitince hareket animasyonuna döner
     }
-    if (v.tip === 1 && hedef) ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
+    if ((v.tip === 1 || v.tip === 7) && (hedef || animNo)) ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
   };
   /** Sunucudan gelen skill paketi: başarıda efektler (ve kendi buff'ımız), reddedilirse mesaj. */
   const beceriSunucudan = (p: BeceriPaketi) => {
@@ -263,11 +266,12 @@ async function basla(): Promise<void> {
     const e = efektNo(p.no), v = kurallar?.beceri[String(p.no)];
     if (e.kendi && kaynak) void efektler.oynat(e.kendi, kaynak, { sure: v?.tip4 ? 1.2 : 0.6 });
     const hedefGrup = p.hedef === benimSoketNo ? oyuncu.grup : sunucuDunyasi?.canavarlar.get(p.hedef)?.grup ?? sunucuDunyasi?.oyuncular.get(p.hedef)?.grup ?? null;
-    if (e.hedef && hedefGrup) void efektler.oynat(e.hedef, hedefGrup, v?.tip4 ? { sure: 1.2 } : { sure: 0.15, azamiSure: 0.25 });
+    const kivilcim = e.hedef === 10002 && hedefGrup === kaynak; // tablodaki vuruş kıvılcımı, kendine uygulanan buff/iyileştirmede anlamsız: oynatılmaz
+    if (e.hedef && hedefGrup && !kivilcim) void efektler.oynat(e.hedef, hedefGrup, v?.tip4 ? { sure: 1.2 } : { sure: 0.15, azamiSure: 0.25 });
     if (benim && v?.tip4) { // buff sunucuda kabul edildi
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== p.no);
-      oyuncu.buflar.push({ no: p.no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
-      hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
+      oyuncu.buflar.push({ no: p.no, ad: v.ad || arayuz?.beceriAdi(p.no) || '', bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
+      hud.mesaj(`${v.ad || arayuz?.beceriAdi(p.no) || 'The skill'} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
   const beceriKullan = (no: number) => {
@@ -275,7 +279,8 @@ async function basla(): Promise<void> {
     if (!v && !oyuncu.olu) { hud.mesaj("This skill is not available on the server yet.", "sistem"); return; } // ör. Magic blade: sunucu veritabanında tanımı yok
     if (!v || oyuncu.olu) return;
     if (oyuncu.blinkli) { hud.mesaj('You cannot use skills while blinking.', 'sistem'); return; } // sunucu: m_bCanUseSkills = false (10 sn)
-    if (oyuncu.seviye < v.seviye) { hud.mesaj(`${v.ad} requires level ${v.seviye}.`, 'sistem'); return; }
+    const agac = (v.sayfa ?? 0) % 10; // terfi ağaçlarında (5–8) gereken, karakter seviyesi değil o ağaca verilen skill puanıdır
+    if (agac >= 5 && agac <= 8 ? oyuncu.skillPuanlari[agac] < v.seviye : oyuncu.seviye < v.seviye) { hud.mesaj(agac >= 5 && agac <= 8 ? `${v.ad} requires ${v.seviye} skill points in this tree.` : `${v.ad} requires level ${v.seviye}.`, 'sistem'); return; }
     const hazir = oyuncu.beceriBekleme.get(no) ?? 0;
     if (hazir > simdiSn()) { hud.mesaj(`${v.ad} is not ready yet.`, 'sistem'); return; }
     if (oyuncu.mana < v.msp) { hud.mesaj('Not enough MP.', 'sistem'); return; }
@@ -287,7 +292,8 @@ async function basla(): Promise<void> {
     }
     const diger = v.tip === 0 || v.tip > 4; // terfi skill'leri: tür 0, 5–9 (iyileştirme, diriltme, dönüşüm…): hedef türü MORAL'den (7 düşman; 1–4 kendine/dosta), etkiyi sunucu uygular
     if (!sunucuOturumu && v.tip !== 1 && v.tip !== 4) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
-    if (v.tip === 1 || v.tip === 2 || ((v.tip === 3 || diger) && v.moral === 7)) { // düşmana (yakın dövüş, okçuluk ya da büyü)
+    const alanDusman = diger && v.moral === 10; // düşman alanı (ör. Provoke): kullananın çevresinde etki eder, hedef seçmek gerekmez
+    if (alanDusman) { /* hedefsiz */ } else if (v.tip === 1 || v.tip === 2 || ((v.tip === 3 || diger) && v.moral === 7)) { // düşmana (yakın dövüş, okçuluk ya da büyü)
       hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
       const menzil = v.tip === 1 ? menzilDe(hedef) + 0.5 : v.tip === 2 ? 35 : (v.menzil ?? 25);
@@ -313,7 +319,7 @@ async function basla(): Promise<void> {
       oyuncu.buflar = oyuncu.buflar.filter((b) => b.no !== no);
       oyuncu.buflar.push({ no, ad: v.ad, bitis: simdiSn() + v.tip4.sure, hiz: v.tip4.turu === 6 ? v.tip4.hiz : 0, ac: v.tip4.ac });
       if (efektId?.hedef) void efektler.oynat(efektId.hedef, oyuncu.grup, { sure: 1.2 }); // buff'ta hedef efekti de kullanana uygulanır
-      hud.mesaj(`${v.ad} is active for ${v.tip4.sure} seconds.`, 'sistem');
+      hud.mesaj(`${v.ad || arayuz?.beceriAdi(no) || 'The skill'} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
 
@@ -1136,7 +1142,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+  (window as unknown as { ke: unknown }).ke = { efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
     /** Geliştirme: karakteri (x, z)'ye ışınlar ve sunucuya "durağan" konum paketiyle bildirir (Town ile aynı yöntem). */
