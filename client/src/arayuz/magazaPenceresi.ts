@@ -88,14 +88,14 @@ export class MagazaPenceresi {
     const sayfa = () => this.sayfalar[this.sayfa] ?? [];
     this.magaza.forEach((el, i) => {
       suruklenebilir(el, () => (sayfa()[i] ? { k: 'magaza', i } : null));
-      const al = () => { const e = sayfa()[i]; if (e) this.adetSor(e); };
+      const al = () => { const e = sayfa()[i]; if (!e) return; if (e.sayilabilir) this.adetSor(e); else this.k.satinAl(e); }; // yığınlanmayan eşya (küpe, silah, zırh…) sorusuz 1 adet alınır
       el.ondblclick = al; el.oncontextmenu = (ev) => { ev.preventDefault(); al(); }; // çift ya da sağ tık: kaç tane?
       birak(el, (v) => { if (v.k === 'canta') this.satSor(v.i); }); // envanterden mağazaya bırak = sat (yığınsa kaç tane sorulur)
     });
     this.canta.forEach((el, i) => {
       suruklenebilir(el, () => (this.k.envanter()[i] ? { k: 'canta', i } : null));
       el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.satSor(i); } };
-      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (e) this.adetSor(e); } }); // mağazadan envantere sürükle = al (kaç tane sorulur)
+      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (!e) return; if (e.sayilabilir) this.adetSor(e); else this.k.satinAl(e); } }); // mağazadan envantere sürükle = al (kaç tane sorulur)
     });
   }
 
@@ -180,7 +180,7 @@ export class MagazaPenceresi {
     const p = this.p, sayfa = this.sayfalar[this.sayfa] ?? [];
     p.metin('string_page', this.sayfa + 1); p.metin('string_max_page', `/${this.sayfalar.length || 1}`);
     this.agirlikYazi.textContent = `Weight: ${env.filter(Boolean).length} / 28`; this.altinYazi.textContent = `${altin.toLocaleString('en-US')} Noah`;
-    this.magaza.forEach((el, i) => { const e = sayfa[i] ?? null; this.simge(el, e, true, 0); const f = this.fiyat[i]?.querySelector('span'); if (f) f.textContent = e ? e.fiyat.toLocaleString('en-US') : ''; el.style.opacity = e && altin < e.fiyat ? '0.55' : '1'; });
+    this.magaza.forEach((el, i) => { const e = sayfa[i] ?? null; this.simge(el, e, true, 0); const f = this.fiyat[i]?.querySelector('span'); if (f) f.textContent = e && e.sayilabilir ? e.fiyat.toLocaleString('en-US') : ''; el.style.opacity = e && altin < e.fiyat ? '0.55' : '1'; });
     this.canta.forEach((el, i) => {
       const e = env[i] ?? null, tamir = e && this.tamirModu ? tamirUcreti(e.fiyat, e.dayanim ?? 0, e.suru ?? (e.dayanim ?? 0)) : 0;
       this.simge(el, e, false, tamir); const a = this.cantaAdet[i]?.querySelector('span'); if (a) a.textContent = e && (e.adet ?? 1) > 1 ? String(e.adet) : '';

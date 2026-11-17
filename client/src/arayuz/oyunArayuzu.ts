@@ -446,6 +446,16 @@ export class OyunArayuzu {
     for (const el of p.tumDugmeler()) if (/close|cancel/i.test(el.dataset.id ?? '')) p.tikla.set(el.dataset.id!, () => { this.ac('depo', false); }); // sağ üstteki çarpı dahil her kapatma düğmesi
     const sayfaDegistir = (d: number) => { this.depoSayfa = (this.depoSayfa + d + 8) % 8; this.depoImza = ''; };
     p.tikla.set('btn_page_up', () => sayfaDegistir(-1)); p.tikla.set('btn_page_down', () => sayfaDegistir(1));
+    // Fare orta tuşu (Mouse3): basılı tutup AŞAĞI çekince sayfa 1→2→3…, YUKARI çekince 3→2→1 (her ~36 px bir sayfa)
+    let ortaY: number | null = null;
+    p.el.addEventListener('pointerdown', (ev) => { if (ev.button === 1) { ev.preventDefault(); ortaY = ev.clientY; } });
+    p.el.addEventListener('mousedown', (ev) => { if (ev.button === 1) ev.preventDefault(); }); // tarayıcının orta tuş kaydırma imleci çıkmasın
+    addEventListener('pointermove', (ev) => {
+      if (ortaY === null) return;
+      const adim = 36, fark = ev.clientY - ortaY, n = Math.trunc(fark / adim);
+      if (n !== 0) { const yeni = Math.max(0, Math.min(7, this.depoSayfa + n)); if (yeni !== this.depoSayfa) { this.depoSayfa = yeni; this.depoImza = ''; } ortaY += n * adim; }
+    });
+    addEventListener('pointerup', (ev) => { if (ev.button === 1) ortaY = null; });
     // Noah: çantadaki tüm Noah'yı yatır / depodakinin tamamını çek
     p.tikla.set('btn_gold', () => { if (this.b.bankaIslem?.({ tur: 'altin-yatir' })) return; if (o.altin > 0) { o.depoAltin += o.altin; this.b.mesaj(`${o.altin.toLocaleString('en-US')} Noah deposited.`); o.altin = 0; this.depoImza = ''; } });
     p.tikla.set('btn_gold_warehouse', () => { if (this.b.bankaIslem?.({ tur: 'altin-cek' })) return; if (o.depoAltin > 0) { o.altin += o.depoAltin; this.b.mesaj(`${o.depoAltin.toLocaleString('en-US')} Noah withdrawn.`); o.depoAltin = 0; this.depoImza = ''; } });
