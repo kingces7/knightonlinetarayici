@@ -1,7 +1,6 @@
 // NPC alış-satış penceresi: oyunun kendi "Transaction" penceresi (LilithACS\re_el_Transaction.lilith → re_el_transaction.json).
-// Üstte mağaza (6×4, sayfalı, fiyatlar yuvaların altında), ortada sepet (14 yuva; "Buy Page" / "Sell Page" sekmeleri, toplam Noah, Buy/Sell düğmeleri), altta envanter (7×4) + ağırlık + Noah.
-// Kullanım (orijinal akışa uygun): eşyayı SÜRÜKLE — mağazadan sepete (alış) ya da envanterden sepete (satış); "Buy"/"Sell" sepeti sunucuya yollar. Kısayol: mağaza eşyasına ÇİFT tık = hemen 1 al,
-// envanter eşyasına SAĞ tık = hemen sat; mağazadan envantere / envanterden mağazaya sürüklemek de al / sat. Tamirci NPC'de "Repair" düğmesi tamir modu açar (envanter eşyasına tıkla).
+// Üstte mağaza (6×4, sayfalı, fiyat yuvaların altında), altta envanter (7×4) + ağırlık + Noah. Pencerenin ortadaki alış/satış sepeti bu sürümde olmadığı için gizlenir ve alttaki bölüm yukarı çekilir.
+// Kullanım: mağaza eşyasına SAĞ tık, ÇİFT tık ya da envantere SÜRÜKLEME = kaç tane alınacağı sorulur; envanter eşyasına SAĞ tık (ya da mağazaya sürükleme) = sat. Tamirci NPC'de "Repair" modu.
 import { UiPencere } from './orijinal';
 import type { EsyaTanimi } from '../oyun/veri';
 import type { YuvaKonumu } from '../oyun/varliklar';
@@ -9,6 +8,8 @@ import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 
 const SIMGE = '142.22% 142.22%';
 const SURUKLE = 'application/x-ke-islem';
+/** Gizlenen sepet bölümünün yüksekliği (pencere tasarımı px): alttaki kısım bu kadar yukarı çekilir. */
+const KAYMA = 184;
 
 export interface MagazaKancalari {
   envanter: () => (EsyaTanimi | null)[]; altin: () => number;
@@ -16,18 +17,16 @@ export interface MagazaKancalari {
   ipucu: (e: EsyaTanimi, ev: MouseEvent, satin: boolean, tamir: number) => void; ipucuGizle: () => void;
   mesaj: (m: string) => void; altBos: () => number; olcek: () => number; kapandi: () => void;
 }
-type Sepet = { e: EsyaTanimi; yuva: number; adet: number }[];
 
 export class MagazaPenceresi {
   acik = false;
   private magaza: HTMLElement[] = []; private fiyat: HTMLElement[] = [];
   private canta: HTMLElement[] = []; private cantaAdet: HTMLElement[] = [];
-  private sepet: HTMLElement[] = []; // ortadaki 14 yuvalık sepet (iki sekme de aynı yuvaları kullanır)
-  private tabAl!: HTMLElement; private tabSat!: HTMLElement;
+  private agirlikYazi = document.createElement('div'); private altinYazi = document.createElement('div');
   private sayfalar: EsyaTanimi[][] = []; private sayfa = 0;
-  private alimlar: Sepet = []; private satimlar: Sepet = [];
-  private satisSekmesi = false; private tamirModu = false; private imza = '';
-  private tamirDugme = document.createElement('div'); private soru: HTMLElement | null = null;
+  private tamirModu = false; private imza = '';
+  private tamirDugme = document.createElement('div');
+  private soru: HTMLElement | null = null;
 
   static async olustur(k: MagazaKancalari, ust: HTMLElement): Promise<MagazaPenceresi> {
     const p = await UiPencere.yukle('re_el_transaction'); return new MagazaPenceresi(p, k, ust);
@@ -35,43 +34,33 @@ export class MagazaPenceresi {
 
   private constructor(private p: UiPencere, private k: MagazaKancalari, ust: HTMLElement) {
     p.el.style.display = 'none'; p.el.style.zIndex = '7'; p.surukle(); ust.appendChild(p.el);
-    this.tabAl = p.bul('base_tab_itembuy')[0]; this.tabSat = p.bul('base_tab_itemsell')[0];
-    // Elemanlar kimliklerine ve bulundukları bölgeye göre gruplanır (aynı kimlikler üç bölgede tekrar eder).
-    const bolge = (el: HTMLElement): 'sepet' | 'ust' | 'alt' => { const y = parseFloat(el.style.top); return y < 300 ? 'ust' : y < 500 ? 'sepet' : 'alt'; };
+    const y = (el: HTMLElement) => parseFloat(el.style.top);
     for (let i = 0; i < 28; i++) for (const el of p.bul(String(i))) {
-      const yuva = el.classList.contains('ui-t9'), b = bolge(el);
-      if (yuva) { if (b === 'ust') this.magaza[i] = el; else if (b === 'alt') this.canta[i] = el; else this.sepet[i] = el; }
-      else if (b === 'alt') this.cantaAdet[i] = el;
+      const yuva = el.classList.contains('ui-t9');
+      if (yuva) { if (y(el) < 300) this.magaza[i] = el; else if (y(el) >= 500) this.canta[i] = el; else el.style.display = 'none'; } // ortadaki sepet yuvaları gizli
+      else if (y(el) >= 500) this.cantaAdet[i] = el;
     }
     for (let i = 0; i < 24; i++) this.fiyat[i] = p.bul(String(100 + i))[0];
-    p.gizle('img_title_realmpoint'); // başlığın iki yanındaki kırmızı rozet simgeleri
-    for (const t of p.bul('text_title')) Object.assign(t.style, { fontSize: '17px', fontWeight: '700', color: '#ffe9a8', textShadow: '0 1px 3px #000' });
-    // Sepet bölümünün etrafındaki mavi ve sarı çerçeve çizgileri (ince kenar resimleri) kaldırılır
-    for (const tab of [this.tabAl, this.tabSat]) tab.querySelectorAll<HTMLElement>(':scope > .ui-t4').forEach((r) => { const w = parseFloat(r.style.width), h = parseFloat(r.style.height); if (w <= 4 || h <= 4) r.style.display = 'none'; });
-    // Arka plan: üst bölümün siyah panelleri envanterin yarı saydam zemini gibi görünsün (şeffaflık)
-    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30 && r.style.backgroundImage.includes('person')) r.style.opacity = '0.55'; });
-    for (const tab of [this.tabAl, this.tabSat]) tab.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 300 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.55'; }); // sepet bölümünün zemini de aynı şekilde
-    // Sepetin arkasındaki ekstra yuva katmanı (362 px genişliğindeki üst üste binen şeritler, 6 sütunlu kayık çizgiler); öndeki 7 sütunlu yuvalar ve Buy/Sell düğmeleri olduğu gibi kalır
-    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { const y = parseFloat(r.style.top); if (r.style.backgroundImage.includes('person') && parseFloat(r.style.width) >= 300 && y >= 300 && y < 470 && parseFloat(r.style.height) <= 70) r.style.display = 'none'; });
-    // Yerine aynı koyulukta sade bir zemin (çizgisiz): öndeki yuvalar ve Buy/Sell düğmeleri değişmez
-    const zemin = document.createElement('div'); Object.assign(zemin.style, { position: 'absolute', left: '1px', top: '316px', width: '362px', height: '156px', background: 'rgba(10, 8, 6, .55)', pointerEvents: 'none' });
-    this.tabAl.parentElement!.insertBefore(zemin, this.tabAl);
-    // Sepet toplam satırı etiketleri: "Total Noah to purchase / sell" yerine BUY ve SELL; ikisi de AYNI konumda (Sell, Buy'ın konumunu alır)
-    const etiketler = p.bul('text_totalmsg'), etAl = etiketler.find((e) => this.tabAl.contains(e)), etSat = etiketler.find((e) => this.tabSat.contains(e));
-    if (etAl && etSat) for (const k of ['left', 'top', 'width', 'height'] as const) etSat.style[k] = etAl.style[k];
-    for (const el of [etAl, etSat]) if (el) Object.assign(el.style, { display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }); // iki etiket aynı hizalamada
-    p.el.querySelectorAll('span').forEach((sp) => { if (sp.textContent?.trim() === ':') sp.textContent = ''; });
-    for (const [el, yazi] of [[etAl, 'BUY'], [etSat, 'SELL']] as const) { const sp = el?.querySelector('span'); if (sp) sp.textContent = yazi; }
-    for (const el of p.bul('img_realmpoint')) el.style.display = 'none'; // Noah simgesinin arkasındaki ikinci ikon
-    // Düğme yazıları durum resimlerinin ÜSTÜNDE görünsün
-    for (const el of p.tumDugmeler()) el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { y.style.zIndex = '3'; y.style.pointerEvents = 'none'; });
-    // Düğmeler
+    for (const t of p.bul('text_title')) Object.assign(t.style, { fontSize: '17px', fontWeight: '700', color: '#ffe9a8', textShadow: '0 1px 3px #000' }); // başlık "Store": daha büyük ve okunaklı
+    p.gizle('img_title_realmpoint'); // başlığın iki yanındaki kırmızı rozet simgeleri (kullanıcı isteği)
+    for (let i = 200; i < 214; i++) for (const el of p.bul(String(i))) el.style.display = 'none';
+    for (const id of ['base_tab_itembuy', 'base_tab_itemsell']) for (const el of p.bul(id)) el.style.display = 'none'; // alış/satış sepeti bölümü: bu sürümde yok
+    // Sepet bölgesinin arka plan resimleri (şeritler ve kayık hücre resimleri) de gizlenir: yukarı çekilince mağaza ızgarasına bulaşıp bozuk çizgiler çiziyordu
+    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { const yy = parseFloat(r.style.top); if (r.style.backgroundImage.includes('person') && yy >= 300 && yy < 500) r.style.display = 'none'; });
+    // Üst bölümün siyah zemini envanter gibi yarı saydam
+    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (r.style.display !== 'none' && r.style.backgroundImage.includes('person') && parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.55'; });
+    // Alttaki bölümü (envanter ve alt çerçeve) boşalan yere çek
+    const kap = this.canta[0].parentElement!;
+    for (const c of Array.from(kap.children) as HTMLElement[]) if (c.style.display !== 'none' && y(c) >= 300) c.style.top = `${y(c) - KAYMA}px`;
+    p.boyut[1] -= KAYMA; (p as unknown as { sinirOnbellek: unknown }).sinirOnbellek = null;
+    // Ağırlık ve Noah satırı (sepet bölümünün alt çubuğunun yerine)
+    const stil = { position: 'absolute', top: `${476 - KAYMA}px`, height: '20px', lineHeight: '20px', font: '700 12px Verdana, "Segoe UI", sans-serif', color: '#ffff80', textShadow: '0 1px 2px #000', whiteSpace: 'nowrap' };
+    Object.assign(this.agirlikYazi.style, stil, { left: '18px' }); Object.assign(this.altinYazi.style, stil, { right: '18px', textAlign: 'right' });
+    kap.appendChild(this.agirlikYazi); kap.appendChild(this.altinYazi);
+    // Düğmeler: kapatma ve sayfa okları
     for (const el of p.tumDugmeler()) if (/close|cancel/i.test(el.dataset.id ?? '')) p.tikla.set(el.dataset.id!, () => this.kapat());
-    p.tikla.set('btn_tab_item_sell', () => this.sekme(true)); p.tikla.set('btn_tab_item_buy', () => this.sekme(false));
-    p.tikla.set('btn_refresh', () => { this.alimlar = []; this.satimlar = []; this.imza = ''; this.ciz(); });
-    p.tikla.set('btn_buy', () => this.sepetiYolla(false)); p.tikla.set('btn_sell', () => this.sepetiYolla(true));
-    for (const el of p.tumDugmeler()) { const id = (el.dataset.id ?? '').toLowerCase(); if (/up|prev/.test(id)) p.tikla.set(el.dataset.id!, () => this.sayfaDegistir(-1)); else if (/down|next/.test(id)) p.tikla.set(el.dataset.id!, () => this.sayfaDegistir(1)); }
-    // Tamirci düğmesi (başlığın yanında)
+    for (const el of p.tumDugmeler()) { const id = (el.dataset.id ?? '').toLowerCase(); if (/^(btn_)?(page_?)?(up|prev)/.test(id)) p.tikla.set(el.dataset.id!, () => this.sayfaDegistir(-1)); else if (/^(btn_)?(page_?)?(down|next)/.test(id)) p.tikla.set(el.dataset.id!, () => this.sayfaDegistir(1)); }
+    // Tamirci düğmesi
     Object.assign(this.tamirDugme.style, { position: 'absolute', left: '8px', top: '36px', width: '50px', height: '22px', lineHeight: '20px', textAlign: 'center', font: '700 12px Segoe UI, sans-serif', color: '#ffe9a8', border: '1px solid #8f6128', background: 'rgba(40,30,18,.9)', cursor: 'pointer', display: 'none', zIndex: '2', borderRadius: '3px' });
     this.tamirDugme.textContent = 'Repair'; this.tamirDugme.addEventListener('click', () => this.tamirModuDegistir(!this.tamirModu)); p.el.appendChild(this.tamirDugme);
     this.baglantilar();
@@ -93,22 +82,15 @@ export class MagazaPenceresi {
       suruklenebilir(el, () => (sayfa()[i] ? { k: 'magaza', i } : null));
       const al = () => { const e = sayfa()[i]; if (e) this.adetSor(e); };
       el.ondblclick = al; el.oncontextmenu = (ev) => { ev.preventDefault(); al(); }; // çift ya da sağ tık: kaç tane?
-      birak(el, (v) => { if (v.k === 'canta') this.satisSepetineEkle(v.i); }); // envanterden mağazaya bırak = satış sepetine
+      birak(el, (v) => { if (v.k === 'canta') this.k.sat(v.i); }); // envanterden mağazaya bırak = sat
     });
     this.canta.forEach((el, i) => {
       suruklenebilir(el, () => (this.k.envanter()[i] ? { k: 'canta', i } : null));
-      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.satisSepetineEkle(i); } }; // sağ tık: satış sepetine
-      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (e) this.adetSor(e); } }); // mağazadan envantere sürükle = kaç tane sorulur, alış sepetine
+      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.k.sat(i); } };
+      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (e) this.adetSor(e); } }); // mağazadan envantere sürükle = al (kaç tane sorulur)
     });
-    this.sepet.forEach((el, i) => {
-      const hedef = () => (this.satisSekmesi ? this.satimlar : this.alimlar);
-      birak(el, (v) => this.sepeteEkle(v));
-      el.onclick = () => { if (hedef()[i]) { hedef().splice(i, 1); this.imza = ''; this.k.ipucuGizle(); this.ciz(); } }; // sepetteki eşyaya tık = çıkar
-    });
-    birak(this.tabAl, (v) => this.sepeteEkle(v)); birak(this.tabSat, (v) => this.sepeteEkle(v)); // sepet bölgesinin her yeri bırakma hedefidir
   }
 
-  /** Sürüklenen eşya mağazadansa alış sepetine, envanterdense satış sepetine girer. */
   /** "Kaç tane?" sorusu: sayı kutusu, ± düğmeleri, toplam fiyat; Enter onaylar, Esc iptal eder. */
   private adetSor(e: EsyaTanimi): void {
     this.soruKapat(); this.k.ipucuGizle();
@@ -119,7 +101,7 @@ export class MagazaPenceresi {
     const kutu = document.createElement('div'); this.soru = kutu;
     Object.assign(kutu.style, { position: 'absolute', left: '52px', top: '150px', width: '260px', padding: '12px 14px 14px', zIndex: '20', background: 'linear-gradient(#26201a, #120e0a)', border: '2px solid #b9803a', borderRadius: '4px', boxShadow: '0 0 0 1px #000, 0 6px 18px #000c', font: '13px Verdana, "Segoe UI", sans-serif', color: '#fff', textAlign: 'center' });
     const baslik = document.createElement('div'); baslik.textContent = e.ad; Object.assign(baslik.style, { fontWeight: '700', color: '#ffe9a8', marginBottom: '4px' });
-    const alt = document.createElement('div'); alt.textContent = 'How many do you want to add to the basket?'; alt.style.marginBottom = '8px';
+    const alt = document.createElement('div'); alt.textContent = 'How many do you want to buy?'; alt.style.marginBottom = '8px';
     const satir = document.createElement('div'); Object.assign(satir.style, { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' });
     const dugme = (yazi: string, f: () => void) => { const d = document.createElement('div'); d.textContent = yazi; Object.assign(d.style, { minWidth: '28px', height: '24px', lineHeight: '24px', border: '1px solid #8f6128', background: 'rgba(60,45,28,.95)', color: '#ffe9a8', cursor: 'pointer', fontWeight: '700', borderRadius: '3px', userSelect: 'none', padding: '0 6px' }); d.addEventListener('click', f); return d; };
     const giris = document.createElement('input'); giris.type = 'text'; giris.value = '1'; giris.inputMode = 'numeric';
@@ -129,7 +111,7 @@ export class MagazaPenceresi {
     const yenile = () => { toplam.textContent = `Total: ${(sayi() * e.fiyat).toLocaleString('en-US')} Noah`; };
     giris.addEventListener('input', () => { giris.value = giris.value.replace(/\D/g, ''); yenile(); });
     giris.addEventListener('blur', () => { giris.value = String(sayi()); yenile(); });
-    const onay = () => { const n = sayi(); this.soruKapat(); this.alisSepetineEkle(e, n); };
+    const onay = () => { const n = sayi(); this.soruKapat(); if (e.sayilabilir) this.k.satinAl({ ...e, adet: n }); else for (let i = 0; i < n; i++) this.k.satinAl(e); };
     giris.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Enter') onay(); else if (ev.key === 'Escape') this.soruKapat(); });
     satir.append(dugme('−', () => { giris.value = String(Math.max(1, sayi() - 1)); yenile(); }), giris, dugme('+', () => { giris.value = String(Math.min(maks, sayi() + 1)); yenile(); }), dugme('Max', () => { giris.value = String(maks); yenile(); }));
     const dugmeler = document.createElement('div'); Object.assign(dugmeler.style, { display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' });
@@ -138,38 +120,6 @@ export class MagazaPenceresi {
   }
   private soruKapat(): void { this.soru?.remove(); this.soru = null; }
 
-  /** Alış sepetine ekler (aynı eşya varsa adedi artar) ve Buy sekmesini gösterir. */
-  private alisSepetineEkle(e: EsyaTanimi, n: number): void {
-    const var_ = this.alimlar.find((a) => a.e.no === e.no && a.e.sunucuNo === e.sunucuNo);
-    if (var_) var_.adet += n;
-    else if (this.alimlar.length >= 14) { this.k.mesaj('The basket is full.'); return; }
-    else this.alimlar.push({ e, yuva: -1, adet: n });
-    this.satisSekmesi = false; this.imza = ''; this.ciz();
-  }
-  /** Satış sepetine ekler (envanter yuvası, bütün yığın) ve Sell sekmesini gösterir. */
-  private satisSepetineEkle(yuva: number): void {
-    const e = this.k.envanter()[yuva]; if (!e || this.satimlar.some((s) => s.yuva === yuva)) return;
-    if (this.satimlar.length >= 14) { this.k.mesaj('The basket is full.'); return; }
-    this.satimlar.push({ e, yuva, adet: e.adet ?? 1 }); this.satisSekmesi = true; this.imza = ''; this.ciz();
-  }
-  /** Sürüklenen eşya mağazadansa kaç tane sorulup alış sepetine, envanterdense satış sepetine girer. */
-  private sepeteEkle(v: { k: string; i: number }): void {
-    if (v.k === 'magaza') { const e = (this.sayfalar[this.sayfa] ?? [])[v.i]; if (e) this.adetSor(e); }
-    else if (v.k === 'canta') this.satisSepetineEkle(v.i);
-  }
-
-  private sepetiYolla(satis: boolean): void {
-    const liste = satis ? this.satimlar : this.alimlar;
-    if (!liste.length) { this.k.mesaj(satis ? 'The sell basket is empty.' : 'The buy basket is empty.'); return; }
-    for (const s of [...liste]) {
-      if (satis) this.k.sat(s.yuva);
-      else if (s.e.sayilabilir) this.k.satinAl({ ...s.e, adet: s.adet });
-      else for (let i = 0; i < s.adet; i++) this.k.satinAl(s.e);
-    }
-    liste.length = 0; this.imza = ''; this.ciz();
-  }
-
-  private sekme(satis: boolean): void { this.satisSekmesi = satis; this.imza = ''; this.ciz(); }
   private sayfaDegistir(d: number): void { const n = this.sayfalar.length || 1; this.sayfa = (this.sayfa + d + n) % n; this.imza = ''; this.ciz(); }
   private tamirModuDegistir(ac: boolean): void {
     this.tamirModu = ac; this.imza = ''; this.k.ipucuGizle(); this.tamirDugme.style.filter = ac ? 'brightness(1.6) sepia(1) hue-rotate(60deg)' : '';
@@ -179,8 +129,8 @@ export class MagazaPenceresi {
 
   /** Mağazayı açar. `tamirci`: NPC aynı zamanda tamir ediyor mu. */
   ac(npcAdi: string, sayfalar: EsyaTanimi[][], tamirci: boolean): void {
-    this.soruKapat(); this.sayfalar = sayfalar; this.sayfa = 0; this.alimlar = []; this.satimlar = []; this.satisSekmesi = false; this.tamirModu = false; this.imza = '';
-    this.p.metin('text_title', 'Store'); this.tamirDugme.style.display = tamirci ? '' : 'none';
+    this.soruKapat(); this.sayfalar = sayfalar; this.sayfa = 0; this.tamirModu = false; this.imza = '';
+    this.p.metin('text_title', 'Store'); // NPC adı yerine yalnız "Store" this.tamirDugme.style.display = tamirci ? '' : 'none';
     this.acik = true; this.p.el.style.display = ''; this.yerlestir(); this.ciz();
   }
   kapat(): void { if (!this.acik) return; this.acik = false; this.soruKapat(); this.tamirModuDegistir(false); this.p.el.style.display = 'none'; this.k.ipucuGizle(); this.k.kapandi(); }
@@ -198,29 +148,17 @@ export class MagazaPenceresi {
   ciz(): void {
     if (!this.acik) return;
     const env = this.k.envanter(), altin = this.k.altin();
-    const imza = `${this.sayfa}|${altin}|${this.tamirModu}|${this.satisSekmesi}|${this.alimlar.map((a) => a.e.no).join(',')}|${this.satimlar.map((s) => s.yuva).join(',')}|${env.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}d${e?.suru ?? ''}`).join(',')}`;
+    const imza = `${this.sayfa}|${altin}|${this.tamirModu}|${env.map((e) => `${e?.no ?? 0}x${e?.adet ?? 1}d${e?.suru ?? ''}`).join(',')}`;
     if (imza === this.imza) return; this.imza = imza;
     const p = this.p, sayfa = this.sayfalar[this.sayfa] ?? [];
     p.metin('string_page', this.sayfa + 1); p.metin('string_max_page', `/${this.sayfalar.length || 1}`);
-    p.metin('text_mypoint', altin.toLocaleString('en-US'));
-    p.metin('text_weight', `${env.filter(Boolean).length} / 28`);
-    this.tabAl.style.display = this.satisSekmesi ? 'none' : ''; this.tabSat.style.display = this.satisSekmesi ? '' : 'none';
+    this.agirlikYazi.textContent = `Weight: ${env.filter(Boolean).length} / 28`; this.altinYazi.textContent = `${altin.toLocaleString('en-US')} Noah`;
     this.magaza.forEach((el, i) => { const e = sayfa[i] ?? null; this.simge(el, e, true, 0); const f = this.fiyat[i]?.querySelector('span'); if (f) f.textContent = e ? e.fiyat.toLocaleString('en-US') : ''; el.style.opacity = e && altin < e.fiyat ? '0.55' : '1'; });
     this.canta.forEach((el, i) => {
       const e = env[i] ?? null, tamir = e && this.tamirModu ? tamirUcreti(e.fiyat, e.dayanim ?? 0, e.suru ?? (e.dayanim ?? 0)) : 0;
       this.simge(el, e, false, tamir); const a = this.cantaAdet[i]?.querySelector('span'); if (a) a.textContent = e && (e.adet ?? 1) > 1 ? String(e.adet) : '';
       el.onclick = this.tamirModu && e ? () => this.k.tamirEt({ tur: 'c', i }) : null;
-      el.style.opacity = this.satimlar.some((s) => s.yuva === i) ? '0.45' : '1';
     });
-    let topAl = 0, topSat = 0;
-    for (let i = 0; i < 14; i++) {
-      const a = this.alimlar[i], s = this.satimlar[i];
-      if (this.sepet[i]) { const g = this.satisSekmesi ? s : a; this.simge(this.sepet[i], g?.e ?? null, !this.satisSekmesi, 0); }
-      if (a) topAl += a.e.fiyat * a.adet; if (s) topSat += Math.max(1, Math.floor(s.e.fiyat / 6));
-      const sayac = p.bul(String(200 + i)); const g = this.satisSekmesi ? s : a, yazi = g && g.adet > 1 ? String(g.adet) : '';
-      for (const el of sayac) { const sp = el.querySelector('span'); if (sp) sp.textContent = (el.closest('[data-id=base_tab_itemsell]') !== null) === this.satisSekmesi ? yazi : ''; }
-    }
-    for (const el of p.bul('text_totalpoint')) { const t = el.querySelector('span'); if (t) t.textContent = (el.closest('[data-id=base_tab_itemsell]') ? topSat : topAl).toLocaleString('en-US'); }
   }
 
   private simge(el: HTMLElement, e: EsyaTanimi | null, satin: boolean, tamir: number): void {
