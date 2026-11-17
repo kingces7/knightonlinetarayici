@@ -16,7 +16,7 @@ export interface MagazaKancalari {
   ipucu: (e: EsyaTanimi, ev: MouseEvent, satin: boolean, tamir: number) => void; ipucuGizle: () => void;
   mesaj: (m: string) => void; altBos: () => number; olcek: () => number; kapandi: () => void;
 }
-type Sepet = { e: EsyaTanimi; yuva: number }[];
+type Sepet = { e: EsyaTanimi; yuva: number; adet: number }[];
 
 export class MagazaPenceresi {
   acik = false;
@@ -93,12 +93,12 @@ export class MagazaPenceresi {
       suruklenebilir(el, () => (sayfa()[i] ? { k: 'magaza', i } : null));
       const al = () => { const e = sayfa()[i]; if (e) this.adetSor(e); };
       el.ondblclick = al; el.oncontextmenu = (ev) => { ev.preventDefault(); al(); }; // çift ya da sağ tık: kaç tane?
-      birak(el, (v) => { if (v.k === 'canta') this.k.sat(v.i); }); // envanterden mağazaya bırak = sat
+      birak(el, (v) => { if (v.k === 'canta') this.satisSepetineEkle(v.i); }); // envanterden mağazaya bırak = satış sepetine
     });
     this.canta.forEach((el, i) => {
       suruklenebilir(el, () => (this.k.envanter()[i] ? { k: 'canta', i } : null));
-      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.k.sat(i); } };
-      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (e) this.adetSor(e); } }); // mağazadan envantere sürükle = al (kaç tane sorulur)
+      el.oncontextmenu = (ev) => { ev.preventDefault(); if (this.k.envanter()[i] && !this.tamirModu) { this.k.ipucuGizle(); this.satisSepetineEkle(i); } }; // sağ tık: satış sepetine
+      birak(el, (v) => { if (v.k === 'magaza') { const e = sayfa()[v.i]; if (e) this.adetSor(e); } }); // mağazadan envantere sürükle = kaç tane sorulur, alış sepetine
     });
     this.sepet.forEach((el, i) => {
       const hedef = () => (this.satisSekmesi ? this.satimlar : this.alimlar);
@@ -119,7 +119,7 @@ export class MagazaPenceresi {
     const kutu = document.createElement('div'); this.soru = kutu;
     Object.assign(kutu.style, { position: 'absolute', left: '52px', top: '150px', width: '260px', padding: '12px 14px 14px', zIndex: '20', background: 'linear-gradient(#26201a, #120e0a)', border: '2px solid #b9803a', borderRadius: '4px', boxShadow: '0 0 0 1px #000, 0 6px 18px #000c', font: '13px Verdana, "Segoe UI", sans-serif', color: '#fff', textAlign: 'center' });
     const baslik = document.createElement('div'); baslik.textContent = e.ad; Object.assign(baslik.style, { fontWeight: '700', color: '#ffe9a8', marginBottom: '4px' });
-    const alt = document.createElement('div'); alt.textContent = 'How many do you want to buy?'; alt.style.marginBottom = '8px';
+    const alt = document.createElement('div'); alt.textContent = 'How many do you want to add to the basket?'; alt.style.marginBottom = '8px';
     const satir = document.createElement('div'); Object.assign(satir.style, { display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' });
     const dugme = (yazi: string, f: () => void) => { const d = document.createElement('div'); d.textContent = yazi; Object.assign(d.style, { minWidth: '28px', height: '24px', lineHeight: '24px', border: '1px solid #8f6128', background: 'rgba(60,45,28,.95)', color: '#ffe9a8', cursor: 'pointer', fontWeight: '700', borderRadius: '3px', userSelect: 'none', padding: '0 6px' }); d.addEventListener('click', f); return d; };
     const giris = document.createElement('input'); giris.type = 'text'; giris.value = '1'; giris.inputMode = 'numeric';
@@ -129,7 +129,7 @@ export class MagazaPenceresi {
     const yenile = () => { toplam.textContent = `Total: ${(sayi() * e.fiyat).toLocaleString('en-US')} Noah`; };
     giris.addEventListener('input', () => { giris.value = giris.value.replace(/\D/g, ''); yenile(); });
     giris.addEventListener('blur', () => { giris.value = String(sayi()); yenile(); });
-    const onay = () => { const n = sayi(); this.soruKapat(); if (e.sayilabilir) this.k.satinAl({ ...e, adet: n }); else for (let i = 0; i < n; i++) this.k.satinAl(e); };
+    const onay = () => { const n = sayi(); this.soruKapat(); this.alisSepetineEkle(e, n); };
     giris.addEventListener('keydown', (ev) => { ev.stopPropagation(); if (ev.key === 'Enter') onay(); else if (ev.key === 'Escape') this.soruKapat(); });
     satir.append(dugme('−', () => { giris.value = String(Math.max(1, sayi() - 1)); yenile(); }), giris, dugme('+', () => { giris.value = String(Math.min(maks, sayi() + 1)); yenile(); }), dugme('Max', () => { giris.value = String(maks); yenile(); }));
     const dugmeler = document.createElement('div'); Object.assign(dugmeler.style, { display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' });
@@ -138,23 +138,34 @@ export class MagazaPenceresi {
   }
   private soruKapat(): void { this.soru?.remove(); this.soru = null; }
 
+  /** Alış sepetine ekler (aynı eşya varsa adedi artar) ve Buy sekmesini gösterir. */
+  private alisSepetineEkle(e: EsyaTanimi, n: number): void {
+    const var_ = this.alimlar.find((a) => a.e.no === e.no && a.e.sunucuNo === e.sunucuNo);
+    if (var_) var_.adet += n;
+    else if (this.alimlar.length >= 14) { this.k.mesaj('The basket is full.'); return; }
+    else this.alimlar.push({ e, yuva: -1, adet: n });
+    this.satisSekmesi = false; this.imza = ''; this.ciz();
+  }
+  /** Satış sepetine ekler (envanter yuvası, bütün yığın) ve Sell sekmesini gösterir. */
+  private satisSepetineEkle(yuva: number): void {
+    const e = this.k.envanter()[yuva]; if (!e || this.satimlar.some((s) => s.yuva === yuva)) return;
+    if (this.satimlar.length >= 14) { this.k.mesaj('The basket is full.'); return; }
+    this.satimlar.push({ e, yuva, adet: e.adet ?? 1 }); this.satisSekmesi = true; this.imza = ''; this.ciz();
+  }
+  /** Sürüklenen eşya mağazadansa kaç tane sorulup alış sepetine, envanterdense satış sepetine girer. */
   private sepeteEkle(v: { k: string; i: number }): void {
-    if (v.k === 'magaza') {
-      const e = (this.sayfalar[this.sayfa] ?? [])[v.i]; if (!e) return;
-      if (this.alimlar.length >= 14) { this.k.mesaj('The basket is full.'); return; }
-      this.alimlar.push({ e, yuva: -1 }); this.satisSekmesi = false;
-    } else if (v.k === 'canta') {
-      const e = this.k.envanter()[v.i]; if (!e || this.satimlar.some((s) => s.yuva === v.i)) return;
-      if (this.satimlar.length >= 14) { this.k.mesaj('The basket is full.'); return; }
-      this.satimlar.push({ e, yuva: v.i }); this.satisSekmesi = true;
-    }
-    this.imza = ''; this.ciz();
+    if (v.k === 'magaza') { const e = (this.sayfalar[this.sayfa] ?? [])[v.i]; if (e) this.adetSor(e); }
+    else if (v.k === 'canta') this.satisSepetineEkle(v.i);
   }
 
   private sepetiYolla(satis: boolean): void {
     const liste = satis ? this.satimlar : this.alimlar;
     if (!liste.length) { this.k.mesaj(satis ? 'The sell basket is empty.' : 'The buy basket is empty.'); return; }
-    for (const s of [...liste]) { if (satis) this.k.sat(s.yuva); else this.k.satinAl(s.e); }
+    for (const s of [...liste]) {
+      if (satis) this.k.sat(s.yuva);
+      else if (s.e.sayilabilir) this.k.satinAl({ ...s.e, adet: s.adet });
+      else for (let i = 0; i < s.adet; i++) this.k.satinAl(s.e);
+    }
     liste.length = 0; this.imza = ''; this.ciz();
   }
 
@@ -205,7 +216,9 @@ export class MagazaPenceresi {
     for (let i = 0; i < 14; i++) {
       const a = this.alimlar[i], s = this.satimlar[i];
       if (this.sepet[i]) { const g = this.satisSekmesi ? s : a; this.simge(this.sepet[i], g?.e ?? null, !this.satisSekmesi, 0); }
-      if (a) topAl += a.e.fiyat; if (s) topSat += Math.max(1, Math.floor(s.e.fiyat / 6));
+      if (a) topAl += a.e.fiyat * a.adet; if (s) topSat += Math.max(1, Math.floor(s.e.fiyat / 6));
+      const sayac = p.bul(String(200 + i)); const g = this.satisSekmesi ? s : a, yazi = g && g.adet > 1 ? String(g.adet) : '';
+      for (const el of sayac) { const sp = el.querySelector('span'); if (sp) sp.textContent = (el.closest('[data-id=base_tab_itemsell]') !== null) === this.satisSekmesi ? yazi : ''; }
     }
     for (const el of p.bul('text_totalpoint')) { const t = el.querySelector('span'); if (t) t.textContent = (el.closest('[data-id=base_tab_itemsell]') ? topSat : topAl).toLocaleString('en-US'); }
   }
