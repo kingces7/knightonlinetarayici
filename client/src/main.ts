@@ -22,7 +22,7 @@ import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
-import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { liderDevretIstegi, partiDavetCevabi, partiDavetiIstegi, partidenCikarIstegi, partiyiDagitIstegi, type PartiUyesi } from '../../kopru/protokol/parti.ts';
 import { ALTIN_NO as BANKA_ALTIN, BANKA_ISLEMI, SAYFA_YUVASI, bankaAcIstegi, bankaIslemIstegi, type BankaCevabi } from '../../kopru/protokol/banka.ts';
 import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
@@ -113,6 +113,13 @@ async function basla(): Promise<void> {
   let sunucuDunyasi: SunucuDunyasi | null = null;
   let secilenOyuncu: DigerOyuncu | null = null; // tıklanarak seçilen diğer oyuncu (parti daveti için)
   let partidayiz = false; // davet gönderdiysek parti kurulmuştur (sonraki davetler PARTY_INSERT)
+  /** Parti üyeleri, sunucunun gönderdiği sırayla (ilk üye = lider). */
+  let partiUyeleri: PartiUyesi[] = [];
+  /** Son skill attığımız düşman oyuncu: o oyuncu birkaç sn içinde ölürse öldürme sayılır (Moradon PK bölgesi olmadığı için sunucu KILLASSIST yollamaz). */
+  let sonPvpHedefi: { id: number; t: number } | null = null; let pvpSeri = 0, pvpSonOldurme = -999;
+  const partiTemizle = () => { partiUyeleri = []; partidayiz = false; };
+  /** Parti listesi: lider kendini sunucudan almaz (sunucu yalnızca katılanları bildirir); bu yüzden kendimiz listeye başa eklenir. */
+  const partiListesi = (): PartiUyesi[] => (partiUyeleri.length && !partiUyeleri.some((u) => u.id === benimSoketNo) ? [{ id: benimSoketNo, ad: oyuncu.ad, enCokCan: oyuncu.enCok, can: Math.ceil(oyuncu.can), seviye: oyuncu.seviye, sinif: oyuncu.sinif, enCokMana: oyuncu.enCokMana, mana: Math.ceil(oyuncu.mana), ulus: Math.floor(oyuncu.sinif / 100) }, ...partiUyeleri] : partiUyeleri);
   const partiDavetEt = () => {
     if (!sunucuOturumu) { hud.mesaj('Party invitations need a server connection.', 'sistem'); return; }
     if (secilenOyuncu && !digerOyuncular.includes(secilenOyuncu)) secilenOyuncu = null; // ayrılmış oyuncu
@@ -244,18 +251,20 @@ async function basla(): Promise<void> {
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // aynı skill'in art arda gönderilmemesi için yerel bekleme (sunucu da kontrol eder)
     const gonder = (komut: number) => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(komut, no, benimSoketNo, hedefId, alanVeri));
     const animNo = animSec(no);
-    if (hedef) { oyuncu.savastanBeri = 0; if (!hareketEdiyor) oyuncu.bak(hedef.konum); }
+    const asil = hedef ?? dost; // canavar ya da (düşman/dost) oyuncu: yön, okçuluk ve uçan efekt için ortak
+    if (dost && (v.moral ?? 0) === 7) sonPvpHedefi = { id: dost.kimlik, t: simdiSn() }; // düşman oyuncuya skill: öldürürsek sayaç artar
+    if (asil) { if (hedef) oyuncu.savastanBeri = 0; if (!hareketEdiyor) oyuncu.bak(asil.konum); }
     const sure = (v.hazirlik ?? 0) * 0.1;
-    if (v.tip === 2 && hedef) { // okçuluk: 1 hazırla (yay gerilir) → ≈1,05 sn sonra 2 uçuş (ok harcanır, hasar işlenir) → ok hedefe varınca 3 etki. Sunucu uçuşu 0,31–1,25 sn arasında kabul eder.
+    if (v.tip === 2 && asil) { // okçuluk: 1 hazırla (yay gerilir) → ≈1,05 sn sonra 2 uçuş (ok harcanır, hasar işlenir) → ok hedefe varınca 3 etki. Sunucu uçuşu 0,31–1,25 sn arasında kabul eder.
       buyuHazirlik = { no, hedefId };
-      const veri = () => [Math.round(hedef.konum.x), Math.round(hedef.grup.position.y), Math.round(hedef.konum.y), 1];
+      const veri = () => [Math.round(asil.konum.x), Math.round(asil.grup.position.y), Math.round(asil.konum.y), 1];
       gonder(BECERI_KOMUTU.HAZIRLAMA);
       if (!hareketEdiyor) { oyuncu.animKilidi = 1.4; oyuncu.model?.beceriOynat(animNo ?? 26, true); }
       setTimeout(() => {
         if (buyuHazirlik?.no !== no || oyuncu.olu) return; buyuHazirlik = null;
         sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.UCUS, no, benimSoketNo, hedefId, veri()));
         ucanEfektOynat(efektNo(no).ucan, oyuncu.grup, hedefGrup);
-        const ucus = Math.max(0.25, Math.min(0.7, oyuncu.konum.distanceTo(hedef.konum) / 28));
+        const ucus = Math.max(0.25, Math.min(0.7, oyuncu.konum.distanceTo(asil.konum) / 28));
         setTimeout(() => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.ETKI, no, benimSoketNo, hedefId, veri())), ucus * 1000 + 50);
       }, 1050);
     } else if (sure > 0) { // süreli büyü
@@ -334,9 +343,15 @@ async function basla(): Promise<void> {
     const alanDusman = diger && v.moral === 10; // düşman alanı (ör. Provoke): kullananın çevresinde etki eder, hedef seçmek gerekmez
     if (alanDusman) { /* hedefsiz */ } else if (v.tip === 1 || v.tip === 2 || ((v.tip === 3 || diger) && v.moral === 7)) { // düşmana (yakın dövüş, okçuluk ya da büyü)
       hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
+      if (!hedef && sunucuOturumu && secilenOyuncu && digerOyuncular.includes(secilenOyuncu)) { // PvP: seçili başka oyuncuya düşman skill'i (sunucu düşmanlığı denetler)
+        dost = secilenOyuncu;
+        const menzilO = v.tip === 1 ? 6 : v.tip === 2 ? 35 : (v.menzil ?? 25);
+        if (oyuncu.konum.distanceTo(dost.konum) > menzilO) { hud.mesaj('The target is too far away.', 'sistem'); return; }
+      } else {
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
       const menzil = v.tip === 1 ? menzilDe(hedef) + 0.5 : v.tip === 2 ? 35 : (v.menzil ?? 25);
       if (oyuncu.konum.distanceTo(hedef.konum) > menzil) { hud.mesaj('The target is too far away.', 'sistem'); return; }
+      }
     } else if (v.tip === 3 || v.tip === 4 || (diger && [1, 2, 3, 4].includes(v.moral ?? 0))) { // kendine ya da dosta (iyileştirme, buff)
       if ((v.moral ?? 1) !== 1) { if (secilenOyuncu && digerOyuncular.includes(secilenOyuncu) && oyuncu.konum.distanceTo(secilenOyuncu.konum) <= (v.menzil ?? 25)) dost = secilenOyuncu; }
       if (v.tip === 3 && !sunucuOturumu) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
@@ -409,6 +424,10 @@ async function basla(): Promise<void> {
         sunucuOturumu.gonder(WIZ.SKILL_PUANI, skillPuaniIstegi(agac));
       },
       gorevler: () => [...gorevDurumlari.entries()],
+      parti: () => ({ uyeler: partiListesi(), benimId: benimSoketNo }),
+      partiAyril: (id) => sunucuOturumu?.gonder(WIZ.PARTI, partidenCikarIstegi(id)),
+      partiLider: (id) => sunucuOturumu?.gonder(WIZ.PARTI, liderDevretIstegi(id)),
+      partiDagit: () => sunucuOturumu?.gonder(WIZ.PARTI, partiyiDagitIstegi()),
       diyalogSec: (sira) => { if (aktifDiyalog?.lua) sunucuOturumu?.gonder(WIZ.SECIM_MESAJI, secimCevabi(sira, aktifDiyalog.lua)); },
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
@@ -1200,7 +1219,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { oldurmeSayaci, efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+  (window as unknown as { ke: unknown }).ke = { partiUyeleri: () => partiListesi(), oldurmeSayaci, efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
     /** Geliştirme: karakteri (x, z)'ye ışınlar ve sunucuya "durağan" konum paketiyle bildirir (Town ile aynı yöntem). */
@@ -1239,10 +1258,17 @@ async function basla(): Promise<void> {
         beceri: (p) => beceriSunucudan(p),
         skillPuaniReddedildi: (agac, puan) => { const o = oyuncu.skillPuanlari; o[0] += Math.max(0, o[agac] - puan); o[agac] = puan; hud.mesaj('You cannot add a skill point there.', 'sistem'); },
         sinifDegisti: (s) => { arayuz?.sinifAyarla(s); envanterYenile(); hud.mesaj('Congratulations! You have been promoted.', 'odul'); },
+        oyuncuOldu: (id) => { if (sonPvpHedefi?.id === id && simdiSn() - sonPvpHedefi.t < 5) { sonPvpHedefi = null; pvpSeri = simdiSn() - pvpSonOldurme < 30 ? pvpSeri + 1 : 1; pvpSonOldurme = simdiSn(); oldurmeSayaci.ekle(pvpSeri); } },
         oldurme: (o) => { if (o.tur !== 1) return; if (o.alt === 1) oldurmeSayaci.ekle(o.sayi ?? 1, o.ad); else if (o.alt === 2) oldurmeSayaci.sifirla(); },
         diyalog: diyalogSunucudan, gorev: (g) => { void gorevSunucudan(g); }, ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
+          else if (p.tur === 'uye') { const i = partiUyeleri.findIndex((u) => u.id === p.uye.id); if (i >= 0) partiUyeleri[i] = p.uye; else { partiUyeleri.push(p.uye); if (p.uye.id !== benimSoketNo) hud.mesaj(`${p.uye.ad} joined the party.`, 'sistem'); } partidayiz = true; }
+          else if (p.tur === 'cikti') { const u = partiUyeleri.find((x) => x.id === p.id); if (p.id === benimSoketNo) { partiTemizle(); hud.mesaj('You left the party.', 'sistem'); } else if (u) { partiUyeleri = partiUyeleri.filter((x) => x.id !== p.id); hud.mesaj(`${u.ad} left the party.`, 'sistem'); if (partiUyeleri.length < 2) partiTemizle(); } }
+          else if (p.tur === 'dagildi') { partiTemizle(); hud.mesaj('The party was disbanded.', 'sistem'); }
+          else if (p.tur === 'can') { const u = partiUyeleri.find((x) => x.id === p.id); if (u) { u.enCokCan = p.enCokCan; u.can = p.can; u.enCokMana = p.enCokMana; u.mana = p.mana; } }
+          else if (p.tur === 'seviye') { const u = partiUyeleri.find((x) => x.id === p.id); if (u) u.seviye = p.seviye; }
+          else if (p.tur === 'sinif') { const u = partiUyeleri.find((x) => x.id === p.id); if (u) u.sinif = p.sinif; }
           else if (p.tur === 'davet') {
             // Biri bizi partiye çağırıyor: kabul/ret sunucuya bildirilir
             const kabul = confirm(`${p.ad} invites you to a party. Accept?`);

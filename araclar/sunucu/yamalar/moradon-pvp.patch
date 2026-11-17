@@ -1,0 +1,13 @@
+--- /tmp/Unit.orig	2026-11-17 23:50:43.227709300 +0300
++++ oyun-dosyalari/derleme/LILITH_Game-Server/GameServer/Unit.cpp	2026-11-17 23:50:43.325659400 +0300
+@@ -1962,6 +1962,10 @@
+ 		&& TO_USER(pTarget)->isInOwnSafetyArea())
+ 		return false;
+ 
++	// Moradon (bolge 21): karsit ulus oyunculari birbirine saldirabilir (kendi guvenli alani disinda) - tarayici istemcisinde tek harita Moradon oldugu icin PvP burada acik.
++	if (GetNation() != pTarget->GetNation() && GetZoneID() == ZONE_MORADON)
++		return true;
++
+ 	// Players can attack opposing nation players when they're in PVP zones.
+ 	if (GetNation() != pTarget->GetNation()
+ 		&& isInPVPZone())

@@ -303,3 +303,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 
 **Henüz boş kalan pencere içerikleri (2026-11-17, kullanıcı isteği)**
 - [ ] Görev ayrıntıları (av hedefi ve ödüller), parti üye listesi, dost listesi, klan, mektup, komut listesi ve çıkış menüsündeki "Run option after exiting".
+**Skill ve parti (2026-11-17)**
+- [x] Sunucuda tanımı olmayan 88 skill sunucuya tanıtıldı (`araclar/sunucu/skill-tanit.ts` + `sql-calistir.ps1`; Wink, Cutting, Shock, Wind, Rage, Blade of hate… Warrior'da sunucuda denendi). Dribble/Shoot (tür 8 etkinlik skill'leri) gizlendi; tür 8'li skill'ler (ışınlanma/diriltme) sunucuya eklenmedi.
+- [x] Pasif skill'ler: sunucu bunları skill puanı eşiklerine göre `UserAbilityHandler.cpp` içinde uygular. Warrior Defense ağacı 55+ puanda savunmaya +13 verdiği doğrulandı. Diğer sınıfların pasifleri ve direnç bonusları ayrıca denenmedi.
+- [x] PvP skill'i: seçili başka oyuncuya (düşman skill'i) atılabilir; sunucu Moradon'da karşıt ulus oyuncularının birbirine saldırmasına izin verir (`yamalar/moradon-pvp.patch`). Temel saldırı (R) ve oyuncu seçip otomatik vurma yok, yalnızca skill. Öldürme sayacı Moradon'da istemci tarafında sayılır.
+- [~] Parti: üye listesi, kabul/davet, ayrılma/dağıtma/lider devri paketleri ve orijinal `re_el_party` penceresi (can/mana çubukları) yapıldı; iki hesapla denendi. Eksik: partiden çıkma paketine sunucu 2 kişilik partide cevap vermedi (dağıtma çalışıyor), parti skill'leri (Descent, Sacrifice…), parti sohbeti, üye can yazısı, parti HP'si HUD'da, parti aranıyor panosu.

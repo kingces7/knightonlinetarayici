@@ -24,3 +24,16 @@ test('gelen paket: davet, hata kodu, başarılı üye', () => {
   if (hata.tur === 'hata') { assert.equal(hata.kod, -3); assert.match(hata.metin, /other nation/); }
   assert.equal(partiPaketi(new PaketYazici().u8(3).u16(12).u8(1).baytlar()).tur, 'diger');
 });
+
+import { partiPaketi as pp } from './parti.ts';
+const hex = (s: string) => Uint8Array.from(s.split(' ').map((x) => parseInt(x, 16)));
+test('PARTY_INSERT: gerçek sunucu paketi (lider kotestkar)', () => {
+  const p = pp(hex('03 01 00 01 09 00 6b 6f 74 65 73 74 6b 61 72 ae 10 68 0b 3c cd 00 9a 10 9a 10 02 00 ff ff ff ff'));
+  assert.deepEqual(p, { tur: 'uye', uye: { id: 1, ad: 'kotestkar', enCokCan: 4270, can: 2920, seviye: 60, sinif: 205, enCokMana: 4250, mana: 4250, ulus: 2 } });
+});
+test('PARTY_HPCHANGE: gerçek sunucu paketi', () => {
+  assert.deepEqual(pp(hex('06 02 00 d9 03 40 00 c5 03 7a 00')), { tur: 'can', id: 2, enCokCan: 985, can: 64, enCokMana: 965, mana: 122 });
+});
+test('parti hatası hâlâ hata olarak ayrılır', () => {
+  assert.equal(pp(hex('03 fd ff')).tur, 'hata');
+});

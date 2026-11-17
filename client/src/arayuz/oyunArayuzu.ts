@@ -29,6 +29,9 @@ export interface ArayuzBaglami {
   /** Sunucudan gelen görev durumları: [görev no, durum] (1 sürüyor, 2 tamamlandı, 3 teslim edilebilir…). */
   gorevler?: () => [number, number][];
   /** NPC diyaloğunda düğme seçildi (sunucuya gider) / diyalog kapatıldı. */
+  /** Parti: üye listesi ve işlemler (sunucu WIZ_PARTY). */
+  parti?: () => { uyeler: { id: number; ad: string; enCokCan: number; can: number; seviye: number; sinif: number; enCokMana: number; mana: number }[]; benimId: number };
+  partiAyril?: (id: number) => void; partiLider?: (id: number) => void; partiDagit?: () => void;
   /** Boş skill puanını bir ağaca ver (5–8). */
   skillPuaniVer?: (agac: number) => void;
   diyalogSec?: (sira: number) => void; diyalogKapandi?: () => void;
@@ -223,6 +226,8 @@ export class OyunArayuzu {
     this.genel.acilista.set('re_el_cmdlist', (p) => this.komutListesi(p)); // her açılışta yeşil çerçeve Private ve PM üzerinde başlar
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
     this.genel.davranis.set('re_el_page_quest', (p) => { this.sekmeSeridi(p, 'gorev'); this.gorevSayfasiKur(p); });
+    this.genel.davranis.set('re_el_party', (p) => this.partiKur(p));
+    this.genel.acilista.set('re_el_party', (p) => this.partiCiz(p));
     this.genel.acilista.set('re_el_page_quest', (p) => void this.gorevSayfasiDoldur(p));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
     this.genel.davranis.set('re_exitmenu', (p, kapat) => {
@@ -618,6 +623,33 @@ export class OyunArayuzu {
   }
   diyalogKapat(): void { this.diyalog?.sessizKapat(); }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
+  // ---------------------------------------------------------------- parti penceresi (re_el_party: 8 üye satırı, can/mana çubukları, lider menüsü)
+  private partiPenceresi: UiPencere | null = null; private partiSecili = -1;
+  private partiKur(p: UiPencere): void {
+    this.partiPenceresi = p; p.goster('Base_menu', false);
+    for (let i = 0; i < 8; i++) {
+      for (const e of p.bul(`base_choice${i}`)) { e.style.pointerEvents = 'auto'; e.style.cursor = 'pointer'; e.addEventListener('click', () => { this.partiSecili = i; this.partiCiz(p); }); }
+      for (const id of [`btn_up_${i}`, `btn_down_${i}`, `btn_commander_zoom_${i}`]) p.goster(id, false); // sıra değiştirme okları bu sürümde yok
+    }
+    const sec = () => this.b.parti?.().uyeler[this.partiSecili];
+    p.tikla.set('btn_out', () => { const u = sec(), pt = this.b.parti?.(); if (u && pt) { if (u.id === pt.benimId && pt.uyeler[0]?.id === pt.benimId && pt.uyeler.length > 1) this.b.partiDagit?.(); else this.b.partiAyril?.(u.id); } this.partiSecili = -1; });
+    p.tikla.set('btn_chief', () => { const u = sec(); if (u) this.b.partiLider?.(u.id); this.partiSecili = -1; });
+  }
+  /** Üye satırlarını sunucudaki parti bilgisiyle doldurur; boş satırlar gizlenir. */
+  private partiCiz(p: UiPencere): void {
+    const pt = this.b.parti?.(); const uyeler = pt?.uyeler ?? [];
+    for (let i = 0; i < 8; i++) {
+      const u = uyeler[i]; p.goster(`Base_Party${i}`, !!u);
+      if (!u) continue;
+      p.metin(`str_name${i}`, `${u.ad}${i === 0 ? ' (Leader)' : ''}  Lv.${u.seviye}`);
+      p.ilerleme(`progress_hp_${i}`, u.enCokCan ? u.can / u.enCokCan : 0); p.ilerleme(`progress_mp_${i}_curse`, u.enCokMana ? u.mana / u.enCokMana : 0);
+      for (const e of p.bul(`base_choice${i}`)) e.style.outline = i === this.partiSecili ? '1px solid #8fd6e6' : '';
+    }
+    const benLider = !!pt && uyeler[0]?.id === pt.benimId, sec = uyeler[this.partiSecili];
+    p.goster('Base_menu', !!sec && (benLider || sec.id === pt?.benimId));
+    p.goster('btn_chief', !!sec && benLider && sec.id !== pt?.benimId);
+  }
+
   // ---------------------------------------------------------------- görev sayfası (re_el_page_quest)
   private gorevSayfa = 0; private gorevSecili = -1;
   private static readonly GOREV_SATIRI = 15;
@@ -1503,6 +1535,7 @@ export class OyunArayuzu {
     h.metin('text_Level', `Level ${o.seviye}`);
     h.metin('text_cordinate', `${o.konum.x.toFixed(0)}, ${o.konum.y.toFixed(0)}`);
     if (this.minimapCiz && this.genel.acik('re_minimap')) this.minimapCiz();
+    if (this.partiPenceresi && this.genel.acik('re_el_party')) this.partiCiz(this.partiPenceresi);
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
     this.hedefCiz(); this.ganimetCiz();

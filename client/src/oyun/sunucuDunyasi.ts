@@ -68,6 +68,8 @@ export interface SavasKancalari {
   gorev?: (g: GorevPaketi) => void;
   /** Oyuncu öldürme bildirimi (PK bölgesi). */
   oldurme?: (o: OldurmeBildirimi) => void;
+  /** Başka bir oyuncu öldü (soket no): PvP öldürme sayacı için. */
+  oyuncuOldu?: (id: number) => void;
   /** Oyuncu terfi etti (yeni sınıf numarası). */
   sinifDegisti?: (sinif: number) => void;
   /** Sunucu skill puanı dağıtımını reddetti (ağaç, o ağaçtaki gerçek puan). */
@@ -148,7 +150,7 @@ export class SunucuDunyasi {
       case WIZ.ESYA_ALIM_SATIM: this.kancalar.magaza?.(magazaCevabi(p.govde)); break;
       case WIZ.SOHBET: this.kancalar.sohbet?.(sohbetPaketi(p.govde)); break;
       case WIZ.SOHBET_HEDEFI: this.kancalar.ozelHedef?.(ozelHedefCevabi(p.govde).bulundu); break;
-      case WIZ.PARTI: this.kancalar.parti?.(partiPaketi(p.govde)); break;
+      case WIZ.PARTI: ((window as unknown as { __parti?: string[] }).__parti ??= []).push(Array.from(p.govde).map((x) => x.toString(16).padStart(2, '0')).join(' ')); this.kancalar.parti?.(partiPaketi(p.govde)); break;
       case WIZ.SALDIRI: this.saldiri(saldiriSonucu(p.govde)); break;
       case WIZ.HEDEF_CAN: this.hedefCan(hedefCan(p.govde)); break;
       case WIZ.CAN_DEGISTI: this.canDegisti(canDegisti(p.govde)); break;
@@ -296,6 +298,7 @@ export class SunucuDunyasi {
   private olum(id: number): void {
     if (id === this.benimSoketNo) { if (this.oyuncu && this.oyuncu.can > 0) { this.oyuncu.can = 0; this.kancalar.oyuncuVuruldu?.(0); } return; }
     this.canavarlar.get(id)?.agOlum();
+    const d = this.oyuncular.get(id); if (d) { this.kancalar.oyuncuOldu?.(id); d.can = 0; d.model?.oynatRastgele('olum', 3, false, 0.1); } // başka bir oyuncu öldü
   }
 
   private deneyim(d: { tur: number; deneyim: bigint }): void {
