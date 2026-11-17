@@ -1,6 +1,21 @@
 --- /tmp/Npc.cpp.orig	2026-11-17 22:06:08.648563000 +0300
-+++ oyun-dosyalari/derleme/LILITH_Game-Server/GameServer/Npc.cpp	2026-11-17 22:06:26.089417900 +0300
-@@ -5982,7 +5982,7 @@
++++ oyun-dosyalari/derleme/LILITH_Game-Server/GameServer/Npc.cpp	2026-11-17 22:16:00.597442900 +0300
+@@ -1,4 +1,5 @@
+ #include "stdafx.h"
++thread_local bool g_bGmTekVurusKapali = false; // Provoke gibi hasar vermemesi gereken GM skill'lerinde GM tek vurus ozelligi kapatilir (MagicInstance.cpp ExecuteType7)
+ #include "MagicInstance.h"
+ #include "../shared/DateTime.h"
+ 
+@@ -467,7 +468,7 @@
+ 	
+ 	//(GM) Her yaratığı bir vuruşta öldürmek!
+ 	if (pAttacker && pAttacker->isPlayer())
+-		if (TO_USER(pAttacker)->isGM())
++		if (TO_USER(pAttacker)->isGM() && !g_bGmTekVurusKapali)
+ 			amount = (-m_iHP);
+ 
+ 	if (isPet()){
+@@ -5982,7 +5983,7 @@
  	if (GetMap() == nullptr)
  		return;
  
@@ -9,7 +24,7 @@
  	std::map<CUser*, uint32> fuserdamagelist;
  	std::map<CNpc*, uint32> fnpcdamagelist;
  	std::map<uint16, CUser*> partyIndex;
-@@ -6035,9 +6035,18 @@
+@@ -6035,9 +6036,18 @@
  		if (pUser == nullptr || !pUser->isInGame())
  			continue;
  

@@ -1,0 +1,19 @@
+--- /tmp/Magic.orig	2026-11-17 22:15:49.366216100 +0300
++++ oyun-dosyalari/derleme/LILITH_Game-Server/GameServer/MagicInstance.cpp	2026-11-17 22:16:00.599443100 +0300
+@@ -1,5 +1,6 @@
+ ﻿
+ #include "stdafx.h"
++extern thread_local bool g_bGmTekVurusKapali;
+ #include "../shared/KOSocketMgr.h"
+ #include "MagicProcess.h"
+ #include "MagicInstance.h"
+@@ -4591,7 +4592,9 @@
+ 			if (pTarget->isPlayer())
+ 				continue;
+ 
++			g_bGmTekVurusKapali = true; // Provoke: GM da olsa tablodaki kadar (az) hasar verir
+ 			pTarget->HpChange(-damage, pSkillCaster);
++			g_bGmTekVurusKapali = false;
+ 		}
+ 
+ 		if (pType->bTargetChange == 2)
