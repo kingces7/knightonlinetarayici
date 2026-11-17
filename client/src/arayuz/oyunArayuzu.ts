@@ -372,7 +372,22 @@ export class OyunArayuzu {
     // Referans görünüm: canavar adı kırmızı-somon ve büyük, altında yazısız parlak kırmızı can çubuğu.
     for (const e of h.bul('name')) { e.style.color = '#ff5a5a'; e.querySelectorAll<HTMLElement>('*').forEach((k) => { k.style.color = '#ff5a5a'; k.style.fontSize = '17px'; k.style.fontWeight = '600'; k.style.textShadow = '0 1px 2px #000'; }); }
   }
-  private hedefCubukHedef: unknown = null; private hedefCubukOran = 1;
+  private hedefAdi = '';
+  /** Canavar adı çubuğun üstünde ortalanır ve kesilmez; çubuğun ≈1,6 katından uzunsa yazı tipi küçülür (en uzun ad: 35 karakter). */
+  private hedefAdiSigdir(ad: string): void {
+    for (const e of this.hedefCubugu.bul('name')) {
+      e.style.overflow = 'visible'; e.style.whiteSpace = 'nowrap'; e.style.textAlign = 'center'; e.style.justifyContent = 'center';
+      const ic = [e, ...Array.from(e.querySelectorAll<HTMLElement>('*'))];
+      const sar = (px: number) => { for (const k of ic) { k.style.fontSize = `${px}px`; k.style.whiteSpace = 'nowrap'; k.style.overflow = 'visible'; k.style.textOverflow = 'clip'; } };
+      const cubuk = this.hedefCubugu.bul('grpg_level_1')[0], genis = (cubuk?.offsetWidth || 179) * 1.6;
+      let px = 17; sar(px);
+      const span = e.querySelector('span') ?? e;
+      for (let i = 0; i < 12 && span.scrollWidth > genis && px > 10; i++) { px -= 1; sar(px); }
+      if (span.scrollWidth > genis) sar(Math.max(8, Math.floor(px * genis / span.scrollWidth)));
+    }
+    void ad;
+  }
+  private hedefCubukHedef: unknown = null; private hedefCubukSon = 0; private hedefCubukOran = 1;
   private hedefCiz(): void {
     const h = this.hedefCubugu, hd = this.b.oyuncu.hedef;
     if (!hd || hd.olu) { if (h.el.style.display !== 'none') h.el.style.display = 'none'; return; }
@@ -382,11 +397,14 @@ export class OyunArayuzu {
     const k = fark <= -5 ? 0 : fark <= 1 ? 1 : fark <= 5 ? 2 : 3;
     for (let i = 0; i < 4; i++) h.goster(`grpg_level_${i}`, i === k);
     h.metin('name', hd.tur.ad);
+    if (this.hedefAdi !== hd.tur.ad) { this.hedefAdi = hd.tur.ad; this.hedefAdiSigdir(hd.tur.ad); }
     h.metin('Text_Health', ''); // referans görünüm: çubuğun üstünde yazı yok, can çubuğun doluluğundan izlenir
-    // Can çubuğu vuruşta ani kesilmez: hızla (≈0,15 sn) yeni değere akar; hedef değişince hemen oturur.
-    const oran = Math.max(0, hd.can / Math.max(1, hd.enCok));
-    if (this.hedefCubukHedef !== hd) { this.hedefCubukHedef = hd; this.hedefCubukOran = oran; } else this.hedefCubukOran += (oran - this.hedefCubukOran) * 0.25;
-    for (let i = 0; i < 4; i++) h.ilerleme(`grpg_level_${i}`, this.hedefCubukOran);
+    // Can çubuğu: ön katman gerçek canı anında gösterir; arkadaki katman (orijinaldeki "geriden gelen") ~0,8 sn'de yavaşça akarak kaybolan canı gösterir.
+    const oran = Math.max(0, hd.can / Math.max(1, hd.enCok)), simdi = performance.now(), dt = Math.min(0.1, (simdi - this.hedefCubukSon) / 1000); this.hedefCubukSon = simdi;
+    if (this.hedefCubukHedef !== hd) { this.hedefCubukHedef = hd; this.hedefCubukOran = oran; }
+    else if (this.hedefCubukOran > oran) this.hedefCubukOran = Math.max(oran, this.hedefCubukOran - Math.max(0.12, (this.hedefCubukOran - oran) * 0.9) * dt * 1.6); // beklemeden, orantılı + en az 0,12/sn hızla akar
+    else this.hedefCubukOran = oran;
+    for (let i = 0; i < 4; i++) { h.ilerleme(`grpg_level_${i}`, oran); h.ilerleme(`grpg_level_${i}:geri`, this.hedefCubukOran); }
   }
 
   // ---------------------------------------------------------------- banka (re_el_warehouse)

@@ -215,8 +215,12 @@ export class UiPencere {
       const ic = document.createElement('div'); ic.className = 'ui-dugum ui-t4';
       ic.style.left = '0'; ic.style.top = '0'; ic.style.width = `${c.k[2] - c.k[0]}px`; ic.style.height = `${c.k[3] - c.k[1]}px`;
       this.resimCiz(ic, c); kap.appendChild(ic); el.appendChild(kap);
+      if (n.t === 17) { // kademeli hedef çubuğu: üç katman aynı resmi kullanır; r0 boş zemin (koyu), r2 geriden gelen (açık iz), r1 gerçek can (ön)
+        kap.style.zIndex = c.r === 1 ? '3' : c.r === 2 ? '2' : '1';
+        ic.style.filter = c.r === 1 ? '' : c.r === 2 ? 'grayscale(1) brightness(1.7)' : 'brightness(0.2) saturate(0.7)';
+      }
       // r1 = dolu kısım (kademeli çubukta r2 = geriden gelen katman); aynı kimlikte birden çok çubuk olabilir
-      if (((c.r ?? 0) === 1 || (n.t === 17 && c.r === 2)) && n.id) { (this.ilerlemeler.get(n.id) ?? this.ilerlemeler.set(n.id, []).get(n.id)!).push(kap); kap.style.width = `${w}px`; kap.dataset.tam = String(w); }
+      if (((c.r ?? 0) === 1 || (n.t === 17 && c.r === 2)) && n.id) { const anahtar = n.t === 17 && c.r === 2 ? `${n.id}:geri` : n.id; (this.ilerlemeler.get(anahtar) ?? this.ilerlemeler.set(anahtar, []).get(anahtar)!).push(kap); kap.style.width = `${w}px`; kap.dataset.tam = String(w); }
     }
   }
 

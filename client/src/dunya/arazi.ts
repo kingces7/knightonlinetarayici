@@ -138,8 +138,11 @@ export class Arazi {
             c = mix(c, t2 / max(a2, 0.35), a2 * 0.85 * detay);
           }
           c = min(c, vec3(1.0));
-          c = pow(c, vec3(1.55)); // orta/açık tonları koyulaştırır: zemin beyaza/açık griye yanmasın, nesnelerle aynı koyulukta dursun
-          float isik = 0.38 + 0.52 * max(dot(normalize(vNormal), gunesYonu), 0.0); // en çok ≈0,9 (eskiden 1,2: zemin beyaza yanıyordu)
+          // Yumuşak diz: koyu/orta tonlar korunur (zemin canlı kalır), yalnızca parlak tonlar sıkıştırılır (beyaza/açık griye yanmasın, nesnelerle aynı koyulukta dursun).
+          c = pow(c, vec3(1.12));
+          vec3 asiri = max(c - vec3(0.62), vec3(0.0));
+          c = min(c, vec3(0.62)) + asiri * 0.45;
+          float isik = 0.64 + 0.5 * max(dot(normalize(vNormal), gunesYonu), 0.0); // 0,58 (gölge) … 1,08 (güneşe dönük)
           vec3 r = c * isik;
           float sis = smoothstep(sisYakin, sisUzak, vDerinlik);
           gl_FragColor = vec4(mix(r, sisRengi, sis), 1.0);

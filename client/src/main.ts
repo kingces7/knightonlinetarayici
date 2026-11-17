@@ -34,7 +34,7 @@ const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
 const SIS = new THREE.Color(0x9fb4c8);
 /** Hedefin boyuna göre menzil: büyük canavarın merkezi uzaktadır (orijinal DistanceExceptRadius). */
 const menzilDe = (h: { secimYaricapi: number }) => SALDIRI_MENZILI + Math.max(0, h.secimYaricapi - 0.8);
-const SALDIRI_MENZILI = 3.6;
+const SALDIRI_MENZILI = 5.0; // sunucu melee için 15 birim + silah menziline izin verir (User.cpp isInAttackRange); client temkinli ama içine girmeden vurur
 /** Town komutunun ışınlandığı Moradon şehir noktası (kullanıcı verdi). */
 const SEHIR_NOKTASI: [number, number] = [305, 342]; // yakın dövüş vuruş menzili (m); eskiden 2,6 (canavarın çok yakınına girmek gerekiyordu)
 /**
@@ -68,9 +68,9 @@ async function basla(): Promise<void> {
   sahne.fog = new THREE.Fog(SIS, 150, 600);
   // Işık şiddeti: eskiden hemi 1,6 + güneş 1,8 yüzeyleri 3 kata kadar aşırı aydınlatıyordu (zemin beyaza yanıyordu). Orijinal D3D ışığı gibi toplam ≈1. Deneme: ?isik=0.8 (çarpan)
   const ISIK = Number(parametre.get('isik') ?? 1);
-  const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x6b5a45, 0.7 * ISIK);
+  const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x6b5a45, 1.9 * ISIK);
   sahne.add(hemi);
-  const gunes = new THREE.DirectionalLight(0xfff2dd, 0.6 * ISIK);
+  const gunes = new THREE.DirectionalLight(0xfff2dd, 1.5 * ISIK);
   gunes.position.set(40, 80, -30);
   sahne.add(gunes, gunes.target);
 
@@ -628,7 +628,7 @@ async function basla(): Promise<void> {
       const saldirdi = c.guncelle(dt, oyuncu);
       const vurus = saldirdi ? canavarVurusu(c.tur, oyuncu.savasVeri) : null; // sunucu formülü (savas.ts)
       if (saldirdi) ses.modelSesi(c.tur.model, 'saldir', c.konum);
-      if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } }
+      if (vurus && vurus.hasar <= 0) { hud.mesaj(`${c.tur.ad} attacks but misses.`, 'bilgi'); } // karşılık verme yok: saldırıyı oyuncu kendisi seçer
       if (vurus && vurus.hasar > 0) {
         const net = oyuncu.hasarAl(vurus.hasar);
         ses.modelSesi(OYUNCU_SES_MODELI, oyuncu.olu ? 'olum' : 'darbe');
@@ -638,7 +638,7 @@ async function basla(): Promise<void> {
           hud.mesaj(`You were slain by ${c.tur.ad}.`, 'hasar'); oyuncu.hedef = null;
           if (ayar.deneyimKaybi && oyuncu.seviye >= 6) { const kayip = Math.floor(gerekenDeneyim(oyuncu.seviye) / 20); deneyimKaybet(kayip); hud.mesaj(`You lost ${kayip.toLocaleString('en-US')} experience.`, 'hasar'); }
         }
-        else if (!oyuncu.hedef) { oyuncu.hedef = c; oyuncu.saldiriyor = true; } // karşılık ver
+        // canavar vurunca otomatik saldırı başlamaz (kullanıcı isteği)
       }
       if (c.olu) {
         if (!c.agModu && !c.ganimetBirakildi && c.oluSuresi > 0.3) { // sunucu canavarının ganimeti sunucudan gelir (sonraki adım)

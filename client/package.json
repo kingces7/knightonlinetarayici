@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "kontrol": "tsc --noEmit"
+    "kontrol": "tsc --noEmit",
+    "oyuncu-derle": "tsc --noEmit && vite build --config vite.oyuncu.config.ts",
+    "oyuncu": "node scripts/oyuncuSunucu.mjs"
   },
   "dependencies": {
     "three": "0.170.0"
