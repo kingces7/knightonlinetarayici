@@ -14,7 +14,7 @@ import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
 import { DiyalogPenceresi } from './diyalogPenceresi';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
-import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
+import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
 export interface Beceri { /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
@@ -138,6 +138,8 @@ export class OyunArayuzu {
   private sinifBecerileri: Beceri[] = [];
   private sekmeBeceriler: Beceri[][] = [[], [], [], [], []];
   private beceriSekme = 0; private beceriSayfa = 0; private beceriYuvaSayisi = 6;
+  /** Pasif skill (kullanılmaz, kendiliğinden etki eder: sunucu tablosunda tür 0 ve MP 0): skill ağacında yalnızca bilgi verir; çubuğa konmaz, basılmaz. */
+  private pasifMi(no: number): boolean { const v = kurallar?.beceri[String(no)]; return !!v && v.tip === 0 && v.msp === 0; }
   private beceriBul(no: number): Beceri | undefined { return this.sinifBecerileri.find((x) => x.no === no) ?? this.tumBeceriler.find((x) => x.no === no); }
   /** Skill kullanılabilir mi: temel sayfada seviye, ağaçlarda o ağaca verilen puan yeter mi. */
   private beceriAcik(b: Beceri): boolean {
@@ -770,12 +772,14 @@ export class OyunArayuzu {
   /** Skill'i çubuğun belirtilen yuvasına koyar; seviyesi yetmiyorsa koymaz. Koyduysa true. */
   private cubugaKoy(no: number, yuva: number): boolean {
     const b = this.beceriBul(no); if (!b) return false;
+    if (this.pasifMi(no)) { this.b.mesaj(`${b.ad} is a passive skill and cannot be placed on the skill bar.`); return false; }
     if (!this.beceriAcik(b)) { const agac = (b.sayfa ?? 0) % 10; this.b.mesaj(agac >= 5 && agac <= 8 ? `${b.ad} requires ${b.seviye} skill points in this tree.` : `${b.ad} requires level ${b.seviye}.`); return false; }
     this.cubukBeceri[yuva] = no; this.cubukKaydet(); return true;
   }
   /** Skill penceresinde sağ tık: skill, çubukta (bu sayfadan başlayarak) ilk boş yuvaya konur. */
   private hizliKoy(no: number): void {
     const b = this.beceriBul(no); if (!b) return;
+    if (this.pasifMi(no)) { this.b.mesaj(`${b.ad} is a passive skill: it works automatically and is not placed on the skill bar.`); return; }
     if (this.cubukBeceri.includes(no)) { this.b.mesaj(`${b.ad} is already on the skill bar.`); return; }
     for (let k = 0; k < 64; k++) { const y = (this.cubukSayfa * 8 + k) % 64; if (this.cubukBeceri[y] === null || this.cubukBeceri[y] === undefined) { this.cubugaKoy(no, y); return; } }
     this.b.mesaj('The skill bar is full.');
@@ -840,7 +844,7 @@ export class OyunArayuzu {
     this.cubukBeceri = new Array(64).fill(null);
     try { const k = JSON.parse(localStorage.getItem(this.cubukAnahtari()) ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
     // Kayıttaki skill'ler bu sınıfa ait olmalı; hiçbiri yoksa 1. seviyedeki temel skill'ler sırayla konur
-    const gecerli = new Set(this.sinifBecerileri.map((b) => b.no));
+    const gecerli = new Set(this.sinifBecerileri.filter((b) => !this.pasifMi(b.no)).map((b) => b.no)); // pasif skill'ler çubukta durmaz
     this.cubukBeceri = this.cubukBeceri.map((no) => (no !== null && gecerli.has(no) ? no : null));
     if (!this.cubukBeceri.some((x) => x !== null)) { const ilk = this.sekmeBeceriler[0].filter((b) => b.seviye <= 1).map((b) => b.no); this.cubukBeceri = [...ilk, ...new Array(64 - ilk.length).fill(null)].slice(0, 64); }
   }
@@ -1227,7 +1231,7 @@ export class OyunArayuzu {
       alan.draggable = false;
       alan.addEventListener('click', () => { if (this.beceriler[i]) { this.seciliBeceri = i; this.beceriCiz(); } });
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); if (this.beceriler[i]) this.hizliKoy(this.beceriler[i].no); });
-      alan.addEventListener('dblclick', () => { if (this.beceriler[i]) this.b.beceriKullan(this.beceriler[i].no); });
+      alan.addEventListener('dblclick', () => { if (this.beceriler[i] && !this.pasifMi(this.beceriler[i].no)) this.b.beceriKullan(this.beceriler[i].no); });
     }
     p.metin('string_page', 1);
   }
@@ -1251,7 +1255,7 @@ export class OyunArayuzu {
     }
     const s = this.beceriler[this.seciliBeceri];
     p.metin('string_info', s ? s.aciklama : '');
-    p.metin('string_skill_mp', s ? `MP ${s.msp}` : '');
+    p.metin('string_skill_mp', s ? (this.pasifMi(s.no) ? 'Passive skill' : `MP ${s.msp}`) : '');
     const agac = (s?.sayfa ?? 0) % 10, agacta = agac >= 5 && agac <= 8;
     p.metin('string_skill_vp', s ? (agacta ? `Required points ${s.seviye}` : `Required level ${s.seviye}`) : '');
     p.metin('string_skill_point', s ? (this.beceriAcik(s) ? 'Available' : 'Not available yet') : '');
