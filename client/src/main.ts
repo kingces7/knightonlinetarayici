@@ -210,6 +210,18 @@ async function basla(): Promise<void> {
   /** Skill adı (sunucu tablosunda boş ya da küçük harfliyse client tablosundaki ad), baş harfi büyük. */
   const buyuAdi = (v: { ad: string }, no: number) => { const s = (arayuz?.beceriAdi(no) || v.ad || 'The skill').trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
   const sprintMi = (no: number) => no % 1000 === 2 && kurallar?.beceri[String(no)]?.tip4?.turu === 6;
+  /**
+   * Skill animasyonu. Oyuncu iskeletinde yakın dövüş skill animasyonları silah ailesine göre ayrılır (112–135: axe, dagger, dual, blunt, polearm, spear, sword, twoH_axe, twoH_sword; çift numara A, tek numara B).
+   * Hoodwink ve Leg cutting (Warrior 1. ağaç) animasyonu elindeki silaha uyar: tablodaki kılıç animasyonu (131 sword02_B) yerine silahın kendi ailesinin B animasyonu oynar. Leg cutting, Hoodwink ile aynı animasyonu kullanır.
+   */
+  const SILAH_AILESI_ANIM: Record<number, number> = { 11: 116, 21: 128, 31: 112, 41: 120, 51: 126, 22: 134, 32: 132, 42: 122, 52: 124 }; // silah türü (tip) → ailenin A animasyonu
+  const animSec = (no: number): number | undefined => {
+    const tabloAnim = arayuz?.beceriAnimNo(no);
+    const agacBir = [1055, 1065, 2055, 2065].includes(Math.floor(no / 100)) && (no % 100 === 5 || no % 100 === 20); // Hoodwink, Leg cutting
+    if (!agacBir) return tabloAnim;
+    const aile = SILAH_AILESI_ANIM[oyuncu.silah?.tip ?? 0];
+    return aile !== undefined ? aile + 1 : 131; // B animasyonu; silah tanınmazsa Hoodwink'in tablodaki animasyonu
+  };
   const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null, ucan: null }, ...(sprintMi(no) ? { kendi: null } : {}) });
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Burada yalnız animasyon, ses ve istek vardır. */
   /** Süreli büyü (hazırlık > 0): hazırlanırken hedef/skill; yürümek iptal eder. */
@@ -231,7 +243,7 @@ async function basla(): Promise<void> {
     const hedefGrup = hedef ? hedef.grup : dost ? dost.grup : oyuncu.grup;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // aynı skill'in art arda gönderilmemesi için yerel bekleme (sunucu da kontrol eder)
     const gonder = (komut: number) => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(komut, no, benimSoketNo, hedefId, alanVeri));
-    const animNo = arayuz?.beceriAnimNo(no);
+    const animNo = animSec(no);
     if (hedef) { oyuncu.savastanBeri = 0; if (!hareketEdiyor) oyuncu.bak(hedef.konum); }
     const sure = (v.hazirlik ?? 0) * 0.1;
     if (v.tip === 2 && hedef) { // okçuluk: 1 hazırla (yay gerilir) → ≈1,05 sn sonra 2 uçuş (ok harcanır, hasar işlenir) → ok hedefe varınca 3 etki. Sunucu uçuşu 0,31–1,25 sn arasında kabul eder.
@@ -319,7 +331,7 @@ async function basla(): Promise<void> {
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
     if (v.tip === 1 && hedef) {
-      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } else oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; // skill tablosundaki animasyon; yürürken üst gövdede oynar
+      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(animSec(no)) || 0.8; } else oyuncu.animKilidi = oyuncu.model?.beceriOynat(animSec(no)) || 0.8; // skill tablosundaki animasyon; yürürken üst gövdede oynar
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v, hedefEfekt: efektId?.hedef ?? null });
     } else if (v.tip4) {
