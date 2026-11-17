@@ -231,3 +231,7 @@ Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, s
 - Akış: `0x31` komut 1 (hazırlama) → 312–1250 ms içinde komut 2 (uçuş; veri `[x, 0, z, sıra]`) → komut 3 (etki). Ok uçuş anında harcanır.
 - Ok adedi değişimi `0x3D` ile gelir (`esyaAdediDegisti`: yuva, eşya, yeni adet).
 - Client: ~1050 ms'de uçuş, ok efekti hedefe varınca etki gönderilir. Test: `client/scripts/buyuTesti.mjs <klasör> 0 202003 dusman` (kotest2/RogTest1).
+
+## Başkasını iyileştirme (Priest, tip 3 / moral 2)
+- Seçili oyuncunun soket no'su `hedef` olarak gider; akış kendi büyülerimizle aynı (1 → 2 → 3). Hedef oyuncu da aynı `0x31` komut 1/2/3 paketlerini ve `0x17` (can değişimi: en çok, şimdiki) alır.
+- Test: `client/scripts/iyilestirTesti.mjs <skill> <png öneki>` (PriTest1 + robot KoTest). Sonuç: hedef 1-2-3'ü aldı, sunucu reddetmedi. Hedefteki iyileşme efekti (heal_cast.fxb) çözülemediği için görünmüyor.
