@@ -14,6 +14,8 @@ import { pngKodla } from '../ortak/png.ts';
 
 /** Dört sınıfın temel skill sayfaları: El Morad Warrior/Rogue/Mage/Priest = 2010/2020/2030/2040, Karus = 1010–1040. */
 const SAYFALAR = [2010, 2020, 2030, 2040, 1010, 1020, 1030, 1040];
+/** Terfi sonrası (novice/master) skill sayfaları: 1050–1129 ve 2050–2129 (sayfa = ulus × 1000 + sınıf kodu × 10 + ağaç; 5/6/7/8 = novice/master özel ağaçları). */
+const terfiSayfasi = (p: number) => (p >= 1050 && p <= 1129) || (p >= 2050 && p <= 2129);
 
 export function simgeAdaylari(simgeNo: number, sayfa: number): string[] {
   const nn = String(simgeNo % 100).padStart(2, '0');
@@ -32,7 +34,7 @@ function main(): number {
   const liste: Record<string, unknown>[] = [];
   for (const s of satirlar) {
     const SAYFA = Number(s[16]);
-    if (!SAYFALAR.includes(SAYFA) || Number(s[15]) <= 0) continue; // seviye 0 = etkinlik skilleri
+    if ((!SAYFALAR.includes(SAYFA) && !terfiSayfasi(SAYFA)) || (Number(s[15]) <= 0 && !terfiSayfasi(SAYFA))) continue; // seviye 0 = etkinlik skilleri
     const no = Number(s[0]);
     let simge: string | null = null;
     const simgeNo = Number(s[32]) > 0 ? Number(s[32]) : no;

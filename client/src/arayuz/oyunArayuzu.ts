@@ -25,6 +25,8 @@ export interface ArayuzBaglami {
   kamera: TakipKamerasi;
   esyaKusan: (i: number) => void;
   /** NPC diyaloğunda düğme seçildi (sunucuya gider) / diyalog kapatıldı. */
+  /** Boş skill puanını bir ağaca ver (5–8). */
+  skillPuaniVer?: (agac: number) => void;
   diyalogSec?: (sira: number) => void; diyalogKapandi?: () => void;
   /** Envanterde sürükle-bırak: kaynak yuvadaki eşyayı hedef yuvaya taşır/yer değiştirir. */
   esyaTasi: (kaynak: YuvaKonumu, hedef: YuvaKonumu) => void;
@@ -130,6 +132,16 @@ export class OyunArayuzu {
   private tumBeceriler: Beceri[] = [];
   private cubukSinif = 201;
   private seciliBeceri = 0;
+  /** Sınıfın tüm skill'leri (çubuk/kullanım için) ve skill penceresindeki sekmeler: 0 temel, 1–3 ağaçlar, 4 Master; her sekme sayfalara bölünür. */
+  private sinifBecerileri: Beceri[] = [];
+  private sekmeBeceriler: Beceri[][] = [[], [], [], [], []];
+  private beceriSekme = 0; private beceriSayfa = 0; private beceriYuvaSayisi = 6;
+  private beceriBul(no: number): Beceri | undefined { return this.sinifBecerileri.find((x) => x.no === no) ?? this.tumBeceriler.find((x) => x.no === no); }
+  /** Skill kullanılabilir mi: temel sayfada seviye, ağaçlarda o ağaca verilen puan yeter mi. */
+  private beceriAcik(b: Beceri): boolean {
+    const o = this.b.oyuncu, agac = (b.sayfa ?? 0) % 10;
+    return agac >= 5 && agac <= 8 ? (o.skillPuanlari[agac] ?? 0) >= b.seviye : o.seviye >= b.seviye;
+  }
   private fps = 60; private fpsSayac = 0;
   private sonEnvanterImza = '';
 
@@ -737,21 +749,21 @@ export class OyunArayuzu {
   }
   /** Skill'i çubuğun belirtilen yuvasına koyar; seviyesi yetmiyorsa koymaz. Koyduysa true. */
   private cubugaKoy(no: number, yuva: number): boolean {
-    const b = this.beceriler.find((x) => x.no === no); if (!b) return false;
-    if (this.b.oyuncu.seviye < b.seviye) { this.b.mesaj(`${b.ad} requires level ${b.seviye}.`); return false; }
+    const b = this.beceriBul(no); if (!b) return false;
+    if (!this.beceriAcik(b)) { const agac = (b.sayfa ?? 0) % 10; this.b.mesaj(agac >= 5 && agac <= 8 ? `${b.ad} requires ${b.seviye} skill points in this tree.` : `${b.ad} requires level ${b.seviye}.`); return false; }
     this.cubukBeceri[yuva] = no; this.cubukKaydet(); return true;
   }
   /** Skill penceresinde sağ tık: skill, çubukta (bu sayfadan başlayarak) ilk boş yuvaya konur. */
   private hizliKoy(no: number): void {
-    const b = this.beceriler.find((x) => x.no === no); if (!b) return;
+    const b = this.beceriBul(no); if (!b) return;
     if (this.cubukBeceri.includes(no)) { this.b.mesaj(`${b.ad} is already on the skill bar.`); return; }
     for (let k = 0; k < 64; k++) { const y = (this.cubukSayfa * 8 + k) % 64; if (this.cubukBeceri[y] === null || this.cubukBeceri[y] === undefined) { this.cubugaKoy(no, y); return; } }
     this.b.mesaj('The skill bar is full.');
   }
   /** Skill'in oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1). */
-  beceriAnimNo(no: number): number | undefined { return this.beceriler.find((x) => x.no === no)?.anim; }
+  beceriAnimNo(no: number): number | undefined { return this.beceriBul(no)?.anim; }
   /** Skill'in efekt numaraları (fx.tbl): kendinde ve hedefte oynayan. */
-  beceriEfekt(no: number): { kendi: number | null; hedef: number | null; ucan: number | null } { const b = this.beceriler.find((x) => x.no === no) ?? this.tumBeceriler.find((x) => x.no === no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null, ucan: b?.efektUcan ?? null }; }
+  beceriEfekt(no: number): { kendi: number | null; hedef: number | null; ucan: number | null } { const b = this.beceriBul(no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null, ucan: b?.efektUcan ?? null }; }
   /** Çubuktaki 16 yuva: yatay 10..17, dikey 0..7 (orijinal arayüzde iki ayrı grup). */
   private cubukYuvalari(): HTMLElement[] {
     const yuva = (id: string) => this.cubuk.bul(id).filter((e) => e.classList.contains('ui-t9'));
@@ -806,24 +818,56 @@ export class OyunArayuzu {
     this.cubukBeceri = new Array(64).fill(null);
     try { const k = JSON.parse(localStorage.getItem(this.cubukAnahtari()) ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
     // Kayıttaki skill'ler bu sınıfa ait olmalı; hiçbiri yoksa 1. seviyedeki temel skill'ler sırayla konur
-    const gecerli = new Set(this.beceriler.map((b) => b.no));
+    const gecerli = new Set(this.sinifBecerileri.map((b) => b.no));
     this.cubukBeceri = this.cubukBeceri.map((no) => (no !== null && gecerli.has(no) ? no : null));
-    if (!this.cubukBeceri.some((x) => x !== null)) { const ilk = this.beceriler.filter((b) => b.seviye <= 1).map((b) => b.no); this.cubukBeceri = [...ilk, ...new Array(64 - ilk.length).fill(null)].slice(0, 64); }
+    if (!this.cubukBeceri.some((x) => x !== null)) { const ilk = this.sekmeBeceriler[0].filter((b) => b.seviye <= 1).map((b) => b.no); this.cubukBeceri = [...ilk, ...new Array(64 - ilk.length).fill(null)].slice(0, 64); }
   }
   /** Oyuncunun sınıfı belli olunca (sunucudan ya da yerel): skill listesi ve çubuğu o sınıfa göre yenilenir. Sınıf kodu = ulus × 100 + meslek (105/106 Warrior, 107/108 Rogue, 109/110 Mage, 111/112 Priest). */
   sinifAyarla(sinif: number): void {
     const ulus = Math.floor(sinif / 100), m = sinif % 100, meslek = m <= 4 ? m : m <= 6 ? 1 : m <= 8 ? 2 : m <= 10 ? 3 : 4;
-    const sayfa = ulus * 1000 + meslek * 10;
-    this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === sayfa && b.seviye <= 30).slice(0, 8);
+    const terfili = m >= 5 && m <= 12;
+    // Sayfa kodu = sınıf kodu × 10 (201 → 2010 temel, 205 → 2050 novice temel, 206 → 2060 master temel); ağaçlar +5, +6, +7, +8
+    const taban = terfili ? sinif * 10 : ulus * 1000 + meslek * 10;
+    const sirala = (l: Beceri[]) => l.sort((a, c) => a.seviye - c.seviye || a.no - c.no);
+    this.sekmeBeceriler = [
+      terfili ? sirala(this.tumBeceriler.filter((b) => b.sayfa === taban)) : this.tumBeceriler.filter((b) => b.sayfa === taban && b.seviye <= 30).slice(0, 8),
+      ...(terfili ? [5, 6, 7, 8].map((k) => sirala(this.tumBeceriler.filter((b) => b.sayfa === taban + k))) : [[], [], [], []]),
+    ];
+    this.sinifBecerileri = this.sekmeBeceriler.flat();
+    this.beceriSekme = 0; this.beceriSayfa = 0; this.beceriListesiniYenile();
+    this.beceriSekmeleriniKur(sinif);
     this.cubukSinif = sinif; this.seciliBeceri = 0; this.cubukYukle();
+  }
+  /** Seçili sekme ve sayfaya göre penceredeki skill listesi. */
+  private beceriListesiniYenile(): void {
+    const tum = this.sekmeBeceriler[this.beceriSekme] ?? [];
+    this.beceriSayfa = Math.max(0, Math.min(this.beceriSayfa, Math.max(0, Math.ceil(tum.length / this.beceriYuvaSayisi) - 1)));
+    this.beceriler = tum.slice(this.beceriSayfa * this.beceriYuvaSayisi, (this.beceriSayfa + 1) * this.beceriYuvaSayisi);
+    this.seciliBeceri = 0;
+  }
+  /** Terfi etmiş sınıfta sekme düğmeleri (Basic / 3 ağaç / Master), ağaç puanları ve + düğmeleri; sınıfa göre doğru düğme ve yazılar. */
+  private beceriSekmeleriniKur(sinif: number): void {
+    const p = this.pencereler.beceri, m = sinif % 100, terfili = m >= 5 && m <= 12, usta = terfili && m % 2 === 0;
+    const grup = [1, 5, 6].includes(m) ? ['blade', 'berserker'] : [2, 7, 8].includes(m) ? ['ranger', 'hunter'] : [3, 9, 10].includes(m) ? ['mage', 'sorcerer'] : ['cleric', 'shaman'];
+    p.gizleDesen(/^(btn_(mage|ranger|blade|cleric|reaper)\d|btn_master|btn_[4-7]$|img_(sorcerer|hunter|berserker|shaman|reaper)_\d|string_[4-7]$)/);
+    p.gizleMetin('Master');
+    if (!terfili) return;
+    const sec = (s: number) => { this.beceriSekme = s; this.beceriSayfa = 0; this.beceriListesiniYenile(); this.beceriCiz(); };
+    p.tikla.set('btn_public', () => sec(0));
+    for (let t = 0; t < 3; t++) {
+      p.goster(`btn_${grup[0]}${t}`); p.goster(`img_${grup[1]}_${t}`); p.goster(`string_${4 + t}`); p.goster(`btn_${4 + t}`);
+      p.tikla.set(`btn_${grup[0]}${t}`, () => sec(t + 1));
+      p.tikla.set(`btn_${4 + t}`, () => this.b.skillPuaniVer?.(5 + t));
+    }
+    if (usta) { p.goster('btn_master'); p.goster('string_7'); p.goster('btn_7'); p.tikla.set('btn_master', () => sec(4)); p.tikla.set('btn_7', () => this.b.skillPuaniVer?.(8)); }
   }
   private cubukKullan(i: number): void { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
   private cubukCiz(): void {
     const o = this.b.oyuncu, simdi = performance.now() / 1000;
     for (const alan of this.cubukYuvalari()) {
       const i = this.cubukSira(alan);
-      const no = this.cubukBeceri[this.cubukSayfa * 8 + i], b = this.beceriler.find((x) => x.no === no);
-      const imza = `${no}|${b && o.seviye >= b.seviye}`;
+      const no = this.cubukBeceri[this.cubukSayfa * 8 + i], b = this.sinifBecerileri.find((x) => x.no === no);
+      const imza = `${no}|${b && this.beceriAcik(b)}|${b ? o.skillPuanlari[(b.sayfa ?? 0) % 10] : 0}`;
       if (alan.dataset.imza !== imza) {
         alan.dataset.imza = imza;
         alan.style.backgroundImage = b?.simge ? `url(/beceri/${b.simge})` : '';
@@ -1151,7 +1195,9 @@ export class OyunArayuzu {
       art.after(dolgu);
     }
     for (const m of ['Master']) p.gizleMetin(m);
-    for (const id of ['btn_right', 'btn_left']) p.dugmePasif(id, true);
+    for (let i = 0; i < 8; i++) if (!p.alan(String(i))) { this.beceriYuvaSayisi = i; break; }
+    p.tikla.set('btn_right', () => { this.beceriSayfa++; this.beceriListesiniYenile(); this.beceriCiz(); });
+    p.tikla.set('btn_left', () => { this.beceriSayfa--; this.beceriListesiniYenile(); this.beceriCiz(); });
     for (let i = 0; i < 8; i++) {
       const alan = p.alan(String(i)); if (!alan) continue;
       alan.draggable = true;
@@ -1165,22 +1211,27 @@ export class OyunArayuzu {
 
   private beceriCiz(): void {
     const p = this.pencereler.beceri, o = this.b.oyuncu;
-    p.metin('string_skillpoint', 0);
+    p.metin('string_skillpoint', o.skillPuanlari[0] ?? 0);
+    for (let t = 0; t < 4; t++) p.metin(`string_${4 + t}`, o.skillPuanlari[5 + t] ?? 0);
+    const sayfaSayisi = Math.max(1, Math.ceil((this.sekmeBeceriler[this.beceriSekme]?.length ?? 0) / this.beceriYuvaSayisi));
+    p.metin('string_page', this.beceriSayfa + 1);
+    p.dugmePasif('btn_left', this.beceriSayfa <= 0); p.dugmePasif('btn_right', this.beceriSayfa >= sayfaSayisi - 1);
     for (let i = 0; i < 8; i++) {
       const b = this.beceriler[i];
       p.metin(`string_list_${i}`, b ? `${b.ad}\nLv. ${b.seviye}` : '');
       const alan = p.alan(String(i)); if (!alan) continue;
       alan.style.backgroundImage = b?.simge ? `url(/beceri/${b.simge})` : '';
       alan.style.backgroundSize = '100% 100%';
-      alan.style.opacity = b && o.seviye < b.seviye ? '0.4' : '1';
+      alan.style.opacity = b && !this.beceriAcik(b) ? '0.4' : '1';
       alan.style.outline = b && i === this.seciliBeceri ? '1px solid #f0d48a' : '';
       alan.title = b?.aciklama ?? '';
     }
     const s = this.beceriler[this.seciliBeceri];
     p.metin('string_info', s ? s.aciklama : '');
     p.metin('string_skill_mp', s ? `MP ${s.msp}` : '');
-    p.metin('string_skill_vp', s ? `Required level ${s.seviye}` : '');
-    p.metin('string_skill_point', s ? (o.seviye >= s.seviye ? 'Available' : 'Not available yet') : '');
+    const agac = (s?.sayfa ?? 0) % 10, agacta = agac >= 5 && agac <= 8;
+    p.metin('string_skill_vp', s ? (agacta ? `Required points ${s.seviye}` : `Required level ${s.seviye}`) : '');
+    p.metin('string_skill_point', s ? (this.beceriAcik(s) ? 'Available' : 'Not available yet') : '');
     for (const id of ['string_skill_item0', 'string_skill_item1', 'string_skill_item2']) p.metin(id, '');
   }
 

@@ -27,6 +27,7 @@ import { ALTIN_NO as BANKA_ALTIN, BANKA_ISLEMI, SAYFA_YUVASI, bankaAcIstegi, ban
 import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
+import { skillPuaniIstegi } from '../../kopru/protokol/skillPuani.ts';
 import { gorevSecimiIstegi, type GorevPaketi } from '../../kopru/protokol/gorev.ts';
 import { diyalogVerisi, uygunGorevler } from './oyun/diyalogVeri';
 import { npcOlayiIstegi, secimCevabi, type SecimMesaji } from '../../kopru/protokol/diyalog.ts';
@@ -284,12 +285,14 @@ async function basla(): Promise<void> {
       if (!oyuncu.envanter.some((e) => e && (e.sunucuNo ?? e.no) === OK_NO && (e.adet ?? 1) > 0)) { hud.mesaj('You are out of arrows.', 'sistem'); return; }
       if (!sunucuOturumu) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
     }
-    if (v.tip === 1 || v.tip === 2 || (v.tip === 3 && v.moral === 7)) { // düşmana (yakın dövüş, okçuluk ya da büyü)
+    const diger = v.tip === 0 || v.tip > 4; // terfi skill'leri: tür 0, 5–9 (iyileştirme, diriltme, dönüşüm…): hedef türü MORAL'den (7 düşman; 1–4 kendine/dosta), etkiyi sunucu uygular
+    if (!sunucuOturumu && v.tip !== 1 && v.tip !== 4) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
+    if (v.tip === 1 || v.tip === 2 || ((v.tip === 3 || diger) && v.moral === 7)) { // düşmana (yakın dövüş, okçuluk ya da büyü)
       hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
       const menzil = v.tip === 1 ? menzilDe(hedef) + 0.5 : v.tip === 2 ? 35 : (v.menzil ?? 25);
       if (oyuncu.konum.distanceTo(hedef.konum) > menzil) { hud.mesaj('The target is too far away.', 'sistem'); return; }
-    } else if (v.tip === 3 || v.tip === 4) { // kendine ya da dosta (iyileştirme, buff)
+    } else if (v.tip === 3 || v.tip === 4 || (diger && [1, 2, 3, 4].includes(v.moral ?? 0))) { // kendine ya da dosta (iyileştirme, buff)
       if ((v.moral ?? 1) !== 1) { if (secilenOyuncu && digerOyuncular.includes(secilenOyuncu) && oyuncu.konum.distanceTo(secilenOyuncu.konum) <= (v.menzil ?? 25)) dost = secilenOyuncu; }
       if (v.tip === 3 && !sunucuOturumu) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
     } else { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
@@ -352,6 +355,13 @@ async function basla(): Promise<void> {
         hud.mesaj('You returned to town.', 'sistem');
       },
       emote: (no) => { if (oyuncu.olu || !oyuncu.model) return; kalk(); oyuncu.yuruHedef = null; oyuncu.animKilidi = oyuncu.model.numaraOynat(no) || 0; }, otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i, adet) => magazaSat(i, adet), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
+      skillPuaniVer: (agac) => {
+        const o = oyuncu.skillPuanlari;
+        if (!sunucuOturumu) { hud.mesaj('Skill points need a server connection.', 'sistem'); return; }
+        if (o[0] < 1) { hud.mesaj('You have no skill points left.', 'sistem'); return; }
+        o[0]--; o[agac]++; // sunucu yalnız reddederse geri alınır
+        sunucuOturumu.gonder(WIZ.SKILL_PUANI, skillPuaniIstegi(agac));
+      },
       diyalogSec: (sira) => { if (aktifDiyalog?.lua) sunucuOturumu?.gonder(WIZ.SECIM_MESAJI, secimCevabi(sira, aktifDiyalog.lua)); },
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
@@ -1162,6 +1172,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
+        skillPuaniReddedildi: (agac, puan) => { const o = oyuncu.skillPuanlari; o[0] += Math.max(0, o[agac] - puan); o[agac] = puan; hud.mesaj('You cannot add a skill point there.', 'sistem'); },
         sinifDegisti: (s) => { arayuz?.sinifAyarla(s); envanterYenile(); hud.mesaj('Congratulations! You have been promoted.', 'odul'); },
         diyalog: diyalogSunucudan, gorev: (g) => { void gorevSunucudan(g); }, ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {

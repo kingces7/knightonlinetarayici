@@ -28,6 +28,8 @@ export const WIZ = {
   SECIM_MESAJI: 0x55,
   /** Görev paketleri (0x64): sunucu → client alt tür 1 görev listesi, 2 görev durumu, 7 NPC konuşması; client → sunucu alt tür 3 görevi/menü satırını seç. */
   GOREV: 0x64,
+  /** Skill puanı dağıtımı (0x32): client → sunucu `u8 ağaç (5–8)`; sunucu yalnız BAŞARISIZLIKTA `u8 ağaç, u8 mevcut puan` yollar. */
+  SKILL_PUANI: 0x32,
   /** Sınıf değişimi/terfi (0x34): alt tür 6 = herkese "kimlik yeni sınıfa geçti". */
   SINIF_DEGISTI: 0x34,
   NPC_HAREKET: 0x0b,

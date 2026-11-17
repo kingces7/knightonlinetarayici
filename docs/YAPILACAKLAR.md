@@ -289,3 +289,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [~] **Grand Merchant (Kaishan, sid 18004, tür 46):** terfi çalışıyor (seviye ≥ 10, 3000 Noah, sınıf 205); kalan: stat/skill sıfırlama, ırk değişimi, geri satın alma (3000 Noah, `PromoteUserNovice`), stat/skill sıfırlama, ırk/millet değişimi, geri satın alma. Betik: `Quests/18004_Kaisan.lua`.
 - [ ] **10. seviye üstü skill'ler:** terfi sonrası (Novice/Master) skill tabloları, iş sınıfına göre skill penceresi ve kullanım.
 - [ ] Diğer Moradon NPC'leri (Priest Iris, Blacksmith Heppa, Operator Moira, Coliseum Artes, Hepa Pupil Shozin, Manager Vilbore, Peddler Hemes, Sanctuary): hepsi aynı diyalog sistemine bağlanacak.
+
+**Novice/Master skill'leri (2026-11-17)**
+- [x] Skill verisi: 1328 skill (temel + terfi sayfaları 1050–1129, 2050–2129; `npm run beceriler`), sunucu kuralları 1216 skill (`araclar/sunucu/oyuncu-disa-aktar.ps1`; tür 0–9).
+- [x] Skill penceresi: sekmeler (Basic / 3 ağaç / Master), sayfalama (6 yuva), boş skill puanı ve ağaç puanları, `P` düğmesiyle puan verme (`WIZ_SKILLPT_CHANGE 0x32`, sunucu yalnız reddederken cevap verir), ağaç puanı yetmeyen skill soluk.
+- [ ] Novice/Master skill'lerinin **kullanımı**: tür 3 (büyü/hasar), 5–9 (iyileştirme, diriltme, dönüşüm…) için efekt/animasyon; ağaç puanıyla açılan skill'lerin sunucuda gerçek denemesi; Master sekmesi; Rogue/Mage/Priest ağaçları; Kurian.
+- [ ] Skill puanı sıfırlama (Kaishan, `btn_reset_skill`), Karus tarafı testi.

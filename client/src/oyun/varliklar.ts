@@ -375,6 +375,8 @@ export class Oyuncu extends Varlik {
   ad = 'kingces';
   altin = 0;
   mana = 100; enCokMana = 100;
+  /** Skill puanları (sunucu m_bstrSkill): [0] boş puan, [5..8] ağaç puanları (1., 2., 3. ağaç, Master). */
+  skillPuanlari: number[] = new Array(9).fill(0);
   envanter: (EsyaTanimi | null)[] = new Array(28).fill(null);
   /**
    * Ekipman: Knight Online yuva numaraları (0 sağ küpe, 1 kask, 2 sol küpe, 3 kolye, 4 gövde, 5 omuz, 6 sağ el, 7 bel, 8 sol el,

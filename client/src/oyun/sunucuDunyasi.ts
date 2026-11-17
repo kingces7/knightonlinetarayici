@@ -19,6 +19,7 @@ import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts'
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
+import { skillPuaniReddi } from '../../../kopru/protokol/skillPuani.ts';
 import { altinDegisti, sinifDegisti } from '../../../kopru/protokol/sinif.ts';
 import { gorevPaketi, type GorevPaketi } from '../../../kopru/protokol/gorev.ts';
 import { secimMesaji, type SecimMesaji } from '../../../kopru/protokol/diyalog.ts';
@@ -66,6 +67,8 @@ export interface SavasKancalari {
   gorev?: (g: GorevPaketi) => void;
   /** Oyuncu terfi etti (yeni sınıf numarası). */
   sinifDegisti?: (sinif: number) => void;
+  /** Sunucu skill puanı dağıtımını reddetti (ağaç, o ağaçtaki gerçek puan). */
+  skillPuaniReddedildi?: (agac: number, puan: number) => void;
   sohbet?: (s: SohbetPaketi) => void;
   ozelHedef?: (bulundu: boolean) => void;
 }
@@ -130,6 +133,7 @@ export class SunucuDunyasi {
       case WIZ.BANKA: this.kancalar.banka?.(bankaCevabi(p.govde)); break;
       case WIZ.SINIF_DEGISTI: { const s = sinifDegisti(p.govde); if (s.alt === 6 && s.id === this.benimSoketNo && s.sinif !== undefined && this.oyuncu) { this.oyuncu.sinif = s.sinif; this.kancalar.sinifDegisti?.(s.sinif); } break; }
       case WIZ.ALTIN_DEGISTI: { const a = altinDegisti(p.govde); if (this.oyuncu) this.oyuncu.altin = a.toplam; break; }
+      case WIZ.SKILL_PUANI: { const r = skillPuaniReddi(p.govde); this.kancalar.skillPuaniReddedildi?.(r.agac, r.puan); break; }
       case WIZ.GOREV: this.kancalar.gorev?.(gorevPaketi(p.govde)); break;
       case WIZ.SECIM_MESAJI: this.kancalar.diyalog?.(secimMesaji(p.govde)); break;
       case WIZ.STAT_DEGISTI: { // stat puanı harcandı: sunucu yeni değeri ve türev değerleri bildirir
@@ -297,11 +301,11 @@ export class SunucuDunyasi {
     if (fark > 0) this.hud.mesaj(`You gained ${fark} experience.`, 'odul');
   }
 
-  private seviye(s: { id: number; seviye: number; bosPuan: number; azamiDeneyim: bigint; deneyim: bigint; enCokCan: number; can: number; enCokMana: number; mana: number }): void {
+  private seviye(s: { id: number; seviye: number; bosPuan: number; bosSkillPuani: number; azamiDeneyim: bigint; deneyim: bigint; enCokCan: number; can: number; enCokMana: number; mana: number }): void {
     if (s.id !== this.benimSoketNo) { const d = this.oyuncular.get(s.id); if (d) d.seviye = s.seviye; return; }
     const o = this.oyuncu; if (!o) return;
     const yukseldi = s.seviye > o.seviye;
-    o.seviye = s.seviye; o.bonusPuan = s.bosPuan; o.azamiDeneyimSunucu = Number(s.azamiDeneyim); o.deneyim = Number(s.deneyim);
+    o.seviye = s.seviye; o.bonusPuan = s.bosPuan; o.skillPuanlari[0] = s.bosSkillPuani; o.azamiDeneyimSunucu = Number(s.azamiDeneyim); o.deneyim = Number(s.deneyim);
     o.enCok = s.enCokCan; o.can = s.can; o.enCokMana = s.enCokMana; o.mana = s.mana;
     this.sonSunucuCan = s.can;
     this.hud.mesaj(yukseldi ? `Level up! You are now level ${s.seviye}.` : `You are now level ${s.seviye}.`, 'sistem');
