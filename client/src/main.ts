@@ -1216,6 +1216,7 @@ async function basla(): Promise<void> {
       const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter, secici);
       sunucuOturumu = s;
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
+      (window as unknown as { ke: Record<string, unknown> }).ke.benimBilgi = s.benim; // geliştirme: giriş paketindeki ham karakter bilgisi
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
       arayuz?.sinifAyarla(oyuncu.sinif); // sınıfa göre skill listesi ve çubuğu
       await oyuncu.modelDegistir(irkModeli(s.benim.irk)).catch((e) => console.warn('Irk modeli yüklenemedi', s.benim.irk, e)); // kadın/barbar/Karus görünümü

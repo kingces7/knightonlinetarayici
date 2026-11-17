@@ -163,7 +163,7 @@ export class OyunArayuzu {
       UiPencere.yukle('el_chat_us'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
-    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.tumBeceriler = Array.isArray(bec) ? bec.filter((b: Beceri) => b.seviye <= BECERI_EN_YUKSEK) : []; // oyunda skill'ler en çok 70'e kadar; üstündekiler kullanım dışı (veritabanında durur, gösterilmez) this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === 2010);
+    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.tumBeceriler = Array.isArray(bec) ? bec.filter((b: Beceri) => b.seviye <= BECERI_EN_YUKSEK && b.ad !== 'Dribble' && b.ad !== 'Shoot') : []; // oyunda skill'ler en çok 70'e kadar; üstündekiler kullanım dışı (veritabanında durur, gösterilmez) this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === 2010);
     this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
