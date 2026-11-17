@@ -51,6 +51,7 @@ export class MagazaPenceresi {
     // Arka plan: üst bölümün siyah panelleri envanterin yarı saydam zemini gibi görünsün (şeffaflık)
     p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30 && r.style.backgroundImage.includes('person')) r.style.opacity = '0.55'; });
     for (const tab of [this.tabAl, this.tabSat]) tab.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 300 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.55'; }); // sepet bölümünün zemini de aynı şekilde
+    for (const el of p.bul('img_realmpoint')) el.style.display = 'none'; // Noah simgesinin arkasındaki ikinci ikon
     // Düğme yazıları durum resimlerinin ÜSTÜNDE görünsün
     for (const el of p.tumDugmeler()) el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { y.style.zIndex = '3'; y.style.pointerEvents = 'none'; });
     // Düğmeler
