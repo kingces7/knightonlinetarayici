@@ -1168,6 +1168,7 @@ export class OyunArayuzu {
     p.gizleDesen(/(_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^btn_gold$|^base_(inven_notice|bag|LockImg|cos)$)/);
     for (let i = 28; i <= 39; i++) p.goster(String(i), false);
     this.copKur(p);
+    this.envanterSurukleKur(p);
     // Karakter alanı: animasyonlu oyuncu önizlemesi
     const kap = p.bul('area_char')[0];
     if (kap && this.b.oyuncu.modelNo) { this.onizleme = new KarakterOnizleme(kap, this.b.oyuncu.modelNo); void this.onizleme.baslat(); }
@@ -1177,18 +1178,44 @@ export class OyunArayuzu {
    * Çöp (Destroy) yuvası: ekipman ızgarasının sağ altındaki kırmızı yuva. Bir eşya (çantadan ya da giyiliden) üstüne sürüklenip bırakılınca
    * oyunun kendi "Destroy" onay penceresi açılır; Yes derse eşya yok edilir.
    */
+  private copHedefleri: HTMLElement[] = [];
+  private copaBirak: (k: YuvaKonumu) => void = () => {};
+  /** Envanterde SOL tuşla sürükle-bırak (fare olaylarıyla; tarayıcının HTML5 sürüklemesine bağlı değil): çanta ↔ çanta, çanta ↔ ekipman, çöp yuvası. */
+  private envanterSurukleKur(p: UiPencere): void {
+    type Hedef = YuvaKonumu | { tur: 'cop' };
+    yuvaSurukle<Hedef>(p.el, {
+      yuvaBul: (h) => {
+        const hedef = h as HTMLElement | null; if (!hedef?.closest) return null;
+        if (this.copHedefleri.some((c) => c === hedef || c.contains(hedef))) return { tur: 'cop' };
+        const el = hedef.closest('.ui-t9') as HTMLElement | null; if (!el) return null;
+        const c = this.canta().indexOf(el); if (c >= 0) return { tur: 'c', i: c };
+        for (let id = 0; id < 14; id++) if (this.ekipman(id) === el) return { tur: 'e', i: id };
+        return null;
+      },
+      kaynakEleman: (k) => {
+        if (k.tur === 'cop') return null;
+        const o = this.b.oyuncu;
+        if (k.tur === 'c') return o.envanter[k.i] ? this.canta()[k.i] ?? null : null;
+        return o.ekipman[k.i] ? this.ekipman(k.i) ?? null : null;
+      },
+      birak: (k, h) => {
+        if (k.tur === 'cop' || !h) return;
+        this.b.ipucuGizle();
+        if (h.tur === 'cop') this.copaBirak(k); else this.b.esyaTasi(k, h);
+      },
+    });
+  }
   private copKur(p: UiPencere): void {
     // Hedef: oyunun kendi kırmızı "destroy" yuvası (area_samma; aynı yerdeki 14 numaralı alan da dinler).
     const hedefler = [...p.bul('area_samma'), ...p.bul('14')]; for (const h of hedefler) h.title = 'Drag an item here to destroy it';
     p.gizleDesen(/Destroy/); // onay penceresi (oyunun kendi resimleri) yalnızca bırakınca açılır
     const goster = (a: boolean) => p.gizleDesen(/^(Destroy|img_Destroy_.*|string_Destroy|btn_Destroy_.*)$/, !a);
     let bekleyen: YuvaKonumu | null = null;
-    for (const alan of hedefler) alan.addEventListener('dragover', (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-esya')) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } });
-    for (const alan of hedefler) alan.addEventListener('drop', (ev) => {
-      const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault();
-      const k = JSON.parse(v) as YuvaKonumu, e = k.tur === 'c' ? this.b.oyuncu.envanter[k.i] : this.b.oyuncu.ekipman[k.i]; if (!e) return;
+    this.copHedefleri = hedefler;
+    this.copaBirak = (k) => {
+      const e = k.tur === 'c' ? this.b.oyuncu.envanter[k.i] : this.b.oyuncu.ekipman[k.i]; if (!e) return;
       bekleyen = k; p.metin('string_Destroy', `Are you sure you want to destroy ${e.ad}?`); goster(true);
-    });
+    };
     p.tikla.set('btn_Destroy_ok', () => { goster(false); if (bekleyen) this.b.esyaAt?.(bekleyen); bekleyen = null; });
     p.tikla.set('btn_Destroy_cancel', () => { goster(false); bekleyen = null; });
   }
@@ -1217,10 +1244,7 @@ export class OyunArayuzu {
       el.onclick = this.tamirModu && e ? () => this.b.tamirEt?.(konum) : null;
       // SAĞ tık: giy / çıkar (mağaza açıkken çanta eşyası satılır). SOL tuşla sürükle-bırak: yuvalar arası taşı / yer değiştir.
       el.oncontextmenu = (ev) => { ev.preventDefault(); if (sagTik) { this.b.ipucuGizle(); sagTik(); } };
-      el.draggable = !!e;
-      el.ondragstart = e ? (ev) => { ev.dataTransfer?.setData('application/x-ke-esya', JSON.stringify(konum)); if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'move'; this.b.ipucuGizle(); } : null;
-      el.ondragover = (ev) => { if (ev.dataTransfer?.types.includes('application/x-ke-esya')) { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; } };
-      el.ondrop = (ev) => { const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault(); this.b.esyaTasi(JSON.parse(v) as YuvaKonumu, konum); };
+      el.draggable = false; // sürükleme fare olaylarıyla (envanterSurukleKur) yapılır
     };
     // Mağaza açıkken çanta eşyasına tıklamak onu NPC'ye satar; değilse kuşanır
     this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, { tur: 'c', i }, o.envanter[i] ? () => (this.magazaYeni?.acik ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));

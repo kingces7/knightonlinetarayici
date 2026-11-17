@@ -552,7 +552,7 @@ async function basla(): Promise<void> {
     if (e.code === 'KeyS') oyuncu.saldiriyor = false; // S: temel saldırıyı durdurur (hedef seçili kalır)
     if (!e.repeat && e.code === 'KeyR' && oyuncu.saldiriyor) { oyuncu.saldiriyor = false; hud.mesaj('Auto attack off.', 'sistem'); } // R: sürekli saldırıyı aç/kapa (orijinal CommandToggleAttackContinous)
     else if (!e.repeat && e.code === 'KeyR') {
-      if (!oyuncu.hedef || oyuncu.hedef.olu) { const y = yakinlar()[0]; if (y) oyuncu.hedef = y; }
+      if (!oyuncu.hedef || oyuncu.hedef.olu) { hud.mesaj('Select a target first.', 'sistem'); return; } // hedefi oyuncu seçer: R kendiliğinden en yakın canavara agro almaz
       if (oyuncu.hedef && !oyuncu.hedef.olu) oyuncu.saldiriyor = true; // orijinalde yürürken de R ile saldırı açılır; yürüme sürer
     }
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
@@ -744,7 +744,13 @@ async function basla(): Promise<void> {
     if (!cv) return null;
     const c = olu.find((x) => x.secimKutusu === cv.object); return kutular.find((k) => k.sahip === c) ?? null;
   };
-  const kutuyaGit = (k: GanimetKutusu) => { acilacakKutu = k; oyuncu.hedef = null; oyuncu.yuruHedef = k.konum.clone(); };
+  /** Kutu menzil içindeyse (sunucu yağma menzili ~7 m) karakter KIPIRDAMADAN açılır; yalnız uzaktaysa menzile girecek kadar yürür. */
+  const KUTU_MENZIL = 6;
+  const kutuyaGit = (k: GanimetKutusu) => {
+    oyuncu.hedef = null;
+    if (oyuncu.konum.distanceTo(k.konum) <= KUTU_MENZIL) { acilacakKutu = null; oyuncu.yuruHedef = null; hud.ganimetAc(k); return; }
+    acilacakKutu = k; oyuncu.yuruHedef = k.konum.clone();
+  };
   // Sağ tık (sürüklemeden, kısa): kutuyu / ölü canavarı açar; sürüklenirse kamera döner, hiçbir şey açılmaz.
   const sag = { x: 0, y: 0, t: 0 };
   tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) { sag.x = e.clientX; sag.y = e.clientY; sag.t = performance.now(); } });
@@ -911,7 +917,7 @@ async function basla(): Promise<void> {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       oyuncu.model?.oynat('bekle');
     } else if (oyuncu.yuruHedef) {
-      if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? 1.5 : acilacakNpc ? 2.5 : 0)) {
+      if (oyuncu.yuru(oyuncu.yuruHedef, hizAl() * dt, acilacakKutu ? KUTU_MENZIL - 1 : acilacakNpc ? 2.5 : 0)) {
         oyuncu.yuruHedef = null;
         if (acilacakKutu && kutular.includes(acilacakKutu)) hud.ganimetAc(acilacakKutu);
         acilacakKutu = null;
@@ -1020,7 +1026,8 @@ async function basla(): Promise<void> {
    * Çarpışma yarıçapı modelin gövde boyutundan (secimYaricapi × 0,7, en az 0,5 m); kare başına itme hızı sınırlıdır, titreme olmasın.
    */
   const canavarlariAyir = (dt: number) => {
-    const canli = canavarlar.filter((c) => !c.olu && c.grup.visible);
+    // Sunucu canavarlarının konumunu SUNUCU belirler (orijinalde canavarlar birbirini itmez); itersek sunucu konumuna geri yürürken sürekli çekişirler. Yalnız yerel (çevrimdışı) canavarlar ayrılır.
+    const canli = canavarlar.filter((c) => !c.olu && c.grup.visible && !c.agModu);
     for (let i = 0; i < canli.length; i++) for (let j = i + 1; j < canli.length; j++) {
       const a = canli[i], b = canli[j];
       const dx = b.konum.x - a.konum.x, dy = b.konum.y - a.konum.y;
