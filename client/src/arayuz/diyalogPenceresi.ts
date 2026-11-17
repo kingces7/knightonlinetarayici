@@ -51,7 +51,7 @@ export class DiyalogPenceresi {
   }
 
   /** Hazır metinle menü: her düğmenin kendi seçim işlevi vardır. */
-  gosterMetin(npcAdi: string, konusma: string, dolu: { yazi: string; sec: () => void }[]): void {
+  gosterMetin(npcAdi: string, konusma: string, dolu: { yazi: string; sec: () => void; pasif?: boolean }[]): void {
     const p = this.p;
     p.metin('txt_title', npcAdi);
     p.metin('txt_talk', konusma || '...');
@@ -60,8 +60,9 @@ export class DiyalogPenceresi {
     dolu.forEach((d, g) => {
       const grup = p.bul(`group_menu_${g}`)[0], btn = p.bul(`btn_${g}`)[0]; if (!grup || !btn) return;
       grup.style.display = '';
-      const yazi = btn.querySelector<HTMLElement>('.ui-yazi span'); if (yazi) yazi.textContent = d.yazi;
-      p.tikla.set(`btn_${g}`, d.sec);
+      const yazi = btn.querySelector<HTMLElement>('.ui-yazi span'); if (yazi) { yazi.textContent = d.yazi; yazi.style.color = d.pasif ? '#8a8a8a' : ''; } // pasif (kullanılamayan) seçenek gri
+      btn.style.cursor = d.pasif ? 'default' : '';
+      p.tikla.set(`btn_${g}`, d.pasif ? () => undefined : d.sec);
     });
     // Alt kenar resmi ve pencere yüksekliği düğme sayısına göre
     const alt = p.alan('img_bottom'), y = ILK_GRUP_Y + GRUP_YUKSEKLIK * dolu.length;

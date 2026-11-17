@@ -784,8 +784,23 @@ async function basla(): Promise<void> {
   };
   const npcEtkilesim = (n: Npc) => {
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
+    if (/Sundries/i.test(n.tanim.ad) && sayfalar && arayuz) { // [Sundries]: önce orijinal konuşma menüsü (alışveriş / tamir / takas / ayrıl)
+      const magazaAc = (tamir: boolean) => { arayuz.diyalogKapat(); aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); if (tamir) hud.mesaj('Right-click an item to repair it.', 'sistem'); };
+      arayuz.diyalogDuz(n.ad, 'A great blacksmith like me is hard to find. Tell me if you need anything...', [
+        { yazi: 'I want to trade.', sec: () => magazaAc(false) },
+        { yazi: 'I want to repair.', sec: () => magazaAc(true) },
+        { yazi: 'I want to exchange.', sec: () => undefined, pasif: true },
+        { yazi: 'Walk away.', sec: () => arayuz.diyalogKapat() }]);
+      return;
+    }
     if (sayfalar && arayuz) { aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); return; }
-    if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { if (sunucuOturumu) { bankaAcSunucu(n); return; } arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
+    if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { // Inn Hostess: orijinal konuşma menüsü (Clan Bank ayrı, henüz yok)
+      arayuz.diyalogDuz(n.ad, 'There are lots of exciting things happening at our inn.  What are you here for?', [
+        { yazi: 'Access Storage.', sec: () => { arayuz.diyalogKapat(); if (sunucuOturumu) bankaAcSunucu(n); else arayuz.depoAc(); } },
+        { yazi: 'Create a Clan', sec: () => { arayuz.diyalogKapat(); hud.mesaj('Clan creation is not available yet.', 'sistem'); } },
+        { yazi: 'Power Up Store', sec: () => { arayuz.diyalogKapat(); hud.mesaj('The Power Up Store is not available yet.', 'sistem'); } }]);
+      return;
+    }
     if (sunucuOturumu) { // diğer NPC'ler: sunucu Lua betiği konuşma menüsünü yollar (WIZ_SELECT_MSG)
       const id = npcSunucuKimligi(n);
       if (!id) { hud.mesaj(`${n.ad}: (this NPC is not available on the server)`, 'bilgi'); return; }

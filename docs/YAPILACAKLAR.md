@@ -319,3 +319,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Parti: üye oluşunca parti penceresi kendiliğinden açılır; pencerede üyeye tıklamak onu seçer (buff/iyileştirme ona gider).
 - [ ] Kecoon Boss sunucuda yüklü değil: kullanıcı oyundan çıkınca `araclar\sunucu\sunucu-guncelle.ps1` (veritabanı + yeniden başlatma) çalıştırılacak.
 - [ ] Yay ile R temel saldırısı (PvP/canavar) — orijinalde ok atma ayrı yol; bakılacak.
+
+## NPC konuşma menüleri, boss ganimeti (2026-11-18)
+- [x] Inn Hostess ve [Sundries] için orijinal görünümlü konuşma menüsü (`client/src/arayuz/duzDiyalog.ts`): koyu panel, altın çerçeve, beyaz konuşma, sarı seçenekler. Test: `client/scripts/npcDiyalogTesti.mjs`.
+- [ ] Inn Hostess: "Create a Clan" ve "Power Up Store" henüz işlevsiz (mesaj verir). Sundries: "I want to exchange." gri (işlevsiz). Diğer tüccarlar (Armor/Weapon/Potion…) hâlâ mağazayı doğrudan açar; istenirse aynı menü verilir.
+- [x] Dragon tooth Mentor ganimeti oyunda doğrulandı (`client/scripts/bossGanimetTesti.mjs`; test için geçici HP=1 ve %100 oran kullanıldı, sonra geri alındı).

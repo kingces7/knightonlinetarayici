@@ -13,6 +13,7 @@ import { MagazaPenceresi } from './magazaPenceresi';
 import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
 import { DiyalogPenceresi } from './diyalogPenceresi';
+import { DuzDiyalog, type DuzSecenek } from './duzDiyalog';
 import { diyalogVerisi } from '../oyun/diyalogVeri';
 import { baskinStatlar, sinifMesleki, statRengiUygula, statRengiUygulaRenk, SEKME_SECILI_RENK } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
@@ -303,6 +304,7 @@ export class OyunArayuzu {
     if (rakam) { this.cubukKullan(Number(rakam[1]) - 1); return true; }
     const genelTus = GENEL_TUSLAR[kod]; if (genelTus) { void this.genel.degistir(genelTus); return true; }
     if (kod === 'Escape' && this.magazaYeni?.acik) { this.magazaYeni.kapat(); return true; }
+    if (kod === 'Escape' && this.duz?.acik) { this.duz.kapat(); return true; }
     if (kod === 'Escape' && this.diyalog?.acik) { this.diyalog.kapat(); return true; }
     if (kod === 'Escape' && this.genel.enUsttekiniKapat()) return true;
     if (kod === 'Escape' && this.acik.size) {
@@ -604,7 +606,7 @@ export class OyunArayuzu {
   private magazaYeni: MagazaPenceresi | null = null;
   private npcPencereAcilis = 0;
   /** Mağaza ya da banka (NPC penceresi) açık mı? */
-  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo') || !!this.diyalog?.acik; }
+  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo') || !!this.diyalog?.acik || !!this.duz?.acik; }
   private diyalog: DiyalogPenceresi | null = null;
   /** NPC diyalog menüsü (sunucudan gelen SelectMsg): pencere ilk kullanımda yüklenir. */
   diyalogGoster(npcAdi: string, konusmaNo: number, dugmeler: number[]): void {
@@ -622,7 +624,15 @@ export class OyunArayuzu {
     if (this.diyalog) { ac(this.diyalog); return; }
     void DiyalogPenceresi.olustur({ sec: (i) => this.b.diyalogSec?.(i), kapandi: () => this.b.diyalogKapandi?.(), olcek: () => arayuzOlcegi(), oyuncuAdi: () => this.b.oyuncu.ad }, this.b.kok).then((d) => { this.diyalog = d; ac(d); });
   }
-  diyalogKapat(): void { this.diyalog?.sessizKapat(); }
+  /** Düz metinli diyalog (sunucu Lua betiği olmayan NPC'ler: Inn Hostess, Sundries): `pasif` seçenek gri görünür ve tıklanmaz. */
+  private duz: DuzDiyalog | null = null;
+  diyalogDuz(_npcAdi: string, konusma: string, dugmeler: DuzSecenek[]): void {
+    this.npcPencereAcilis = performance.now();
+    this.diyalog?.sessizKapat();
+    this.duz ??= new DuzDiyalog(this.b.kok, () => arayuzOlcegi(), () => this.b.diyalogKapandi?.());
+    this.duz.goster(konusma, dugmeler);
+  }
+  diyalogKapat(): void { this.diyalog?.sessizKapat(); this.duz?.kapat(false); }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
   // ---------------------------------------------------------------- parti penceresi (re_el_party: 8 üye satırı, can/mana çubukları, lider menüsü)
   private partiPenceresi: UiPencere | null = null; private partiSecili = -1;
@@ -685,6 +695,7 @@ export class OyunArayuzu {
     for (const a of [...this.acik]) this.ac(a, false);
     if (this.magazaYeni?.acik) this.magazaYeni.kapat();
     if (this.diyalog?.acik) this.diyalog.kapat();
+    if (this.duz?.acik) this.duz.kapat(false);
     this.genel.hepsiniKapat();
   }
   npcPencereleriniKapat(): void {
@@ -692,6 +703,7 @@ export class OyunArayuzu {
     if (this.magazaYeni?.acik) this.magazaYeni.kapat();
     if (this.acik.has('depo')) this.ac('depo', false);
     if (this.diyalog?.acik) this.diyalog.kapat();
+    if (this.duz?.acik) this.duz.kapat(false);
   }
   private tamirModuDegistir(ac: boolean): void {
     this.tamirModu = ac; this.sonEnvanterImza = ''; this.b.ipucuGizle();
