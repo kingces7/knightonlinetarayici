@@ -31,6 +31,16 @@ export class KarakterOnizleme {
     tuval.addEventListener('pointerup', birak); tuval.addEventListener('pointercancel', birak);
   }
 
+  /** Önizlenen modeli değiştirir (karakter oluşturma ekranında ırk seçilince). */
+  async modelDegistir(modelNo: number): Promise<void> {
+    if (this.model) { this.sahne.remove(this.model.kok); this.model = null; }
+    this.modelNo = modelNo; await this.baslat();
+  }
+  /** Modeli verilen açı (rad) kadar döndürür (oluşturma ekranındaki ok düğmeleri). */
+  donusEkle(rad: number): void { this.donus += rad; }
+  /** Çizici kaynaklarını bırakır ve tuvali kaldırır. */
+  kapat(): void { this.cizici.dispose(); this.cizici.domElement.remove(); }
+
   async baslat(): Promise<void> {
     try {
       this.model = await KarakterModeli.olustur(`/karakter/${this.modelNo}.glb`);

@@ -1030,7 +1030,7 @@ async function girisEkraniAc(): Promise<void> {
   const ke = (window as unknown as { ke: { sunucuyaBaglan: (h: string, s: string, k?: string, c?: string, sec?: Parameters<typeof sunucuyaBaglan>[4]) => Promise<unknown> } }).ke;
   const ekran = new GirisEkrani({
     kok: document.getElementById('arayuz')!,
-    baglan: async (hesap, sifre, sec) => { await ke.sunucuyaBaglan(hesap, sifre, undefined, undefined, async (yuvalar) => sec(yuvalar.map((y) => ({ ad: y.ad, seviye: y.seviye, sinif: y.sinif })))); },
+    baglan: async (hesap, sifre, sec) => { await ke.sunucuyaBaglan(hesap, sifre, undefined, undefined, async (yuvalar, araclar) => sec(yuvalar.map((y) => ({ ad: y.ad, seviye: y.seviye, sinif: y.sinif })), araclar)); },
     cevrimdisi: () => {},
   });
   await ekran.ac();

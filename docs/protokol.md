@@ -212,3 +212,11 @@ Betik: `client/scripts/statSunucuTesti.mjs`.
 - Açılış cevabı: `u8 1, u8 1, u32 bankadaki Noah` + 192 yuva (8 sayfa × 24) × 17 bayt (`u32 eşya, u16 dayanıklılık, u16 adet, u8 bayrak, u32 benzersiz no, u32 bitiş`).
 - Yatır (2) / çek (3): `u8 işlem, u16 NPC, u32 eşya (Noah = 900000000), u8 sayfa, u8 kaynak yuva, u8 hedef yuva, u32 adet`. Cevap `u8 işlem, u8 sonuç` (1 başarılı). Client değişikliği ancak onaydan sonra uygular.
 Canlı test (kotest): Noah ve eşya yatır/çek. Betik: `client/scripts/bankaSunucuTesti.mjs`.
+
+## Karakter oluşturma (0x02) ve ulus seçimi (0x05)
+
+- İstek: `u8 yuva (0–3), u16+ad, u8 ırk, u16 sınıf, u8 yüz, u32 saç, 5 × u8 (STR STA DEX INT CHA)`. Cevap: tek bayt (0 başarılı; 1 yer yok, 2 geçersiz, 3 ad alınmış, 4 DB hatası, 5/6 ad yasak, 7–9 ırk/sınıf, 10 puan kalmış, 11 stat < 50).
+- Kurallar (sunucu doğrular): stat toplamı tam 300 ve her stat ≥ 50; ırk 1 → yalnız Warrior; 2 → Rogue/Priest; 3 → Mage; 4 → Mage/Priest; 11 → Warrior; 12 ve 13 → dört sınıf. Sınıf kodu = ulus × 100 + meslek (1 Warrior, 2 Rogue, 3 Mage, 4 Priest). Karus ırkları 1–4, El Morad 11–13.
+- Başlangıç statları sınıfa göre sabit (Warrior 65/65/60/50/50, Rogue 60/60/70/50/50, Mage 50/50/70/70/50, Priest 50/60/60/70/50) ve 10 bonus puan dağıtılır.
+- Yeni hesapta (ulus 0) ilk karakterden önce `0x05: u8 ulus` yollanır; ulus bir daha değişmez, hesap yalnız o ulusun ırklarını açabilir.
+Client: `client/src/arayuz/karakterOlustur.ts` (oyunun `re_ka_charactercreate` / `re_el_charactercreate` pencereleri). Test: `client/scripts/olusturTesti.mjs`.

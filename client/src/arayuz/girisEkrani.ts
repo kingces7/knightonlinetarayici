@@ -1,6 +1,9 @@
 // Giriş ve karakter seçim ekranı (Aşama 4): oyunun kendi pencereleri (`re_login_intro`, `re_characterselect`) tam ekran bir katmanda gösterilir.
 // Akış: hesap/şifre → sunucuya bağlan → karakter seç → oyuna gir. Gerçek bağlantı `baglan` ile dışarıdan verilir (bu dosya yalnızca arayüzdür).
 import { UiPencere } from './orijinal';
+import { KarakterOlustur } from './karakterOlustur';
+import type { OlusturmaAraclari } from '../ag/sunucu';
+import { kurallar } from '../oyun/veri';
 
 /** Karakter seçim ekranında gösterilecek özet (sunucu karakter listesinden). */
 export interface SecimKarakteri { ad: string; seviye: number; sinif: number; }
@@ -11,7 +14,7 @@ export class GirisIptal extends Error {}
 export interface GirisBaglami {
   kok: HTMLElement;
   /** Sunucuya bağlanır. Karakter listesi gelince `sec` çağrılır; seçilen karakterin adı döndürülür. Hata fırlatırsa iletisi ekranda gösterilir. */
-  baglan: (hesap: string, sifre: string, sec: (karakterler: SecimKarakteri[]) => Promise<string>) => Promise<void>;
+  baglan: (hesap: string, sifre: string, sec: (karakterler: SecimKarakteri[], araclar: OlusturmaAraclari) => Promise<string>) => Promise<void>;
   /** Bağlanmadan tek oyunculu oynamak için ekran kapatıldı. */
   cevrimdisi: () => void;
 }
@@ -117,7 +120,7 @@ export class GirisEkrani {
     if (!hesap || !sifre) { this.durum('Enter your ID and password.'); (hesap ? this.sifreKutusu : this.idKutusu).focus(); return; }
     this.mesgul = true; this.idKutusu.disabled = this.sifreKutusu.disabled = true; this.durum('Connecting…');
     try {
-      await this.b.baglan(hesap, sifre, (k) => this.karakterSec(k));
+      await this.b.baglan(hesap, sifre, (k, a) => this.karakterSec(k, a));
       try { if (this.hatirla) localStorage.setItem(KAYIT_HESAP, hesap); else localStorage.removeItem(KAYIT_HESAP); } catch { /* depolama kapalı */ }
       this.kapat();
     } catch (e) {
@@ -139,33 +142,49 @@ export class GirisEkrani {
     p.gizle('Group_Bottom_Img'); p.gizle('logo'); // orijinalde 3B sahnenin alt süslemesi; burada arka plan resmi varken yersiz kalır
     p.tikla.set('btn_back', () => this.karakterIstegi?.hata(new GirisIptal()));
     p.tikla.set('btn_exit', () => this.karakterIstegi?.hata(new GirisIptal()));
-    p.tikla.set('btn_create', () => this.durum('Character creation is not available yet.'));
+    // Karakter oluştur: karakterSec içinde (bağlantı açıkken) kurulur
   }
 
   private girisGoster(): void {
     this.secim!.el.style.display = 'none'; this.giris!.goster('Group_Login'); this.giris!.goster('copyright'); this.giris!.el.style.display = ''; if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = '';
   }
 
-  private karakterSec(liste: SecimKarakteri[]): Promise<string> {
+  /** Bağlantı açıkken karakter oluşturma ekranını açar; oluşturulan karakterin adı ya da iptalde null. */
+  private async olusturAc(araclar: OlusturmaAraclari, yuva: number): Promise<string | null> {
+    this.secim!.el.style.display = 'none'; this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright');
+    this.sahne.style.visibility = 'hidden'; // oluşturma ekranı kendi tam ekran katmanını açar
+    try { return await new KarakterOlustur({ kok: this.b.kok, araclar, baslangic: kurallar?.yeniKarakter ?? {}, yuva }).ac(); }
+    finally { this.sahne.style.visibility = ''; this.secim!.el.style.display = ''; }
+  }
+
+  private karakterSec(ilk: SecimKarakteri[], araclar: OlusturmaAraclari): Promise<string> {
     const p = this.secim!;
-    const dolu = liste.filter((k) => k.ad);
-    if (!dolu.length) return Promise.reject(new Error('This account has no characters yet. Create one first.'));
     return new Promise<string>((coz, hata) => {
-      let sira = 0;
+      let liste = ilk, dolu = liste.filter((k) => k.ad), sira = 0;
       const goster = () => {
+        if (!dolu.length) { p.metin('str_id', ''); p.metin('str_lev', ''); p.metin('str_job', ''); p.goster('Group_OtherCharacter', false); return; }
         const k = dolu[sira];
         p.metin('str_id', k.ad); p.metin('str_lev', k.seviye); p.metin('str_job', sinifAdi(k.sinif));
         p.goster('Group_OtherCharacter', dolu.length > 1);
       };
-      goster();
-      p.tikla.set('btn_left', () => { sira = (sira + dolu.length - 1) % dolu.length; goster(); });
-      p.tikla.set('btn_right', () => { sira = (sira + 1) % dolu.length; goster(); });
-      p.tikla.set('btn_start', () => { this.durum('Entering the game…'); coz(dolu[sira].ad); });
+      const olustur = async () => {
+        const yuva = liste.findIndex((k) => !k.ad);
+        if (yuva < 0) { this.durum('There is no free character slot.'); return; }
+        const ad = await this.olusturAc(araclar, yuva);
+        if (!ad) return;
+        liste = (await araclar.yenile()).map((y) => ({ ad: y.ad, seviye: y.seviye, sinif: y.sinif })); dolu = liste.filter((k) => k.ad);
+        sira = Math.max(0, dolu.findIndex((k) => k.ad.toLowerCase() === ad.toLowerCase())); goster(); this.durum('');
+      };
+      p.tikla.set('btn_create', () => void olustur());
+      p.tikla.set('btn_left', () => { if (dolu.length) { sira = (sira + dolu.length - 1) % dolu.length; goster(); } });
+      p.tikla.set('btn_right', () => { if (dolu.length) { sira = (sira + 1) % dolu.length; goster(); } });
+      p.tikla.set('btn_start', () => { if (!dolu.length) { this.durum('Create a character first.'); return; } this.durum('Entering the game…'); coz(dolu[sira].ad); });
       this.karakterIstegi = { coz, hata: (e) => { this.karakterIstegi = null; hata(e); } };
       // Giriş çubuğu ve telif satırı gizlenir; karakter penceresi açılır
       this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright'); if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = 'none';
-      this.durum('');
+      this.durum(''); goster();
       p.el.style.display = '';
+      if (!dolu.length) void olustur(); // boş hesap: doğrudan karakter oluşturma ekranı
     });
   }
 }

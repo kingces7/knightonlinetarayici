@@ -3,6 +3,7 @@
 // Akış: giriş sunucusu (sürüm → şifreleme → giriş → sunucu listesi) → oyun sunucusu (sürüm → giriş → karakter listesi → karakter seç → oyun başlat).
 import { PaketKanali, type Paket } from '../../../kopru/protokol/kanal.ts';
 import { PaketOkuyucu, PaketYazici } from '../../../kopru/protokol/ikili.ts';
+import { type YeniKarakter, irkUlusu, ulusSecIstegi, yeniKarakterIstegi } from '../../../kopru/protokol/olustur.ts';
 import { LS, WIZ, GIRIS_SONUCU } from '../../../kopru/protokol/opcode.ts';
 import {
   benimBilgim, karakterListesi, karakterSecCevabi, oyunGirisCevabi, oyunHavasi, oyunSaati,
@@ -133,7 +134,16 @@ async function girisSunucusu(kopru: string, hesap: string, sifre: string): Promi
  * Tam bağlantı akışı. Başarılı olunca oyun sunucusu bağlantısı AÇIK kalır (`kapat()` ile kapatılır).
  * `karakterAdi` verilmezse `secici` (karakter seçim ekranı) sorulur; o da yoksa hesabın ilk dolu karakter yuvası seçilir.
  */
-export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSAYILAN_KOPRU, karakterAdi?: string, secici?: (yuvalar: KarakterOzeti[]) => Promise<string>): Promise<SunucuOturumu> {
+/** Karakter seçim ekranının açık oyun bağlantısı üzerinden yapabildikleri: karakter oluşturma ve listeyi yenileme. */
+export interface OlusturmaAraclari {
+  /** Hesabın ulusu: 0 = henüz seçilmemiş (ilk karakterin ırkı belirler), 1 Karus, 2 El Morad. */
+  ulus: number;
+  /** Karakter oluşturur; 0 = başarılı, diğerleri `YENI_KARAKTER_MESAJLARI` kodları. */
+  olustur: (k: YeniKarakter) => Promise<number>;
+  yenile: () => Promise<KarakterOzeti[]>;
+}
+
+export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSAYILAN_KOPRU, karakterAdi?: string, secici?: (yuvalar: KarakterOzeti[], araclar: OlusturmaAraclari) => Promise<string>): Promise<SunucuOturumu> {
   const sunucuAdi = await girisSunucusu(kopru, hesap, sifre);
 
   const b = await Baglanti.ac(`${kopru}/oyun`);
@@ -145,8 +155,18 @@ export async function sunucuyaBaglan(hesap: string, sifre: string, kopru = VARSA
     if (!giris.basarili) throw new SunucuHatasi('The game server refused the login.');
 
     b.gonder(WIZ.TUM_KARAKTER_BILGISI, new PaketYazici().u8(1).baytlar());
-    const { yuvalar } = karakterListesi((await b.bekle(WIZ.TUM_KARAKTER_BILGISI)).govde);
-    if (!karakterAdi && secici) karakterAdi = await secici(yuvalar); // seçici hata fırlatırsa (geri düğmesi vb.) bağlantı kapanır
+    let { yuvalar } = karakterListesi((await b.bekle(WIZ.TUM_KARAKTER_BILGISI)).govde);
+    let hesapUlusu = giris.ulus > 0 ? giris.ulus : 0;
+    const araclar: OlusturmaAraclari = {
+      get ulus() { return hesapUlusu; },
+      olustur: async (k) => {
+        if (hesapUlusu === 0) { b.gonder(WIZ.ULUS_SEC, ulusSecIstegi(irkUlusu(k.irk))); await b.bekle(WIZ.ULUS_SEC); hesapUlusu = irkUlusu(k.irk); } // yeni hesap: ilk karakterin ırkı ulusu belirler
+        b.gonder(WIZ.YENI_KARAKTER, yeniKarakterIstegi(k));
+        return (await b.bekle(WIZ.YENI_KARAKTER)).govde[0];
+      },
+      yenile: async () => { b.gonder(WIZ.TUM_KARAKTER_BILGISI, new PaketYazici().u8(1).baytlar()); yuvalar = karakterListesi((await b.bekle(WIZ.TUM_KARAKTER_BILGISI)).govde).yuvalar; return yuvalar; },
+    };
+    if (!karakterAdi && secici) karakterAdi = await secici(yuvalar, araclar); // seçici hata fırlatırsa (geri düğmesi vb.) bağlantı kapanır
     const karakter = yuvalar.find((y) => y.ad && (!karakterAdi || y.ad.toLowerCase() === karakterAdi.toLowerCase()));
     if (!karakter) throw new SunucuHatasi(karakterAdi ? `Character "${karakterAdi}" not found on this account.` : 'This account has no characters.');
 
