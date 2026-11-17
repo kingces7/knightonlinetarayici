@@ -42,6 +42,7 @@ export class MagazaPenceresi {
 
   private constructor(private p: UiPencere, private k: MagazaKancalari, ust: HTMLElement) {
     p.el.style.display = 'none'; p.el.style.zIndex = '7'; p.surukle(); ust.appendChild(p.el);
+    p.el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { if (!y.closest('.ui-t1')) y.style.pointerEvents = 'none'; }); // adet/fiyat yazıları yuvanın tıklamasını engellemesin
     const y = (el: HTMLElement) => parseFloat(el.style.top);
     for (let i = 0; i < 28; i++) for (const el of p.bul(String(i))) {
       const yuva = el.classList.contains('ui-t9');

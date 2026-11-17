@@ -470,6 +470,8 @@ export class OyunArayuzu {
     p.tikla.set('btn_gold', () => noahSor(true));
     p.tikla.set('btn_gold_warehouse', () => noahSor(false));
     // Yuva tıklamaları pencere düzeyinde ve tıklama anında çözülür (yuvalar pencere gizliyken konumlanmamış olur).
+    // Yuvaların üzerindeki adet/fiyat yazı katmanları fare olaylarını yakalamasın: yuvanın alt kısmından da tutup sürüklenebilsin ve sağ tık çalışsın
+    p.el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { if (!y.closest('.ui-t1')) y.style.pointerEvents = 'none'; });
     // Yuva çözümü olay anında yapılır: { yer: 'depo' (sayfadaki sıra → genel yuva) | 'canta', i }
     const yuvaBul = (hedef: EventTarget | null): { yer: 'depo' | 'canta'; i: number } | null => {
       const el = (hedef as HTMLElement | null)?.closest('.ui-t9') as HTMLElement | null; if (!el) return null;

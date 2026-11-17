@@ -1,0 +1,20 @@
+// Geliştirme aracı: sunucu modunda bankada GERÇEK fare sürüklemesi (sol tık basılı tut → bırak). Yalnız kotest hesabıyla. Kullanım: KO_HESAP=… KO_SIFRE=… node scripts/bankaSunucuSurukleTesti.mjs
+import { chromium } from 'playwright-core';
+const t = await chromium.launch({ channel: 'msedge', args: ['--use-angle=d3d11'] });
+const s = await t.newPage({ viewport: { width: 1280, height: 800 } });
+const h = []; s.on('pageerror', (e) => h.push(e.message));
+await s.goto('http://localhost:5173/?giris=0'); await s.waitForFunction(() => window.ke, null, { timeout: 120000 }); await s.waitForTimeout(2500);
+await s.evaluate(([a, p]) => window.ke.sunucuyaBaglan(a, p), [process.env.KO_HESAP, process.env.KO_SIFRE]);
+await s.evaluate(() => { window.__m = []; const o = window.ke.hud.mesaj.bind(window.ke.hud); window.ke.hud.mesaj = (m, tur) => { window.__m.push(m); o(m, tur); }; });
+await s.evaluate(() => { const n = window.ke.npcler.find((n) => n.tanim.sid === 16096); window.ke.sunucuIsinla(n.konum.x + 1.5, n.konum.y); }); await s.waitForTimeout(4000);
+await s.evaluate(() => window.ke.npcTikla(window.ke.npcler.find((n) => n.tanim.sid === 16096))); await s.waitForTimeout(1800);
+const depo = () => s.evaluate(() => window.ke.oyuncu.depo.map((e, i) => e ? `${i}:${e.ad}` : null).filter(Boolean));
+const canta = () => s.evaluate(() => window.ke.oyuncu.envanter.map((e, i) => e ? `${i}:${e.ad}` : null).filter(Boolean));
+const yer = (y, i) => s.evaluate(([y, i]) => { const a = window.ke.arayuz(); const el = (y === 'depo' ? a.depoUst() : a.depoAlt())[i]; const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, [y, i]);
+const surukle = async (a, b) => { await s.mouse.move(a[0], a[1]); await s.mouse.down(); await s.mouse.move(b[0], b[1], { steps: 12 }); await s.mouse.up(); await s.waitForTimeout(1200); };
+console.log('başlangıç banka', await depo(), 'çanta', await canta());
+const ilkDolu = (await s.evaluate(() => window.ke.oyuncu.envanter.findIndex((e) => e && !e.sayilabilir)));
+console.log('çanta yuvası', ilkDolu);
+await surukle(await yer('canta', ilkDolu), await yer('depo', 9)); console.log('çantadan banka yuva 9’a sürükle', 'banka', await depo(), 'çanta', await canta(), await s.evaluate(() => window.__m.splice(0)));
+await surukle(await yer('depo', 9), await yer('canta', 20)); console.log('bankadan çanta yuva 20’ye sürükle', 'banka', await depo(), 'çanta', await canta(), await s.evaluate(() => window.__m.splice(0)));
+console.log('hatalar', h); await t.close();
