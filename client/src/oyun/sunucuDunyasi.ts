@@ -15,6 +15,8 @@ import {
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
 import { partiPaketi, type PartiPaketi } from '../../../kopru/protokol/parti.ts';
 import { beceriPaketi, manaDegisti, type BeceriPaketi } from '../../../kopru/protokol/beceri.ts';
+import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
+import { esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
 import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
 import {
   SALDIRI_SONUCU, esyaDustu, canDegisti, deneyimDegisti, hedefCan, olum, saldiriSonucu, seviyeDegisti, yenidenDogusCevabi,
@@ -37,6 +39,11 @@ export interface SavasKancalari {
   /** Kutu içeriği (0x24) ve alma cevabı (0x26) geldi. */
   kutuIcerigi?: (k: KutuIcerigi) => void;
   almaCevabi?: (a: AlmaCevabi) => void;
+  /** Eşya taşıma/giyme isteğinin sonucu (0x1F). */
+  tasimaCevabi?: (c: TasimaCevabi) => void;
+  /** Sohbet mesajı geldi; özel sohbet alıcı sorgusunun sonucu (bulundu mu). */
+  sohbet?: (s: SohbetPaketi) => void;
+  ozelHedef?: (bulundu: boolean) => void;
 }
 
 /** Bu uzaklıktan (m) fazla geride kalan varlık varış noktasına ışınlanır (sekme/bağlantı gecikmesi). */
@@ -89,6 +96,9 @@ export class SunucuDunyasi {
       case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y } : null); break; }
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
+      case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;
+      case WIZ.SOHBET: this.kancalar.sohbet?.(sohbetPaketi(p.govde)); break;
+      case WIZ.SOHBET_HEDEFI: this.kancalar.ozelHedef?.(ozelHedefCevabi(p.govde).bulundu); break;
       case WIZ.PARTI: this.kancalar.parti?.(partiPaketi(p.govde)); break;
       case WIZ.SALDIRI: this.saldiri(saldiriSonucu(p.govde)); break;
       case WIZ.HEDEF_CAN: this.hedefCan(hedefCan(p.govde)); break;

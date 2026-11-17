@@ -178,3 +178,17 @@ Canlı test (kotest): Stroke (201001) MP 19→17, 10 hasar; Sprint (201002) MP 2
 - Çanta yuvası 0–27 = envanter dizisi (14. yuvadan sonrası; sunucudaki `bDstPos − 14`). Yığınlı eşyada (ok, iksir) gelen adet toplam adettir.
 - Eşya tablosu: sunucu her eşyayı düşürebildiği için `npm run tum-esyalar` tüm Item_Org_us.tbl'yi (5.332 eşya, 1.943 simge) `esya/tum.json` yapar; tabloda olmayan numara "Item <no>" yer tutucusuyla çantada yuva tutar.
 Canlı test (kotest): Noah, "Low Quality Gem" ve "Arrow x20" alındı; envanter ve Noah sunucuyla uyumlu. Betik: `client/scripts/ganimetSunucuTesti.mjs`.
+
+## Eşya taşıma (0x1F)
+
+- İstek: `u8 1, u8 yön, u32 eşya (yuvadaki eşyanın TAM numarası), u8 kaynak yuva, u8 hedef yuva`. Yön: 1 çanta→giyili, 2 giyili→çanta, 3 çanta→çanta, 4 giyili→giyili. Çanta yuvası 0–27, giyili yuva 0–13.
+- Cevap: başarısız `01 00`; başarılı `01 01` + karakter özeti (hasar, savunma, azami ağırlık/can/mana, stat ekleri…); ardından `0x54` ağırlık.
+- Client iyimser davranır: hamleyi hemen uygular, `01 00` gelirse önceki hale döner (ör. Warrior'a uymayan eşya giyilemez). Sıralama (type 2) isteği çantayı yeniden dizdiği için kullanılmaz.
+- Eşya numarasının son 3 hanesi yükseltme koduyla gelir; istekte yuvadaki tam numara (`sunucuNo`) gönderilmelidir.
+
+## Sohbet (0x10) ve özel alıcı (0x35)
+
+- İstek: `u8 tür, u16+mesaj` (tür: 1 genel, 3 parti, 5 bağırma, 6 klan; en çok 128 karakter). Genel sohbet yalnız yakındaki oyunculara gider; gönderen de kendi mesajını geri alır.
+- Gelen: `u8 tür, u8 ulus, i16 gönderen, u8+ad, u16+mesaj, i8 rütbe, u8 sistem`.
+- Özel mesaj: önce `0x35: u8 1, u16+ad` (cevap `u8 1, i16 sonuç`; 0 = çevrimdışı), sonra tür 2 ile `0x10`. Sunucu yalnız alıcıya yollar, gönderen yankı almaz (client "[To ad]" satırını kendisi yazar).
+Canlı test: tarayıcı (kotest) ↔ ikinci oyuncu (kotest1) genel ve özel mesaj. Betik: `client/scripts/sohbetSunucuTesti.mjs`.

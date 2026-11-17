@@ -6,7 +6,7 @@ import { TakipKamerasi } from './dunya/kamera';
 import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
-import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
+import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
@@ -23,6 +23,8 @@ import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
+import { ESYA_YONU, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
 import { ALTIN_NO, GANIMET_HATALARI, esyaAlmaIstegi, kutuAcmaIstegi, type AlmaCevabi, type KutuIcerigi } from '../../kopru/protokol/ganimet.ts';
 import { BECERI_HATALARI, BECERI_KOMUTU, beceriIstegi, type BeceriPaketi } from '../../kopru/protokol/beceri.ts';
 import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/protokol/savas.ts';
@@ -260,9 +262,14 @@ async function basla(): Promise<void> {
   try {
     const a = new OyunArayuzu({
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
-      esyaKusan: (i) => hud.esyaKusan(i),
+      esyaKusan: (i) => hud.esyaKusan(i), sohbetGonder: (mod, m) => sohbetGonder(mod, m),
       esyaTasi: (k, h) => {
         const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i];
+        if (sunucuOturumu) { // sunucu modu: mesaj sunucu onayından sonra
+          const ms = e && h.tur === 'e' ? `You equipped ${e.ad}.` : e && k.tur === 'e' ? `You unequipped ${e.ad}.` : undefined;
+          if (!sunucuTasi(k, h, ms) && e) hud.mesaj('You cannot move the item there.', 'sistem'); else envanterYenile();
+          return;
+        }
         if (!oyuncu.esyaTasi(k, h)) { if (e) hud.mesaj('You cannot move the item there.', 'sistem'); return; }
         if (e && h.tur === 'e') hud.mesaj(`You equipped ${e.ad}.`, 'sistem'); else if (e && k.tur === 'e') hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
         envanterYenile();
@@ -290,7 +297,57 @@ async function basla(): Promise<void> {
   // ---------------- Olaylar ----------------
   const envanterYenile = () => hud.envanterCiz(oyuncu);
   envanterYenile();
+  /**
+   * Sunucu modunda eşya taşıma/giyme/çıkarma: yerel kurallarla hemen uygulanır (akıcı), istek sunucuya gider; sunucu reddederse (0x1F "01 00") önceki hal geri yüklenir.
+   * Cevaplar sırayla geldiği için bekleyen istekler kuyrukta tutulur.
+   */
+  const tasimaBekleyen: { env: (EsyaTanimi | null)[]; ekp: (EsyaTanimi | null)[]; mesaj?: string }[] = [];
+  const sunucuTasi = (k: YuvaKonumu, h: YuvaKonumu, mesaj?: string): boolean => {
+    const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i]; if (!e) return false;
+    const once = { env: oyuncu.envanter.map((x) => (x ? { ...x } : null)), ekp: oyuncu.ekipman.map((x) => (x ? { ...x } : null)) };
+    if (!oyuncu.esyaTasi(k, h)) return false;
+    tasimaBekleyen.push({ ...once, mesaj });
+    const yon = k.tur === 'c' ? (h.tur === 'c' ? ESYA_YONU.CANTADAN_CANTAYA : ESYA_YONU.CANTADAN_YUVAYA) : (h.tur === 'c' ? ESYA_YONU.YUVADAN_CANTAYA : ESYA_YONU.YUVADAN_YUVAYA);
+    sunucuOturumu?.gonder(WIZ.ESYA_TASI, esyaTasimaIstegi(yon, e.sunucuNo ?? e.no, k.i, h.i));
+    return true;
+  };
+  const tasimaCevabiSunucudan = (c: TasimaCevabi) => {
+    const once = tasimaBekleyen.shift();
+    if (!c.basarili) {
+      if (once) { oyuncu.envanter.splice(0, oyuncu.envanter.length, ...once.env); oyuncu.ekipman.splice(0, oyuncu.ekipman.length, ...once.ekp); tasimaBekleyen.length = 0; }
+      hud.mesaj('You cannot move the item there.', 'sistem'); envanterYenile(); return;
+    }
+    if (once?.mesaj) hud.mesaj(once.mesaj, 'sistem');
+    if (c.azamiCan) oyuncu.enCok = c.azamiCan; if (c.azamiMana) oyuncu.enCokMana = c.azamiMana;
+  };
+  /** Sohbet (sunucu modu): mesaj sunucuya gider, herkes (kendimiz dahil) sunucudan geri alır. "/ad mesaj" özel mesajdır (alıcı önce sorgulanır, sunucu göndereni yankılamaz). */
+  let ozelBekleyen: { ad: string; mesaj: string } | null = null;
+  const sohbetGonder = (mod: string, mesaj: string): boolean => {
+    if (!sunucuOturumu) return false;
+    const ozel = /^\/(\S+)\s+(.+)$/.exec(mesaj);
+    if (ozel) { ozelBekleyen = { ad: ozel[1], mesaj: ozel[2] }; sunucuOturumu.gonder(WIZ.SOHBET_HEDEFI, ozelHedefIstegi(ozel[1])); return true; }
+    const tur = mod === 'shout' ? SOHBET_TURU.BAGIRMA : mod === 'party' ? SOHBET_TURU.PARTI : mod === 'clan' ? SOHBET_TURU.KLAN : SOHBET_TURU.GENEL;
+    if (tur === SOHBET_TURU.PARTI && !partidayiz) { hud.mesaj('You are not in a party.', 'sistem'); return true; }
+    sunucuOturumu.gonder(WIZ.SOHBET, sohbetIstegi(tur, mesaj)); return true;
+  };
+  const sohbetSunucudan = (s: SohbetPaketi) => {
+    const ad = { [SOHBET_TURU.GENEL]: 'Normal', [SOHBET_TURU.OZEL]: 'Private', [SOHBET_TURU.PARTI]: 'Party', [SOHBET_TURU.BAGIRMA]: 'Shout', [SOHBET_TURU.KLAN]: 'Clan' }[s.tur as number];
+    const renk = { [SOHBET_TURU.OZEL]: '#8cff8c', [SOHBET_TURU.PARTI]: '#6bb8ff', [SOHBET_TURU.BAGIRMA]: '#ffa545', [SOHBET_TURU.KLAN]: '#ffe066' }[s.tur as number] ?? '#ffffff';
+    arayuz?.sohbetYaz(s.gonderen ? `[${ad ?? s.tur}] ${s.gonderen}: ${s.mesaj}` : s.mesaj, renk);
+  };
+  const ozelHedefSunucudan = (bulundu: boolean) => {
+    const b = ozelBekleyen; ozelBekleyen = null; if (!b) return;
+    if (!bulundu) { hud.mesaj(`${b.ad} is not online.`, 'sistem'); return; }
+    sunucuOturumu?.gonder(WIZ.SOHBET, sohbetIstegi(SOHBET_TURU.OZEL, b.mesaj));
+    arayuz?.sohbetYaz(`[To ${b.ad}] ${b.mesaj}`, '#8cff8c');
+  };
   hud.esyaKusan = (i) => {
+    if (sunucuOturumu) { // sunucu modu
+      const e = oyuncu.envanter[i]; if (!e) return;
+      const p = Oyuncu.ekipmanYuvasi(e); if (p < 0) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
+      if (sunucuTasi({ tur: 'c', i }, { tur: 'e', i: p }, `You equipped ${e.ad}.`)) envanterYenile();
+      return;
+    }
     const e = oyuncu.esyaKusan(i);
     if (!e) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
     hud.mesaj(`You equipped ${e.ad}.`, 'sistem');
@@ -299,6 +356,11 @@ async function basla(): Promise<void> {
   esyaCikar = (p) => {
     const e = oyuncu.ekipman[p];
     if (!e) return;
+    if (sunucuOturumu) {
+      const f = oyuncu.envanter.indexOf(null); if (f < 0) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
+      if (sunucuTasi({ tur: 'e', i: p }, { tur: 'c', i: f }, `You unequipped ${e.ad}.`)) envanterYenile();
+      return;
+    }
     if (!oyuncu.esyaCikar(p)) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
     hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
     envanterYenile();
@@ -775,7 +837,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

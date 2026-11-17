@@ -44,6 +44,8 @@ export interface ArayuzBaglami {
   esyaCikar: (yuva: number) => void;
   /** Ganimet sandığından altın/eşya al (main.ts → hud.ganimetAl). */
   ganimetAl: (k: GanimetKutusu, secim: 'altin' | number) => void;
+  /** Sunucu modunda sohbet mesajı sunucuya gider (true = ele alındı; false = yerel yankı). `mod`: normal | shout | party | clan. */
+  sohbetGonder?: (mod: string, mesaj: string) => boolean;
   /** NPC'ye çantadaki eşyayı sat (çanta yuvası). */
   magazaSat: (yuva: number) => void;
   /** NPC mağazasından eşya satın al. */
@@ -647,8 +649,11 @@ export class OyunArayuzu {
     if (alttaydi) kap.scrollTop = kap.scrollHeight;
   }
 
+  /** Sohbet sekmesi (Normal/Private/Shout/Party/Clan düğmeleri): yazılan mesajın türünü belirler. */
+  private sohbetModu = 'normal';
   private sohbetKur(): void {
     const p = this.sohbet;
+    for (const [kimlik, mod] of [['btn_normal', 'normal'], ['btn_private', 'normal'], ['btn_shout', 'shout'], ['btn_party_force', 'party'], ['btn_clan', 'clan']] as const) p.tikla.set(kimlik, () => { this.sohbetModu = mod; if (mod === 'normal' && kimlik === 'btn_private') this.b.mesaj('Private chat: type /name message.'); });
     p.gizleDesen(/^(btn_check_|btn_off|text_notice_title)/);
     this.satirKabi(p.alan('text0'), 14);
     for (const el of p.el.querySelectorAll<HTMLElement>('.ui-yazi span')) if (el.textContent === 'Knights') el.textContent = 'Clan'; // oyundaki sekme adı
@@ -660,7 +665,7 @@ export class OyunArayuzu {
       g.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter') {
           const m = g.value.trim(); g.value = '';
-          if (m) this.sohbetYaz(`[Normal] ${this.b.oyuncu.ad}: ${m}`, '#ffffff');
+          if (m && !this.b.sohbetGonder?.(this.sohbetModu, m)) this.sohbetYaz(`[Normal] ${this.b.oyuncu.ad}: ${m}`, '#ffffff');
           g.blur();
         } else if (ev.key === 'Escape') { g.value = ''; g.blur(); }
         ev.stopPropagation();

@@ -1,0 +1,29 @@
+// Eşya taşıma/giyme/çıkarma (WIZ_ITEM_MOVE 0x1F). Kaynak: GameServer/ItemHandler.cpp (ItemMove, InventorySystem), User.cpp (SendItemMove).
+// Gerçek Myko sunucusuyla doğrulandı (ornekler/myko-envanter.json).
+import { PaketOkuyucu, PaketYazici } from './ikili.ts';
+
+/** Taşıma yönü (`ItemMovementType`). Çanta yuvası 0–27, giyili yuva 0–13 (sunucudaki konum − 14 / doğrudan). */
+export const ESYA_YONU = { CANTADAN_YUVAYA: 1, YUVADAN_CANTAYA: 2, CANTADAN_CANTAYA: 3, YUVADAN_YUVAYA: 4 } as const;
+
+/** İstek (client → sunucu): `u8 1, u8 yön, u32 eşya no (yuvadaki eşyanın TAM numarası), u8 kaynak yuva, u8 hedef yuva`. */
+export function esyaTasimaIstegi(yon: number, no: number, kaynak: number, hedef: number): Uint8Array {
+  return new PaketYazici().u8(1).u8(yon).u32(no).u8(kaynak).u8(hedef).baytlar();
+}
+
+export interface TasimaCevabi {
+  basarili: boolean;
+  /** Başarıda güncellenen karakter özeti (eşya değişince hesaplanır). */
+  hasar?: number; savunma?: number; azamiAgirlik?: number; azamiCan?: number; azamiMana?: number; statEk?: number[]; can?: number; mana?: number;
+}
+/**
+ * Cevap (sunucu → client): `u8 1, u8 sonuç (1 başarılı / 0 hata)`; başarıda: `u16 hasar, u16 savunma, u32 azami ağırlık, u8, u8, u16 azami can, u16 azami mana,
+ * 5 × u16 stat eki, 6 × u16 direnç, u32 nakit puan, 7 × u16 direnç, u32 yükseltme ücreti, u16 can, u16 mana`.
+ */
+export function esyaTasimaCevabi(govde: Uint8Array): TasimaCevabi {
+  const o = new PaketOkuyucu(govde); o.u8();
+  if (o.u8() === 0) return { basarili: false };
+  const hasar = o.u16(), savunma = o.u16(), azamiAgirlik = o.u32(); o.u8(); o.u8();
+  const azamiCan = o.u16(), azamiMana = o.u16(), statEk = [o.u16(), o.u16(), o.u16(), o.u16(), o.u16()];
+  for (let i = 0; i < 6; i++) o.u16(); o.u32(); for (let i = 0; i < 7; i++) o.u16(); o.u32();
+  return { basarili: true, hasar, savunma, azamiAgirlik, azamiCan, azamiMana, statEk, can: o.u16(), mana: o.u16() };
+}

@@ -2,6 +2,7 @@
 // Not: Gerçek değerler sunucu veritabanında; sunucu bağlandığında oradan gelecek.
 
 export interface EsyaTanimi {
+  /** Sunucudaki TAM eşya numarası (son 3 hane yükseltme/ek kodu); sunucuya giden her istekte bu kullanılır. Yerel eşyalarda yoktur. */ sunucuNo?: number;
   no: number; ad: string; aciklama: string; simge: string;
   /** Yığınlanabilir mi (eşya tablosu Countable: iksir, ok, kâğıt…)? `adet` = bu yuvadaki sayı. */ sayilabilir?: boolean; adet?: number; tur: 'silah' | 'zirh' | 'sarf'; /** eşya türü numarası (silah: 21 kılıç, 31 balta…) */ tip: number; /** eşyanın giyileceği yuva kodu (sunucu ItemSlot: 0 çift el seçmeli, 1 sağ el, 3 iki elli, 5 gövde, 6 bacak, 7 kask, 8 eldiven, 9 bot…) */ yuva: number; /** başlangıç eşyası: ganimet olarak düşmez */ baslangic?: boolean; hasar: number; /** vuruş gecikmesi (100 = 1 sn) */ gecikme: number; savunma: number; fiyat: number;
 }
@@ -97,7 +98,8 @@ export async function tumEsyalariYukle(): Promise<void> {
 export const esyaBul = (no: number): EsyaTanimi | undefined => esyalar.find((e) => e.no === no) ?? tumEsya.get(no);
 /** Sunucu eşya numarası (son 3 hane yükseltme/ek kodu) → tanım; tabloda yoksa eşya yuvada kalsın diye yer tutucu döner (yuva asla kaybolmaz). */
 export function esyaBulSunucu(no: number): EsyaTanimi {
-  return esyaBul(no) ?? esyaBul(no - (no % 1000)) ?? { no, ad: `Item ${no}`, aciklama: '', simge: '', tur: 'sarf', tip: 0, yuva: 0, hasar: 0, gecikme: 0, savunma: 0, fiyat: 0 };
+  const t = esyaBul(no) ?? esyaBul(no - (no % 1000));
+  return t ? { ...t, sunucuNo: no } : { no, ad: `Item ${no}`, aciklama: '', simge: '', tur: 'sarf', tip: 0, yuva: 0, hasar: 0, gecikme: 0, savunma: 0, fiyat: 0 };
 }
 export async function kurallariYukle(): Promise<void> {
   try { kurallar = await (await fetch('/oyun/oyuncu.json')).json() as OyuncuKurallari; } catch { kurallar = null; }
