@@ -427,7 +427,7 @@ export class OyunArayuzu {
   private depoKur(): void {
     const p = this.pencereler.depo, o = this.b.oyuncu;
     p.gizleDesen(/^(Edt_search|Btn_search)$/);
-    p.tikla.set('btn_close', () => this.ac('depo', false));
+    for (const el of p.tumDugmeler()) if (/close|cancel/i.test(el.dataset.id ?? '')) p.tikla.set(el.dataset.id!, () => { this.ac('depo', false); }); // sağ üstteki çarpı dahil her kapatma düğmesi
     const sayfaDegistir = (d: number) => { this.depoSayfa = (this.depoSayfa + d + 8) % 8; this.depoImza = ''; };
     p.tikla.set('btn_page_up', () => sayfaDegistir(-1)); p.tikla.set('btn_page_down', () => sayfaDegistir(1));
     // Noah: çantadaki tüm Noah'yı yatır / depodakinin tamamını çek
@@ -478,7 +478,7 @@ export class OyunArayuzu {
   private magazaKur(): void {
     const p = this.pencereler.magaza;
     p.gizleDesen(/^(edit_message|btn_ok|at[0-9]+)$/); // at0-at11: öne çıkan eşya alanı (kullanılmıyor)
-    p.tikla.set('btn_cancel', () => this.ac('magaza', false));
+    for (const el of p.tumDugmeler()) if (/close|cancel/i.test(el.dataset.id ?? '')) p.tikla.set(el.dataset.id!, () => this.ac('magaza', false)); // sağ üstteki çarpı (close) ve btn_cancel
     for (let i = 0; i < 28; i++) {
       const alan = p.alan(`a${i}`); if (!alan) continue;
       alan.addEventListener('click', () => { const e = this.magazaSayfalar[this.magazaSayfa]?.[i]; if (e) this.b.magazaSatinAl(e); });
