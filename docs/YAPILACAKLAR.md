@@ -308,3 +308,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Pasif skill'ler: sunucu bunları skill puanı eşiklerine göre `UserAbilityHandler.cpp` içinde uygular. Warrior Defense ağacı 55+ puanda savunmaya +13 verdiği doğrulandı. Diğer sınıfların pasifleri ve direnç bonusları ayrıca denenmedi.
 - [x] PvP skill'i: seçili başka oyuncuya (düşman skill'i) atılabilir; sunucu Moradon'da karşıt ulus oyuncularının birbirine saldırmasına izin verir (`yamalar/moradon-pvp.patch`). Temel saldırı (R) ve oyuncu seçip otomatik vurma yok, yalnızca skill. Öldürme sayacı Moradon'da istemci tarafında sayılır.
 - [~] Parti: üye listesi, kabul/davet, ayrılma/dağıtma/lider devri paketleri ve orijinal `re_el_party` penceresi (can/mana çubukları) yapıldı; iki hesapla denendi. Eksik: partiden çıkma paketine sunucu 2 kişilik partide cevap vermedi (dağıtma çalışıyor), parti skill'leri (Descent, Sacrifice…), parti sohbeti, üye can yazısı, parti HP'si HUD'da, parti aranıyor panosu.
+
+## Moradon paketi, PvP robotu, Kecoon Boss
+- [x] `moradon/` klasörü: `node araclar/oyun/moradon-paketi.ts` ile üretilir (canavar, drop, NPC, boss listeleri + görünüm paketi listesi).
+- [x] PvP robotu: `kopru/pvp-robotu-baslat.ps1` / `pvp-robotu-durdur.ps1` (PvPRobot, Moradon 272,300, can 1501, savunma 600).
+- [ ] Kecoon Boss (K_MONSTER 32601, Moradon 158,462, 60 sn doğuş) veritabanında; sunucu yeniden başlatılınca oyunda görünür (kullanıcı oyundayken yeniden başlatılmadı). Doğuş süresini ben seçtim, istenirse değişir.

@@ -1,0 +1,691 @@
+{
+ "aciklama": "Moradon'un tarayıcıda görünmesi için gereken web dosyaları (donusturulmus/web altındaki yollar). Oyunun orijinal dosyaları değil, bizim dönüştürdüğümüz çıktılardır.",
+ "harita": [
+  {
+   "yol": "harita/14th_oldmoradon/arazi.bin",
+   "boyut": 166410
+  },
+  {
+   "yol": "harita/14th_oldmoradon/arazi.json",
+   "boyut": 403
+  },
+  {
+   "yol": "harita/14th_oldmoradon/canavar.json",
+   "boyut": 6079
+  },
+  {
+   "yol": "harita/14th_oldmoradon/carpisma.bin",
+   "boyut": 363060
+  },
+  {
+   "yol": "harita/14th_oldmoradon/gokyuzu.json",
+   "boyut": 1209
+  },
+  {
+   "yol": "harita/14th_oldmoradon/karolar.bin",
+   "boyut": 14811136
+  },
+  {
+   "yol": "harita/14th_oldmoradon/karolar.png",
+   "boyut": 3858503
+  },
+  {
+   "yol": "harita/14th_oldmoradon/minimap.png",
+   "boyut": 321626
+  },
+  {
+   "yol": "harita/14th_oldmoradon/nesneler.glb",
+   "boyut": 14027988
+  },
+  {
+   "yol": "harita/14th_oldmoradon/npc.json",
+   "boyut": 14031
+  },
+  {
+   "yol": "harita/14th_oldmoradon/renk.bin",
+   "boyut": 1048576
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su.json",
+   "boyut": 109731
+  },
+  {
+   "yol": "harita/14th_oldmoradon/sunucu.json",
+   "boyut": 4676
+  },
+  {
+   "yol": "harita/14th_oldmoradon/taban.bin",
+   "boyut": 65536
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire00.png",
+   "boyut": 1034
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire01.png",
+   "boyut": 1013
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire02.png",
+   "boyut": 894
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire03.png",
+   "boyut": 1007
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire04.png",
+   "boyut": 1005
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire05.png",
+   "boyut": 929
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire06.png",
+   "boyut": 965
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire07.png",
+   "boyut": 1037
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire08.png",
+   "boyut": 1182
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire09.png",
+   "boyut": 1149
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire10.png",
+   "boyut": 1031
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire11.png",
+   "boyut": 928
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire12.png",
+   "boyut": 935
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire13.png",
+   "boyut": 951
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire14.png",
+   "boyut": 1001
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire15.png",
+   "boyut": 1026
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_bindpoint01_fire16.png",
+   "boyut": 1047
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire00.png",
+   "boyut": 1165
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire01.png",
+   "boyut": 1168
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire02.png",
+   "boyut": 1197
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire03.png",
+   "boyut": 1137
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire04.png",
+   "boyut": 1141
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire05.png",
+   "boyut": 1112
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire06.png",
+   "boyut": 1126
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire07.png",
+   "boyut": 1160
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire08.png",
+   "boyut": 1188
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire09.png",
+   "boyut": 1104
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire10.png",
+   "boyut": 1187
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire11.png",
+   "boyut": 1268
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire12.png",
+   "boyut": 1149
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire13.png",
+   "boyut": 1004
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/el_transgate01_fire14.png",
+   "boyut": 1026
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_sb0000.png",
+   "boyut": 912
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_sb0001.png",
+   "boyut": 870
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_sb0002.png",
+   "boyut": 1046
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_sb0003.png",
+   "boyut": 877
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_sb0004.png",
+   "boyut": 985
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0000.png",
+   "boyut": 4431
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0001.png",
+   "boyut": 4494
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0002.png",
+   "boyut": 4982
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0003.png",
+   "boyut": 4928
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0004.png",
+   "boyut": 4729
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0005.png",
+   "boyut": 4511
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0006.png",
+   "boyut": 4475
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0007.png",
+   "boyut": 4777
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0008.png",
+   "boyut": 4982
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/item_table0009.png",
+   "boyut": 4774
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire00.png",
+   "boyut": 740
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire01.png",
+   "boyut": 786
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire02.png",
+   "boyut": 788
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire03.png",
+   "boyut": 793
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire04.png",
+   "boyut": 789
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire05.png",
+   "boyut": 765
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire06.png",
+   "boyut": 727
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire07.png",
+   "boyut": 691
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire08.png",
+   "boyut": 653
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire09.png",
+   "boyut": 681
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire10.png",
+   "boyut": 600
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire11.png",
+   "boyut": 575
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire12.png",
+   "boyut": 613
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire13.png",
+   "boyut": 621
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire14.png",
+   "boyut": 645
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/ka_bindpoint01_fire15.png",
+   "boyut": 668
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a00.png",
+   "boyut": 544
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a01.png",
+   "boyut": 540
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a02.png",
+   "boyut": 538
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a03.png",
+   "boyut": 553
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a04.png",
+   "boyut": 594
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a05.png",
+   "boyut": 575
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a06.png",
+   "boyut": 559
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a07.png",
+   "boyut": 543
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a08.png",
+   "boyut": 569
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a09.png",
+   "boyut": 579
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a10.png",
+   "boyut": 566
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a11.png",
+   "boyut": 545
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a12.png",
+   "boyut": 565
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a13.png",
+   "boyut": 556
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_el_smoke_a14.png",
+   "boyut": 543
+  },
+  {
+   "yol": "harita/14th_oldmoradon/anim/obj_mora_bri_wint.png",
+   "boyut": 88921
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust00.png",
+   "boyut": 3053
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust01.png",
+   "boyut": 3097
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust02.png",
+   "boyut": 3180
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust03.png",
+   "boyut": 3206
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust04.png",
+   "boyut": 3154
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust05.png",
+   "boyut": 3207
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust06.png",
+   "boyut": 3196
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust07.png",
+   "boyut": 3247
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust08.png",
+   "boyut": 3161
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust09.png",
+   "boyut": 3173
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust10.png",
+   "boyut": 3105
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust11.png",
+   "boyut": 3120
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust12.png",
+   "boyut": 3185
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust13.png",
+   "boyut": 3194
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust14.png",
+   "boyut": 3146
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust15.png",
+   "boyut": 3208
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust16.png",
+   "boyut": 3233
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust17.png",
+   "boyut": 3290
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust18.png",
+   "boyut": 3232
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust19.png",
+   "boyut": 3315
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust20.png",
+   "boyut": 3319
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust21.png",
+   "boyut": 3212
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust22.png",
+   "boyut": 3192
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust23.png",
+   "boyut": 3204
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust24.png",
+   "boyut": 3194
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust25.png",
+   "boyut": 3224
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust26.png",
+   "boyut": 3235
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust27.png",
+   "boyut": 3162
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust28.png",
+   "boyut": 3110
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust29.png",
+   "boyut": 3139
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust30.png",
+   "boyut": 3153
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/caust31.png",
+   "boyut": 3047
+  },
+  {
+   "yol": "harita/14th_oldmoradon/su/dalga.png",
+   "boyut": 303903
+  }
+ ],
+ "karakter_modelleri": [
+  {
+   "yol": "karakter/100.glb",
+   "boyut": 551232
+  },
+  {
+   "yol": "karakter/200.glb",
+   "boyut": 495676
+  },
+  {
+   "yol": "karakter/210.glb",
+   "boyut": 488012
+  },
+  {
+   "yol": "karakter/300.glb",
+   "boyut": 863372
+  },
+  {
+   "yol": "karakter/400.glb",
+   "boyut": 1000656
+  },
+  {
+   "yol": "karakter/500.glb",
+   "boyut": 614940
+  },
+  {
+   "yol": "karakter/600.glb",
+   "boyut": null
+  },
+  {
+   "yol": "karakter/700.glb",
+   "boyut": 494552
+  },
+  {
+   "yol": "karakter/800.glb",
+   "boyut": 964716
+  },
+  {
+   "yol": "karakter/1102.glb",
+   "boyut": 1059972
+  },
+  {
+   "yol": "karakter/1601.glb",
+   "boyut": 598276
+  },
+  {
+   "yol": "karakter/2020.glb",
+   "boyut": 2169816
+  },
+  {
+   "yol": "karakter/2060.glb",
+   "boyut": 695820
+  },
+  {
+   "yol": "karakter/4083.glb",
+   "boyut": 200884
+  },
+  {
+   "yol": "karakter/11100.glb",
+   "boyut": 672436
+  },
+  {
+   "yol": "karakter/12100.glb",
+   "boyut": 983712
+  },
+  {
+   "yol": "karakter/12200.glb",
+   "boyut": 957316
+  },
+  {
+   "yol": "karakter/14440.glb",
+   "boyut": 267488
+  },
+  {
+   "yol": "karakter/21610.glb",
+   "boyut": 1116380
+  },
+  {
+   "yol": "karakter/25240.glb",
+   "boyut": 1164652
+  },
+  {
+   "yol": "karakter/25263.glb",
+   "boyut": 2342844
+  },
+  {
+   "yol": "karakter/30400.glb",
+   "boyut": 983868
+  },
+  {
+   "yol": "karakter/30500.glb",
+   "boyut": 1514988
+  },
+  {
+   "yol": "karakter/30700.glb",
+   "boyut": 1004260
+  },
+  {
+   "yol": "karakter/30900.glb",
+   "boyut": 3549196
+  },
+  {
+   "yol": "karakter/31000.glb",
+   "boyut": 823920
+  },
+  {
+   "yol": "karakter/31100.glb",
+   "boyut": 1148932
+  },
+  {
+   "yol": "karakter/31200.glb",
+   "boyut": 1624968
+  },
+  {
+   "yol": "karakter/31300.glb",
+   "boyut": 2310384
+  },
+  {
+   "yol": "karakter/31400.glb",
+   "boyut": 989560
+  },
+  {
+   "yol": "karakter/32038.glb",
+   "boyut": 3213196
+  }
+ ],
+ "esya_simgeleri_drop": [
+  {
+   "yol": "esya/ikon/39101000.png",
+   "boyut": 1733
+  },
+  {
+   "yol": "esya/ikon/91006300.png",
+   "boyut": 1993
+  },
+  {
+   "yol": "esya/ikon/38901600.png",
+   "boyut": 1731
+  },
+  {
+   "yol": "esya/ikon/91001700.png",
+   "boyut": 2093
+  },
+  {
+   "yol": "esya/ikon/37907700.png",
+   "boyut": 2093
+  },
+  {
+   "yol": "esya/ikon/37904300.png",
+   "boyut": 2478
+  },
+  {
+   "yol": "esya/ikon/38901700.png",
+   "boyut": 1706
+  },
+  {
+   "yol": "esya/ikon/37001400.png",
+   "boyut": 2103
+  },
+  {
+   "yol": "esya/ikon/38901900.png",
+   "boyut": 1727
+  },
+  {
+   "yol": "esya/ikon/38901800.png",
+   "boyut": 1653
+  },
+  {
+   "yol": "esya/ikon/37907800.png",
+   "boyut": 1790
+  },
+  {
+   "yol": "esya/ikon/37001100.png",
+   "boyut": 1554
+  }
+ ],
+ "ses": [
+  {
+   "yol": "ses/ses.json",
+   "boyut": 79973
+  }
+ ]
+}

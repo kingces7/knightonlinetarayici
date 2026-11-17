@@ -1,0 +1,27 @@
+sid,ad,tur,model,satis_grubu,x,z
+13001,[Accessory Merchant]Hera,21,31200,203002,283,438
+13003,[Potion Merchant]Clepio,21,31300,253000,264,380
+13005,[Healing Potion]Karpis,21,25240,253000,348,295
+13006,[Armor Merchant]Hesta,22,12200,202001,401,363
+13007,[Sundries]Zarta,22,12100,255000,322,306
+13007,[Sundries]Zarta,22,12100,255000,401,369
+13008,[Weapon Merchant]Gargameth,22,31400,201001,401,375
+13015,[Priest] Iris,49,2060,0,260,446
+14301,[Blacksmith] Heppa,1,31100,0,302,352
+15002,[Coliseum] Artes,136,21610,0,345,455
+16047,[Operator] Moira,29,11100,0,341,401
+16096,[InnHostess] Neria,31,30700,0,399,397
+16097,[InnHostess] Nia,31,30700,0,364,426
+18004,[Grand Merchant] Kaishan,46,2020,0,465,287
+18018,Sanctuary,213,14440,0,419,445
+19069,Iron Scarecrow,171,4083,0,431,331
+19069,Iron Scarecrow,171,4083,0,435,331
+19069,Iron Scarecrow,171,4083,0,439,331
+19073,[Hepa Pupil] Shozin,135,32038,0,351,391
+19999,Clan Bank,31,30400,0,374,351
+22301,[Scrolls]Charon,21,30900,254000,340,387
+23400,Amon [Scrolls],22,25263,281000,318,430
+24440,Sanctuary,213,14440,0,309,366
+24440,Sanctuary,213,14440,0,330,346
+28055,[Manager] Vilbore,0,30500,0,464,275
+29999,[Peddler]Hemes,47,31000,0,307,400
