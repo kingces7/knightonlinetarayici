@@ -205,3 +205,10 @@ Canlı test (kotest): Arrow alım/satım, Noah ve envanter sunucuyla uyumlu. Bet
 - Stat harca: `u8 stat (1 STR, 2 STA, 3 DEX, 4 INT, 5 CHA)`. Cevap: `u8 stat, u16 yeni değer, u16 azami can, u16 azami mana, u16 vuruş, u32 azami ağırlık, u16 can, u16 mana`. Puan yoksa/stat azamideyse sunucu cevap vermez.
 - Otur/kalk: `u8 1, u32 durum` (1 ayakta, 2 oturuyor); bölgeye `u16 oyuncu, u8 tür, u32 durum` olarak yayılır. Sunucu oturma sırasında yenilenmeyi hızlandırır.
 Betik: `client/scripts/statSunucuTesti.mjs`.
+
+## Banka / depo (0x45)
+
+- Sunucu, bankayı hedeflenen (0x22 ile seçilen) banka NPC'sine göre açar; NPC ≤ 11 m olmalı. Client önce `0x22` (NPC kimliği), sonra `0x45: u8 1` yollar.
+- Açılış cevabı: `u8 1, u8 1, u32 bankadaki Noah` + 192 yuva (8 sayfa × 24) × 17 bayt (`u32 eşya, u16 dayanıklılık, u16 adet, u8 bayrak, u32 benzersiz no, u32 bitiş`).
+- Yatır (2) / çek (3): `u8 işlem, u16 NPC, u32 eşya (Noah = 900000000), u8 sayfa, u8 kaynak yuva, u8 hedef yuva, u32 adet`. Cevap `u8 işlem, u8 sonuç` (1 başarılı). Client değişikliği ancak onaydan sonra uygular.
+Canlı test (kotest): Noah ve eşya yatır/çek. Betik: `client/scripts/bankaSunucuTesti.mjs`.

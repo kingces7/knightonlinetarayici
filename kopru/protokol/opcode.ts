@@ -29,6 +29,7 @@ export const WIZ = {
   ESYA_ALIM_SATIM: 0x21,
   STAT_DEGISTI: 0x28,
   DURUM_DEGISTI: 0x29,
+  BANKA: 0x45,
   KUTU_AC: 0x24,
   ESYA_AL: 0x26,
   ESYA_TASI: 0x1f,

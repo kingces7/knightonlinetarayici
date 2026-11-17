@@ -32,6 +32,8 @@ export interface ArayuzBaglami {
   statDegisti: () => void;
   /** Sunucu modunda stat harcama/sıfırlama sunucuda yapılır (true = ele alındı). `ad`: str | sta | dex | int | reset. */
   statSunucu?: (ad: string) => boolean;
+  /** Sunucu modunda banka işlemi sunucuya gider (true = ele alındı; sonuç sunucudan gelince uygulanır). */
+  bankaIslem?: (i: { tur: 'esya-yatir'; canta: number } | { tur: 'esya-cek'; banka: number } | { tur: 'altin-yatir' } | { tur: 'altin-cek' }) => boolean;
   /** Town komutu: Moradon'daki şehir noktasına ışınlan. */
   sehreDon: () => void;
   /** Oyuncu animasyonu numarasını oynat (selamlama, savaş çığlığı). */
@@ -423,20 +425,22 @@ export class OyunArayuzu {
     const sayfaDegistir = (d: number) => { this.depoSayfa = (this.depoSayfa + d + 8) % 8; this.depoImza = ''; };
     p.tikla.set('btn_page_up', () => sayfaDegistir(-1)); p.tikla.set('btn_page_down', () => sayfaDegistir(1));
     // Noah: çantadaki tüm Noah'yı yatır / depodakinin tamamını çek
-    p.tikla.set('btn_gold', () => { if (o.altin > 0) { o.depoAltin += o.altin; this.b.mesaj(`${o.altin.toLocaleString('en-US')} Noah deposited.`); o.altin = 0; this.depoImza = ''; } });
-    p.tikla.set('btn_gold_warehouse', () => { if (o.depoAltin > 0) { o.altin += o.depoAltin; this.b.mesaj(`${o.depoAltin.toLocaleString('en-US')} Noah withdrawn.`); o.depoAltin = 0; this.depoImza = ''; } });
+    p.tikla.set('btn_gold', () => { if (this.b.bankaIslem?.({ tur: 'altin-yatir' })) return; if (o.altin > 0) { o.depoAltin += o.altin; this.b.mesaj(`${o.altin.toLocaleString('en-US')} Noah deposited.`); o.altin = 0; this.depoImza = ''; } });
+    p.tikla.set('btn_gold_warehouse', () => { if (this.b.bankaIslem?.({ tur: 'altin-cek' })) return; if (o.depoAltin > 0) { o.altin += o.depoAltin; this.b.mesaj(`${o.depoAltin.toLocaleString('en-US')} Noah withdrawn.`); o.depoAltin = 0; this.depoImza = ''; } });
     // Yuva tıklamaları pencere düzeyinde ve tıklama anında çözülür (yuvalar pencere gizliyken konumlanmamış olur).
     p.el.addEventListener('click', (ev) => {
       const el = (ev.target as HTMLElement).closest('.ui-t9') as HTMLElement | null; if (!el) return;
       const ust = this.depoUst().indexOf(el);
       if (ust >= 0) {
         const j = this.depoSayfa * 24 + ust, e = o.depo[j]; if (!e) return;
+        if (this.b.bankaIslem?.({ tur: 'esya-cek', banka: j })) return;
         if (!o.esyaEkle(e)) { this.b.mesaj('Your inventory is full.'); return; }
         o.depo[j] = null; this.depoImza = ''; return;
       }
       const alt = this.depoAlt().indexOf(el);
       if (alt >= 0) {
         const e = o.envanter[alt]; if (!e) return;
+        if (this.b.bankaIslem?.({ tur: 'esya-yatir', canta: alt })) return;
         const bos = o.depo.indexOf(null);
         if (bos < 0) { this.b.mesaj('Your warehouse is full.'); return; }
         o.depo[bos] = e; o.envanter[alt] = null; this.depoImza = '';

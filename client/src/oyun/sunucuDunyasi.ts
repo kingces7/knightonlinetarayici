@@ -15,6 +15,7 @@ import {
 import { WIZ } from '../../../kopru/protokol/opcode.ts';
 import { partiPaketi, type PartiPaketi } from '../../../kopru/protokol/parti.ts';
 import { beceriPaketi, manaDegisti, type BeceriPaketi } from '../../../kopru/protokol/beceri.ts';
+import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts';
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
@@ -46,6 +47,7 @@ export interface SavasKancalari {
   /** Sohbet mesajı geldi; özel sohbet alıcı sorgusunun sonucu (bulundu mu). */
   magaza?: (c: MagazaCevabi) => void;
   statDegisti?: () => void;
+  banka?: (c: BankaCevabi) => void;
   sohbet?: (s: SohbetPaketi) => void;
   ozelHedef?: (bulundu: boolean) => void;
 }
@@ -101,6 +103,7 @@ export class SunucuDunyasi {
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
       case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;
+      case WIZ.BANKA: this.kancalar.banka?.(bankaCevabi(p.govde)); break;
       case WIZ.STAT_DEGISTI: { // stat puanı harcandı: sunucu yeni değeri ve türev değerleri bildirir
         const s = statCevabi(p.govde), o = this.oyuncu; if (!o) break;
         o.stat[STAT_ANAHTARLARI[s.statNo - 1]] = s.deger; o.bonusPuan = Math.max(0, o.bonusPuan - 1);

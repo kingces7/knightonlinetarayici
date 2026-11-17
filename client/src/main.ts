@@ -23,6 +23,7 @@ import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
 import { WIZ } from '../../kopru/protokol/opcode.ts';
 import { PaketYazici } from '../../kopru/protokol/ikili.ts';
 import { partiDavetCevabi, partiDavetiIstegi } from '../../kopru/protokol/parti.ts';
+import { ALTIN_NO as BANKA_ALTIN, BANKA_ISLEMI, SAYFA_YUVASI, bankaAcIstegi, bankaIslemIstegi, type BankaCevabi } from '../../kopru/protokol/banka.ts';
 import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
@@ -266,6 +267,7 @@ async function basla(): Promise<void> {
     const a = new OyunArayuzu({
       kok: document.getElementById('arayuz')!, oyuncu, kamera,
       esyaKusan: (i) => hud.esyaKusan(i),
+      bankaIslem: (i) => bankaIslemSunucu(i),
       statSunucu: (ad) => {
         if (!sunucuOturumu) return false;
         if (ad === 'reset') { hud.mesaj('Stat points are reset by an NPC.', 'sistem'); return true; }
@@ -519,10 +521,53 @@ async function basla(): Promise<void> {
     }
     envanterYenile();
   };
+  // ---- Banka (sunucu modu): açılış cevabı depoyu doldurur; yatır/çek işlemleri sunucu onayıyla uygulanır.
+  let aktifBanka: { npc: Npc; id: number } | null = null;
+  const bankaBekleyen: (() => void)[] = [];
+  const bankaAcSunucu = (n: Npc) => {
+    const id = npcSunucuKimligi(n);
+    if (!id) { hud.mesaj('This bank is not available on the server.', 'sistem'); return; }
+    if (oyuncu.konum.distanceTo(n.konum) > MAGAZA_MENZILI - 0.5) { hud.mesaj('You are too far from the bank.', 'sistem'); return; }
+    aktifBanka = { npc: n, id }; bankaBekleyen.length = 0;
+    sunucuOturumu?.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(id)); // sunucu bankayı hedeflenen NPC'ye göre açar
+    sunucuOturumu?.gonder(WIZ.BANKA, bankaAcIstegi());
+  };
+  const bankaIslemSunucu = (i: Parameters<NonNullable<ConstructorParameters<typeof OyunArayuzu>[0]['bankaIslem']>>[0]): boolean => {
+    if (!sunucuOturumu) return false;
+    if (!aktifBanka) return true;
+    const id = aktifBanka.id, o = oyuncu;
+    if (i.tur === 'altin-yatir' || i.tur === 'altin-cek') {
+      const miktar = i.tur === 'altin-yatir' ? o.altin : o.depoAltin; if (miktar <= 0) return true;
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(i.tur === 'altin-yatir' ? BANKA_ISLEMI.YATIR : BANKA_ISLEMI.CEK, id, BANKA_ALTIN, 0, 0, 0, miktar));
+      bankaBekleyen.push(() => { if (i.tur === 'altin-yatir') { o.depoAltin += miktar; o.altin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah deposited.`, 'sistem'); } else { o.altin += miktar; o.depoAltin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah withdrawn.`, 'sistem'); } });
+    } else if (i.tur === 'esya-yatir') {
+      const e = o.envanter[i.canta]; if (!e) return true;
+      const j = o.depo.indexOf(null); if (j < 0) { hud.mesaj('Your warehouse is full.', 'sistem'); return true; }
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.YATIR, id, e.sunucuNo ?? e.no, Math.floor(j / SAYFA_YUVASI), i.canta, j % SAYFA_YUVASI, e.adet ?? 1));
+      bankaBekleyen.push(() => { o.depo[j] = e; o.envanter[i.canta] = null; });
+    } else {
+      const e = o.depo[i.banka]; if (!e) return true;
+      const f = o.envanter.indexOf(null); if (f < 0) { hud.mesaj('Your inventory is full.', 'sistem'); return true; }
+      sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.CEK, id, e.sunucuNo ?? e.no, Math.floor(i.banka / SAYFA_YUVASI), i.banka % SAYFA_YUVASI, f, e.adet ?? 1));
+      bankaBekleyen.push(() => { o.envanter[f] = e; o.depo[i.banka] = null; });
+    }
+    return true;
+  };
+  const bankaSunucudan = (c: BankaCevabi) => {
+    if (c.islem === BANKA_ISLEMI.AC) {
+      if (!c.basarili || !c.yuvalar) { hud.mesaj('You cannot open the bank here.', 'sistem'); return; }
+      oyuncu.depoAltin = c.altin ?? 0;
+      oyuncu.depo = c.yuvalar.map((y) => (y ? (() => { const t = esyaBulSunucu(y.no); return t.sayilabilir ? { ...t, adet: y.adet } : { ...t }; })() : null));
+      arayuz?.depoAc(); return;
+    }
+    const uygula = bankaBekleyen.shift();
+    if (!c.basarili) { hud.mesaj('The bank transaction failed.', 'sistem'); bankaBekleyen.length = 0; return; }
+    uygula?.(); envanterYenile();
+  };
   const npcEtkilesim = (n: Npc) => {
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
     if (sayfalar && arayuz) { aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); return; }
-    if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
+    if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { if (sunucuOturumu) { bankaAcSunucu(n); return; } arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
     hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
   };
   /** Mağazaya satış (sunucu NPCHandler.cpp): fiyat = alış fiyatı / 6 (varsayılan kural). */
@@ -896,7 +941,7 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, magaza: magazaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {
