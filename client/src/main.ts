@@ -389,6 +389,7 @@ async function basla(): Promise<void> {
         o[0]--; o[agac]++; // sunucu yalnız reddederse geri alınır
         sunucuOturumu.gonder(WIZ.SKILL_PUANI, skillPuaniIstegi(agac));
       },
+      gorevler: () => [...gorevDurumlari.entries()],
       diyalogSec: (sira) => { if (aktifDiyalog?.lua) sunucuOturumu?.gonder(WIZ.SECIM_MESAJI, secimCevabi(sira, aktifDiyalog.lua)); },
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });

@@ -13,6 +13,7 @@ import { MagazaPenceresi } from './magazaPenceresi';
 import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
 import { DiyalogPenceresi } from './diyalogPenceresi';
+import { diyalogVerisi } from '../oyun/diyalogVeri';
 import { baskinStatlar, sinifMesleki, statRengiUygula } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
@@ -25,6 +26,8 @@ export interface ArayuzBaglami {
   oyuncu: Oyuncu;
   kamera: TakipKamerasi;
   esyaKusan: (i: number) => void;
+  /** Sunucudan gelen görev durumları: [görev no, durum] (1 sürüyor, 2 tamamlandı, 3 teslim edilebilir…). */
+  gorevler?: () => [number, number][];
   /** NPC diyaloğunda düğme seçildi (sunucuya gider) / diyalog kapatıldı. */
   /** Boş skill puanını bir ağaca ver (5–8). */
   skillPuaniVer?: (agac: number) => void;
@@ -218,7 +221,8 @@ export class OyunArayuzu {
     this.genel.davranis.set('re_el_cmdlist', (p) => this.komutListesi(p));
     this.genel.acilista.set('re_el_cmdlist', (p) => this.komutListesi(p)); // her açılışta yeşil çerçeve Private ve PM üzerinde başlar
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
-    this.genel.davranis.set('re_el_page_quest', (p) => this.sekmeSeridi(p, 'gorev'));
+    this.genel.davranis.set('re_el_page_quest', (p) => { this.sekmeSeridi(p, 'gorev'); this.gorevSayfasiKur(p); });
+    this.genel.acilista.set('re_el_page_quest', (p) => void this.gorevSayfasiDoldur(p));
     this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
     this.genel.davranis.set('re_exitmenu', (p, kapat) => {
       p.tikla.set('btn_exit', () => { this.b.mesaj('Close this browser tab to leave the game.'); kapat(); });
@@ -613,6 +617,35 @@ export class OyunArayuzu {
   }
   diyalogKapat(): void { this.diyalog?.sessizKapat(); }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
+  // ---------------------------------------------------------------- görev sayfası (re_el_page_quest)
+  private gorevSayfa = 0; private gorevSecili = -1;
+  private static readonly GOREV_SATIRI = 15;
+  private static readonly GOREV_DURUMU: Record<number, string> = { 1: 'In progress', 2: 'Completed', 3: 'Complete it', 4: 'Finished' };
+  /** Sayfa tekerleği ve satır seçimi: pencere açıldıkça Quest_Npc_Desc adlarıyla gerçek görev durumları listelenir. */
+  private gorevSayfasiKur(p: UiPencere): void {
+    p.el.addEventListener('wheel', (ev) => { ev.preventDefault(); this.gorevSayfa = Math.max(0, this.gorevSayfa + (ev.deltaY > 0 ? 1 : -1)); void this.gorevSayfasiDoldur(p); }, { passive: false });
+    for (let i = 0; i < OyunArayuzu.GOREV_SATIRI; i++) p.tikla.set(`btn_selectquest${String(i).padStart(2, '0')}`, () => { this.gorevSecili = i; void this.gorevSayfasiDoldur(p); });
+    p.tikla.set('btn_right', () => { this.gorevSayfa++; void this.gorevSayfasiDoldur(p); });
+    p.tikla.set('btn_left', () => { this.gorevSayfa = Math.max(0, this.gorevSayfa - 1); void this.gorevSayfasiDoldur(p); });
+  }
+  private async gorevSayfasiDoldur(p: UiPencere): Promise<void> {
+    const v = await diyalogVerisi(), liste = (this.b.gorevler?.() ?? []).filter(([no, d]) => d !== 0 && v.gorev[String(no)]).sort((a, c) => (a[1] === 2 ? 1 : 0) - (c[1] === 2 ? 1 : 0) || a[0] - c[0]);
+    const N = OyunArayuzu.GOREV_SATIRI, sayfaSayisi = Math.max(1, Math.ceil(liste.length / N));
+    this.gorevSayfa = Math.min(this.gorevSayfa, sayfaSayisi - 1);
+    for (let i = 0; i < N; i++) {
+      const g = p.bul(`group_quest_${String(i).padStart(2, '0')}`)[0]; if (!g) continue;
+      const s = liste[this.gorevSayfa * N + i];
+      const yaz = (id: string, t: string) => { const e = g.querySelector<HTMLElement>(`[data-id="${id}"] span`); if (e) e.textContent = t; };
+      yaz('txt_quest_title', s ? v.gorev[String(s[0])][0] : ''); yaz('txt_quest_status', s ? OyunArayuzu.GOREV_DURUMU[s[1]] ?? String(s[1]) : ''); yaz('txt_quest_time', ''); yaz('txt_quest_type', ''); yaz('txt_quest_zone', '');
+      g.style.outline = s && i === this.gorevSecili ? '1px solid #f0d48a' : '';
+    }
+    p.metin('text_page', this.gorevSayfa + 1);
+    const sec = liste[this.gorevSayfa * N + this.gorevSecili];
+    p.metin('text_quest_name', sec ? v.gorev[String(sec[0])][0] : ''); p.metin('text_zone', sec ? v.gorev[String(sec[0])][1].slice(0, 60) : '');
+    p.metin('text_hunt_name', ''); p.metin('text_hunt_count', '');
+    for (const id of ['Reward1', 'Reward2', 'Reward3', 'Reward4']) { const r = p.bul(id)[0]; if (r) for (const y of r.querySelectorAll<HTMLElement>('.ui-yazi span')) y.textContent = ''; }
+  }
+
   /** Oyun alanına (pencere dışına) tıklanınca: envanter, skill, karakter, mağaza, banka, diyalog ve bütün genel pencereler kapanır. */
   tumPencereleriKapat(): void {
     for (const a of [...this.acik]) this.ac(a, false);

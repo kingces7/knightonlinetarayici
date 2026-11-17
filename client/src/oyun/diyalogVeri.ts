@@ -1,5 +1,5 @@
 // NPC diyalog verisi (araclar/oyun/diyalog.ts → /oyun/diyalog.json): konuşma ve düğme metinleri, görev yardımcısı satırları.
-export interface DiyalogVerisi { talk: Record<string, string>; menu: Record<string, string>; yardimci: Record<string, number[][]> }
+export interface DiyalogVerisi { talk: Record<string, string>; menu: Record<string, string>; yardimci: Record<string, number[][]>; /** görev no → [ad, açıklama] */ gorev: Record<string, string[]> }
 let yuklenen: Promise<DiyalogVerisi> | null = null;
 export const diyalogVerisi = (): Promise<DiyalogVerisi> => (yuklenen ??= fetch('/oyun/diyalog.json').then((r) => r.json() as Promise<DiyalogVerisi>));
 

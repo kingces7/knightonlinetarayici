@@ -214,7 +214,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 **Arayüz — tüm pencereler (2026-11-15)**
 - [x] Oyundaki bütün arayüz pencereleri dışa aktarıldı (`npm run arayuz -- hepsi`: 980 dosya; 25'i eski sürüm biçiminde olduğu için okunamadı: `ka_*` ırk-eski seti, `co_login`, `re_auction_register`, `re_powerup_store`). Oyun `re_*`/`re_el_*` pencerelerini kullanıyor; 289'unun hepsi hatasız açılıyor (`client/scripts/pencereTesti.mjs`).
 - [x] Genel pencere yöneticisi (`client/src/arayuz/genelPencereler.ts`): sürükleme, öne gelme, kapatma düğmesi, sekme düğmeleri, Esc. Görev çubuğu düğmeleri ve kısayollar (P parti, F dost, Q görev, L klan, N duyuru, O çerçeve, Esc çıkış menüsü) bağlandı. Eşleşmeler pencere metinlerinden tahmin edildi.
-- [ ] Çoğu pencere şimdilik **kabuk** (görünür, kapanır; içeriği boş): veri bağlama gerekiyor (parti/dost/klan/görev/harita/mektup…). Sunucu bağlantısı (Aşama 4–5) gelince bağlanacak. Sıra: minimap (gerçek harita + oyuncu noktası), görev sayfası, komut listesi, çıkış menüsü seçenekleri.
+- [~] Pencere içerikleri (2026-11-17): mini harita (gerçek harita + oyuncu noktası), skill/envanter/karakter/mağaza/banka/diyalog dolu; **görev sayfası** artık sunucudaki görev durumlarını ve oyunun görev adlarını gösterir (sürüyor önce, tamamlananlar sonda; tekerlekle sayfa). Kalan kabuklar: görev ayrıntıları (av hedefi/ödüller), parti üye listesi, dost listesi, klan, mektup, komut listesi içeriği, çıkış menüsü "Run option after exiting".
 - [ ] `ka_*` ve `co_login` için eski UIF sürümü okuyucusu (şimdilik gerekmiyor).
 
 **İstemci düzenlemeleri (2026-11-15, 2. tur)**

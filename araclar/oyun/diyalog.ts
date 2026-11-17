@@ -29,6 +29,9 @@ function tablo(dosya: string): Record<string, string> {
 }
 
 const talk = tablo('Quest_Talk_us.csv'), menu = tablo('Quest_Menu_us.csv');
+/** Görev adları (Quest_Npc_Desc_us: sütun 0 görev no, 6 ad, 7 açıklama): görev no → [ad, açıklama] (ilk satır). */
+const gorev: Record<string, string[]> = {};
+for (const s of csvOku(fs.readFileSync(path.join(CIKTI_DIZINI, 'tablolar', 'Data', 'Quest_Npc_Desc_us.csv'), 'utf8')).slice(1)) { if (/^\d+$/.test(s[0] ?? '') && !gorev[s[0]] && s[6]) gorev[s[0]] = [s[6].trim(), (s[7] ?? '').replace(/\s+/g, ' ').trim()]; }
 /**
  * Görev yardımcısı (Quest_Helper_us = sunucu QUEST_HELPER): NPC sid → satırlar. Her satır:
  * [satır no, seviye, deneyim, sınıf grubu (5 = hepsi), ulus (3 = ikisi), görev no, görev durumu, tetik olayı, menü metni no]. Görev no 0 ve durumu 255 olan satırlar atılır.
@@ -39,5 +42,5 @@ for (const s of csvOku(fs.readFileSync(path.join(CIKTI_DIZINI, 'tablolar', 'Data
   (yardimci[n[9]] ??= []).push([n[0], n[2], n[3], n[5], n[6], n[10], n[11], n[12], n[17]]);
 }
 const hedef = path.join(CIKTI_DIZINI, 'web', 'oyun'); fs.mkdirSync(hedef, { recursive: true });
-fs.writeFileSync(path.join(hedef, 'diyalog.json'), JSON.stringify({ talk, menu, yardimci }));
+fs.writeFileSync(path.join(hedef, 'diyalog.json'), JSON.stringify({ talk, menu, yardimci, gorev }));
 console.log(`diyalog.json: ${Object.keys(talk).length} diyalog metni, ${Object.keys(menu).length} düğme yazısı, ${Object.keys(yardimci).length} görev NPC'si`);
