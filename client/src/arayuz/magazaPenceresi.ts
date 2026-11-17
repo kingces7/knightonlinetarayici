@@ -51,6 +51,25 @@ export class MagazaPenceresi {
     // Arka plan: üst bölümün siyah panelleri envanterin yarı saydam zemini gibi görünsün (şeffaflık)
     p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30 && r.style.backgroundImage.includes('person')) r.style.opacity = '0.55'; });
     for (const tab of [this.tabAl, this.tabSat]) tab.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 300 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.55'; }); // sepet bölümünün zemini de aynı şekilde
+    // (mağaza ızgarasının 6 sütunluk uzun resmi sepet bölgesine taşıyordu: yalnız mağaza yuvalarının bittiği yere kadar gösterilir)
+    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { const h = parseFloat(r.style.height), w = parseFloat(r.style.width); if (r.style.backgroundImage.includes('ui_marketing') && w >= 350 && h >= 200 && h <= 215) r.style.clipPath = 'inset(0 0 122px 0)'; });
+    // Sepet bölgesinin üst üste binen eski ızgara resimleri (6 ve 7 sütunlu kayık çizgiler) gizlenir; sepet yuvalarına kendi düzgün çerçeveleri verilir
+    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { const y = parseFloat(r.style.top); if (r.style.backgroundImage.includes('person') && y >= 300 && y < 500) r.style.display = 'none'; });
+    for (const el of this.sepet) if (el) Object.assign(el.style, { boxSizing: 'border-box', border: '2px solid #8f6128', background: 'rgba(0,0,0,.28)' });
+    // Sepet bölgesine, mağaza ve envanter zeminleriyle aynı koyulukta yarı saydam bir zemin + altın ayırıcı çizgiler
+    const zemin = document.createElement('div'); Object.assign(zemin.style, { position: 'absolute', left: '1px', top: '313px', width: '362px', height: '160px', background: 'rgba(10, 8, 6, .62)', borderTop: '2px solid #8f6128', borderBottom: '2px solid #8f6128', pointerEvents: 'none' });
+    this.tabAl.parentElement!.insertBefore(zemin, this.tabAl);
+    // Noah simgesinin arkasında kalan ikinci simge (img_realmpoint) kaldırılır; yalnız Noah işareti kalır
+    for (const el of p.bul('img_realmpoint')) el.style.display = 'none';
+    // İki sekmede (Buy / Sell) ağırlık, Noah ve toplam satırı AYNI konumda dursun: Sell sekmesi Buy'ın konumunu alır
+    for (const id of ['img_noah', 'text_mypoint', 'text_weight', 'text_totalpoint', 'text_totalmsg']) {
+      const l = p.bul(id); const b = l.find((e) => this.tabAl.contains(e)), s = l.find((e) => this.tabSat.contains(e));
+      if (b && s) for (const k of ['left', 'top', 'width', 'height'] as const) s.style[k] = b.style[k];
+    }
+    // Sepet toplam satırı yazıları: kısa ve net
+    const toplamYazi = p.bul('text_totalmsg'); const t0 = toplamYazi.find((e) => this.tabAl.contains(e))?.querySelector('span'), t1 = toplamYazi.find((e) => this.tabSat.contains(e))?.querySelector('span');
+    if (t0) t0.textContent = 'BUY'; if (t1) t1.textContent = 'SELL';
+    p.el.querySelectorAll('span').forEach((sp) => { if (sp.textContent?.trim() === ':') sp.textContent = ''; });
     // Düğme yazıları durum resimlerinin ÜSTÜNDE görünsün
     for (const el of p.tumDugmeler()) el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { y.style.zIndex = '3'; y.style.pointerEvents = 'none'; });
     // Düğmeler
