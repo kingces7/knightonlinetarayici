@@ -9,6 +9,7 @@ import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
 import type { EsyaTanimi } from '../oyun/veri';
+import { MagazaPenceresi } from './magazaPenceresi';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -268,6 +269,7 @@ export class OyunArayuzu {
     const rakam = /^Digit([1-8])$/.exec(kod);
     if (rakam) { this.cubukKullan(Number(rakam[1]) - 1); return true; }
     const genelTus = GENEL_TUSLAR[kod]; if (genelTus) { void this.genel.degistir(genelTus); return true; }
+    if (kod === 'Escape' && this.magazaYeni?.acik) { this.magazaYeni.kapat(); return true; }
     if (kod === 'Escape' && this.genel.enUsttekiniKapat()) return true;
     if (kod === 'Escape' && this.acik.size) {
       const son = [...this.acik].sort((a, c) => Number(this.pencereler[a].el.style.zIndex) - Number(this.pencereler[c].el.style.zIndex)).pop()!;
@@ -479,6 +481,7 @@ export class OyunArayuzu {
   /** Mağazayı açar (envanterle birlikte). Sayfalar: satış grubunun sayfaları. */
   /** Tamir modu (orijinaldeki INV_STATE_REPAIR): açıkken çanta/giyili eşyaya tıklamak onu tamir ettirir, bilgi kutusu tamir ücretini gösterir. */
   private tamirModu = false;
+  private magazaYeni: MagazaPenceresi | null = null;
   private tamirModuDegistir(ac: boolean): void {
     this.tamirModu = ac; this.sonEnvanterImza = ''; this.b.ipucuGizle();
     document.body.classList.toggle('tamir-modu', ac);
@@ -486,11 +489,14 @@ export class OyunArayuzu {
     if (ac) this.b.mesaj('Repair mode: click an item to repair it.');
   }
   magazaAc(npcAdi: string, sayfalar: EsyaTanimi[][]): void {
-    this.tamirModuDegistir(false);
-    const tamirci = !!this.b.tamirmi?.(); const rb = this.pencereler.magaza.bul('btn_ok1')[0]; if (rb) { rb.style.display = tamirci ? '' : 'none'; }
-    this.magazaAdi = npcAdi; this.magazaSayfalar = sayfalar; this.magazaSayfa = 0; this.magazaImza = '';
-    this.ac('magaza', true); this.ac('envanter', true);
-    this.magazaYerlestir();
+    // Mağaza + envanter tek "Store" penceresi (magazaPenceresi.ts); eski ayrı mağaza/envanter pencereleri kullanılmaz.
+    this.magazaAdi = npcAdi; this.magazaSayfalar = sayfalar;
+    this.ac('envanter', false);
+    this.magazaYeni ??= new MagazaPenceresi({
+      envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, satinAl: (e) => this.b.magazaSatinAl(e), sat: (y) => this.b.magazaSat(y), tamirEt: (k) => this.b.tamirEt?.(k),
+      ipucu: (e, ev, s, t) => this.b.ipucuGoster(e, ev, s, t), ipucuGizle: () => this.b.ipucuGizle(), mesaj: (m) => this.b.mesaj(m), altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, kapandi: () => {},
+    }, this.b.kok);
+    this.magazaYeni.ac(npcAdi, sayfalar, !!this.b.tamirmi?.());
   }
   /**
    * Mağaza ve envanter TEK pencere gibi üst üste durur (orijinal "Store" düzeni): mağaza üstte, envanter hemen altında, ikisi de sağ kenarda.
@@ -1114,7 +1120,7 @@ export class OyunArayuzu {
       el.ondrop = (ev) => { const v = ev.dataTransfer?.getData('application/x-ke-esya'); if (!v) return; ev.preventDefault(); this.b.esyaTasi(JSON.parse(v) as YuvaKonumu, konum); };
     };
     // Mağaza açıkken çanta eşyasına tıklamak onu NPC'ye satar; değilse kuşanır
-    this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, { tur: 'c', i }, o.envanter[i] ? () => (this.acik.has('magaza') ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));
+    this.canta().forEach((el, i) => yuvaCiz(el, o.envanter[i] ?? null, { tur: 'c', i }, o.envanter[i] ? () => (this.magazaYeni?.acik ? this.b.magazaSat(i) : this.b.esyaKusan(i)) : undefined));
     for (let yuva = 0; yuva < 14; yuva++) { // 14 = Destroy (çöp) yuvası: eşya konmaz
       const el = this.ekipman(yuva);
       if (el) yuvaCiz(el, o.ekipman[yuva], { tur: 'e', i: yuva }, o.ekipman[yuva] ? () => this.b.esyaCikar(yuva) : undefined);
@@ -1141,9 +1147,8 @@ export class OyunArayuzu {
     if (this.acik.has('durum')) this.durumCiz();
     if (this.acik.has('beceri')) this.beceriCiz();
     this.hedefCiz(); this.ganimetCiz();
-    if (this.acik.has('magaza')) this.magazaCiz();
+    this.magazaYeni?.ciz();
     if (this.acik.has('depo')) this.depoCiz();
-    if (!this.acik.has('magaza') && this.tamirModu) this.tamirModuDegistir(false);
     if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, giyimEkipmani(this.b.oyuncu.ekipman)); }
   }
 }
