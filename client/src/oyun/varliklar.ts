@@ -325,6 +325,7 @@ export class Npc extends Varlik {
     this.model.kok.scale.setScalar(this.tanim.boyut / 100);
     this.grup.add(this.model.kok);
     this.model.oynat('bekle');
+    this.secimiModeleUydur(this.model.kok); // isabet alanı ve ad etiketi modelin gerçek boyuna göre (uzun/kısa NPC'lerde ad tepesinde durur)
   }
 }
 

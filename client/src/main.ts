@@ -1056,7 +1056,7 @@ async function basla(): Promise<void> {
     const p = c.grup.position.clone();
     // Oyuncu adları baş kemiğinin hizasına oturur: model grubun orijininden yana kaydığında (yakın zumda) ad karakterin soluna/sağına kaymasın.
     if ((c instanceof Oyuncu || c instanceof DigerOyuncu) && c.model) { const b = new THREE.Vector3(); if (c.model.basKonumu(b)) { p.x = b.x; p.z = b.z; } }
-    p.y += c instanceof Npc ? 2.1 * (c.tanim.boyut / 100) : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : Math.max(c.boy, c.etiketY) + 0.1; // canavar adı isabet alanının hemen üstünde
+    p.y += c instanceof Npc ? Math.max(c.boy, c.etiketY) + 0.1 : c instanceof Oyuncu || c instanceof DigerOyuncu ? 2.1 : Math.max(c.boy, c.etiketY) + 0.1; // canavar adı isabet alanının hemen üstünde
     kamera.kamera.updateMatrixWorld(); // bu karenin kamera konumuna göre (önceki kareye göre kayma/gecikme olmasın)
     const ekran = p.project(kamera.kamera);
     return { x: (ekran.x * 0.5 + 0.5) * innerWidth, y: (-ekran.y * 0.5 + 0.5) * innerHeight, gorunur: ekran.z < 1 && c.konum.distanceTo(oyuncu.konum) < (c instanceof Npc ? 60 : 45) };
