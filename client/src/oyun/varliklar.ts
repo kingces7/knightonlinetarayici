@@ -551,6 +551,8 @@ export class GanimetKutusu {
   esyalar: EsyaTanimi[];
   omur = 60;
   /** Sunucu modu: sunucudaki torba numarası (0 = yerel kutu), eşyaların kutudaki sunucu yuvaları (esyalar ile aynı sırada) ve Noah'ın yuvası. İçerik 0x24 cevabıyla dolar. */
+  /** Kutuyu bırakan (ölü) canavar: ölü canavarın üstüne tıklamak da kutuyu açar. */
+  sahip: Canavar | null = null;
   agTorba = 0; agYuvalar: { yuva: number; no: number }[] = []; agAltinYuva = -1; icerikGeldi = true;
   /** Kutuda başlangıçta Noah vardıysa ilk yuva Noah'a ayrılır; Noah alınınca öbür eşyalar yukarı kaymaz. */
   altinYuvasi: boolean;

@@ -38,7 +38,7 @@ export interface SavasKancalari {
   /** Sunucudan skill paketi geldi (bölgedeki biri skill kullandı ya da reddedildi). */
   beceri?: (p: BeceriPaketi) => void;
   /** Canavar ganimet bıraktı: torba no ve (biliniyorsa) canavarın yeri. */
-  ganimetDustu?: (torbaNo: number, konum: { x: number; z: number; yaricap: number } | null) => void;
+  ganimetDustu?: (torbaNo: number, konum: { x: number; z: number; yaricap: number } | null, canavar: Canavar | null) => void;
   /** Kutu içeriği (0x24) ve alma cevabı (0x26) geldi. */
   kutuIcerigi?: (k: KutuIcerigi) => void;
   almaCevabi?: (a: AlmaCevabi) => void;
@@ -100,7 +100,7 @@ export class SunucuDunyasi {
       case WIZ.HAREKET: { this.sayac.oyuncuHareket++; const h = kullaniciHareketi(p.govde); this.oyuncuHareketi(h.id, h.x, h.z, h.hiz, h.yanki); break; }
       case WIZ.BECERI: this.kancalar.beceri?.(beceriPaketi(p.govde)); break;
       case WIZ.MANA_DEGISTI: { const m = manaDegisti(p.govde); if (this.oyuncu) { this.oyuncu.enCokMana = m.enCok; this.oyuncu.mana = m.mana; } break; }
-      case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y, yaricap: c.secimYaricapi } : null); break; }
+      case WIZ.ESYA_DUSTU: { const d = esyaDustu(p.govde); const c = this.canavarlar.get(d.canavarId); this.kancalar.ganimetDustu?.(d.torbaNo, c ? { x: c.konum.x, z: c.konum.y, yaricap: c.secimYaricapi } : null, c ?? null); break; }
       case WIZ.KUTU_AC: this.kancalar.kutuIcerigi?.(kutuIcerigi(p.govde)); break;
       case WIZ.ESYA_AL: this.kancalar.almaCevabi?.(almaCevabi(p.govde)); break;
       case WIZ.ESYA_SIL: this.kancalar.esyaSilindi?.(esyaSilmeCevabi(p.govde)); break;

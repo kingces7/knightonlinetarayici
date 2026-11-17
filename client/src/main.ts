@@ -404,10 +404,10 @@ async function basla(): Promise<void> {
     const aci = (tohum * 2.399963) % (Math.PI * 2), uzak = 1.6 + yaricap * 0.9;
     return [x + Math.cos(aci) * uzak, z + Math.sin(aci) * uzak];
   };
-  const ganimetDustuSunucudan = (torba: number, konum: { x: number; z: number; yaricap: number } | null) => {
+  const ganimetDustuSunucudan = (torba: number, konum: { x: number; z: number; yaricap: number } | null, canavar: Canavar | null) => {
     const [kx, kz] = kutuYani(konum?.x ?? oyuncu.konum.x, konum?.z ?? oyuncu.konum.y, torba, konum?.yaricap);
     const k = new GanimetKutusu(kx, kz, 0, []);
-    k.agTorba = torba; k.icerikGeldi = false; kutular.push(k); sahne.add(k.grup);
+    k.sahip = canavar; k.agTorba = torba; k.icerikGeldi = false; kutular.push(k); sahne.add(k.grup);
     sunucuOturumu?.gonder(WIZ.KUTU_AC, kutuAcmaIstegi(torba)); // içerik hemen istenir: kutuya tıklanınca simgeler hazır olsun
   };
   const kutuIcerigiSunucudan = (ic: KutuIcerigi) => {
@@ -636,6 +636,24 @@ async function basla(): Promise<void> {
   let fareSolBasili = false;
   addEventListener('pointerdown', (e) => { if (e.button === 0) fareSolBasili = true; });
   addEventListener('pointerup', (e) => { if (e.button === 0) fareSolBasili = false; });
+  /** Fare altındaki ganimet kutusu: kutunun kendisi YA DA kutuyu bırakan ölü canavar (gövdesi hâlâ görünüyorsa). */
+  const tiklananGanimetKutusu = (): GanimetKutusu | null => {
+    const kv = isin.intersectObjects(kutular.map((k) => k.secimKutusu))[0];
+    if (kv) return kutular.find((x) => x.secimKutusu === kv.object) ?? null;
+    const olu = canavarlar.filter((c) => c.olu && c.grup.visible && kutular.some((k) => k.sahip === c));
+    const cv = isin.intersectObjects(olu.map((c) => c.secimKutusu))[0];
+    if (!cv) return null;
+    const c = olu.find((x) => x.secimKutusu === cv.object); return kutular.find((k) => k.sahip === c) ?? null;
+  };
+  const kutuyaGit = (k: GanimetKutusu) => { acilacakKutu = k; oyuncu.hedef = null; oyuncu.yuruHedef = k.konum.clone(); };
+  // Sağ tık (sürüklemeden, kısa): kutuyu / ölü canavarı açar; sürüklenirse kamera döner, hiçbir şey açılmaz.
+  const sag = { x: 0, y: 0, t: 0 };
+  tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) { sag.x = e.clientX; sag.y = e.clientY; sag.t = performance.now(); } });
+  tuval.addEventListener('pointerup', (e) => {
+    if (e.button !== 2 || oyuncu.olu || performance.now() - sag.t > 350 || Math.hypot(e.clientX - sag.x, e.clientY - sag.y) > 6) return;
+    isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
+    const k = tiklananGanimetKutusu(); if (k) kutuyaGit(k);
+  });
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
@@ -646,12 +664,8 @@ async function basla(): Promise<void> {
       if (oyuncu.konum.distanceTo(n.konum) < 3) { oyuncu.yuruHedef = null; acilacakNpc = null; npcEtkilesim(n); }
       return;
     }
-    const kutuVurus = isin.intersectObjects(kutular.map((k) => k.secimKutusu))[0];
-    if (kutuVurus) {
-      const k = kutular.find((x) => x.secimKutusu === kutuVurus.object)!;
-      acilacakKutu = k; oyuncu.hedef = null; oyuncu.yuruHedef = k.konum.clone();
-      return;
-    }
+    const tiklananKutu = tiklananGanimetKutusu();
+    if (tiklananKutu) { kutuyaGit(tiklananKutu); return; }
     const canavarVurus = isin.intersectObjects(canavarlar.filter((c) => !c.olu).map((c) => c.secimKutusu))[0];
     if (canavarVurus) {
       // Sol tık yalnızca hedef seçer: karakter saldırmaz, kovalamaz. Saldırı R tuşu veya skill ile elle başlatılır.
@@ -873,7 +887,7 @@ async function basla(): Promise<void> {
           const g = ganimetUret(c.tur);
           for (const e of g.esyalar) if (e.simge) new Image().src = e.simge; // simgeler kutu açılmadan önce yüklensin (açılınca anında görünsün)
           const [kx, kz] = kutuYani(c.konum.x, c.konum.y, c.tur.sid + Math.floor(c.konum.x * 7), c.secimYaricapi);
-          const k = new GanimetKutusu(kx, kz, g.altin, g.esyalar);
+          const k = new GanimetKutusu(kx, kz, g.altin, g.esyalar); k.sahip = c;
           kutular.push(k); sahne.add(k.grup);
         }
         if (c.oluSuresi > 5) c.grup.visible = false;
