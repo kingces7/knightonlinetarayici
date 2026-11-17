@@ -525,7 +525,7 @@ export class Oyuncu extends Varlik {
     this.can = Math.max(0, this.can - miktar);
     this.savastanBeri = 0;
     if (this.can <= 0) this.model?.oynatRastgele('olum', 3, false, 0.1);
-    else this.model?.oynatRastgele('darbe', 3, false, 0.05);
+    else this.model?.darbeOynat(true);
     return miktar;
   }
 

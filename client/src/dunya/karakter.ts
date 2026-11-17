@@ -142,11 +142,11 @@ export class KarakterModeli {
     return b;
   }
   /** Koşarken/yürürken saldırı: üst gövde 14 numaralı animasyonu bir kez oynar, alt gövde hareket animasyonuna devam eder. */
-  ustSaldiri(skillAnimNo?: number): void {
+  ustSaldiri(skillAnimNo?: number, klipAdi?: string): void {
     if (this.ustSaldiriAktif || this.oturAsama !== 'yok' || (this.aktifAd !== 'kos' && this.aktifAd !== 'yuru')) return;
     // Skill kullanılırken skill tablosundaki animasyon (yürüyerek de) üst gövdede oynar; numara yoksa/26 ise silahın hareket-saldırısı (14).
     const skillAd = skillAnimNo && skillAnimNo !== 26 ? this.klipNo(skillAnimNo) : null;
-    const saldiri = (skillAd ? this.klipler.get(skillAd) : undefined) ?? [...this.klipler.values()][14], hareket = this.klipler.get(this.aktifAd);
+    const saldiri = (klipAdi ? this.klipler.get(klipAdi) : undefined) ?? (skillAd ? this.klipler.get(skillAd) : undefined) ?? [...this.klipler.values()][14], hareket = this.klipler.get(this.aktifAd);
     if (!saldiri || !hareket || !this.aktif) return;
     const ust = this.bol(saldiri).ust, alt = this.bol(hareket).alt;
     if (!ust.tracks.length || !alt.tracks.length) return;
@@ -159,6 +159,15 @@ export class KarakterModeli {
       ustEylem.fadeOut(0.08); this.ustSaldiriAktif = false;
       if (this.aktifAd === ad) { this.aktifAd = ''; this.calistir(ad, true, 0.08); } // tam hareket animasyonuna dön
     }, Math.max(150, ust.duration * 1000 / Math.max(0.1, this.aktif.timeScale || 1)));
+  }
+  /**
+   * Hasar alma (orijinal PSA_STRUCK, JudgeAnimationStruck): oyuncuda ANI_STRUCK0..2'den biri YALNIZCA ÜST GÖVDEDE oynar (bacaklar yürümeye devam eder);
+   * durağanken bütün vücut oynar. Canavarlarda (NPC) her zaman bütün vücut.
+   */
+  darbeOynat(ustGovde: boolean): void {
+    const n = Math.floor(Math.random() * 3), ad = `darbe${n}`;
+    if (ustGovde && this.klipler.has(ad) && (this.aktifAd === 'kos' || this.aktifAd === 'yuru') && this.oturAsama === 'yok') { this.ustSaldiri(undefined, ad); return; }
+    this.oynatRastgele('darbe', 3, false, 0.05);
   }
   /** Numaralı animasyonu (ör. 104 selamlama) bir kez oynatır; süresini (sn) döndürür, yoksa 0. */
   numaraOynat(no: number): number { const ad = this.klipNo(no); return ad ? this.oynat(ad, false, 0.1) : 0; }

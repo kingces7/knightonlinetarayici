@@ -783,10 +783,12 @@ async function basla(): Promise<void> {
       oyuncu.blinkBitis = 0; // saldırınca göz kırpma biter
       oyuncu.saldiriSayaci = vurusAraligi(oyuncu.silah); // silahın gecikmesi (eşya tablosu)
       oyuncu.savastanBeri = 0;
-      if (!hareketli) oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08);
+      let animSure = 0;
+      if (!hareketli) animSure = oyuncu.model?.oynat(Math.random() < 0.5 ? 'saldir0' : 'saldir1', false, 0.08) ?? 0;
       else oyuncu.model?.ustSaldiri(); // orijinal: hareket ederken saldırı ANI_ATTACK_WITH_WEAPON_WHEN_MOVE (yalnız üst gövde)
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
-      vurusZamanlayici.push({ kalan: 0.45, hedef: h });
+      // Orijinal: darbe, silahın hareket izi hedefe değdiği anda (saldırı animasyonunun ortalarında) işler; sabit 0,45 sn yerine klibin ≈%55'i.
+      vurusZamanlayici.push({ kalan: animSure > 0 ? Math.max(0.2, Math.min(0.8, animSure * 0.55)) : 0.45, hedef: h });
     };
     const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= menzilDe(oyuncu.hedef);
     hareketEdiyor = ilerigeri !== 0 || !!oyuncu.yuruHedef;
@@ -993,7 +995,7 @@ async function basla(): Promise<void> {
         canavarVuruldu: (c) => ses.modelSesi(c.tur.model, 'darbe', c.konum),
         oyuncuVuruldu: () => {
           kalk(); ses.modelSesi(OYUNCU_SES_MODELI, oyuncu.olu ? 'olum' : 'darbe');
-          if (oyuncu.olu) { oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.model?.oynatRastgele('olum', 3, false, 0.1); } else oyuncu.model?.oynatRastgele('darbe', 3, false, 0.05);
+          if (oyuncu.olu) { oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.model?.oynatRastgele('olum', 3, false, 0.1); } else oyuncu.model?.darbeOynat(true);
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
