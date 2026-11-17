@@ -16,6 +16,13 @@ export const HARITALAR: Record<string, HaritaAyari> = {
   moradon: { baslangic: [815, 440], canavar: false, bolge: 21, deneyimKaybi: true },
   // Sunucu NPC dizilimi, başlangıç noktası (START_POSITION1098 bölge 21 = 264, 302) ve kapılar bu haritaya uyuyor.
   '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21, deneyimKaybi: true },
+  // Luferson Castle (Karus, sunucu bölgesi 1): sunucu eşi 1098karus2004.smd; kapıdan varış noktası (441, 1625).
+  karus2004: { baslangic: [441, 1625], canavar: false, bolge: 1, deneyimKaybi: true },
+  // El Morad Castle (sunucu bölgesi 2): sunucu eşi 1098elmo2004.smd; kapıdan varış noktası (1595, 412).
+  elmo2004: { baslangic: [1595, 412], canavar: false, bolge: 2, deneyimKaybi: true },
 };
+
+/** Sunucu bölge numarası → client harita adı (bölge değişiminde ve girişte doğru harita yüklenir). */
+export const BOLGE_HARITASI: Record<number, string> = { 21: '14th_oldmoradon', 1: 'karus2004', 2: 'elmo2004' };
 
 export const VARSAYILAN_AYAR: HaritaAyari = { baslangic: null, canavar: true };

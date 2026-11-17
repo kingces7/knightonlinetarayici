@@ -145,7 +145,7 @@ export function renkHaritasi(parcalar: Uint8Array[]): { rgba: Uint8Array; boyut:
 }
 
 /** İstemci haritası → sunucu haritası (.smd) eşleşmesi. İstemci adıyla aynı olmayanlar burada. */
-const SUNUCU_HARITASI: Record<string, string> = { moradon: '1098moradon_0826.smd', '14th_oldmoradon': 'old_moradon.smd' };
+const SUNUCU_HARITASI: Record<string, string> = { karus2004: '1098karus2004.smd', elmo2004: '1098elmo2004.smd', moradon: '1098moradon_0826.smd', '14th_oldmoradon': 'old_moradon.smd' };
 
 /**
  * Sunucu haritasından çarpışma üçgenlerini (carpisma.bin: ham float32, üçgen başına 9 sayı, x/y/z — istemci

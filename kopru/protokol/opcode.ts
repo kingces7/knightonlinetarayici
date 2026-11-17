@@ -56,6 +56,12 @@ export const WIZ = {
   MANA_DEGISTI: 0x18,
   OLUM: 0x11,
   YENIDEN_DOGUS: 0x12,
+  /** Bölge değişimi (0x27): alt komut 1 yükleniyor, 2 yüklendi, 3 ışınlanma (sunucu → client: bölge, x, z). */
+  BOLGE_DEGISIMI: 0x27,
+  /** Harita nesnesi olayı (0x33): kapı/kolu/ışınlanma kapısı kullanma. */
+  NESNE_OLAYI: 0x33,
+  /** Işınlanma listesi (0x4B): sunucu → client kapı listesi (alt 1) / sonuç (alt 2); client → sunucu seçim. */
+  ISINLANMA_LISTESI: 0x4b,
   CAN_DEGISTI: 0x17,
   DENEYIM_DEGISTI: 0x1a,
   SEVIYE_DEGISTI: 0x1b,

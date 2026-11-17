@@ -324,3 +324,11 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Inn Hostess ve [Sundries] için orijinal görünümlü konuşma menüsü (`client/src/arayuz/duzDiyalog.ts`): koyu panel, altın çerçeve, beyaz konuşma, sarı seçenekler. Test: `client/scripts/npcDiyalogTesti.mjs`.
 - [ ] Inn Hostess: "Create a Clan" ve "Power Up Store" henüz işlevsiz (mesaj verir). Sundries: "I want to exchange." gri (işlevsiz). Diğer tüccarlar (Armor/Weapon/Potion…) hâlâ mağazayı doğrudan açar; istenirse aynı menü verilir.
 - [x] Dragon tooth Mentor ganimeti oyunda doğrulandı (`client/scripts/bossGanimetTesti.mjs`; test için geçici HP=1 ve %100 oran kullanıldı, sonra geri alındı).
+
+## Işınlanma kapıları (2026-11-18)
+- [x] Luferson (`karus2004`) ve El Morad (`elmo2004`) haritaları dönüştürüldü (harita, gökyüzü, NPC, canavar, modeller); `?harita=karus2004` / `?harita=elmo2004`.
+- [x] Moradon'daki iki ışınlanma kapısı (Karus 4014, El Morad 4013) sağ tıkla kullanılır; kapı listesi orijinal görünümlü menüyle açılır; seçim → bölge değişimi → harita yeniden yüklenir (kayıtlı girişle otomatik). Protokol: `kopru/protokol/isinlanma.ts` (+ test).
+- [x] Kök neden: sunucu Moradon için `1098moradon_0826.smd` kullanıyordu; kapılar client'ta olmayan x≈800-840'taydı (seçim "kapıya yakın değil" diye reddediliyordu). `ZONE_INFO1098` bölge 21 → `old_moradon.smd` yapıldı (`araclar/sunucu/moradon-smd.sql`, özgün değer yedekli). **Sunucu yeniden başlatılınca geçerli olur.**
+- [ ] Işınlanma uçtan uca testi (sunucu yeniden başlatıldıktan sonra): `client/scripts/isinlanmaTesti.mjs`.
+- [ ] Haritası olmayan bölgeler (Delos, Ronark Land, Ardream) kapı listesinde gri.
+- [ ] `Town` komutu Moradon koordinatına ışınlar (Luferson/El Morad'da yanlış yer).

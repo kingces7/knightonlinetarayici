@@ -7,7 +7,8 @@ import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
-import { HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
+import { BOLGE_HARITASI, HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
+import { BOLGE_DEGISIMI, bolgeDegisimiIstegi, bolgeIsinlanmasi, kapiSecimiIstegi, nesneOlayiIstegi } from '../../kopru/protokol/isinlanma.ts';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, solSilahTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
 import { Ses } from './oyun/ses';
@@ -176,6 +177,18 @@ async function basla(): Promise<void> {
       sahne.add(n.grup); npcler.push(n);
     }));
   } catch { /* bu haritada NPC verisi yok */ }
+
+  // Işınlanma kapıları: sunucu haritasındaki WARP_GATE (tür 5) nesneleri; sağ tıkla kullanılır (yanına gider, kapı listesi açılır).
+  const kapilar: { indeks: number; sahip: number; konum: THREE.Vector2; kutu: THREE.Mesh }[] = [];
+  try {
+    const sj = await (await fetch(`/harita/${HARITA}/sunucu.json`)).json() as { nesneOlaylari: { sahip: number; indeks: number; tur: number; durum: number; x: number; y: number; z: number }[] };
+    for (const n of sj.nesneOlaylari) {
+      if (n.tur !== 5 || n.durum !== 1) continue;
+      const kutu = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 6, 10), new THREE.MeshBasicMaterial({ visible: false }));
+      kutu.position.set(n.x, Math.max(n.y, arazi.yukseklikAl(n.x, -n.z)) + 3, -n.z); sahne.add(kutu);
+      kapilar.push({ indeks: n.indeks, sahip: n.sahip, konum: new THREE.Vector2(n.x, n.z), kutu });
+    }
+  } catch { /* bu haritada kapı verisi yok */ }
 
   const kamera = new TakipKamerasi(tuval);
   // Skill efektleri (.fxb, OpenKO kaynağındaki parça mantığıyla): skill kullanılınca kendinde ve hedefte oynar
@@ -894,11 +907,43 @@ async function basla(): Promise<void> {
   };
   // Sağ tık (sürüklemeden, kısa): kutuyu / ölü canavarı açar; sürüklenirse kamera döner, hiçbir şey açılmaz.
   const sag = { x: 0, y: 0, t: 0 };
+  // ---- Işınlanma: kapıya gidip kullanma, kapı listesi, bölge değişimi (harita yeniden yüklenir)
+  let acilacakKapi: { k: (typeof kapilar)[number]; hedef: THREE.Vector2 } | null = null;
+  let sonKapiIndeksi = 0;
+  const KAPI_MENZILI = 6; // sunucu MAX_OBJECT_RANGE = 10 m
+  const kapiKullan = (k: (typeof kapilar)[number]) => { sonKapiIndeksi = k.indeks; sunucuOturumu?.gonder(WIZ.NESNE_OLAYI, nesneOlayiIstegi(k.indeks)); };
+  const kapiyaGit = (k: (typeof kapilar)[number]) => {
+    if (!sunucuOturumu) { hud.mesaj('The gate needs a server connection.', 'sistem'); return; }
+    oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null;
+    if (oyuncu.konum.distanceTo(k.konum) <= KAPI_MENZILI) { oyuncu.yuruHedef = null; kapiKullan(k); return; }
+    const hedef = k.konum.clone(); oyuncu.yuruHedef = hedef; acilacakKapi = { k, hedef };
+  };
+  const KAPI_ADLARI: Record<number, string> = { 2111: 'Luferson Castle', 2121: 'El Morad Castle', 2114: 'Luna Valley Entrance', 2124: 'Luna Valley Entrance', 2116: 'Ardream', 2126: 'Ardream', 2113: 'Ronark Land', 2123: 'Ronark Land', 2115: 'Delos', 2125: 'Delos' };
+  const kapiListesiGoster = (kapilarSunucu: { no: number; ad: string; bolge: number; ucret: number }[]) => {
+    const indeks = sonKapiIndeksi;
+    arayuz?.diyalogDuz('', 'Where would you like to go?', [
+      ...kapilarSunucu.map((g) => ({
+        yazi: `${KAPI_ADLARI[g.no] ?? g.ad}${g.ucret ? `  (${g.ucret.toLocaleString('en-US')} Noah)` : ''}`,
+        pasif: !BOLGE_HARITASI[g.bolge], // haritası henüz dönüştürülmemiş bölgeler gri
+        sec: () => { arayuz?.diyalogKapat(); sunucuOturumu?.gonder(WIZ.ISINLANMA_LISTESI, kapiSecimiIstegi(indeks, g.no)); },
+      })),
+      { yazi: 'Cancel', sec: () => arayuz?.diyalogKapat() }]);
+  };
+  const ISINLANMA_HATALARI: Record<number, string> = { 0: 'You cannot use this gate right now.', 3: 'You cannot enter during the Castle Siege War.', 4: 'You cannot enter during the Lunar War.', 5: 'You cannot enter when you have 0 national points.', 255: 'You cannot use this gate.' };
+  let bekleyenBolge: { harita: string } | null = null;
+  const haritayaGec = (harita: string, gecikmeMs: number) => {
+    const q = new URLSearchParams(location.search); q.set('harita', harita);
+    hud.mesaj('Loading the map…', 'sistem'); sunucuOturumu?.kapat(); sunucuOturumu = null; hareketGonderici = null;
+    setTimeout(() => { location.search = `?${q.toString()}`; }, gecikmeMs); // sunucu eski bağlantıyı kapatıp kaydedene kadar beklenir (aynı hesapla çifte giriş olmasın)
+  };
+
   tuval.addEventListener('pointerdown', (e) => { if (e.button === 2) { sag.x = e.clientX; sag.y = e.clientY; sag.t = performance.now(); } });
   tuval.addEventListener('pointerup', (e) => {
     if (e.button !== 2 || oyuncu.olu || performance.now() - sag.t > 350 || Math.hypot(e.clientX - sag.x, e.clientY - sag.y) > 6) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
     const k = tiklananGanimetKutusu(); if (k) { kutuyaGit(k); return; }
+    const kapiVurus = isin.intersectObjects(kapilar.map((x) => x.kutu))[0]; // ışınlanma kapısı
+    if (kapiVurus) { const k = kapilar.find((x) => x.kutu === kapiVurus.object)!; kapiyaGit(k); return; }
     // Sağ tık NPC'ye: yanına gider ve dükkânını/konuşmasını açar (sol tık yalnızca seçer)
     const npcVurus = isin.intersectObjects(npcler.map((x) => x.secimKutusu))[0];
     if (npcVurus) {
@@ -1246,6 +1291,10 @@ async function basla(): Promise<void> {
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     if (secilenOyuncu && !digerOyuncular.includes(secilenOyuncu)) { secilenOyuncu = null; pvpSaldiriyor = false; }
     if (sunucuOturumu && secilenOyuncu && !oyuncu.hedef && simdiSn() - pvpSonCanSn > 1) { pvpSonCanSn = simdiSn(); sunucuOturumu.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(secilenOyuncu.kimlik)); } // seçili oyuncunun canı saniyede bir istenir
+    if (acilacakKapi) { // kapıya yürürken menzile girince kapı kullanılır; başka bir yere gidilirse iptal
+      if (oyuncu.yuruHedef !== acilacakKapi.hedef) acilacakKapi = null;
+      else if (oyuncu.konum.distanceTo(acilacakKapi.k.konum) <= KAPI_MENZILI) { const k = acilacakKapi.k; acilacakKapi = null; oyuncu.yuruHedef = null; kapiKullan(k); }
+    }
     hud.guncelle(oyuncu, oyuncu.hedef, !oyuncu.hedef && secilenOyuncu ? secilenOyuncu : null);
     arayuz?.guncelle(dt);
     hud.etiketGuncelle(canavarlar, izdusum, oyuncu.hedef);
@@ -1261,7 +1310,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { partiUyeleri: () => partiListesi(), oldurmeSayaci, efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+  (window as unknown as { ke: unknown }).ke = { kapilar, kapiyaGit, partiUyeleri: () => partiListesi(), oldurmeSayaci, efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
     /** Geliştirme: karakteri (x, z)'ye ışınlar ve sunucuya "durağan" konum paketiyle bildirir (Town ile aynı yöntem). */
@@ -1276,6 +1325,11 @@ async function basla(): Promise<void> {
       sunucuDunyasi?.tumunuKaldir(); sunucuOturumu?.kapat(); hareketGonderici = null;
       const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter, secici);
       sunucuOturumu = s;
+      const hedefHarita = BOLGE_HARITASI[s.bolge]; // karakter başka bir bölgedeyse (ör. Luferson) o haritaya geçilir; kayıtlı giriş yeniden girer
+      if (hedefHarita && hedefHarita !== HARITA.toLowerCase() && (!navigator.webdriver || parametre.has('bolgeYonlendir'))) {
+        haritayaGec(hedefHarita, 3500);
+        return { ad: s.benim.ad, seviye: s.benim.seviye, altin: s.benim.altin, can: s.benim.can, bolge: s.bolge, yonlendirildi: hedefHarita } as never;
+      }
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
       (window as unknown as { ke: Record<string, unknown> }).ke.benimBilgi = s.benim; // geliştirme: giriş paketindeki ham karakter bilgisi
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
@@ -1316,6 +1370,25 @@ async function basla(): Promise<void> {
             const kabul = confirm(`${p.ad} invites you to a party. Accept?`);
             sunucuOturumu?.gonder(WIZ.PARTI, partiDavetCevabi(kabul));
             hud.mesaj(kabul ? `You accepted ${p.ad}'s party invitation.` : 'You declined the party invitation.', 'sistem');
+          }
+        },
+        isinlanma: (p) => {
+          if (p.tur === 'liste') kapiListesiGoster(p.kapilar);
+          else if (p.kod === 2) hud.mesaj(`You need to be at least level ${p.enDusukSeviye ?? '?'} to enter.`, 'sistem');
+          else if (p.kod !== 1) hud.mesaj(ISINLANMA_HATALARI[p.kod] ?? 'You cannot use this gate.', 'sistem');
+        },
+        nesneOlayi: () => hud.mesaj('You cannot use this gate.', 'sistem'),
+        bolgeDegisimi: (govde) => {
+          const alt = govde[0];
+          if (alt === BOLGE_DEGISIMI.ISINLANMA) {
+            const b = bolgeIsinlanmasi(govde), harita = b ? BOLGE_HARITASI[b.bolge] : undefined;
+            if (!b || !harita) { hud.mesaj('This zone is not available in the browser client yet.', 'sistem'); return; }
+            if (harita === HARITA.toLowerCase()) { oyuncu.isinla(b.x, b.z, arazi); return; } // aynı harita (ör. Luna Valley girişi): yalnız konum değişir
+            bekleyenBolge = { harita }; sunucuOturumu?.gonder(WIZ.BOLGE_DEGISIMI, bolgeDegisimiIstegi(BOLGE_DEGISIMI.YUKLENIYOR));
+          } else if (alt === BOLGE_DEGISIMI.YUKLENDI && bekleyenBolge) {
+            const h = bekleyenBolge.harita; bekleyenBolge = null;
+            sunucuOturumu?.gonder(WIZ.BOLGE_DEGISIMI, bolgeDegisimiIstegi(BOLGE_DEGISIMI.YUKLENDI));
+            setTimeout(() => haritayaGec(h, 3500), 400);
           }
         },
         yenidenDogdu: (x, z) => { oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.yuruHedef = null; oyuncu.buflar = []; kalk(); oyuncu.model?.oynat('bekle'); hud.mesaj('You have been revived.', 'sistem'); },

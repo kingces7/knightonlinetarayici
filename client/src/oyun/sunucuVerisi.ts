@@ -4,6 +4,7 @@ import type { BenimBilgim } from '../../../kopru/protokol/paketler.ts';
 import type { Arazi } from '../dunya/arazi';
 import { type EsyaTanimi, esyaBulSunucu } from './veri';
 import type { Oyuncu } from './varliklar';
+import { HARITALAR } from './haritalar';
 
 export interface UygulamaOzeti {
   /** Konum uygulandı mı (yalnızca sunucudaki bölge, yüklü haritayla aynıysa). */
@@ -41,7 +42,7 @@ export function sunucuVerisiniUygula(o: Oyuncu, m: BenimBilgim, arazi: Arazi, bo
   });
 
   // Konum: sunucu Moradon (21) bölgesinde ve istemcide Moradon haritası yüklüyse oraya yerleştir.
-  const konumUygulandi = bolge === 21 && yuklenenHarita.toLowerCase().includes('moradon');
+  const konumUygulandi = (HARITALAR[yuklenenHarita]?.bolge ?? (yuklenenHarita.toLowerCase().includes('moradon') ? 21 : -1)) === bolge;
   if (konumUygulandi) o.isinla(m.x, m.z, arazi);
   return { konumUygulandi, esyaEslesen, esyaEslesmeyen };
 }

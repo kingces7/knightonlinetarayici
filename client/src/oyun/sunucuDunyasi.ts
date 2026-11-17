@@ -19,6 +19,7 @@ import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts'
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
+import { isinlanmaPaketi, type IsinlanmaPaketi } from '../../../kopru/protokol/isinlanma.ts';
 import { skillPuaniReddi } from '../../../kopru/protokol/skillPuani.ts';
 import { altinDegisti, sinifDegisti } from '../../../kopru/protokol/sinif.ts';
 import { oldurmeBildirimi, type OldurmeBildirimi } from '../../../kopru/protokol/oldurme.ts';
@@ -76,6 +77,8 @@ export interface SavasKancalari {
   skillPuaniReddedildi?: (agac: number, puan: number) => void;
   sohbet?: (s: SohbetPaketi) => void;
   ozelHedef?: (bulundu: boolean) => void;
+  /** Işınlanma kapısı: kapı listesi / sonuç (WIZ_WARP_LIST), bölge değişimi (WIZ_ZONE_CHANGE), nesne olayı reddi (WIZ_OBJECT_EVENT). */
+  isinlanma?: (p: IsinlanmaPaketi) => void; bolgeDegisimi?: (govde: Uint8Array) => void; nesneOlayi?: (govde: Uint8Array) => void;
 }
 
 /** Bu uzaklıktan (m) fazla geride kalan varlık varış noktasına ışınlanır (sekme/bağlantı gecikmesi). */
@@ -148,6 +151,9 @@ export class SunucuDunyasi {
         o.enCok = s.azamiCan; o.enCokMana = s.azamiMana; o.can = s.can; o.mana = s.mana; this.kancalar.statDegisti?.(); break;
       }
       case WIZ.ESYA_ALIM_SATIM: this.kancalar.magaza?.(magazaCevabi(p.govde)); break;
+      case WIZ.ISINLANMA_LISTESI: this.kancalar.isinlanma?.(isinlanmaPaketi(p.govde)); break;
+      case WIZ.BOLGE_DEGISIMI: this.kancalar.bolgeDegisimi?.(p.govde); break;
+      case WIZ.NESNE_OLAYI: this.kancalar.nesneOlayi?.(p.govde); break;
       case WIZ.SOHBET: this.kancalar.sohbet?.(sohbetPaketi(p.govde)); break;
       case WIZ.SOHBET_HEDEFI: this.kancalar.ozelHedef?.(ozelHedefCevabi(p.govde).bulundu); break;
       case WIZ.PARTI: ((window as unknown as { __parti?: string[] }).__parti ??= []).push(Array.from(p.govde).map((x) => x.toString(16).padStart(2, '0')).join(' ')); this.kancalar.parti?.(partiPaketi(p.govde)); break;
