@@ -695,6 +695,7 @@ export class OyunArayuzu {
 
   // ---------------------------------------------------------------- skill çubuğu
   private cubukKur(): void {
+    if (!this.sinifBecerileri.length) { this.sekmeBeceriler[0] = [...this.beceriler]; this.sinifBecerileri = [...this.beceriler]; } // sunucusuz (yerel) mod: sınıf bilgisi gelmeden temel Warrior skill'leri
     const c = this.cubuk;
     c.gizleDesen(/^(btn_open|btn_close|img_front2|btn_lock|strpage[0-9])$/); // sayfa numarası görünmez; kilit ve yön düğmeleri aşağıda kendi simgeleriyle kurulur
     // Zemin resmi iki ok plakası çiziyor: ikincisi (kilit satırı) gizlenir, yerine gerçek kilit düğmesi görünür
@@ -731,21 +732,38 @@ export class OyunArayuzu {
       bek.className = 'cubuk-bekleme'; alan.appendChild(bek);
       alan.addEventListener('click', () => this.cubukKullan(i));
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); this.cubukBeceri[this.cubukSayfa * 8 + i] = null; this.cubukKaydet(); });
-      // Çubuktaki skill sol tuşla sürüklenip başka yuvaya bırakılınca iki yuva yer değiştirir
-      alan.draggable = true;
-      let surukleYuva = -1;
-      alan.addEventListener('dragstart', (e) => { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no === null || no === undefined) { e.preventDefault(); return; } surukleYuva = this.cubukSayfa * 8 + i; e.dataTransfer?.setData('text/plain', String(no)); e.dataTransfer?.setData('application/x-ke-yuva', String(surukleYuva)); });
-      // Çubuktan sürüklenip çubuk dışına (geçerli bir yuva olmayan yere) bırakılan skill çubuktan atılır
-      alan.addEventListener('dragend', (e) => { if (surukleYuva >= 0 && e.dataTransfer?.dropEffect === 'none') { this.cubukBeceri[surukleYuva] = null; this.cubukKaydet(); } surukleYuva = -1; });
-      alan.addEventListener('dragover', (e) => e.preventDefault());
-      alan.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const hedef = this.cubukSayfa * 8 + i;
-        const kaynak = e.dataTransfer?.getData('application/x-ke-yuva');
-        if (kaynak) { const k = Number(kaynak); const t = this.cubukBeceri[hedef]; this.cubukBeceri[hedef] = this.cubukBeceri[k]; this.cubukBeceri[k] = t; this.cubukKaydet(); return; }
-        this.cubugaKoy(Number(e.dataTransfer?.getData('text/plain')), hedef);
-      });
+      alan.draggable = false; // sürükleme fare olaylarıyla (skillSurukleKur)
     }
+    this.skillSurukleKur();
+  }
+  /**
+   * Skill sürükle-bırak (fare olaylarıyla; tarayıcının HTML5 sürüklemesine bağlı değil): skill penceresinden çubuğa koy, çubukta iki yuvayı yer değiştir, çubuktan dışarı bırakınca çubuktan kaldır.
+   */
+  private skillSurukleKur(): void {
+    type Yuva = { k: 'beceri' | 'cubuk'; i: number };
+    const p = this.pencereler.beceri;
+    yuvaSurukle<Yuva>(this.b.kok, {
+      yuvaBul: (hedef) => {
+        const el = hedef as HTMLElement | null; if (!el?.closest) return null;
+        for (const a of this.cubukYuvalari()) if (a === el || a.contains(el)) return { k: 'cubuk', i: this.cubukSira(a) };
+        for (let i = 0; i < this.beceriYuvaSayisi; i++) { const a = p.alan(String(i)); if (a && (a === el || a.contains(el))) return { k: 'beceri', i }; }
+        return null;
+      },
+      kaynakEleman: (k) => {
+        if (k.k === 'beceri') return this.beceriler[k.i] ? p.alan(String(k.i)) ?? null : null;
+        const no = this.cubukBeceri[this.cubukSayfa * 8 + k.i]; if (no === null || no === undefined) return null;
+        return this.cubukYuvalari().find((a) => this.cubukSira(a) === k.i) ?? null;
+      },
+      birak: (k, h) => {
+        const kaynakNo = k.k === 'beceri' ? this.beceriler[k.i]?.no : this.cubukBeceri[this.cubukSayfa * 8 + k.i];
+        if (kaynakNo === null || kaynakNo === undefined) return;
+        if (h && h.k === 'cubuk') {
+          const hedef = this.cubukSayfa * 8 + h.i;
+          if (k.k === 'cubuk') { const ks = this.cubukSayfa * 8 + k.i; if (ks === hedef) return; const t = this.cubukBeceri[hedef]; this.cubukBeceri[hedef] = this.cubukBeceri[ks]; this.cubukBeceri[ks] = t; this.cubukKaydet(); }
+          else this.cubugaKoy(kaynakNo, hedef);
+        } else if (k.k === 'cubuk') { this.cubukBeceri[this.cubukSayfa * 8 + k.i] = null; this.cubukKaydet(); } // çubuk dışına bırakılan skill çubuktan kalkar
+      },
+    });
   }
   /** Skill'i çubuğun belirtilen yuvasına koyar; seviyesi yetmiyorsa koymaz. Koyduysa true. */
   private cubugaKoy(no: number, yuva: number): boolean {
@@ -1202,8 +1220,7 @@ export class OyunArayuzu {
     p.tikla.set('btn_left', () => { this.beceriSayfa--; this.beceriListesiniYenile(); this.beceriCiz(); });
     for (let i = 0; i < 8; i++) {
       const alan = p.alan(String(i)); if (!alan) continue;
-      alan.draggable = true;
-      alan.addEventListener('dragstart', (e) => { if (this.beceriler[i]) e.dataTransfer?.setData('text/plain', String(this.beceriler[i].no)); else e.preventDefault(); });
+      alan.draggable = false;
       alan.addEventListener('click', () => { if (this.beceriler[i]) { this.seciliBeceri = i; this.beceriCiz(); } });
       alan.addEventListener('contextmenu', (e) => { e.preventDefault(); if (this.beceriler[i]) this.hizliKoy(this.beceriler[i].no); });
       alan.addEventListener('dblclick', () => { if (this.beceriler[i]) this.b.beceriKullan(this.beceriler[i].no); });

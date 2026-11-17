@@ -11,7 +11,7 @@ export interface YuvaSurukleSecenek<T> {
 }
 
 export function yuvaSurukle<T>(kok: HTMLElement, s: YuvaSurukleSecenek<T>): void {
-  kok.addEventListener('pointerdown', (ev) => {
+  kok.addEventListener('pointerdown', (ev) => { // yakalama aşamasında dinlenir: pencerelerin olay yutması sürüklemeyi engellemesin
     if (ev.button !== 0) return;
     const k = s.yuvaBul(ev.target); if (!k) return;
     const el = s.kaynakEleman(k); if (!el) return;
@@ -36,5 +36,5 @@ export function yuvaSurukle<T>(kok: HTMLElement, s: YuvaSurukleSecenek<T>): void
       addEventListener('click', (c) => c.stopPropagation(), { capture: true, once: true });
     };
     addEventListener('pointermove', tasi); addEventListener('pointerup', bitir); addEventListener('pointercancel', bitir);
-  });
+  }, true);
 }
