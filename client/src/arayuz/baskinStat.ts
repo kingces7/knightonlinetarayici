@@ -29,3 +29,12 @@ export function statRengiUygula(el: HTMLElement | undefined, baskin: boolean): v
   el.style.color = baskin ? OKYANUS_MAVISI : el.dataset.renk0;
   const ic = el.querySelector<HTMLElement>('span'); if (ic) ic.style.color = '';
 }
+
+/** Seçili skill sekmesinin yazı rengi: pastel, göz yormayan gri. */
+export const SEKME_SECILI_RENK = '#c4c9ce';
+/** Yazı düğümünün rengini verilen renge çevirir (null = özgün renk). */
+export function statRengiUygulaRenk(el: HTMLElement, renk: string | null): void {
+  if (el.dataset.renk0 === undefined) el.dataset.renk0 = el.style.color;
+  el.style.color = renk ?? el.dataset.renk0;
+  const ic = el.querySelector<HTMLElement>('span'); if (ic) ic.style.color = '';
+}

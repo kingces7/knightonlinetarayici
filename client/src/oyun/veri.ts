@@ -92,6 +92,8 @@ export interface BeceriKurali {
   /** Hedef türü (MORAL): 1 kendi, 2 dost (kendin dahil), 3 dost (kendin hariç), 4 parti, 7 düşman, 8 herkes, 10 düşman alan…; hazırlık süresi (CastTime × 100 ms), menzil (m), ikinci tür, skill sayfası. */
   moral?: number; hazirlik?: number; menzil?: number; tip2?: number; sayfa?: number;
   tip1?: { isabetTuru: number; isabet: number; vurus: number; ekHasar: number; canavarYuzde: number };
+  /** Hasar bilgisi (skill penceresinde gösterilir): okçuluk (Type2), büyü (Type3), alan/özel (Type7). */
+  tip2v?: { isabet: number; hasar: number }; tip3?: { turu: number; ilk: number; sureli: number; sure: number; yaricap: number }; tip7?: { hasar: number; yaricap: number; sure: number };
   tip4?: { turu: number; sure: number; hiz: number; ac: number; acYuzde: number; saldiriHizi: number };
 }
 

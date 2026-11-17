@@ -30,7 +30,8 @@ function main(): number {
   // Yakın dövüş skill'lerinin (Type 1, CastTime 0) animasyonu ana tablodaki iSelfAnimID1 DEĞİL, skill_magic_1.tbl'deki iAct[0] numarasıdır (orijinal MagicSkillMng::StartSkillMagicAtTargetPacket → AnimationAdd(iAct[i])).
   // Sütunlar: 0 numara, 6 kombo sayısı, 9..11 iAct. Numara oyuncu iskeletindeki animasyon numarasıdır (ör. 126 = skill_spear_A, 128 = skill_sword01_A).
   const tip1 = new Map<number, number>();
-  for (const s of tbldenOku(od.oku('Data/skill_magic_1.tbl'), 'windows-1252').satirlar) if (Number(s[6]) >= 1 && Number(s[9]) > 0) tip1.set(Number(s[0]), Number(s[9]));
+  const hasarYuzde = new Map<number, number>(); // skill_magic_1 sütun 3: silah hasarının yüzdesi (açıklamadaki "Inflict N% damage")
+  for (const s of tbldenOku(od.oku('Data/skill_magic_1.tbl'), 'windows-1252').satirlar) if (Number(s[6]) >= 1 && Number(s[9]) > 0) { tip1.set(Number(s[0]), Number(s[9])); hasarYuzde.set(Number(s[0]), Number(s[3])); }
   const liste: Record<string, unknown>[] = [];
   for (const s of satirlar) {
     const SAYFA = Number(s[16]);
@@ -51,6 +52,7 @@ function main(): number {
   }
   // Kullanıcı kararı: yakın dövüş skill'lerinde (Stroke, Slash, Crash, Piercing — tüm sınıflar) kendinde parıltı yok; tablodaki 2601 heal_cast yalnızca iyileştirme skill'lerinde kalır.
   for (const b of liste) if (tip1.has(Number(b.no)) && b.efektKendi === 2601) b.efektKendi = null;
+  for (const b of liste) if (hasarYuzde.has(Number(b.no))) b.hasarYuzde = hasarYuzde.get(Number(b.no));
   liste.sort((a, b) => Number(a.sayfa) - Number(b.sayfa) || Number(a.sira) - Number(b.sira) || Number(a.no) - Number(b.no));
   fs.writeFileSync(path.join(hedef, 'beceriler.json'), JSON.stringify(liste, null, 1));
   console.log(`${liste.length} skill (sayfalar ${SAYFALAR.join(', ')}) -> ${hedef}`);

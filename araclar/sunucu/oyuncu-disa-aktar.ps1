@@ -29,6 +29,15 @@ foreach ($m in (Sorgu 'SELECT MagicNum, EnName, Msp, ReCastTime, CastTime, Type1
   if ($b.tip -eq 1) {
     $t = @(Sorgu "SELECT * FROM MAGIC_TYPE1 WHERE iNum = $no")[0]
     $b.tip1 = @{ isabetTuru = [int]$t.Type; isabet = [int]$t.HitRate; vurus = [int]$t.Hit; ekHasar = [int]$t.AddDamage; canavarYuzde = [int]$t.AddDmgPercToNpc }
+  } elseif ($b.tip -eq 2) {
+    $t = @(Sorgu "SELECT * FROM MAGIC_TYPE2 WHERE iNum = $no")[0]
+    if ($t) { $b.tip2v = @{ isabet = [int]$t.HitRate; hasar = [int]$t.AddDamage } }
+  } elseif ($b.tip -eq 3) {
+    $t = @(Sorgu "SELECT * FROM MAGIC_TYPE3 WHERE iNum = $no")[0]
+    if ($t) { $b.tip3 = @{ turu = [int]$t.DirectType; ilk = [int]$t.FirstDamage; sureli = [int]$t.TimeDamage; sure = [int]$t.Duration; yaricap = [int]$t.Radius } }
+  } elseif ($b.tip -eq 7) {
+    $t = @(Sorgu "SELECT * FROM MAGIC_TYPE7 WHERE nIndex = $no")[0]
+    if ($t) { $b.tip7 = @{ hasar = [int]$t.shDamage; yaricap = [int]$t.byRadius; sure = [int]$t.shDuration } }
   } elseif ($b.tip -eq 4) {
     $t = @(Sorgu "SELECT * FROM MAGIC_TYPE4 WHERE iNum = $no")[0]
     $b.tip4 = @{ turu = [int]$t.BuffType; sure = [int]$t.Duration; hiz = [int]$t.Speed; ac = [int]$t.AC; acYuzde = [int]$t.ACPct; saldiriHizi = [int]$t.AttackSpeed }

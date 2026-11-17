@@ -235,10 +235,10 @@ async function basla(): Promise<void> {
     ucanEfektler.push({ nesne, bas, bit, t: 0, sure: Math.max(0.25, Math.min(0.7, bas.distanceTo(bit) / 28)) });
   };
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Hazırlık süresi olan büyülerde sıra 1 (hazırla) → bekle → 2 (uçuş) → 3 (etki). */
-  const sunucuBecerisi = (no: number, v: NonNullable<typeof kurallar>['beceri'][string], hedef: Canavar | null, dost: DigerOyuncu | null) => {
+  const sunucuBecerisi = (no: number, v: NonNullable<typeof kurallar>['beceri'][string], hedef: Canavar | null, dost: DigerOyuncu | null, merkezNokta?: THREE.Vector2) => {
     // Alan skill'leri (moral ≥ 10: düşman alanı, kendi çevresi…): sunucu hedef kimliğini −1 ister; etki merkezi sData[0], sData[2] konumundadır (hedef varsa hedefin, yoksa kendi konumu)
     const alan = (v.moral ?? 0) >= 10;
-    const merkez = hedef ?? oyuncu, alanVeri = alan ? [Math.round(merkez.konum.x), Math.round(merkez.grup.position.y), Math.round(merkez.konum.y)] : [];
+    const merkez = hedef ?? oyuncu, alanVeri = alan ? (merkezNokta ? [Math.round(merkezNokta.x), Math.round(arazi.yukseklikAl(merkezNokta.x, merkezNokta.y)), Math.round(merkezNokta.y)] : [Math.round(merkez.konum.x), Math.round(merkez.grup.position.y), Math.round(merkez.konum.y)]) : [];
     const hedefId = alan ? 0xffff : hedef ? hedef.agKimlik : dost ? dost.kimlik : benimSoketNo;
     const hedefGrup = hedef ? hedef.grup : dost ? dost.grup : oyuncu.grup;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // aynı skill'in art arda gönderilmemesi için yerel bekleme (sunucu da kontrol eder)
@@ -294,6 +294,24 @@ async function basla(): Promise<void> {
       hud.mesaj(`${buyuAdi(v, p.no)} is active for ${v.tip4.sure} seconds.`, 'sistem');
     }
   };
+  // ---- Alan skill'i hedefleme (ör. Provoke): skill'e basınca yerde etki alanı halkası imleci izler; sol tık atar, sağ tık / Esc / skill'e tekrar basmak iptal eder.
+  type Kural = NonNullable<typeof kurallar>['beceri'][string];
+  let alanHedefi: { no: number; v: Kural } | null = null;
+  let alanBasildi = false; const alanNoktasi = new THREE.Vector2();
+  const alanHalka = new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 64), new THREE.MeshBasicMaterial({ color: 0x8fd6e6, transparent: true, opacity: 0.7, side: THREE.DoubleSide, depthTest: false }));
+  alanHalka.rotation.x = -Math.PI / 2; alanHalka.renderOrder = 999; alanHalka.visible = false; sahne.add(alanHalka);
+  const alanHedeflemeBasla = (no: number, v: Kural) => {
+    if (alanHedefi?.no === no) { alanHedeflemeBitir(); hud.mesaj('Area targeting cancelled.', 'sistem'); return; }
+    alanHedefi = { no, v };
+    const yaricap = Math.max(2, Math.min(v.tip7?.yaricap ?? v.tip3?.yaricap ?? 10, 40));
+    alanHalka.scale.set(yaricap, yaricap, 1); alanHalka.visible = true;
+    hud.mesaj(`${arayuz?.beceriAdi(no) ?? v.ad}: left-click to cast, right-click or Esc to cancel.`, 'sistem');
+  };
+  const alanHedeflemeBitir = () => { alanHedefi = null; alanHalka.visible = false; };
+  const alanYeri = (e: PointerEvent | MouseEvent): THREE.Vector3 | null => {
+    isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);
+    return isin.intersectObject(arazi.mesh)[0]?.point ?? null;
+  };
   const beceriKullan = (no: number) => {
     const v = kurallar?.beceri[String(no)];
     if (!v && !oyuncu.olu) { hud.mesaj("This skill is not available on the server yet.", "sistem"); return; } // ör. Magic blade: sunucu veritabanında tanımı yok
@@ -324,7 +342,8 @@ async function basla(): Promise<void> {
       if (v.tip === 3 && !sunucuOturumu) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
     } else { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
     kalk();
-    if (sunucuOturumu) { sunucuBecerisi(no, v, hedef, dost); return; } // sunucu modu: kuralları sunucu uygular (MP, hasar, buff, bekleme)
+    if (sunucuOturumu && alanDusman && !alanBasildi) { alanHedeflemeBasla(no, v); return; } // alan skill'i: yer seçilir (halka imleci izler), sol tıkla atılır
+    if (sunucuOturumu) { sunucuBecerisi(no, v, hedef, dost, alanBasildi ? alanNoktasi : undefined); return; } // sunucu modu: kuralları sunucu uygular (MP, hasar, buff, bekleme)
     // Efekt istisnaları: Sprint'te altın toplanma (Ability_cast) yok, yalnız mavi rüzgâr izi (kullanıcı kararı); Defense tabloya uygun altın efektini kullanır.
     const efektId = { ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(sprintMi(no) ? { kendi: null } : {}) };
     if (efektId?.kendi) void efektler.oynat(efektId.kendi, oyuncu.grup, { sure: v.tip4 ? 1.2 : 0.6 }); // kullanan kişide efekt
@@ -611,6 +630,7 @@ async function basla(): Promise<void> {
       if (!oyuncu.hedef || oyuncu.hedef.olu) { hud.mesaj('Select a target first.', 'sistem'); return; } // hedefi oyuncu seçer: R kendiliğinden en yakın canavara agro almaz
       if (oyuncu.hedef && !oyuncu.hedef.olu) oyuncu.saldiriyor = true; // orijinalde yürürken de R ile saldırı açılır; yürüme sürer
     }
+    if (e.code === 'Escape' && alanHedefi) { alanHedeflemeBitir(); return; }
     if (e.code === 'Escape') { if (!oyuncu.hedef) void arayuz?.genel.degistir('re_exitmenu'); oyuncu.hedef = null; hud.ganimetAc(null); } // seçili hedef yoksa Esc çıkış menüsünü açar
     if (!e.repeat && e.code === 'KeyC') oturDegistir();
     if (!e.repeat && e.code === 'KeyT') yuruKosDegistir();
@@ -848,6 +868,18 @@ async function basla(): Promise<void> {
   });
   // Oyun alanına (pencere dışına) sol tıklayınca açık bütün pencereler kapanır
   tuval.addEventListener('pointerdown', (e) => { if (e.button === 0) arayuz?.tumPencereleriKapat(); });
+  tuval.addEventListener('pointermove', (e) => { if (!alanHedefi) return; const n = alanYeri(e); if (n) alanHalka.position.set(n.x, n.y + 0.2, n.z); });
+  tuval.addEventListener('pointerdown', (e) => {
+    if (!alanHedefi) return;
+    e.stopImmediatePropagation(); // alan seçerken tıklama yürüme/seçme yapmaz
+    if (e.button === 2) { alanHedeflemeBitir(); return; }
+    if (e.button !== 0) return;
+    const n = alanYeri(e); if (!n) return;
+    const { no, v } = alanHedefi;
+    const mesafe = oyuncu.konum.distanceTo(new THREE.Vector2(n.x, -n.z));
+    if (mesafe > Math.min(v.menzil ?? 30, 60)) { hud.mesaj('The target area is too far away.', 'sistem'); return; }
+    alanNoktasi.set(n.x, -n.z); alanHedeflemeBitir(); alanBasildi = true; try { beceriKullan(no); } finally { alanBasildi = false; }
+  }, true);
   tuval.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || oyuncu.olu) return;
     isin.setFromCamera(new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), kamera.kamera);

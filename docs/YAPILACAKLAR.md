@@ -188,7 +188,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
   - [x] Envanter: sağ tık ile giy/çıkar, sol tuşla sürükle-bırak (çanta ↔ çanta ↔ ekipman); sol+sağ tuşla dönüşte karakter kamerayla birlikte döner (kullanıcı isteği, 2026-11-17)
   - [ ] Sunucu modunda eşya taşıma/giyme sunucuya bildirilsin (WIZ_ITEM_MOVE 0x1F); şimdilik yalnızca istemcide (sunucuya yansımaz)
   - [ ] Ganimet: ölen canavarın torbasını aç/al (0x23, 0x24, 0x26), altın (0x4a); sunucu skill'leri (0x31 WIZ_MAGIC_PROCESS); oyuncu-oyuncu savaşı
-  - [ ] Sohbet (0x10 gönder/al), NPC etkileşimi (0x20), envanter/eşya (0x1F…), skill (0x31) paketleri
+  - [x] Sohbet (0x10 gönder/al), NPC etkileşimi (0x20, diyalog 0x55 + görev 0x64), envanter/eşya (0x1F, 0x21, 0x32…), skill (0x31) paketleri — hepsi gerçek sunucuyla çalışıyor (`kopru/protokol/`, `docs/protokol.md`).
   - [ ] Diğer oyuncuların eşyaları/modeli görünsün (şimdi hepsi aynı model); ırk/sınıfa göre model
   - [ ] Dost NPC'ler (tür 2) sunucudan gelsin (şimdi yerel npc.json); bölge/harita değişimi (WIZ_ZONE_CHANGE)
   - [ ] Test için ikinci hesap/karakter (kotest1/KoTest) yerel veritabanında; GitHub'a girmeyen yerel veri
@@ -299,3 +299,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 **PvP**
 - [x] Öldürme sayacı (üst orta plaka + "TRIPLE KILL" gibi bildirim), sunucunun `WIZ_KILLASSIST 0xC8` paketini kullanır (`client/src/arayuz/oldurmeSayaci.ts`). Sunucu bu paketi yalnızca PK bölgelerinde (Ardream, Ronark Land, özel etkinlik) yollar; şu an oynanan Moradon'da çıkmaz. **Gerçek PvP ile denenmedi** (önizleme: `client/scripts/oldurmeGorunum.mjs`).
 - [ ] Client'ta oyuncuya saldırı/skill hedeflemesi yok (yalnız canavar hedeflenir): PvP için diğer oyuncuyu hedef alıp saldırma gerekir.
+
+
+**Henüz boş kalan pencere içerikleri (2026-11-17, kullanıcı isteği)**
+- [ ] Görev ayrıntıları (av hedefi ve ödüller), parti üye listesi, dost listesi, klan, mektup, komut listesi ve çıkış menüsündeki "Run option after exiting".

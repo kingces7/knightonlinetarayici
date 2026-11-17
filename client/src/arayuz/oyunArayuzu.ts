@@ -14,12 +14,12 @@ import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
 import { DiyalogPenceresi } from './diyalogPenceresi';
 import { diyalogVerisi } from '../oyun/diyalogVeri';
-import { baskinStatlar, sinifMesleki, statRengiUygula } from './baskinStat';
+import { baskinStatlar, sinifMesleki, statRengiUygula, statRengiUygulaRenk, SEKME_SECILI_RENK } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
-export interface Beceri { /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
+export interface Beceri { /** yakın dövüş skill'inin silah hasarı yüzdesi (skill_magic_1) */ hasarYuzde?: number; /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
 
 export interface ArayuzBaglami {
   kok: HTMLElement;
@@ -141,6 +141,7 @@ export class OyunArayuzu {
   /** Sınıfın tüm skill'leri (çubuk/kullanım için) ve skill penceresindeki sekmeler: 0 temel, 1–3 ağaçlar, 4 Master; her sekme sayfalara bölünür. */
   private sinifBecerileri: Beceri[] = [];
   private sekmeBeceriler: Beceri[][] = [[], [], [], [], []];
+  private sekmeRengiUygula: () => void = () => {};
   private beceriSekme = 0; private beceriSayfa = 0; private beceriYuvaSayisi = 6;
   /** Pasif skill (kullanılmaz, kendiliğinden etki eder: sunucu tablosunda tür 0 ve MP 0): skill ağacında yalnızca bilgi verir; çubuğa konmaz, basılmaz. */
   private pasifMi(no: number): boolean { const v = kurallar?.beceri[String(no)]; return !!v && v.tip === 0 && v.msp === 0; }
@@ -905,6 +906,26 @@ export class OyunArayuzu {
     this.beceriSekmeleriniKur(sinif);
     this.cubukSinif = sinif; this.seciliBeceri = 0; this.cubukYukle();
   }
+  /** Skill'in hasar/etki bilgisi (sunucu tablolarından): yakın dövüş silah hasarının yüzdesi + sabit hasar, okçuluk yüzdesi, büyü hasarı/iyileştirme, alan skill'i hasarı. */
+  private beceriHasarYazisi(no: number): string {
+    const v = kurallar?.beceri[String(no)]; if (!v) return '';
+    if (v.tip1) { const y = this.beceriBul(no)?.hasarYuzde ?? v.tip1.vurus; return `Damage: ${y}% of weapon damage${v.tip1.ekHasar ? ` + ${v.tip1.ekHasar}` : ''}`; }
+    if (v.tip2v) return `Damage: ${v.tip2v.hasar}% of weapon damage (arrow)`;
+    if (v.tip3) {
+      const t = v.tip3, parca: string[] = [];
+      if (t.ilk < 0) parca.push(`Damage: ${-t.ilk}`); else if (t.ilk > 0) parca.push(`Heals: ${t.ilk}`);
+      if (t.sureli < 0) parca.push(`${-t.sureli} per second for ${t.sure} s`); else if (t.sureli > 0) parca.push(`Heals ${t.sureli} per second for ${t.sure} s`);
+      return parca.join(' + ');
+    }
+    if (v.tip7) return v.tip7.hasar > 0 ? `Damage: ${v.tip7.hasar} (area ${v.tip7.yaricap} m)` : '';
+    if (v.tip4) return `Duration: ${v.tip4.sure} s`;
+    return '';
+  }
+  private beceriSureYazisi(no: number): string {
+    const v = kurallar?.beceri[String(no)]; if (!v) return '';
+    const p: string[] = []; if (v.hazirlik) p.push(`Cast ${(v.hazirlik / 10).toFixed(1)} s`); if (v.yenidenKullanim) p.push(`Cooldown ${(v.yenidenKullanim * 0.09).toFixed(1)} s`); if (v.menzil) p.push(`Range ${v.menzil} m`);
+    return p.join(' · ');
+  }
   /** Seçili sekme ve sayfaya göre penceredeki skill listesi. */
   private beceriListesiniYenile(): void {
     const tum = this.sekmeBeceriler[this.beceriSekme] ?? [];
@@ -919,13 +940,21 @@ export class OyunArayuzu {
     p.gizleDesen(/^(btn_(mage|ranger|blade|cleric|reaper)\d|btn_master|btn_[4-7]$|img_(sorcerer|hunter|berserker|shaman|reaper)_\d|string_[4-7]$)/);
     p.gizleMetin('Master');
     if (!terfili) return;
-    const sec = (s: number) => { this.beceriSekme = s; this.beceriSayfa = 0; this.beceriListesiniYenile(); this.beceriCiz(); };
+    const sekmeDugmeleri = [['btn_public'], [0, 1, 2].map((t) => `btn_${grup[0]}${t}`)].flat();
+    const sekmeRengi = () => { // seçili sekmenin yazısı pastel, göz yormayan gri; diğerleri özgün renginde
+      const adlar = ['btn_public', `btn_${grup[0]}0`, `btn_${grup[0]}1`, `btn_${grup[0]}2`, 'btn_master'];
+      adlar.forEach((id, i) => { for (const e of p.bul(id)) for (const y of e.querySelectorAll<HTMLElement>('.ui-yazi')) statRengiUygulaRenk(y, i === this.beceriSekme ? SEKME_SECILI_RENK : null); });
+    };
+    void sekmeDugmeleri;
+    this.sekmeRengiUygula = sekmeRengi;
+    const sec = (s: number) => { this.beceriSekme = s; this.beceriSayfa = 0; this.beceriListesiniYenile(); this.beceriCiz(); sekmeRengi(); };
     p.tikla.set('btn_public', () => sec(0));
     for (let t = 0; t < 3; t++) {
       p.goster(`btn_${grup[0]}${t}`); p.goster(`img_${grup[1]}_${t}`); p.goster(`string_${4 + t}`); p.goster(`btn_${4 + t}`);
       p.tikla.set(`btn_${grup[0]}${t}`, () => sec(t + 1));
       p.tikla.set(`btn_${4 + t}`, () => this.b.skillPuaniVer?.(5 + t));
     }
+    sekmeRengi();
     if (usta) { p.goster('btn_master'); p.goster('string_7'); p.goster('btn_7'); p.tikla.set('btn_master', () => sec(4)); p.tikla.set('btn_7', () => this.b.skillPuaniVer?.(8)); }
   }
   private cubukKullan(i: number): void { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
@@ -1305,7 +1334,7 @@ export class OyunArayuzu {
     const agac = (s?.sayfa ?? 0) % 10, agacta = agac >= 5 && agac <= 8;
     p.metin('string_skill_vp', s ? (agacta ? `Required points ${s.seviye}` : `Required level ${s.seviye}`) : '');
     p.metin('string_skill_point', s ? (this.beceriAcik(s) ? 'Available' : 'Not available yet') : '');
-    for (const id of ['string_skill_item0', 'string_skill_item1', 'string_skill_item2']) p.metin(id, '');
+    p.metin('string_skill_item0', s ? this.beceriHasarYazisi(s.no) : ''); p.metin('string_skill_item1', s ? this.beceriSureYazisi(s.no) : ''); p.metin('string_skill_item2', '');
   }
 
   // ---------------------------------------------------------------- envanter (I)
