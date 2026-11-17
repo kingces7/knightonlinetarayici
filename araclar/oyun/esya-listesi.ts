@@ -11,3 +11,6 @@ const csv = (r: (string | number)[]) => r.map((x) => { const s = String(x); retu
 const satirlar = [csv(['esya_no', 'ad', 'tur', 'irk', 'sinif', 'gereken_seviye', 'fiyat', 'aciklama']), ...t.sort((a, b) => a.no - b.no).map((e) => csv([e.no, e.ad, e.tur, e.irk, e.sinif, e.gerekSeviye, e.fiyat, e.aciklama]))];
 fs.writeFileSync(path.join(DEPO_KOKU, 'docs', 'esya-listesi.csv'), satirlar.join('\n') + '\n');
 console.log(`docs/esya-listesi.csv: ${t.length} eşya`);
+// Kopyalamak için sade metin: "numara  ad" (Ctrl+F ile aranır, satır seçip kopyalanır).
+fs.writeFileSync(path.join(DEPO_KOKU, 'docs', 'esya-idleri.txt'), t.map((e) => `${e.no}  ${e.ad}`).join('\n') + '\n');
+console.log('docs/esya-idleri.txt yazıldı');
