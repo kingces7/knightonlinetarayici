@@ -41,6 +41,8 @@ export class MagazaPenceresi {
       else if (y(el) >= 500) this.cantaAdet[i] = el;
     }
     for (let i = 0; i < 24; i++) this.fiyat[i] = p.bul(String(100 + i))[0];
+    for (const t of p.bul('text_title')) Object.assign(t.style, { fontSize: '17px', fontWeight: '700', color: '#ffe9a8', textShadow: '0 1px 3px #000' }); // başlık "Store": daha büyük ve okunaklı
+    p.gizle('img_title_realmpoint'); // başlığın iki yanındaki kırmızı rozet simgeleri (kullanıcı isteği)
     for (let i = 200; i < 214; i++) for (const el of p.bul(String(i))) el.style.display = 'none';
     for (const id of ['base_tab_itembuy', 'base_tab_itemsell']) for (const el of p.bul(id)) el.style.display = 'none'; // alış/satış sepeti bölümü: bu sürümde yok
     // Alttaki bölümü (envanter ve alt çerçeve) boşalan yere çek
@@ -124,7 +126,7 @@ export class MagazaPenceresi {
   /** Mağazayı açar. `tamirci`: NPC aynı zamanda tamir ediyor mu. */
   ac(npcAdi: string, sayfalar: EsyaTanimi[][], tamirci: boolean): void {
     this.soruKapat(); this.sayfalar = sayfalar; this.sayfa = 0; this.tamirModu = false; this.imza = '';
-    this.p.metin('text_title', npcAdi); this.tamirDugme.style.display = tamirci ? '' : 'none';
+    this.p.metin('text_title', 'Store'); // NPC adı yerine yalnız "Store" this.tamirDugme.style.display = tamirci ? '' : 'none';
     this.acik = true; this.p.el.style.display = ''; this.yerlestir(); this.ciz();
   }
   kapat(): void { if (!this.acik) return; this.acik = false; this.soruKapat(); this.tamirModuDegistir(false); this.p.el.style.display = 'none'; this.k.ipucuGizle(); this.k.kapandi(); }
