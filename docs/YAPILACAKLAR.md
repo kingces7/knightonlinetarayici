@@ -276,3 +276,10 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] Parti/klan dışındaki küçük paketler: WIZ_ROTATE (0x09), emote (0x29 tür 4), hava/saat
 - [ ] İstemcide tanımı olmayan canavar/NPC modelleri (`bilinmeyenTurler`): tüm K_MONSTER (2.169) için model + tür tablosu
 - [ ] Eşyalarda 413 simge yok (genel simge yer tutucu), yükseltme/ek kod gösterimi
+
+## Veritabanı düzenlemeleri (2026-11-17, yedekleri `*_YEDEK` tablolarında)
+- Yeni karakter eşyasız başlar (`CREATE_NEW_CHAR_SET` boşaltıldı; eski hali `CREATE_NEW_CHAR_SET_YEDEK`).
+- Moradon (bölge 21) canavar slotları: her slot 5 canavar, yarıçap en çok 5 (`K_NPCPOS1098`). Çakışan 9 slot 13–17 m kaydırıldı; geri kalan koordinatlar orijinal. Tek canavarlık 2 özel slot (Glyptodont, Chaotic generator) dokunulmadı.
+- Worm / Earth Worm / Blood worm (750–752) ganimeti: %20 düşük seviye silah (grup 9001), %25 dört sınıfın başlangıç zırhı (grup 9002).
+- Sunucu veritabanı değişikliklerini yalnız açılışta yükler: değişiklikten sonra GameServer yeniden başlatılmalı.
+- [ ] Su: kullanıcının işaretlediği kıyı şeritlerinin su olup olmadığı netleşmeli (nehir şeridini genişletme denemesi sonuç vermedi).

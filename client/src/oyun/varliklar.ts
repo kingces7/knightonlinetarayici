@@ -218,7 +218,7 @@ export class Canavar extends Varlik {
   /** Sunucu canavarı: yeniden doğdu (aynı kimlikle yeniden göründü). */
   agCanlan(x: number, z: number): void {
     this.konum.set(x, z); this.can = this.enCok; this.durum = 'gez'; this.oluSuresi = 0; this.agHedef = null;
-    this.grup.visible = true; this.model?.oynat('bekle');
+    this.grup.visible = true; this.model?.oynat('bekle', true, 0); // geçişsiz: ölü yatış pozundan "kalkma" görünmesin, canavar doğrudan ayakta belirsin
   }
 
   yenidenDog(): void {

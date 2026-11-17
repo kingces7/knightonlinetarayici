@@ -186,7 +186,7 @@ async function basla(): Promise<void> {
     sunucuOturumu?.gonder(WIZ.DURUM_DEGISTI, oturmaIstegi(otur)); // sunucu oturma sırasında yenilenmeyi hızlandırır
     hud.mesaj(otur ? 'You sit down. Health and mana recover quickly.' : 'You stand up.', 'sistem');
   };
-  const kalk = () => { if (oyuncu.model?.oturuyor) oyuncu.model.oturPozu(false); };
+  const kalk = () => { if (oyuncu.model?.oturuyor) { oyuncu.model.oturPozu(false); sunucuOturumu?.gonder(WIZ.DURUM_DEGISTI, oturmaIstegi(false)); } }; // sunucuya da bildirilir (yenilenme hızı oturma durumuna bağlı)
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
   const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani; // hız buff'ı (Sprint) dahil
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');

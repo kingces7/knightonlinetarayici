@@ -142,7 +142,7 @@ export class OyunArayuzu {
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
-    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14, mesaj: (m) => this.b.mesaj(m), acilirken: (ad) => { if (ad === 're_el_cmdlist') for (const o of ['envanter', 'beceri'] as Ad[]) if (this.acik.has(o)) this.ac(o, false); } });
+    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, mesaj: (m) => this.b.mesaj(m), acilirken: (ad) => { if (ad === 're_el_cmdlist') for (const o of ['envanter', 'beceri'] as Ad[]) if (this.acik.has(o)) this.ac(o, false); } });
     this.genel.davranis.set('re_el_clan_window', (p) => {
       this.sekmeSeridi(p, 'klan');
       // Pencere tasarım örnek verisiyle (Msoft_1098…) geliyor: örnek satırlar ve açılır kutular gizlenir; klan yok (sunucu yok)
@@ -204,7 +204,7 @@ export class OyunArayuzu {
    * ilk yerleşimde varsayılan konuma koyar, yeniden boyutlandırmada konumu ekran içinde tutar.
    */
   private pencereYerlestir(ilk: boolean): void {
-    const altBos = this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14;
+    const altBos = this.gorev.boyut[1] * this.gorevOlcegi() + 14;
     for (const ad of ['durum', 'beceri', 'envanter', 'magaza', 'depo'] as Ad[]) {
       const p = this.pencereler[ad];
       // Pencere kutusundaki saydam boşluklar atılır: yalnızca görünen resim ekrana yaslanır (sinir()).
@@ -265,8 +265,10 @@ export class OyunArayuzu {
     return false;
   }
 
+  /** Alttaki görev çubuğu diğer pencerelerden %25 büyük çizilir (kullanıcı isteği); ekrana sığmazsa küçülür. */
+  private gorevOlcegi(): number { return Math.min(arayuzOlcegi() * 1.25, innerWidth / (this.gorev.boyut[0] + 4)); }
   private gorevYerlestir(): void {
-    const ol = Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4));
+    const ol = this.gorevOlcegi();
     const s = this.gorev.el.style;
     s.transformOrigin = '0 0'; s.transform = `scale(${ol})`;
     // Görev çubuğu ekranın ALT kenarına yapışır: pencere kutusundaki saydam alt boşluk sinir() ile hesaba katılır (resmin alt kenarı = ekran alt kenarı).
@@ -345,7 +347,7 @@ export class OyunArayuzu {
       const ol = arayuzOlcegi(); g.olcekAyarla(ol);
       const p = new THREE.Vector3(k.konum.x, this.b.oyuncu.grup.position.y + 0.4, -k.konum.y).project(this.b.kamera.kamera); // sandık yerde, oyuncuyla yaklaşık aynı yükseklikte
       const sx = (p.x * 0.5 + 0.5) * innerWidth, sy = (-p.y * 0.5 + 0.5) * innerHeight;
-      const w = 55 * ol, sn = g.sinir(), h = (sn[3] - sn[1] || 160) * ol, bos = this.gorev.boyut[1] * Math.min(arayuzOlcegi(), innerWidth / (this.gorev.boyut[0] + 4)) + 14;
+      const w = 55 * ol, sn = g.sinir(), h = (sn[3] - sn[1] || 160) * ol, bos = this.gorev.boyut[1] * this.gorevOlcegi() + 14;
       let sol = sx + 44 * ol; if (sol + w > innerWidth - 8) sol = sx - 44 * ol - w;
       g.el.style.left = `${Math.max(8, sol)}px`;
       g.el.style.top = `${Math.max(8, Math.min(sy - h / 2, innerHeight - bos - h)) - sn[1] * ol}px`;
@@ -529,10 +531,11 @@ export class OyunArayuzu {
         const r = c.el.getBoundingClientRect(); const dx = ev.clientX - r.left, dy = ev.clientY - r.top;
         top.setPointerCapture(ev.pointerId);
         const tasi = (e2: PointerEvent) => { const w = this.cubukKutu(); c.el.style.left = `${Math.max(0, Math.min(innerWidth - w[0], e2.clientX - dx))}px`; c.el.style.top = `${Math.max(0, Math.min(innerHeight - w[1], e2.clientY - dy))}px`; };
-        const bitir = () => { top.removeEventListener('pointermove', tasi); top.removeEventListener('pointerup', bitir); try { localStorage.setItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay', JSON.stringify([parseFloat(c.el.style.left), parseFloat(c.el.style.top)])); } catch { /* depolama kapalı */ } };
+        const bitir = () => { top.removeEventListener('pointermove', tasi); top.removeEventListener('pointerup', bitir); if (this.cubukSolaYakin()) { this.cubukSifirla(); return; } try { localStorage.setItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay', JSON.stringify([parseFloat(c.el.style.left), parseFloat(c.el.style.top)])); } catch { /* depolama kapalı */ } };
         top.addEventListener('pointermove', tasi); top.addEventListener('pointerup', bitir);
       });
     }
+    for (const top of c.bul('btn_change')) top.addEventListener('contextmenu', (ev) => { ev.preventDefault(); this.cubukSifirla(); }); // sağ tık: konumu varsayılana al
     this.cubukKilitGoster();
     this.cubukYonUygula(); this.cubukSayfaDegistir(0);
     try { const k = JSON.parse(localStorage.getItem('ke_skillcubugu') ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
@@ -584,6 +587,17 @@ export class OyunArayuzu {
     return [0, 1, 2, 3, 4, 5, 6, 7].flatMap((i) => [...yuva(String(10 + i)), ...yuva(String(i))]);
   }
   private cubukSira(alan: HTMLElement): number { const n = Number(alan.dataset.id); return n >= 10 ? n - 10 : n; }
+  /** Çubuk ekranın sol kenarına (dikey) ya da varsayılan yerine (yatay) 60 px'ten yakın bırakıldı mı? Öyleyse varsayılana yapışır. */
+  private cubukSolaYakin(): boolean {
+    const x = parseFloat(this.cubuk.el.style.left) || 0, y = parseFloat(this.cubuk.el.style.top) || 0;
+    if (this.cubukDikey) return x + this.cubuk.sinir()[0] * this.cubuk.olcek < 60;
+    return y > innerHeight - 160 * this.cubuk.olcek && Math.abs(x + 178 * this.cubuk.olcek - innerWidth / 2) < 120; // yatay: görev çubuğunun üstünde, ortada
+  }
+  /** Kayıtlı konumu siler, çubuğu varsayılan yerine (dikey: ekranın soluna yapışık) koyar. */
+  private cubukSifirla(): void {
+    for (const k of ['ke_skillcubugu_konum_dikey', 'ke_skillcubugu_konum_yatay']) { try { localStorage.removeItem(k); } catch { /* depolama kapalı */ } }
+    this.gorevYerlestir(); this.b.mesaj('Skill bar position was reset.');
+  }
   private cubukYonUygula(): void {
     this.cubuk.goster('Hotkey_vertical', this.cubukDikey); this.cubuk.goster('Hotkey_Horizontal', !this.cubukDikey);
     this.cubuk.el.style.height = this.cubukDikey ? '402px' : '70px';
