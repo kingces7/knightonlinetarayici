@@ -28,6 +28,9 @@ export const sinifAdi = (no: number): string => SINIF_ADI[no] ?? `Class ${no}`;
 
 const SAHNE_GENISLIK = 1024, SAHNE_YUKSEKLIK = 768;
 const KAYIT_HESAP = 'ke_giris_hesap';
+/** Kayıtlı şifre (yalnızca bu tarayıcının localStorage'ı; "Remember" açıkken): F5 ile otomatik giriş için. Silmek için adrese ?unut=1 eklenir. */
+const KAYIT_SIFRE = 'ke_giris_sifre';
+const oku = (k: string): string => { try { return localStorage.getItem(k) ?? ''; } catch { return ''; } };
 
 export class GirisEkrani {
   private katman = document.createElement('div');
@@ -39,6 +42,8 @@ export class GirisEkrani {
   private sifreKutusu!: HTMLInputElement;
   private hatirla = true;
   private mesgul = false;
+  /** Kayıtlı hesapla otomatik girişte karakter seçimi de atlanır (tek karakter varsa doğrudan oyuna girilir). */
+  private otomatik = false;
   private cevrimdisiEl: HTMLElement | null = null;
   private yenidenBoyutla = () => this.yerlestir();
 
@@ -61,6 +66,10 @@ export class GirisEkrani {
     addEventListener('resize', this.yenidenBoyutla);
     this.yerlestir();
     this.idKutusu.focus();
+    if (new URLSearchParams(location.search).has('unut')) { try { localStorage.removeItem(KAYIT_SIFRE); } catch { /* depolama kapalı */ } this.durum('Saved login was removed.'); }
+    else if (this.idKutusu.value && oku(KAYIT_SIFRE)) { // kayıtlı hesap ve şifre varsa F5 yeterli: otomatik giriş
+      this.sifreKutusu.value = atob(oku(KAYIT_SIFRE)); this.otomatik = true; setTimeout(() => void this.girisYap(), 150);
+    }
     return true;
   }
 
@@ -121,10 +130,10 @@ export class GirisEkrani {
     this.mesgul = true; this.idKutusu.disabled = this.sifreKutusu.disabled = true; this.durum('Connecting…');
     try {
       await this.b.baglan(hesap, sifre, (k, a) => this.karakterSec(k, a));
-      try { if (this.hatirla) localStorage.setItem(KAYIT_HESAP, hesap); else localStorage.removeItem(KAYIT_HESAP); } catch { /* depolama kapalı */ }
+      try { if (this.hatirla) { localStorage.setItem(KAYIT_HESAP, hesap); localStorage.setItem(KAYIT_SIFRE, btoa(sifre)); } else { localStorage.removeItem(KAYIT_HESAP); localStorage.removeItem(KAYIT_SIFRE); } } catch { /* depolama kapalı */ }
       this.kapat();
     } catch (e) {
-      this.girisGoster();
+      this.girisGoster(); this.otomatik = false;
       if (!(e instanceof GirisIptal)) this.durum((e as Error).message || 'Connection failed.');
       else this.durum('');
       this.sifreKutusu.value = ''; this.sifreKutusu.focus();
@@ -184,6 +193,7 @@ export class GirisEkrani {
       this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright'); if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = 'none';
       this.durum(''); goster();
       p.el.style.display = '';
+      if (this.otomatik && dolu.length === 1) { this.durum('Entering the game…'); coz(dolu[0].ad); return; } // F5 otomatik giriş: tek karakter doğrudan oyuna girer
       if (!dolu.length) void olustur(); // boş hesap: doğrudan karakter oluşturma ekranı
     });
   }
