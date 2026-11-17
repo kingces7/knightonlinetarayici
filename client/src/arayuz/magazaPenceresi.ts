@@ -16,7 +16,6 @@ function sprite(el: HTMLElement, doku: string, uv: [number, number, number, numb
   const rw = (uv[2] - uv[0]) * 512, rh = (uv[3] - uv[1]) * 512;
   Object.assign(el.style, { backgroundImage: `url(/arayuz/doku/${doku}.png)`, backgroundRepeat: 'no-repeat', backgroundSize: `${(512 * w) / rw}px ${(512 * h) / rh}px`, backgroundPosition: `${-(uv[0] * 512 * w) / rw}px ${-(uv[1] * 512 * h) / rh}px` });
 }
-const UV_PANEL: [number, number, number, number] = [0.005859375, 0.26171875, 0.708984375, 0.6640625]; // Transaction penceresinin koyu ızgara zemini
 const UV_DUGME: [number, number, number, number] = [0.71484375, 0.005859375, 0.85546875, 0.052734375]; // oyunun düğme dokusu
 const UV_KUTU: [number, number, number, number] = [0.5078125, 0.861328125, 0.8203125, 0.90625]; // altın çubuğu (sayı kutusu)
 
@@ -120,7 +119,7 @@ export class MagazaPenceresi {
     this.soruKapat(); this.k.ipucuGizle();
     const kutu = document.createElement('div'); this.soru = kutu;
     Object.assign(kutu.style, { position: 'absolute', left: '42px', top: '140px', width: '280px', height: '150px', zIndex: '20', boxSizing: 'border-box', border: '2px solid #8f6128', boxShadow: '0 0 0 1px #000, 0 6px 18px #000c', font: '12px Verdana, "Segoe UI", sans-serif', color: '#fff', textAlign: 'center' });
-    sprite(kutu, 'ui_marketing', UV_PANEL, 276, 146);
+    kutu.style.backgroundColor = 'rgba(22, 17, 12, .96)'; // envanter penceresinin koyu kahverengi zemin rengi (çizgisiz, arkadaki simgeler görünmesin)
     const yazi = (t: string, stil: Partial<CSSStyleDeclaration>) => { const x = document.createElement('div'); x.textContent = t; Object.assign(x.style, { position: 'absolute', left: '0', right: '0', ...stil }); return x; };
     const ad = yazi(e.ad, { top: '10px', fontWeight: '700', color: '#ffe9a8', fontSize: '13px', textShadow: '0 1px 2px #000' });
     const alt = yazi(soru, { top: '30px', color: '#ffffff' });
