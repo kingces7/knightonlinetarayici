@@ -48,6 +48,9 @@ export class MagazaPenceresi {
     for (const t of p.bul('text_title')) Object.assign(t.style, { fontSize: '17px', fontWeight: '700', color: '#ffe9a8', textShadow: '0 1px 3px #000' });
     // Sepet bölümünün etrafındaki mavi ve sarı çerçeve çizgileri (ince kenar resimleri) kaldırılır
     for (const tab of [this.tabAl, this.tabSat]) tab.querySelectorAll<HTMLElement>(':scope > .ui-t4').forEach((r) => { const w = parseFloat(r.style.width), h = parseFloat(r.style.height); if (w <= 4 || h <= 4) r.style.display = 'none'; });
+    // Arka plan: üst bölümün siyah panelleri envanterin yarı saydam zemini gibi görünsün (şeffaflık)
+    p.el.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 40 && parseFloat(r.style.height) >= 30 && r.style.backgroundImage.includes('person')) r.style.opacity = '0.55'; });
+    for (const tab of [this.tabAl, this.tabSat]) tab.querySelectorAll<HTMLElement>('.ui-t4').forEach((r) => { if (parseFloat(r.style.width) >= 300 && parseFloat(r.style.height) >= 30) r.style.opacity = '0.55'; }); // sepet bölümünün zemini de aynı şekilde
     // Düğme yazıları durum resimlerinin ÜSTÜNDE görünsün
     for (const el of p.tumDugmeler()) el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { y.style.zIndex = '3'; y.style.pointerEvents = 'none'; });
     // Düğmeler
