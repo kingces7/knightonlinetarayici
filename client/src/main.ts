@@ -312,6 +312,7 @@ async function basla(): Promise<void> {
   };
 
   let esyaCikar: (p: number) => void = () => {};
+  let eliHazirla: (e: EsyaTanimi, p: number) => boolean = () => true;
   // Orijinal arayüz (oyunun kendi UIF pencereleri); yüklenemezse eski basit arayüz kalır.
   let arayuz: OyunArayuzu | null = null;
   try {
@@ -328,6 +329,7 @@ async function basla(): Promise<void> {
       }, sohbetGonder: (mod, m) => sohbetGonder(mod, m),
       esyaTasi: (k, h) => {
         const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i];
+        if (e && k.tur === 'c' && h.tur === 'e' && Oyuncu.uygunYuvalar(e).includes(h.i) && !eliHazirla(e, h.i)) return; // iki elli silah: öbür el önce boşaltılır
         if (sunucuOturumu) { // sunucu modu: mesaj sunucu onayından sonra
           const ms = e && h.tur === 'e' ? `You equipped ${e.ad}.` : e && k.tur === 'e' ? `You unequipped ${e.ad}.` : undefined;
           if (!sunucuTasi(k, h, ms) && e) hud.mesaj('You cannot move the item there.', 'sistem'); else envanterYenile();
@@ -418,13 +420,24 @@ async function basla(): Promise<void> {
     if (b.k.tur === 'c') oyuncu.envanter[b.k.i] = null; else oyuncu.ekipman[b.k.i] = null;
     hud.mesaj(`You destroyed ${b.e.ad}.`, 'sistem'); envanterYenile();
   };
+  /** İki elli silah (ya da öbür elde iki elli silah varken tek elli) giyilirken öbür eldeki eşya önce çantaya alınır; çanta doluysa false. */
+  eliHazirla = (e: EsyaTanimi, p: number): boolean => {
+    if ((p !== 6 && p !== 8) || !oyuncu.elCakismasi(e, p)) return true;
+    const diger = p === 6 ? 8 : 6, o = oyuncu.ekipman[diger]; if (!o) return true;
+    const f = oyuncu.envanter.indexOf(null); if (f < 0) { hud.mesaj('Your inventory is full.', 'sistem'); return false; }
+    if (sunucuOturumu) return sunucuTasi({ tur: 'e', i: diger }, { tur: 'c', i: f }, `You unequipped ${o.ad}.`);
+    if (!oyuncu.esyaTasi({ tur: 'e', i: diger }, { tur: 'c', i: f })) return false;
+    hud.mesaj(`You unequipped ${o.ad}.`, 'sistem'); return true;
+  };
   hud.esyaKusan = (i) => {
     if (sunucuOturumu) { // sunucu modu
       const e = oyuncu.envanter[i]; if (!e) return;
       const p = Oyuncu.ekipmanYuvasi(e); if (p < 0) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
+      if (!eliHazirla(e, p)) return;
       if (sunucuTasi({ tur: 'c', i }, { tur: 'e', i: p }, `You equipped ${e.ad}.`)) envanterYenile();
       return;
     }
+    { const a = oyuncu.envanter[i]; if (a) { const p = Oyuncu.ekipmanYuvasi(a); if (p >= 0 && !eliHazirla(a, a.yuva === 0 ? 6 : p)) return; } }
     const e = oyuncu.esyaKusan(i);
     if (!e) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
     hud.mesaj(`You equipped ${e.ad}.`, 'sistem');
