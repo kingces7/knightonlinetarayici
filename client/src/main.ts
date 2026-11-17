@@ -108,6 +108,7 @@ async function basla(): Promise<void> {
     hud.mesaj(`You invited ${secilenOyuncu.ad} to a party.`, 'sistem');
     partidayiz = true;
   };
+  let sonCanIstegi = 0;
   let sonIstenenHedef: Canavar | null = null; // sunucudan can bilgisi istenen son hedef
   let hareketGonderici: HareketGonderici | null = null; // sunucu bağlıyken oyuncu hareketini bildirir
   oyuncu.kurallariUygula();
@@ -566,7 +567,7 @@ async function basla(): Promise<void> {
       if (v.hedef.olu || oyuncu.olu) continue;
       if (v.hedefEfekt) void efektler.oynat(v.hedefEfekt, v.hedef.grup, { sure: 0.15, azamiSure: 0.25 }); // vuruş efekti hedefte
       if (v.hedef.agModu) { // sunucu canavarı: isabeti ve hasarı sunucu belirler, biz yalnızca saldırı isteriz
-        if (sunucuOturumu && !v.beceri) sunucuOturumu.gonder(WIZ.SALDIRI, saldiriIstegi(v.hedef.agKimlik, (oyuncu.silah?.gecikme ?? 100) + 10, 10));
+        if (sunucuOturumu && !v.beceri) { sunucuOturumu.gonder(WIZ.SALDIRI, saldiriIstegi(v.hedef.agKimlik, (oyuncu.silah?.gecikme ?? 100) + 10, 10)); sunucuOturumu.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(v.hedef.agKimlik)); } // vuruştan hemen sonra hedefin canı istenir: can çubuğu güncellensin
         continue;
       }
       let hasar: number;
@@ -638,6 +639,8 @@ async function basla(): Promise<void> {
   cizici.setAnimationLoop(() => {
     const dt = Math.min(saat.getDelta(), 0.1);
     oyuncuGuncelle(dt);
+    // Orijinal (PACKET_INTERVAL_REQUEST_TARGET_HP = 2 sn): seçili sunucu canavarının canı 2 sn'de bir yeniden istenir.
+    if (sunucuOturumu && oyuncu.hedef?.agModu && simdiSn() - sonCanIstegi > 2) { sonCanIstegi = simdiSn(); sunucuOturumu.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(oyuncu.hedef.agKimlik)); }
     if (sunucuOturumu && oyuncu.hedef?.agModu && oyuncu.hedef !== sonIstenenHedef) { sonIstenenHedef = oyuncu.hedef; sunucuOturumu.gonder(WIZ.HEDEF_CAN, hedefCanIstegi(oyuncu.hedef.agKimlik)); }
     if (hareketGonderici && !oyuncu.olu) hareketGonderici.guncelle(oyuncu.konum.x, oyuncu.konum.y, oyuncu.yuksek ?? 0, dt);
     yonetici?.guncelle(dt);
