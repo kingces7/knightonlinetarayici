@@ -85,6 +85,8 @@ const GOREV_PENCERELERI: Record<string, string> = {
 /** Sohbette sistem iletilerinin rengi (oyundaki ### ... ### satırları sarı). */
 /** Bilgi penceresi arka planı sohbet penceresiyle aynı saydamlıkta. */
 const ARKA_PLAN_SAYDAMLIK = 0.55;
+/** Oyundaki skill'lerin en yüksek seviyesi (temel sayfada seviye, ağaçlarda ağaç puanı): 70. */
+export const BECERI_EN_YUKSEK = 70;
 const SISTEM_SARI = '#e8e84a';
 const ESYA_SIMGE = '142.22% 142.22%';
 type Ad = 'durum' | 'beceri' | 'envanter' | 'magaza' | 'depo';
@@ -154,7 +156,7 @@ export class OyunArayuzu {
       UiPencere.yukle('el_chat_us'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
-    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.tumBeceriler = Array.isArray(bec) ? bec : []; this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === 2010);
+    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.tumBeceriler = Array.isArray(bec) ? bec.filter((b: Beceri) => b.seviye <= BECERI_EN_YUKSEK) : []; // oyunda skill'ler en çok 70'e kadar; üstündekiler kullanım dışı (veritabanında durur, gösterilmez) this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === 2010);
     this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
@@ -1216,6 +1218,8 @@ export class OyunArayuzu {
     }
     for (const m of ['Master']) p.gizleMetin(m);
     for (let i = 0; i < 8; i++) if (!p.alan(String(i))) { this.beceriYuvaSayisi = i; break; }
+    // Fare tekerleği (Mouse3 topu): aşağı çevirince sonraki, yukarı çevirince önceki skill sayfası
+    p.el.addEventListener('wheel', (ev) => { ev.preventDefault(); ev.stopPropagation(); const yon = ev.deltaY > 0 ? 1 : ev.deltaY < 0 ? -1 : 0; if (!yon) return; const once = this.beceriSayfa; this.beceriSayfa += yon; this.beceriListesiniYenile(); if (this.beceriSayfa !== once) this.beceriCiz(); }, { passive: false });
     p.tikla.set('btn_right', () => { this.beceriSayfa++; this.beceriListesiniYenile(); this.beceriCiz(); });
     p.tikla.set('btn_left', () => { this.beceriSayfa--; this.beceriListesiniYenile(); this.beceriCiz(); });
     for (let i = 0; i < 8; i++) {

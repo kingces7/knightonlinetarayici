@@ -299,6 +299,7 @@ async function basla(): Promise<void> {
     if (!v && !oyuncu.olu) { hud.mesaj("This skill is not available on the server yet.", "sistem"); return; } // ör. Magic blade: sunucu veritabanında tanımı yok
     if (!v || oyuncu.olu) return;
     if (oyuncu.blinkli) { hud.mesaj('You cannot use skills while blinking.', 'sistem'); return; } // sunucu: m_bCanUseSkills = false (10 sn)
+    if (v.seviye > 70) { hud.mesaj(`${v.ad} is not available.`, 'sistem'); return; } // oyunda skill'ler 70'e kadar
     const agac = (v.sayfa ?? 0) % 10; // terfi ağaçlarında (5–8) gereken, karakter seviyesi değil o ağaca verilen skill puanıdır
     if (agac >= 5 && agac <= 8 ? oyuncu.skillPuanlari[agac] < v.seviye : oyuncu.seviye < v.seviye) { hud.mesaj(agac >= 5 && agac <= 8 ? `${v.ad} requires ${v.seviye} skill points in this tree.` : `${v.ad} requires level ${v.seviye}.`, 'sistem'); return; }
     const hazir = oyuncu.beceriBekleme.get(no) ?? 0;
