@@ -25,6 +25,8 @@ function uzaktaSol(m: THREE.Material): void {
 const SU_TASMA = 0.25, SU_EN_COK_YAN = 34, SU_ADIM = 1.5;
 /** Nehir yüzeyi bu kadar (m) yükseltilir: kıyı şeritleri ıslak kıyı olarak sular altında kalır (kullanıcı isteği: oradaki su artmalı). */
 const SU_YUKSELME = 0.7;
+/** Su yüzeyinin altında arazi bundan (m) daha derindeyse orası nehir yatağı değildir, genişleme durur. */
+const SU_EN_DERIN = 2.2;
 function vadiyeGenislet(k: number[][], arazi: (x: number, z: number) => number): number[][] {
   const satir = k.length / 4, sol: number[] = [], sag: number[] = [], yon: number[][] = [], orta: number[][] = [];
   for (let s = 0; s < satir; s++) {
@@ -32,7 +34,7 @@ function vadiyeGenislet(k: number[][], arazi: (x: number, z: number) => number):
     const dx = b[0] - a[0], dz = b[2] - a[2], uz = Math.hypot(dx, dz) || 1, nx = dx / uz, nz = dz / uz;
     const cx = (k[s * 4 + 1][0] + k[s * 4 + 2][0]) / 2, cz = (k[s * 4 + 1][2] + k[s * 4 + 2][2]) / 2, y = k[s * 4 + 1][1] + SU_YUKSELME;
     yon.push([nx, nz]); orta.push([cx, cz, uz / 2]);
-    const tara = (isaret: number): number => { let t = uz / 2; while (t < SU_EN_COK_YAN && arazi(cx + isaret * nx * (t + SU_ADIM), cz + isaret * nz * (t + SU_ADIM)) < y + SU_TASMA) t += SU_ADIM; return t; };
+    const tara = (isaret: number): number => { let t = uz / 2; for (; t < SU_EN_COK_YAN; t += SU_ADIM) { const h = arazi(cx + isaret * nx * (t + SU_ADIM), cz + isaret * nz * (t + SU_ADIM)); if (h >= y + SU_TASMA || h < y - SU_EN_DERIN) break; } return t; }; // durur: arazi sudan yüksekse (kıyı) ya da çok aşağıdaysa (uçurum: su havada asılı kalırdı)
     sol.push(Math.max(uz / 2, tara(-1))); sag.push(Math.max(uz / 2, tara(1)));
   }
   const yumusat = (v: number[]) => v.map((_, i) => { let t = 0, n = 0; for (let j = Math.max(0, i - 2); j <= Math.min(v.length - 1, i + 2); j++) { t += v[j]; n++; } return Math.max(v[i], t / n); });
@@ -64,8 +66,8 @@ export class Su {
     const doku = (yol: string): THREE.Texture => { const t = yukleyici.load(`${klasor}/${yol}`); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; return t; };
     const dalga = doku(v.dalga);
     const kostikler = Array.from({ length: v.kostik }, (_, i) => doku(`su/caust${String(i).padStart(2, '0')}.png`));
-    const taban = new THREE.MeshBasicMaterial({ map: dalga, color: 0x8fb4c8, vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
-    const kostikM = new THREE.MeshBasicMaterial({ map: kostikler[0] ?? null, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
+    const taban = new THREE.MeshBasicMaterial({ map: dalga, color: 0x8fb4c8, vertexColors: true, transparent: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: false });
+    const kostikM = new THREE.MeshBasicMaterial({ map: kostikler[0] ?? null, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, polygonOffset: false });
     uzaktaSol(kostikM); // yalnız toplamalı kostik katmanı uzakta solar; ana su sönmez (uzaktaki su sisle karışır: sis rengi + 150-600 m)
     const grup = new THREE.Group(); grup.name = 'su';
     for (const r0 of v.nehirler) {
@@ -77,6 +79,15 @@ export class Su {
         r = { ...r, ind };
         const ys = r.k.map((q) => q[1]); // düz (tüm köşeler aynı yükseklikte) şerit = şehir hendeği: plaza sulanmasın diye olduğu gibi kalır
         if (arazi && Math.max(...ys) - Math.min(...ys) > 0.5) { r = { ...r, k: vadiyeGenislet(r.k, arazi) }; genisletildi = true; }
+      }
+      if (arazi && r.tur === 'serit') { // tüm nehir şeritleri (geniş ya da düz): üç köşesi de arazinin SU_EN_DERIN+0,5 m'den fazla üstündeyse üçgen havada asılıdır (uçurum üstü levha), atılır
+        const ind: number[] = [];
+        for (let i = 0; i + 2 < r.ind.length; i += 3) {
+          let enAlt = Infinity;
+          for (let j = 0; j < 3; j++) { const k = r.k[r.ind[i + j]]; enAlt = Math.min(enAlt, k[1] - arazi(k[0], k[2])); }
+          if (enAlt <= SU_EN_DERIN + 0.5) ind.push(r.ind[i], r.ind[i + 1], r.ind[i + 2]);
+        }
+        r = { ...r, ind }; if (!ind.length) continue;
       }
       if (arazi && !genisletildi) { // her üçgende en az bir köşe arazinin altında değilse (kıyı/yatak sınırı yok) üçgen atılır
         const ind: number[] = [];
@@ -96,7 +107,9 @@ export class Su {
       g1.setIndex(r.ind);
       const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', g1.getAttribute('position')); g2.setAttribute('uv', new THREE.BufferAttribute(uv2, 2)); g2.setIndex(r.ind);
       const m1 = new THREE.Mesh(g1, taban), m2 = new THREE.Mesh(g2, kostikM);
-      m1.frustumCulled = m2.frustumCulled = false; m1.renderOrder = 3; m2.renderOrder = 4;
+      // Derinlik kaydırması (polygonOffset) uzakta metrelerce kayıyordu: uzaktaki su ağaçların/nesnelerin ÖNÜNE çiziliyordu. Yerine küçük gerçek yükseklik farkı.
+      m1.position.y = 0.03; m2.position.y = 0.07;
+      m1.frustumCulled = m2.frustumCulled = false; m1.renderOrder = -5; m2.renderOrder = -4; // şeffaf nesneler arasında en önce: ağaç yaprakları (derinlik yazmayan alfa karışımı) suyun ÜSTÜNE çizilir
       grup.add(m1, m2);
     }
     sahne.add(grup);
