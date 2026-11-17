@@ -333,9 +333,8 @@ export class OyunArayuzu {
     g.el.addEventListener('click', (ev) => {
       const el = (ev.target as HTMLElement).closest('.ui-t9') as HTMLElement | null; const k = this.ganimetKutusu; if (!el || !k) return;
       const i = Number(el.dataset.id);
-      const kay = k.altinYuvasi ? 1 : 0;
-      if (k.altinYuvasi && i === 0) { if (k.altin > 0) this.b.ganimetAl(k, 'altin'); }
-      else if (k.esyalar[i - kay]) this.b.ganimetAl(k, i - kay);
+      if (i === k.altinSatiri) { if (k.altin > 0) this.b.ganimetAl(k, 'altin'); }
+      else { const j = k.yerler.indexOf(i); if (j >= 0 && k.esyalar[j]) this.b.ganimetAl(k, j); } // satır sabit: eşya kendi satırından alınır
     });
     // Sandık değişince (açılış/kapanış/eşya alma) hud bu kancayı çağırır.
     this.ganimetPencere.el.dataset.hazir = '1';
@@ -360,14 +359,14 @@ export class OyunArayuzu {
   private ganimetCiz(): void {
     const k = this.ganimetKutusu; if (!k) return;
     const g = this.ganimetPencere;
-    const imza = `${k.altin}|${k.esyalar.map((e) => `${e.no}x${e.adet ?? 1}`).join(',')}`;
+    const imza = `${k.altin}|${k.altinSatiri}|${k.esyalar.map((e, j) => `${e.no}x${e.adet ?? 1}@${k.yerler[j]}`).join(',')}`;
     if (imza === this.ganimetImza) return;
     this.ganimetImza = imza;
-    const altinVar = k.altinYuvasi, altinKaldi = k.altin > 0;
+    const altinKaldi = k.altin > 0;
     for (let i = 0; i < 4; i++) {
       const alan = g.alan(String(i)); if (!alan) continue;
-      const e = altinVar ? (i === 0 ? null : k.esyalar[i - 1]) : k.esyalar[i];
-      const noah = altinVar && i === 0 && altinKaldi;
+      const j = k.yerler.indexOf(i), e = i === k.altinSatiri || j < 0 ? null : k.esyalar[j];
+      const noah = i === k.altinSatiri && altinKaldi;
       alan.style.backgroundImage = noah ? 'url(/esya/noah.png)' : e?.simge ? `url(${e.simge})` : ''; // Noah simgesi oyunun eşya tablosundan (Coin, 90001000) alan.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       alan.style.backgroundSize = ESYA_SIMGE; alan.style.backgroundPosition = '0 0';
       alan.style.cursor = noah || e ? 'pointer' : 'default';

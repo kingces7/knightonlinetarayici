@@ -579,6 +579,8 @@ export class GanimetKutusu {
   agTorba = 0; agYuvalar: { yuva: number; no: number }[] = []; agAltinYuva = -1; icerikGeldi = true;
   /** Kutuda başlangıçta Noah vardıysa ilk yuva Noah'a ayrılır; Noah alınınca öbür eşyalar yukarı kaymaz. */
   altinYuvasi: boolean;
+  /** Pencere satırları SABİTTİR: her eşyanın satırı (esyalar ile aynı sırada) ve Noah'ın satırı (-1 = yok). Biri alınınca diğerleri yerinde kalır. */
+  yerler: number[] = []; altinSatiri = -1;
   readonly secimKutusu: THREE.Mesh;
   private zaman = 0;
 
@@ -591,6 +593,7 @@ export class GanimetKutusu {
   constructor(x: number, z: number, altin: number, esyalar: EsyaTanimi[]) {
     this.konum = new THREE.Vector2(x, z);
     this.altin = altin; this.esyalar = esyalar; this.altinYuvasi = altin > 0;
+    this.altinSatiri = altin > 0 ? 0 : -1; this.yerler = esyalar.map((_, i) => i + (altin > 0 ? 1 : 0)); // yerel kutu: satırlar baştan sabitlenir
     if (GanimetKutusu.model) {
       const m = GanimetKutusu.model.clone(true);
       m.traverse((o) => { const me = o as THREE.Mesh; if (me.isMesh) { const mat = (me.material as THREE.MeshStandardMaterial).clone(); mat.emissive = new THREE.Color(0x553300); mat.emissiveMap = mat.map; mat.emissiveIntensity = 0.6; me.material = mat; } });

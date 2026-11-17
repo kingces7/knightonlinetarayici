@@ -468,6 +468,7 @@ async function basla(): Promise<void> {
       k.esyalar.push(t.sayilabilir ? { ...t, adet: y.adet } : { ...t }); k.agYuvalar.push({ yuva: y.yuva, no: y.no });
     }
     k.altinYuvasi = k.altin > 0; k.icerikGeldi = true;
+    k.altinSatiri = k.agAltinYuva; k.yerler = k.agYuvalar.map((y) => y.yuva); // pencere satırı = sunucudaki kutu yuvası (alınan eşya diğerlerini kaydırmaz)
     if (!ic.dolu || k.bos) k.omur = 0;
   };
   const almaCevabiSunucudan = (a: AlmaCevabi) => {
@@ -479,7 +480,7 @@ async function basla(): Promise<void> {
       const t = esyaBulSunucu(a.no);
       if (a.cantaYuvasi !== undefined && a.cantaYuvasi >= 0) oyuncu.envanter[a.cantaYuvasi] = t.sayilabilir ? { ...t, adet: a.adet } : { ...t }; // sunucunun yuvası ve (yığınlıysa) toplam adedi
       hud.mesaj(`You obtained ${t.ad}.`, 'odul');
-      if (k) { const i = k.agYuvalar.findIndex((y) => y.yuva === a.kutuYuvasi); if (i >= 0) { k.esyalar.splice(i, 1); k.agYuvalar.splice(i, 1); } }
+      if (k) { const i = k.agYuvalar.findIndex((y) => y.yuva === a.kutuYuvasi); if (i >= 0) { k.esyalar.splice(i, 1); k.agYuvalar.splice(i, 1); k.yerler.splice(i, 1); } }
     }
     envanterYenile();
     if (k) { if (k.bos) { k.omur = 0; hud.ganimetAc(null); } else hud.ganimetAc(k); }
@@ -489,7 +490,7 @@ async function basla(): Promise<void> {
     const al = (i: number): boolean => {
       const e = k.esyalar[i];
       if (!oyuncu.esyaEkle(e)) { hud.mesaj('Your inventory is full.', 'sistem'); return false; }
-      hud.mesaj(`You obtained ${e.ad}.`, 'odul'); k.esyalar.splice(i, 1); return true;
+      hud.mesaj(`You obtained ${e.ad}.`, 'odul'); k.esyalar.splice(i, 1); k.yerler.splice(i, 1); return true;
     };
     if (secim === 'altin' || secim === 'hepsi') {
       if (k.altin > 0) { oyuncu.altin += k.altin; hud.mesaj(`You obtained ${k.altin} Noah.`, 'odul'); k.altin = 0; }
