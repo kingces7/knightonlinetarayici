@@ -12,8 +12,8 @@ import { tbldenOku } from '../tbl/tablo.ts';
 import { dxtOku, rgbayaCevir } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
 
-/** Oyunda şimdilik tek sınıf: El Morad Savaşçı → temel skill sayfası 2010. */
-const SAYFA = 2010;
+/** Dört sınıfın temel skill sayfaları: El Morad Warrior/Rogue/Mage/Priest = 2010/2020/2030/2040, Karus = 1010–1040. */
+const SAYFALAR = [2010, 2020, 2030, 2040, 1010, 1020, 1030, 1040];
 
 export function simgeAdaylari(simgeNo: number, sayfa: number): string[] {
   const nn = String(simgeNo % 100).padStart(2, '0');
@@ -27,7 +27,8 @@ function main(): number {
   fs.mkdirSync(path.join(hedef, 'ikon'), { recursive: true });
   const liste: Record<string, unknown>[] = [];
   for (const s of satirlar) {
-    if (Number(s[16]) !== SAYFA || Number(s[15]) <= 0) continue; // seviye 0 = etkinlik skilleri
+    const SAYFA = Number(s[16]);
+    if (!SAYFALAR.includes(SAYFA) || Number(s[15]) <= 0) continue; // seviye 0 = etkinlik skilleri
     const no = Number(s[0]);
     let simge: string | null = null;
     const simgeNo = Number(s[32]) > 0 ? Number(s[32]) : no;
@@ -42,9 +43,9 @@ function main(): number {
     const ad = String(s[2] || s[1]).trim();
     liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[4]), efektKendi: Number(s[7]) || null, efektHedef: Number(s[12]) || null, efektUcan: Number(s[11]) || null, simge });
   }
-  liste.sort((a, b) => Number(a.sira) - Number(b.sira) || Number(a.no) - Number(b.no));
+  liste.sort((a, b) => Number(a.sayfa) - Number(b.sayfa) || Number(a.sira) - Number(b.sira) || Number(a.no) - Number(b.no));
   fs.writeFileSync(path.join(hedef, 'beceriler.json'), JSON.stringify(liste, null, 1));
-  console.log(`${liste.length} skill (sayfa ${SAYFA}) -> ${hedef}`);
+  console.log(`${liste.length} skill (sayfalar ${SAYFALAR.join(', ')}) -> ${hedef}`);
   for (const b of liste) console.log(`  ${b.no} ${b.ad} · sv.${b.seviye} · MP ${b.msp} · ${b.simge ?? 'simge yok'}`);
   od.kapat();
   return 0;

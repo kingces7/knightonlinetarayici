@@ -2,7 +2,7 @@
 #   - LEVEL_UP: seviye basina gereken deneyim (yeniden dogus 0)
 #   - COEFFICIENT: sinif katsayilari (can/mana ve vurus formulleri; sunucu kaynagi: UserHealtMagicSpSystem.cpp, UserAbilityHandler.cpp)
 #   - DAMAGE_SETTINGS: hasar carpanlari (Unit.cpp CUser::GetDamage)
-#   - MAGIC + MAGIC_TYPE1/4: El Morad Savasci temel skill sayfasi (2010) skill kurallari (MagicInstance.cpp ExecuteType1/ExecuteType4)
+#   - MAGIC + MAGIC_TYPE1/4: dort sinifin temel skill sayfalari (Karus 1010-1040, El Morad 2010-2040) skill kurallari (MagicInstance.cpp ExecuteType1/ExecuteType4)
 #   - K_MONSTER: Moradon (bolge 21) canavarlarinin gercek degerleri (K_NPCPOS1098 ile eslesen)
 # Kullanim (araclar klasorunde):  powershell -File sunucu\oyuncu-disa-aktar.ps1
 # Cikti: ..\donusturulmus\web\oyun\oyuncu.json
@@ -22,9 +22,10 @@ $ds = @(Sorgu 'SELECT TOP 1 mondef, montakedamage, rdamage FROM DAMAGE_SETTINGS'
 $hasarAyar = @{ mondef = [double]$ds.mondef; canavarHasarCarpani = [double]$ds.montakedamage; rdamage = [double]$ds.rdamage }
 $canavar = @(Sorgu 'SELECT m.sSid,m.strName,m.sPid,m.sSize,m.sLevel,m.iHpPoint,m.sAc,m.sHitRate,m.sEvadeRate,m.sDamage,m.sAttackDelay,m.bySpeed1,m.bySpeed2,m.bySearchRange,m.byTracingRange,m.iExp,m.iMoney,SUM(p.NumNPC) AS adet FROM K_NPCPOS1098 p JOIN K_MONSTER m ON m.sSid=p.NpcID WHERE p.ZoneID=21 GROUP BY m.sSid,m.strName,m.sPid,m.sSize,m.sLevel,m.iHpPoint,m.sAc,m.sHitRate,m.sEvadeRate,m.sDamage,m.sAttackDelay,m.bySpeed1,m.bySpeed2,m.bySearchRange,m.byTracingRange,m.iExp,m.iMoney ORDER BY m.sLevel,m.sSid' | % { @{ sid = [int]$_.sSid; ad = [string]$_.strName; model = [int]$_.sPid; boyut = [int]$_.sSize; seviye = [int]$_.sLevel; hp = [int]$_.iHpPoint; ac = [int]$_.sAc; isabet = [int]$_.sHitRate; kacis = [int]$_.sEvadeRate; hasar = [int]$_.sDamage; gecikme = [int]$_.sAttackDelay; hizGez = [int]$_.bySpeed1; hizKovala = [int]$_.bySpeed2; arama = [int]$_.bySearchRange; izleme = [int]$_.byTracingRange; exp = [int]$_.iExp; para = [int]$_.iMoney; adet = [int]$_.adet } })
 $beceri = @{}
-foreach ($m in (Sorgu 'SELECT MagicNum, EnName, Msp, ReCastTime, CastTime, Type1, Type2, SkillLevel, Moral FROM MAGIC WHERE Skill = 2010 AND SkillLevel > 0')) {
+# Dört sınıfın (Warrior/Rogue/Mage/Priest) temel skill sayfaları: El Morad 2010-2040, Karus 1010-1040
+foreach ($m in (Sorgu 'SELECT MagicNum, EnName, Msp, ReCastTime, CastTime, Type1, Type2, SkillLevel, Moral, Range, Skill, UseStanding FROM MAGIC WHERE Skill IN (1010,1020,1030,1040,2010,2020,2030,2040) AND SkillLevel > 0')) {
   $no = [int]$m.MagicNum
-  $b = @{ no = $no; ad = ([string]$m.EnName).Trim(); msp = [int]$m.Msp; yenidenKullanim = [int]$m.ReCastTime; seviye = [int]$m.SkillLevel; tip = [int]$m.Type1 }
+  $b = @{ no = $no; ad = ([string]$m.EnName).Trim(); msp = [int]$m.Msp; yenidenKullanim = [int]$m.ReCastTime; seviye = [int]$m.SkillLevel; tip = [int]$m.Type1; tip2 = [int]$m.Type2; moral = [int]$m.Moral; hazirlik = [int]$m.CastTime; menzil = [int]$m.Range; sayfa = [int]$m.Skill; ayakta = [int]$m.UseStanding }
   if ($b.tip -eq 1) {
     $t = @(Sorgu "SELECT * FROM MAGIC_TYPE1 WHERE iNum = $no")[0]
     $b.tip1 = @{ isabetTuru = [int]$t.Type; isabet = [int]$t.HitRate; vurus = [int]$t.Hit; ekHasar = [int]$t.AddDamage; canavarYuzde = [int]$t.AddDmgPercToNpc }

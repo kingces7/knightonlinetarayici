@@ -196,16 +196,42 @@ async function basla(): Promise<void> {
   /** Skill kullanımı (sunucu MagicInstance): seviye, MP, tekrar kullanım süresi; Type1 hedef ister, Type4 buff kendine uygulanır. */
   let benimSoketNo = 0;
   /** Skill efekt numaraları (Sprint'te altın toplanma yok: kullanıcı kararı). */
-  const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(no === 201002 ? { kendi: null } : {}) });
+  const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null, ucan: null }, ...([201002, 202002].includes(no) ? { kendi: null } : {}) });
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Burada yalnız animasyon, ses ve istek vardır. */
-  const sunucuBecerisi = (no: number, v: NonNullable<typeof kurallar>['beceri'][string], hedef: Canavar | null) => {
+  /** Süreli büyü (hazırlık > 0): hazırlanırken hedef/skill; yürümek iptal eder. */
+  let buyuHazirlik: { no: number; hedefId: number } | null = null;
+  /** Uçan efektler (kaynaktan hedefe giden küre): kaynak noktası, varış noktası, geçen süre. */
+  const ucanEfektler: { nesne: THREE.Object3D; bas: THREE.Vector3; bit: THREE.Vector3; t: number; sure: number }[] = [];
+  const ucanEfektOynat = (efektNoUcan: number | null, kaynak: THREE.Object3D | null, hedef: THREE.Object3D | null) => {
+    if (!efektNoUcan || !kaynak || !hedef) return;
+    const nesne = new THREE.Object3D(); const bas = kaynak.position.clone().add(new THREE.Vector3(0, 1.3, 0)), bit = hedef.position.clone().add(new THREE.Vector3(0, 1.0, 0));
+    nesne.position.copy(bas); sahne.add(nesne); void efektler.oynat(efektNoUcan, nesne, { sure: 0.7 });
+    ucanEfektler.push({ nesne, bas, bit, t: 0, sure: Math.max(0.25, Math.min(0.7, bas.distanceTo(bit) / 28)) });
+  };
+  /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Hazırlık süresi olan büyülerde sıra 1 (hazırla) → bekle → 2 (uçuş) → 3 (etki). */
+  const sunucuBecerisi = (no: number, v: NonNullable<typeof kurallar>['beceri'][string], hedef: Canavar | null, dost: DigerOyuncu | null) => {
+    const hedefId = hedef ? hedef.agKimlik : dost ? dost.kimlik : benimSoketNo;
+    const hedefGrup = hedef ? hedef.grup : dost ? dost.grup : oyuncu.grup;
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // aynı skill'in art arda gönderilmemesi için yerel bekleme (sunucu da kontrol eder)
-    sunucuOturumu!.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.ETKI, no, benimSoketNo, v.tip === 1 && hedef ? hedef.agKimlik : benimSoketNo));
-    if (v.tip === 1 && hedef) {
-      oyuncu.savastanBeri = 0;
-      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } else oyuncu.model?.ustSaldiri(arayuz?.beceriAnimNo(no)); // yürürken: üst gövde skill animasyonu, bacaklar yürümeye devam
-      ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
+    const gonder = (komut: number) => sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(komut, no, benimSoketNo, hedefId));
+    const animNo = arayuz?.beceriAnimNo(no);
+    if (hedef) { oyuncu.savastanBeri = 0; if (!hareketEdiyor) oyuncu.bak(hedef.konum); }
+    const sure = (v.hazirlik ?? 0) * 0.1;
+    if (sure > 0) { // süreli büyü
+      buyuHazirlik = { no, hedefId };
+      gonder(BECERI_KOMUTU.HAZIRLAMA);
+      if (!hareketEdiyor) oyuncu.animKilidi = Math.max(sure, oyuncu.model?.beceriOynat(animNo) ?? 0);
+      setTimeout(() => {
+        if (buyuHazirlik?.no !== no) return; buyuHazirlik = null; // iptal edildi (yürüdün ya da öldün)
+        if (oyuncu.olu) return;
+        gonder(BECERI_KOMUTU.UCUS); ucanEfektOynat(efektNo(no).ucan, oyuncu.grup, hedefGrup);
+        setTimeout(() => gonder(BECERI_KOMUTU.ETKI), 350); // uçuş süresi
+      }, sure * 1000);
+    } else {
+      gonder(BECERI_KOMUTU.ETKI);
+      if (v.tip === 1 && hedef) { if (!hareketEdiyor) oyuncu.animKilidi = oyuncu.model?.beceriOynat(animNo) || 0.8; else oyuncu.model?.ustSaldiri(animNo); } // yürürken: üst gövde skill animasyonu, bacaklar yürümeye devam eder
     }
+    if (v.tip === 1 && hedef) ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
   };
   /** Sunucudan gelen skill paketi: başarıda efektler (ve kendi buff'ımız), reddedilirse mesaj. */
   const beceriSunucudan = (p: BeceriPaketi) => {
@@ -234,14 +260,18 @@ async function basla(): Promise<void> {
     const hazir = oyuncu.beceriBekleme.get(no) ?? 0;
     if (hazir > simdiSn()) { hud.mesaj(`${v.ad} is not ready yet.`, 'sistem'); return; }
     if (oyuncu.mana < v.msp) { hud.mesaj('Not enough MP.', 'sistem'); return; }
-    let hedef: Canavar | null = null;
-    if (v.tip === 1) {
+    let hedef: Canavar | null = null, dost: DigerOyuncu | null = null;
+    if (v.tip === 1 || (v.tip === 3 && v.moral === 7)) { // düşmana (yakın dövüş ya da büyü)
       hedef = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : null;
       if (!hedef) { hud.mesaj('Select a target first.', 'sistem'); return; }
-      if (oyuncu.konum.distanceTo(hedef.konum) > menzilDe(hedef) + 0.5) { hud.mesaj('The target is too far away.', 'sistem'); return; }
-    } else if (v.tip !== 4) { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
+      const menzil = v.tip === 1 ? menzilDe(hedef) + 0.5 : (v.menzil ?? 25);
+      if (oyuncu.konum.distanceTo(hedef.konum) > menzil) { hud.mesaj('The target is too far away.', 'sistem'); return; }
+    } else if (v.tip === 3 || v.tip === 4) { // kendine ya da dosta (iyileştirme, buff)
+      if ((v.moral ?? 1) !== 1) { if (secilenOyuncu && digerOyuncular.includes(secilenOyuncu) && oyuncu.konum.distanceTo(secilenOyuncu.konum) <= (v.menzil ?? 25)) dost = secilenOyuncu; }
+      if (v.tip === 3 && !sunucuOturumu) { hud.mesaj(`${v.ad} needs a server connection.`, 'sistem'); return; }
+    } else { hud.mesaj(`${v.ad} cannot be used yet.`, 'sistem'); return; }
     kalk();
-    if (sunucuOturumu) { sunucuBecerisi(no, v, hedef); return; } // sunucu modu: kuralları sunucu uygular (MP, hasar, buff, bekleme)
+    if (sunucuOturumu) { sunucuBecerisi(no, v, hedef, dost); return; } // sunucu modu: kuralları sunucu uygular (MP, hasar, buff, bekleme)
     // Efekt istisnaları: Sprint'te altın toplanma (Ability_cast) yok, yalnız mavi rüzgâr izi (kullanıcı kararı); Defense tabloya uygun altın efektini kullanır.
     const efektId = { ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null }, ...(no === 201002 ? { kendi: null } : {}) };
     if (efektId?.kendi) void efektler.oynat(efektId.kendi, oyuncu.grup, { sure: v.tip4 ? 1.2 : 0.6 }); // kullanan kişide efekt
@@ -793,6 +823,7 @@ async function basla(): Promise<void> {
     };
     const menzilde = !!oyuncu.hedef && oyuncu.saldiriyor && oyuncu.konum.distanceTo(oyuncu.hedef.konum) <= menzilDe(oyuncu.hedef);
     hareketEdiyor = ilerigeri !== 0 || !!oyuncu.yuruHedef;
+    if (buyuHazirlik && hareketEdiyor) { sunucuOturumu?.gonder(WIZ.BECERI, beceriIstegi(BECERI_KOMUTU.IPTAL, buyuHazirlik.no, benimSoketNo, buyuHazirlik.hedefId)); buyuHazirlik = null; oyuncu.animKilidi = 0; hud.mesaj('Casting was cancelled.', 'sistem'); }
     if (ilerigeri !== 0) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
       const h = oyuncu.bakisAcisi;
@@ -951,6 +982,7 @@ async function basla(): Promise<void> {
     su?.guncelle(performance.now() / 1000);
     efektDeneme?.guncelle(efektTanecikleri, dt, sahne);
     efektler.guncelle(dt);
+    for (let i = ucanEfektler.length - 1; i >= 0; i--) { const u = ucanEfektler[i]; u.t += dt; u.nesne.position.lerpVectors(u.bas, u.bit, Math.min(1, u.t / u.sure)); if (u.t > u.sure + 0.6) { sahne.remove(u.nesne); ucanEfektler.splice(i, 1); } }
     kamera.guncelle(oyuncu.grup.position, (x, z) => arazi.yukseklikAl(x, -z), dt,
       arazi.carpisma ? (a, b) => arazi.carpisma!.dogruKesisimi(a.x, a.y, -a.z, b.x, b.y, -b.z) : undefined); // sahne z'si = −z (KO dünyası)
     hud.guncelle(oyuncu, oyuncu.hedef);
@@ -983,6 +1015,7 @@ async function basla(): Promise<void> {
       sunucuOturumu = s;
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
+      arayuz?.sinifAyarla(oyuncu.sinif); // sınıfa göre skill listesi ve çubuğu
       await oyuncu.modelDegistir(irkModeli(s.benim.irk)).catch((e) => console.warn('Irk modeli yüklenemedi', s.benim.irk, e)); // kadın/barbar/Karus görünümü
       hud.mesaj(`Connected to ${s.sunucuAdi} as ${s.benim.ad} (Lv ${s.benim.seviye}).`, 'sistem');
       if (s.karsilama) hud.mesaj(s.karsilama, 'sistem');

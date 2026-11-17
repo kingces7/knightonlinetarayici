@@ -12,7 +12,7 @@ import type { EsyaTanimi } from '../oyun/veri';
 import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
-export interface Beceri { no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
+export interface Beceri { /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
 
 export interface ArayuzBaglami {
   kok: HTMLElement;
@@ -114,6 +114,8 @@ export class OyunArayuzu {
   private acik = new Set<Ad>();
   private z = 10;
   private beceriler: Beceri[] = [];
+  private tumBeceriler: Beceri[] = [];
+  private cubukSinif = 201;
   private seciliBeceri = 0;
   private fps = 60; private fpsSayac = 0;
   private sonEnvanterImza = '';
@@ -127,7 +129,7 @@ export class OyunArayuzu {
       UiPencere.yukle('el_chat_us'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
     ]);
-    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.beceriler = Array.isArray(bec) ? bec : [];
+    this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.tumBeceriler = Array.isArray(bec) ? bec : []; this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === 2010);
     this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
@@ -540,8 +542,7 @@ export class OyunArayuzu {
     for (const top of c.bul('btn_change')) top.addEventListener('contextmenu', (ev) => { ev.preventDefault(); this.cubukSifirla(); }); // sağ tık: konumu varsayılana al
     this.cubukKilitGoster();
     this.cubukYonUygula(); this.cubukSayfaDegistir(0);
-    try { const k = JSON.parse(localStorage.getItem('ke_skillcubugu') ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
-    if (!this.cubukBeceri.some((x) => x !== null)) this.cubukBeceri = [201001, 201002, ...new Array(62).fill(null)]; // yalnızca 1. seviyede kullanılabilen skill'ler; ilk açılışta temel skill'ler sırayla
+    this.cubukYukle();
     for (const alan of this.cubukYuvalari()) {
       const i = this.cubukSira(alan);
       alan.style.overflow = 'hidden';
@@ -582,7 +583,7 @@ export class OyunArayuzu {
   /** Skill'in oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1). */
   beceriAnimNo(no: number): number | undefined { return this.beceriler.find((x) => x.no === no)?.anim; }
   /** Skill'in efekt numaraları (fx.tbl): kendinde ve hedefte oynayan. */
-  beceriEfekt(no: number): { kendi: number | null; hedef: number | null } { const b = this.beceriler.find((x) => x.no === no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null }; }
+  beceriEfekt(no: number): { kendi: number | null; hedef: number | null; ucan: number | null } { const b = this.beceriler.find((x) => x.no === no) ?? this.tumBeceriler.find((x) => x.no === no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null, ucan: b?.efektUcan ?? null }; }
   /** Çubuktaki 16 yuva: yatay 10..17, dikey 0..7 (orijinal arayüzde iki ayrı grup). */
   private cubukYuvalari(): HTMLElement[] {
     const yuva = (id: string) => this.cubuk.bul(id).filter((e) => e.classList.contains('ui-t9'));
@@ -630,7 +631,24 @@ export class OyunArayuzu {
     }
   }
   private cubukKilitGoster(): void { for (const e of this.cubukKilitDugmeleri) { e.style.backgroundPositionY = `${-(this.cubukKilitli ? 360 : 336)}px`; e.title = this.cubukKilitli ? 'Locked: the bar cannot be moved (click to unlock)' : 'Unlocked: drag the ball to move the bar (click to lock)'; } }
-  private cubukKaydet(): void { try { localStorage.setItem('ke_skillcubugu', JSON.stringify(this.cubukBeceri)); } catch { /* depolama kapalı */ } }
+  /** Sınıfın skill çubuğu kaydı (Warrior eski kayıt anahtarını kullanmaya devam eder). */
+  private cubukAnahtari(): string { return this.cubukSinif === 201 ? 'ke_skillcubugu' : `ke_skillcubugu_${this.cubukSinif}`; }
+  private cubukKaydet(): void { try { localStorage.setItem(this.cubukAnahtari(), JSON.stringify(this.cubukBeceri)); } catch { /* depolama kapalı */ } }
+  private cubukYukle(): void {
+    this.cubukBeceri = new Array(64).fill(null);
+    try { const k = JSON.parse(localStorage.getItem(this.cubukAnahtari()) ?? 'null'); if (Array.isArray(k)) this.cubukBeceri = k.slice(0, 64).map((x) => (typeof x === 'number' ? x : null)); while (this.cubukBeceri.length < 64) this.cubukBeceri.push(null); } catch { /* kayıt yok */ }
+    // Kayıttaki skill'ler bu sınıfa ait olmalı; hiçbiri yoksa 1. seviyedeki temel skill'ler sırayla konur
+    const gecerli = new Set(this.beceriler.map((b) => b.no));
+    this.cubukBeceri = this.cubukBeceri.map((no) => (no !== null && gecerli.has(no) ? no : null));
+    if (!this.cubukBeceri.some((x) => x !== null)) { const ilk = this.beceriler.filter((b) => b.seviye <= 1).map((b) => b.no); this.cubukBeceri = [...ilk, ...new Array(64 - ilk.length).fill(null)].slice(0, 64); }
+  }
+  /** Oyuncunun sınıfı belli olunca (sunucudan ya da yerel): skill listesi ve çubuğu o sınıfa göre yenilenir. Sınıf kodu = ulus × 100 + meslek (105/106 Warrior, 107/108 Rogue, 109/110 Mage, 111/112 Priest). */
+  sinifAyarla(sinif: number): void {
+    const ulus = Math.floor(sinif / 100), m = sinif % 100, meslek = m <= 4 ? m : m <= 6 ? 1 : m <= 8 ? 2 : m <= 10 ? 3 : 4;
+    const sayfa = ulus * 1000 + meslek * 10;
+    this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === sayfa && b.seviye <= 30).slice(0, 8);
+    this.cubukSinif = sinif; this.seciliBeceri = 0; this.cubukYukle();
+  }
   private cubukKullan(i: number): void { const no = this.cubukBeceri[this.cubukSayfa * 8 + i]; if (no !== null && no !== undefined) this.b.beceriKullan(no); }
   private cubukCiz(): void {
     const o = this.b.oyuncu, simdi = performance.now() / 1000;

@@ -37,7 +37,7 @@ export class Oyun {
 }
 
 /** Sürüm → giriş → (ulus) → (karakter oluştur) → karakter seç → oyuna gir. */
-export async function girisYap(ad: string, hesap: string, sifre: string, yeniKarakter?: string) {
+export async function girisYap(ad: string, hesap: string, sifre: string, yeniKarakter?: string, secilen?: string) {
   const o = new Oyun(ad); await o.hazir();
   o.asama = 'surum'; o.gonder(WIZ.SURUM_KONTROL); await o.al(WIZ.SURUM_KONTROL);
   o.asama = 'giris'; o.gonder(WIZ.GIRIS, new PaketYazici().yazi(hesap).yazi(sifre).baytlar());
@@ -54,7 +54,7 @@ export async function girisYap(ad: string, hesap: string, sifre: string, yeniKar
     if (k !== 0) throw new Error(`${ad}: karakter oluşturulamadı (kod ${k})`);
     yuvalar = await listele();
   }
-  const karakter = yuvalar.find((y) => y.ad); if (!karakter) throw new Error(`${ad}: karakter yok`);
+  const karakter = secilen ? yuvalar.find((y) => y.ad.toLowerCase() === secilen.toLowerCase()) : yuvalar.find((y) => y.ad); if (!karakter) throw new Error(`${ad}: karakter yok`);
   o.asama = 'karakter_sec'; o.gonder(WIZ.KARAKTER_SEC, new PaketYazici().yazi(hesap).yazi(karakter.ad).u8(1).baytlar());
   const sec = karakterSecCevabi((await o.al(WIZ.KARAKTER_SEC)).govde);
   o.asama = 'oyun_baslat_1'; o.gonder(WIZ.OYUN_BASLAT, new PaketYazici().u8(1).yazi(karakter.ad, false).baytlar());

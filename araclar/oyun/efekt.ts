@@ -1,5 +1,5 @@
 // Skill efektleri: .fxb paketlerini (fxb.ts, OpenKO kaynağından) web biçimine çevirir.
-//   npm run efekt            -> skill sayfası 2010'daki skill'lerin efektleri
+//   npm run efekt            -> dört sınıfın temel skill sayfalarındaki efektler
 //   npm run efekt -- 2601 701  -> belirtilen fx.tbl numaraları
 // Çıktı: donusturulmus/web/efekt/fx/<numara>.json + efekt/doku/<ad>.png (parça doku kareleri). Mesh parçaları (tür 3): .n3shape → .n3pmesh geometrisi JSON'a gömülür.
 import fs from 'node:fs';
@@ -11,7 +11,7 @@ import { dokuPng } from '../model/dokuYardim.ts';
 import { dokuKareleri, fxbOku, type FxParca } from './fxb.ts';
 import { pmeshOku, shapeOku } from '../model/n3.ts';
 
-const SAYFA = 2010;
+const SAYFALAR = [2010, 2020, 2030, 2040, 1010, 1020, 1030, 1040]; // dört sınıfın temel skill sayfaları
 const guvenli = (yol: string) => yol.toLowerCase().replace(/\.dxt$/, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 
 /** FX mesh parçası: .n3shape'in her parçasının .n3pmesh geometrisi ve doku kareleri. */
@@ -39,7 +39,7 @@ function main(): number {
   if (!idler.length) {
     const kume = new Set<number>();
     for (const s of tbldenOku(od.oku('Data/SkillMagicTable_us.tbl'), 'windows-1252').satirlar) {
-      if (Number(s[16]) !== SAYFA || Number(s[15]) <= 0) continue;
+      if (!SAYFALAR.includes(Number(s[16])) || Number(s[15]) <= 0) continue;
       for (const i of [7, 9, 11, 12]) if (Number(s[i]) > 0) kume.add(Number(s[i]));
     }
     idler = [...kume].sort((a, b) => a - b);

@@ -220,3 +220,8 @@ Canlı test (kotest): Noah ve eşya yatır/çek. Betik: `client/scripts/bankaSun
 - Başlangıç statları sınıfa göre sabit (Warrior 65/65/60/50/50, Rogue 60/60/70/50/50, Mage 50/50/70/70/50, Priest 50/60/60/70/50) ve 10 bonus puan dağıtılır.
 - Yeni hesapta (ulus 0) ilk karakterden önce `0x05: u8 ulus` yollanır; ulus bir daha değişmez, hesap yalnız o ulusun ırklarını açabilir.
 Client: `client/src/arayuz/karakterOlustur.ts` (oyunun `re_ka_charactercreate` / `re_el_charactercreate` pencereleri). Test: `client/scripts/olusturTesti.mjs`.
+
+## Süreli büyüler (0x31): hazırlama → uçuş → etki
+
+CastTime > 0 olan skill'lerde (Mage Flash/Shiver/Flame…, Priest Tiny healing…) client sırayla yollar: `komut 1` (hazırlama, sunucu hemen yankılar), CastTime × 100 ms sonra `komut 2` (uçuş), kısa süre sonra `komut 3` (etki: MP düşer 0x18, hasar/iyileştirme/ölüm paketleri gelir). Doğrudan `komut 3` yollanırsa cevap gelmez. Hazırlanırken yürümek `komut 6` (iptal) ile bozar. Hedef türü (MORAL): 1 kendi, 2 dost (kendin dahil), 7 düşman.
+Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, seviye atladı); Priest Tiny healing kendine yollandı (MP düştü). Betik: `client/scripts/buyuTesti.mjs`.
