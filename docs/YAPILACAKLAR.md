@@ -295,3 +295,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Skill penceresi: sekmeler (Basic / 3 ağaç / Master), sayfalama (6 yuva), boş skill puanı ve ağaç puanları, `P` düğmesiyle puan verme (`WIZ_SKILLPT_CHANGE 0x32`, sunucu yalnız reddederken cevap verir), ağaç puanı yetmeyen skill soluk.
 - [~] Novice/Master skill'lerinin **kullanımı**: Warrior ve Rogue ağaçları sunucuda denendi (Rogue: yakın dövüş, tüm okçuluk skill'leri, Blood drain/Vampiric touch, gizlenme ve buff'lar; Illusion, Safety, Cure curse, Strength of wolf "failed") (saldırı skill'leri animasyon + vuruş efekti, buff'lar, Binding, Provoke alan skill'i); kalan: Rogue/Mage/Priest ağaçları, Master sekmesi, Kurian, parti skill'leri (Descent, Sacrifice) ve bazı iyileştirmelerin (Rise, Frenzy, Regeneration) sunucuda "failed" vermesinin nedeni.
 - [ ] Skill puanı sıfırlama (Kaishan, `btn_reset_skill`), Karus tarafı testi.
+
+**PvP**
+- [x] Öldürme sayacı (üst orta plaka + "TRIPLE KILL" gibi bildirim), sunucunun `WIZ_KILLASSIST 0xC8` paketini kullanır (`client/src/arayuz/oldurmeSayaci.ts`). Sunucu bu paketi yalnızca PK bölgelerinde (Ardream, Ronark Land, özel etkinlik) yollar; şu an oynanan Moradon'da çıkmaz. **Gerçek PvP ile denenmedi** (önizleme: `client/scripts/oldurmeGorunum.mjs`).
+- [ ] Client'ta oyuncuya saldırı/skill hedeflemesi yok (yalnız canavar hedeflenir): PvP için diğer oyuncuyu hedef alıp saldırma gerekir.

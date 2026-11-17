@@ -21,6 +21,7 @@ import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
 import { skillPuaniReddi } from '../../../kopru/protokol/skillPuani.ts';
 import { altinDegisti, sinifDegisti } from '../../../kopru/protokol/sinif.ts';
+import { oldurmeBildirimi, type OldurmeBildirimi } from '../../../kopru/protokol/oldurme.ts';
 import { gorevPaketi, type GorevPaketi } from '../../../kopru/protokol/gorev.ts';
 import { secimMesaji, type SecimMesaji } from '../../../kopru/protokol/diyalog.ts';
 import { dayanimDegisti, esyaTamirCevabi, esyaAdediDegisti, esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
@@ -65,6 +66,8 @@ export interface SavasKancalari {
   diyalog?: (m: SecimMesaji) => void;
   /** Görev paketi (0x64): liste/durum/NPC konuşması. */
   gorev?: (g: GorevPaketi) => void;
+  /** Oyuncu öldürme bildirimi (PK bölgesi). */
+  oldurme?: (o: OldurmeBildirimi) => void;
   /** Oyuncu terfi etti (yeni sınıf numarası). */
   sinifDegisti?: (sinif: number) => void;
   /** Sunucu skill puanı dağıtımını reddetti (ağaç, o ağaçtaki gerçek puan). */
@@ -134,6 +137,7 @@ export class SunucuDunyasi {
       case WIZ.SINIF_DEGISTI: { const s = sinifDegisti(p.govde); if (s.alt === 6 && s.id === this.benimSoketNo && s.sinif !== undefined && this.oyuncu) { this.oyuncu.sinif = s.sinif; this.kancalar.sinifDegisti?.(s.sinif); } break; }
       case WIZ.ALTIN_DEGISTI: { const a = altinDegisti(p.govde); if (this.oyuncu) this.oyuncu.altin = a.toplam; break; }
       case WIZ.SKILL_PUANI: { const r = skillPuaniReddi(p.govde); this.kancalar.skillPuaniReddedildi?.(r.agac, r.puan); break; }
+      case WIZ.OLDURME: this.kancalar.oldurme?.(oldurmeBildirimi(p.govde)); break;
       case WIZ.GOREV: this.kancalar.gorev?.(gorevPaketi(p.govde)); break;
       case WIZ.SECIM_MESAJI: this.kancalar.diyalog?.(secimMesaji(p.govde)); break;
       case WIZ.STAT_DEGISTI: { // stat puanı harcandı: sunucu yeni değeri ve türev değerleri bildirir

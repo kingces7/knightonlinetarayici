@@ -28,6 +28,7 @@ import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.t
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
 import { skillPuaniIstegi } from '../../kopru/protokol/skillPuani.ts';
+import { OldurmeSayaci } from './arayuz/oldurmeSayaci';
 import { gorevSecimiIstegi, type GorevPaketi } from '../../kopru/protokol/gorev.ts';
 import { diyalogVerisi, uygunGorevler } from './oyun/diyalogVeri';
 import { npcOlayiIstegi, secimCevabi, type SecimMesaji } from '../../kopru/protokol/diyalog.ts';
@@ -734,6 +735,7 @@ async function basla(): Promise<void> {
   let aktifDiyalog: { npc: Npc; lua: string } | null = null;
   /** Sunucudan gelen görev durumları (görev no → durum); NPC'nin hangi görev satırlarını sunacağı buna göre seçilir. */
   const gorevDurumlari = new Map<number, number>();
+  const oldurmeSayaci = new OldurmeSayaci(document.getElementById('arayuz') ?? document.body); // PvP öldürme sayacı (üst orta)
   const gorevSunucudan = async (g: GorevPaketi) => {
     if (g.durumlar) { if (g.alt === 1) gorevDurumlari.clear(); for (const d of g.durumlar) gorevDurumlari.set(d.gorev, d.durum); return; }
     if (g.alt !== 7 || !aktifDiyalog || g.metinNo === undefined || g.npcSid === undefined) return;
@@ -1146,7 +1148,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+  (window as unknown as { ke: unknown }).ke = { oldurmeSayaci, efektler, gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
     /** Geliştirme: karakteri (x, z)'ye ışınlar ve sunucuya "durağan" konum paketiyle bildirir (Town ile aynı yöntem). */
@@ -1184,6 +1186,7 @@ async function basla(): Promise<void> {
         beceri: (p) => beceriSunucudan(p),
         skillPuaniReddedildi: (agac, puan) => { const o = oyuncu.skillPuanlari; o[0] += Math.max(0, o[agac] - puan); o[agac] = puan; hud.mesaj('You cannot add a skill point there.', 'sistem'); },
         sinifDegisti: (s) => { arayuz?.sinifAyarla(s); envanterYenile(); hud.mesaj('Congratulations! You have been promoted.', 'odul'); },
+        oldurme: (o) => { if (o.tur !== 1) return; if (o.alt === 1) oldurmeSayaci.ekle(o.sayi ?? 1, o.ad); else if (o.alt === 2) oldurmeSayaci.sifirla(); },
         diyalog: diyalogSunucudan, gorev: (g) => { void gorevSunucudan(g); }, ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
