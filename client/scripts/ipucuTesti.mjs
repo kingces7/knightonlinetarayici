@@ -10,8 +10,8 @@ await s.evaluate(([tum, nolar]) => {
   nolar.forEach((n, i) => { const e = tum.find((x) => x.no === n); window.__ip ??= []; const kutu = document.createElement('div'); kutu.id = 'ipk' + i; kutu.style.cssText = `position:fixed;left:${20 + i * 270}px;top:20px;width:1px;height:1px`; document.body.appendChild(kutu); });
 }, [tum, nolar]);
 for (let i = 0; i < nolar.length; i++) {
-  const e = tum.find((x) => x.no === nolar[i]);
-  await s.evaluate(([e, i]) => { window.ke.hud.ipucuGoster({ ...e, sunucuNo: e.no }, { clientX: 10 + i * 270, clientY: 10 }); const el = document.querySelector('.ipucu'); const c = el.cloneNode(true); c.style.left = (10 + i * 270) + 'px'; c.style.top = '10px'; c.classList.remove('gizli'); c.classList.add('kopya'); document.body.appendChild(c); }, [e, i]);
+  const e = tum.find((x) => x.no === nolar[i]) ?? tum.find((x) => x.no === nolar[i] - (nolar[i] % 1000));
+  await s.evaluate(([e, i, nolarA]) => { window.ke.hud.ipucuGoster({ ...e, sunucuNo: nolarA[i] }, { clientX: 10 + i * 270, clientY: 10 }); const el = document.querySelector('.ipucu'); const c = el.cloneNode(true); c.style.left = (10 + i * 270) + 'px'; c.style.top = '10px'; c.classList.remove('gizli'); c.classList.add('kopya'); document.body.appendChild(c); }, [e, i, nolar]);
 }
 await s.evaluate(() => document.querySelector('.ipucu:not(.kopya)')?.classList.add('gizli'));
 await s.screenshot({ path: `${klasor}/ipucu.png` });
