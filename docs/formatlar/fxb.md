@@ -1,6 +1,7 @@
 # `.fxb` efekt paketleri
 
-## DURUM (2026-11-17): okuyucu ve oynatıcı VAR — %96 çözülüyor
+## DURUM (2026-11-17): okuyucu ve oynatıcı VAR — %99 çözülüyor (1202/1219)
+**Son düzeltme:** parçacık parçası sürüm 9 / taban 4 için ek bayt 27 değil **23** idi (ölçüm hatası); bu tek düzeltme 1168 → 1202 dosyayı çözdü ve `heal_cast.fxb` (2601) artık çiziliyor. Kalan 17 dosya (çoğu 15+ parçalı dev paketler) oyunda kullanılan skill'lerde yok.
 **Önemli düzeltme:** aşağıdaki eski bölümlerde "kaynak kod yok" yazıyor; bu artık yanlış. `OPENKO SRC - V1299/Client/N3Base/` içinde **N3FXBundle, N3FXPartBase, N3FXPartParticles,
 N3FXPartBillBoard, N3FXPartBottomBoard, N3FXPartMesh, N3FXParticle** kaynakları var. Okuyucu bunlardan birebir yazıldı: `araclar/oyun/fxb.ts`.
 
@@ -15,7 +16,7 @@ N3FXPartBillBoard, N3FXPartBottomBoard, N3FXPartMesh, N3FXParticle** kaynakları
 - **Oynatıcı:** `client/src/dunya/efekt.ts` (`EfektYoneticisi`): parçacık (normal/yayılma/toplanma, hız, yerçekimi, renk anahtarları, doku kareleri), tahta ve zemin tahtası. **Mesh parçaları var** (`.n3shape` → `.n3pmesh` geometrisi; araclar/model/n3.ts okuyucusu; yön, ölçek hızı, doku kareleri; doku kaydırma ve şekil içi animasyon anahtarları henüz yok).
   Dönüştürücü: `npm run efekt` (araclar) → `donusturulmus/web/efekt/fx/<fx.tbl no>.json` + `efekt/doku/*.png`.
 - **Oyuna bağlı:** skill kullanılınca (`main.ts beceriKullan`): kendinde efekt (fx.tbl sütun 7), buff'ta hedef efekti de kullanana, saldırı skill'inde vuruş anında hedefte efekt (sütun 12).
-  Savaşçı temel skill'lerinden Sprint (2701 + 10029) ve Defense (2701 + 701) ve vuruş efekti (10002 `damage0_1`) çalışıyor; **`heal_cast.fxb` (2601, Stroke/Slash/Crash/Piercing'in kendinde efekti) çözülemiyor.**
+  Savaşçı temel skill'lerinden Sprint (2701 + 10029) ve Defense (2701 + 701) ve vuruş efekti (10002 `damage0_1`) çalışıyor; `heal_cast.fxb` (2601) çözüldü ve çalışıyor.
 - **Sıradaki:** (1) kalan ~50 dosya: yeni sürüm parça içi alanlarını bulmak, (2) mesh doku kaydırma/anahtar animasyonu ve `Ability_target0_1` şekli, (3) uçan efekt (sütun 11) ve bundle yönü/hedefe uçuş (`FX_BUNDLE_MOVE_*`), (4) efekt sesi (fx.tbl sütun 3), (5) HDR doku seçimi, (6) parçacık LOD, (7) sunucu skill'leri bağlanınca oyuncular arası efekt.
 
 ---

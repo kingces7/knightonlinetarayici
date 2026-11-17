@@ -55,7 +55,7 @@ Bilinmeyenler (bulunca işaretle):
 - [ ] **Silah türüne göre** bekleme/saldırı/skill animasyon seçimi (`breath_sword0`, `attack_sword0_A`… hangi eşya türü hangisini kullanıyor)
 - [ ] Animasyon **hız/geçiş/vuruş anı** kuralları, hareket ve koşma **hız sabitleri**, yürüme↔koşma geçişi
 - [ ] **Kamera** kuralları (mesafe, açı sınırları, çarpışma)
-- [~] **Skill efekti:** `.fxb` okuyucu (OpenKO kaynağından, %96) + oynatıcı yapıldı, skill kullanımına bağlı (Sprint, Defense, vuruş efekti çalışıyor). Kalan: ~50 dosya, mesh parçaları, `heal_cast.fxb`, uçan efekt, ses — bkz. [formatlar/fxb.md](formatlar/fxb.md).
+- [~] **Skill efekti:** `.fxb` okuyucu (OpenKO kaynağından, %96) + oynatıcı yapıldı, skill kullanımına bağlı (Sprint, Defense, vuruş efekti çalışıyor). Kalan: 17 dosya, mesh parçaları, uçan efekt, ses — bkz. [formatlar/fxb.md](formatlar/fxb.md).
 - [ ] Dokuların/ışığın **render ayarları** (zemin karışım kuralı, gökyüzü, su, sis değerleri)
 - [ ] `.n3joint`, `.n3chr`, `.n3anim` okuyucu sınıflarının **gerçek kodu** (formatlar şimdilik hex incelemeyle çözüldü; bazı alanların anlamı belirsiz)
 - [ ] Arayüz **olay mantığı** (hangi düğme ne yapar: Map, Control, Invite, Option, hızlı çubuk…)

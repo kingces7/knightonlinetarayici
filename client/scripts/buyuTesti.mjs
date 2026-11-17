@@ -17,8 +17,9 @@ const once = await s.evaluate(() => ({ mana: window.ke.oyuncu.mana, can: window.
 console.log('ekip', await s.evaluate(() => JSON.stringify({e8: window.ke.oyuncu.ekipman[8], e6: window.ke.oyuncu.ekipman[6], ok: window.ke.oyuncu.envanter.filter(Boolean).map((e) => [e.no, e.sunucuNo, e.adet]), hedef: !!window.ke.oyuncu.hedef})));
 await s.evaluate((no) => window.ke.beceriKullan(+no), skill); await s.waitForTimeout(900);
 await s.screenshot({ path: `${klasor}/buyu_hazirlik.png` });
-await s.waitForTimeout(1500);
+await s.waitForTimeout(1450);
 await s.screenshot({ path: `${klasor}/buyu_ucus.png` });
+await s.waitForTimeout(250); await s.screenshot({ path: `${klasor}/buyu_etki2.png` });
 await s.waitForTimeout(2000);
 console.log('önce', JSON.stringify(once), 'sonra', await s.evaluate(() => JSON.stringify({ mana: window.ke.oyuncu.mana, can: window.ke.oyuncu.can, hedefCan: window.__hedef?.can, mesaj: window.__m.slice(-5) })), JSON.stringify(h));
 await t.close();

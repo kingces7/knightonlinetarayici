@@ -90,7 +90,7 @@ function tabanOku(o: Okuyucu, tur: number, baslangic: number): FxParcaTaban {
  * (araclar/oyun/fxb-ekstra.ts; her satır yüzlerce örnekte aynı değeri verdi). İçerikleri bilinmiyor; ilk bakışta sıfır/varsayılan görünüyorlar.
  */
 const EKSTRA: Record<string, number> = {
-  '1/9/3': 23, '1/9/4': 27, '1/10/4': 28,
+  '1/9/3': 23, '1/9/4': 23, '1/10/4': 28,
   '2/8/3': 15, '2/8/4': 15,
   '3/8/3': 3, '3/8/4': 3, '3/9/4': 263,
   '4/2/3': 1, '4/3/4': 2,
