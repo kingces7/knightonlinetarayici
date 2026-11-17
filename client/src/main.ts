@@ -241,7 +241,7 @@ async function basla(): Promise<void> {
       }, sure * 1000);
     } else {
       gonder(BECERI_KOMUTU.ETKI);
-      if (v.tip === 1 && hedef) { if (!hareketEdiyor) oyuncu.animKilidi = oyuncu.model?.beceriOynat(animNo) || 0.8; else oyuncu.model?.ustSaldiri(animNo); } // yürürken: üst gövde skill animasyonu, bacaklar yürümeye devam eder
+      if (v.tip === 1 && hedef) oyuncu.animKilidi = oyuncu.model?.beceriOynat(animNo) || 0.8; // duruyorken de koşarken/yürürken de AYNI (tam gövde) skill animasyonu; bitince hareket animasyonuna döner
     }
     if (v.tip === 1 && hedef) ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
   };
@@ -297,7 +297,7 @@ async function basla(): Promise<void> {
     oyuncu.beceriBekleme.set(no, simdiSn() + v.yenidenKullanim * 0.09); // sunucu: ReCastTime × 90 ms
     oyuncu.savastanBeri = v.tip === 1 ? 0 : oyuncu.savastanBeri;
     if (v.tip === 1 && hedef) {
-      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } else oyuncu.model?.ustSaldiri(arayuz?.beceriAnimNo(no)); // skill tablosundaki animasyon; yürürken üst gövdede oynar
+      if (!hareketEdiyor) { oyuncu.bak(hedef.konum); oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; } else oyuncu.animKilidi = oyuncu.model?.beceriOynat(arayuz?.beceriAnimNo(no)) || 0.8; // skill tablosundaki animasyon; yürürken üst gövdede oynar
       ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
       vurusZamanlayici.push({ kalan: 0.45, hedef, beceri: v, hedefEfekt: efektId?.hedef ?? null });
     } else if (v.tip4) {
@@ -863,7 +863,7 @@ async function basla(): Promise<void> {
       const h = oyuncu.bakisAcisi;
       const yon = new THREE.Vector2(Math.cos(h), Math.sin(h));
       if (ilerigeri > 0) oyuncu.ilerle(yon, hizAl() * dt); else oyuncu.geriGit(yon.multiplyScalar(-1), YURUME_HIZI * oyuncu.hizCarpani * dt);
-      oyuncu.model?.oynat(ilerigeri < 0 && oyuncu.model.var('geri') ? 'geri' : hareketAnimi()); // S: geri yürüme animasyonu
+      if (oyuncu.animKilidi <= 0) oyuncu.model?.oynat(ilerigeri < 0 && oyuncu.model.var('geri') ? 'geri' : hareketAnimi()); // S: geri yürüme animasyonu
       if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true);
     } else if (donus !== 0 && !oyuncu.hedef) {
       oyuncu.yuruHedef = null; acilacakKutu = null; acilacakNpc = null;
@@ -875,12 +875,12 @@ async function basla(): Promise<void> {
         acilacakKutu = null;
         if (acilacakNpc) { const n = acilacakNpc; acilacakNpc = null; npcEtkilesim(n); }
         oyuncu.model?.oynat('bekle');
-      } else { oyuncu.model?.oynat(hareketAnimi()); if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true); }
+      } else { if (oyuncu.animKilidi <= 0) oyuncu.model?.oynat(hareketAnimi()); if (menzilde && oyuncu.hedef) saldirTik(oyuncu.hedef, true); }
     } else if (oyuncu.hedef && oyuncu.saldiriyor) {
       const h = oyuncu.hedef;
       if (oyuncu.konum.distanceTo(h.konum) > menzilDe(h)) { // menzil dışı: hedefe yürü (hareket eden canavarı da izler)
         oyuncu.yuru(h.konum, hizAl() * dt, menzilDe(h) - 0.3);
-        oyuncu.model?.oynat(hareketAnimi());
+        if (oyuncu.animKilidi <= 0) oyuncu.model?.oynat(hareketAnimi());
         hareketEdiyor = true;
       } else {
         oyuncu.bak(h.konum);
