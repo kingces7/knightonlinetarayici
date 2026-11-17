@@ -375,6 +375,8 @@ export class Oyuncu extends Varlik {
   ad = 'kingces';
   altin = 0;
   mana = 100; enCokMana = 100;
+  /** Oyun yöneticisi (GM, sunucu yetkisi 0): Shift basılıyken hızlanır; sunucu GM'lerin hız sınırını denetlemez (SpeedHackUser). */
+  gm = false;
   /** Skill puanları (sunucu m_bstrSkill): [0] boş puan, [5..8] ağaç puanları (1., 2., 3. ağaç, Master). */
   skillPuanlari: number[] = new Array(9).fill(0);
   envanter: (EsyaTanimi | null)[] = new Array(28).fill(null);

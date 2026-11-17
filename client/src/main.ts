@@ -196,7 +196,10 @@ async function basla(): Promise<void> {
   };
   const kalk = () => { if (oyuncu.model?.oturuyor) { oyuncu.model.oturPozu(false); sunucuOturumu?.gonder(WIZ.DURUM_DEGISTI, oturmaIstegi(false)); } }; // sunucuya da bildirilir (yenilenme hızı oturma durumuna bağlı)
   const yuruKosDegistir = () => { kosuyor = !kosuyor; hud.mesaj(kosuyor ? 'You are running.' : 'You are walking.', 'sistem'); };
-  const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani; // hız buff'ı (Sprint) dahil
+  /** GM hızlanması: yetkisi GM olan karakter Shift'e basılı tutunca bu kat hızlanır. */
+  const GM_SHIFT_HIZI = 2.5;
+  const gmHizli = () => oyuncu.gm && (tuslar.has('ShiftLeft') || tuslar.has('ShiftRight'));
+  const hizAl = () => (kosuyor ? OYUNCU_HIZI : YURUME_HIZI) * oyuncu.hizCarpani * (gmHizli() ? GM_SHIFT_HIZI : 1); // hız buff'ı (Sprint) dahil
   const hareketAnimi = () => (kosuyor ? 'kos' : 'yuru');
 
   const simdiSn = () => performance.now() / 1000;
@@ -1202,7 +1205,7 @@ async function basla(): Promise<void> {
       const dunya = sunucuDunyasi;
       s.akisaGec((p) => dunya.paketIsle(p));
       // Hareketi sunucuya bildir (savaşçı/büyücü/rahip sınıflarında sunucu hız sınırı 6,7 m/sn, diğerlerinde 4,5).
-      hareketGonderici = new HareketGonderici((govde) => s.gonder(WIZ.HAREKET, govde), [1, 5, 6].includes(oyuncu.sinif % 100) ? 67 : 45);
+      hareketGonderici = new HareketGonderici((govde) => s.gonder(WIZ.HAREKET, govde), oyuncu.gm ? 400 : [1, 5, 6].includes(oyuncu.sinif % 100) ? 67 : 45); // GM: sunucu hız sınırı uygulamaz
       if (ozet.esyaEslesmeyen.length) hud.mesaj(`${ozet.esyaEslesmeyen.length} item(s) are not in the client item list yet.`, 'sistem');
       return { ad: s.benim.ad, seviye: s.benim.seviye, altin: s.benim.altin, can: s.benim.can, bolge: s.bolge, ...ozet };
     },
