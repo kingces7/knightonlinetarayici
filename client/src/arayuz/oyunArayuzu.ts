@@ -144,7 +144,7 @@ export class OyunArayuzu {
     this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.hedefCubugu.el, this.ganimetPencere.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
     // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
-    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150], ['depo', -150]];
+    const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150], ['depo', 150]]; // banka sağdan açılır
     for (const [ad, kay] of yerles) {
       const p = this.pencereler[ad];
       p.el.style.display = 'none';
@@ -224,7 +224,7 @@ export class OyunArayuzu {
       const ol = Math.max(0.45, Math.min(arayuzOlcegi(), (innerWidth - 16) / (sr - sl), (innerHeight - altBos - 8) / (sb - st)));
       p.olcekAyarla(ol);
       const [l2, t2, r2, b2] = p.sinir();
-      let x = ilk ? (ad === 'durum' || ad === 'magaza' || ad === 'depo' ? -l2 * ol : innerWidth - r2 * ol) : parseFloat(p.el.style.left) || 0;
+      let x = ilk ? (ad === 'durum' || ad === 'magaza' ? -l2 * ol : innerWidth - r2 * ol) : parseFloat(p.el.style.left) || 0;
       let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : ad === 'depo' ? 20 : 70) : parseFloat(p.el.style.top) || 0;
       x = Math.max(-l2 * ol, Math.min(x, innerWidth - r2 * ol)); y = Math.max(-t2 * ol, Math.min(y, innerHeight - altBos - b2 * ol));
       p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
@@ -429,7 +429,15 @@ export class OyunArayuzu {
 
   // ---------------------------------------------------------------- banka (re_el_warehouse)
   /** Bankayı açar: üstte depo sayfası (6×4), altta çanta; yuvaya tıklayınca eşya öbür tarafa geçer. */
-  depoAc(): void { this.depoSayfa = 0; this.depoImza = ''; this.ac('depo', true); }
+  depoAc(): void {
+    this.depoSayfa = 0; this.depoImza = ''; this.ac('depo', true);
+    // Sağ kenara boşluksuz yaslanır (mağaza gibi), üstten 10 px; görev çubuğunun üstünde kalacak şekilde ölçeklenir.
+    const p = this.pencereler.depo; p.olcekAyarla(1);
+    const [sl, st, sr, sb] = p.sinir(), altBos = this.gorev.boyut[1] * this.gorevOlcegi() + 14;
+    const ol = Math.max(0.4, Math.min(arayuzOlcegi(), (innerWidth - 16) / (sr - sl), (innerHeight - altBos - 14) / (sb - st)));
+    p.olcekAyarla(ol); const [, t2, r2] = p.sinir();
+    p.el.style.left = `${innerWidth - r2 * ol}px`; p.el.style.top = `${10 - t2 * ol}px`;
+  }
   private depoUst(): HTMLElement[] { return this.pencereler.depo.tumAlanlar().filter((a) => a.offsetTop < 300 && /^\d+$/.test(a.dataset.id ?? '')).sort((a, c) => Number(a.dataset.id) - Number(c.dataset.id)); }
   private depoAlt(): HTMLElement[] { return this.pencereler.depo.tumAlanlar().filter((a) => a.offsetTop >= 340 && /^\d+$/.test(a.dataset.id ?? '')).sort((a, c) => Number(a.dataset.id) - Number(c.dataset.id)); }
   private depoKur(): void {
