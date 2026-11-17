@@ -22,6 +22,14 @@ export const WIZ = {
   HAREKET: 0x06,
   KULLANICI_GIRIS_CIKIS: 0x07,
   NPC_GIRIS_CIKIS: 0x0a,
+  /** client → sunucu: NPC'ye tıklandı (0x20). */
+  NPC_OLAYI: 0x20,
+  /** Diyalog menüsü: sunucu → client konuşma + düğmeler, client → sunucu seçilen düğme (0x55). */
+  SECIM_MESAJI: 0x55,
+  /** Görev paketleri (0x64): sunucu → client alt tür 1 görev listesi, 2 görev durumu, 7 NPC konuşması; client → sunucu alt tür 3 görevi/menü satırını seç. */
+  GOREV: 0x64,
+  /** Sınıf değişimi/terfi (0x34): alt tür 6 = herkese "kimlik yeni sınıfa geçti". */
+  SINIF_DEGISTI: 0x34,
   NPC_HAREKET: 0x0b,
   SALDIRI: 0x08,
   SOHBET: 0x10,

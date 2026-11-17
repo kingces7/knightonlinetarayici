@@ -19,6 +19,9 @@ import { bankaCevabi, type BankaCevabi } from '../../../kopru/protokol/banka.ts'
 import { STAT_ANAHTARLARI, statCevabi } from '../../../kopru/protokol/karakter.ts';
 import { magazaCevabi, type MagazaCevabi } from '../../../kopru/protokol/magaza.ts';
 import { ozelHedefCevabi, sohbetPaketi, type SohbetPaketi } from '../../../kopru/protokol/sohbet.ts';
+import { altinDegisti, sinifDegisti } from '../../../kopru/protokol/sinif.ts';
+import { gorevPaketi, type GorevPaketi } from '../../../kopru/protokol/gorev.ts';
+import { secimMesaji, type SecimMesaji } from '../../../kopru/protokol/diyalog.ts';
 import { dayanimDegisti, esyaTamirCevabi, esyaAdediDegisti, esyaSilmeCevabi, esyaTasimaCevabi, type TasimaCevabi } from '../../../kopru/protokol/envanter.ts';
 import { almaCevabi, kutuIcerigi, type AlmaCevabi, type KutuIcerigi } from '../../../kopru/protokol/ganimet.ts';
 import {
@@ -57,6 +60,12 @@ export interface SavasKancalari {
   magaza?: (c: MagazaCevabi) => void;
   statDegisti?: () => void;
   banka?: (c: BankaCevabi) => void;
+  /** NPC diyalog menüsü (Lua SelectMsg, 0x55). */
+  diyalog?: (m: SecimMesaji) => void;
+  /** Görev paketi (0x64): liste/durum/NPC konuşması. */
+  gorev?: (g: GorevPaketi) => void;
+  /** Oyuncu terfi etti (yeni sınıf numarası). */
+  sinifDegisti?: (sinif: number) => void;
   sohbet?: (s: SohbetPaketi) => void;
   ozelHedef?: (bulundu: boolean) => void;
 }
@@ -119,6 +128,10 @@ export class SunucuDunyasi {
       case WIZ.ESYA_SIL: this.kancalar.esyaSilindi?.(esyaSilmeCevabi(p.govde)); break;
       case WIZ.ESYA_TASI: this.kancalar.tasimaCevabi?.(esyaTasimaCevabi(p.govde)); break;
       case WIZ.BANKA: this.kancalar.banka?.(bankaCevabi(p.govde)); break;
+      case WIZ.SINIF_DEGISTI: { const s = sinifDegisti(p.govde); if (s.alt === 6 && s.id === this.benimSoketNo && s.sinif !== undefined && this.oyuncu) { this.oyuncu.sinif = s.sinif; this.kancalar.sinifDegisti?.(s.sinif); } break; }
+      case WIZ.ALTIN_DEGISTI: { const a = altinDegisti(p.govde); if (this.oyuncu) this.oyuncu.altin = a.toplam; break; }
+      case WIZ.GOREV: this.kancalar.gorev?.(gorevPaketi(p.govde)); break;
+      case WIZ.SECIM_MESAJI: this.kancalar.diyalog?.(secimMesaji(p.govde)); break;
       case WIZ.STAT_DEGISTI: { // stat puanı harcandı: sunucu yeni değeri ve türev değerleri bildirir
         const s = statCevabi(p.govde), o = this.oyuncu; if (!o) break;
         o.stat[STAT_ANAHTARLARI[s.statNo - 1]] = s.deger; o.bonusPuan = Math.max(0, o.bonusPuan - 1);
@@ -135,7 +148,7 @@ export class SunucuDunyasi {
       case WIZ.DENEYIM_DEGISTI: this.deneyim(deneyimDegisti(p.govde)); break;
       case WIZ.SEVIYE_DEGISTI: this.seviye(seviyeDegisti(p.govde)); break;
       case WIZ.YENIDEN_DOGUS: { const y = yenidenDogusCevabi(p.govde); this.kancalar.yenidenDogdu?.(y.x, y.z); break; }
-      default: break; // diğer paketler sonraki adımlarda
+      default: ((window as unknown as { __op?: string[] }).__op ??= []).push(`${p.opcode.toString(16)}:${Array.from(p.govde.slice(0, 16)).map((x) => x.toString(16)).join(" ")}`); break; // diğer paketler sonraki adımlarda
     }
   }
 

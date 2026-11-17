@@ -285,7 +285,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] Su: kullanıcının işaretlediği kıyı şeritlerinin su olup olmadığı netleşmeli (nehir şeridini genişletme denemesi sonuç vermedi).
 
 **NPC diyalogları ve 10. seviye sonrası (2026-11-17, kullanıcı isteği)**
-- [ ] **NPC diyalog sistemi:** NPC'ye sağ tıkla `WIZ_NPC_EVENT 0x20` → sunucu Lua (`Quests/<sid>_*.lua`) `SelectMsg` ile `WIZ_SELECT_MSG 0x55` yollar (başlık/düğme metin numaraları + olay numaraları); düğmeye basınca olay numarası geri gider. Metinler client'ta `NpcMenu_us`/quest metin tablolarından çözülmeli. Sunucu: `oyun-dosyalari/kaynak/.../NPCHandler.cpp` (`CUser::SelectMsg`, satır 570), `lua_bindings.cpp`.
-- [ ] **Grand Merchant (Kaishan, sid 18004, tür 46):** seviye ≥ 10 meslek terfisi (3000 Noah, `PromoteUserNovice`), stat/skill sıfırlama, ırk/millet değişimi, geri satın alma. Betik: `Quests/18004_Kaisan.lua`.
+- [x] **NPC diyalog sistemi (temel):** NPC'ye sağ tıkla `WIZ_NPC_EVENT 0x20` → sunucu Lua (`Quests/<sid>_*.lua`) `SelectMsg` ile `WIZ_SELECT_MSG 0x55` yollar (başlık/düğme metin numaraları + olay numaraları); düğmeye basınca olay numarası geri gider. Metinler client'ta `NpcMenu_us`/quest metin tablolarından çözülmeli. Sunucu: `oyun-dosyalari/kaynak/.../NPCHandler.cpp` (`CUser::SelectMsg`, satır 570), `lua_bindings.cpp`.
+- [~] **Grand Merchant (Kaishan, sid 18004, tür 46):** terfi çalışıyor (seviye ≥ 10, 3000 Noah, sınıf 205); kalan: stat/skill sıfırlama, ırk değişimi, geri satın alma (3000 Noah, `PromoteUserNovice`), stat/skill sıfırlama, ırk/millet değişimi, geri satın alma. Betik: `Quests/18004_Kaisan.lua`.
 - [ ] **10. seviye üstü skill'ler:** terfi sonrası (Novice/Master) skill tabloları, iş sınıfına göre skill penceresi ve kullanım.
 - [ ] Diğer Moradon NPC'leri (Priest Iris, Blacksmith Heppa, Operator Moira, Coliseum Artes, Hepa Pupil Shozin, Manager Vilbore, Peddler Hemes, Sanctuary): hepsi aynı diyalog sistemine bağlanacak.

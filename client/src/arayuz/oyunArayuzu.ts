@@ -12,6 +12,7 @@ import type { EsyaTanimi } from '../oyun/veri';
 import { MagazaPenceresi } from './magazaPenceresi';
 import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
+import { DiyalogPenceresi } from './diyalogPenceresi';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -23,6 +24,8 @@ export interface ArayuzBaglami {
   oyuncu: Oyuncu;
   kamera: TakipKamerasi;
   esyaKusan: (i: number) => void;
+  /** NPC diyaloğunda düğme seçildi (sunucuya gider) / diyalog kapatıldı. */
+  diyalogSec?: (sira: number) => void; diyalogKapandi?: () => void;
   /** Envanterde sürükle-bırak: kaynak yuvadaki eşyayı hedef yuvaya taşır/yer değiştirir. */
   esyaTasi: (kaynak: YuvaKonumu, hedef: YuvaKonumu) => void;
   ipucuGoster: (e: EsyaTanimi, ev: MouseEvent, satin?: boolean, tamir?: number) => void;
@@ -273,6 +276,7 @@ export class OyunArayuzu {
     if (rakam) { this.cubukKullan(Number(rakam[1]) - 1); return true; }
     const genelTus = GENEL_TUSLAR[kod]; if (genelTus) { void this.genel.degistir(genelTus); return true; }
     if (kod === 'Escape' && this.magazaYeni?.acik) { this.magazaYeni.kapat(); return true; }
+    if (kod === 'Escape' && this.diyalog?.acik) { this.diyalog.kapat(); return true; }
     if (kod === 'Escape' && this.genel.enUsttekiniKapat()) return true;
     if (kod === 'Escape' && this.acik.size) {
       const son = [...this.acik].sort((a, c) => Number(this.pencereler[a].el.style.zIndex) - Number(this.pencereler[c].el.style.zIndex)).pop()!;
@@ -572,12 +576,31 @@ export class OyunArayuzu {
   private magazaYeni: MagazaPenceresi | null = null;
   private npcPencereAcilis = 0;
   /** Mağaza ya da banka (NPC penceresi) açık mı? */
-  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo'); }
+  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo') || !!this.diyalog?.acik; }
+  private diyalog: DiyalogPenceresi | null = null;
+  /** NPC diyalog menüsü (sunucudan gelen SelectMsg): pencere ilk kullanımda yüklenir. */
+  diyalogGoster(npcAdi: string, konusmaNo: number, dugmeler: number[]): void {
+    this.npcPencereAcilis = performance.now();
+    if (!this.diyalog) {
+      void DiyalogPenceresi.olustur({ sec: (i) => this.b.diyalogSec?.(i), kapandi: () => this.b.diyalogKapandi?.(), olcek: () => arayuzOlcegi(), oyuncuAdi: () => this.b.oyuncu.ad }, this.b.kok).then((d) => { this.diyalog = d; d.goster(npcAdi, konusmaNo, dugmeler); });
+      return;
+    }
+    this.diyalog.goster(npcAdi, konusmaNo, dugmeler);
+  }
+  /** Hazır metinle diyalog (görev NPC konuşması): düğmelerin her biri kendi işlevini çalıştırır. `konusmaNo` Quest_Talk numarası. */
+  diyalogMetinle(npcAdi: string, konusmaNo: number, dugmeler: { metinNo: number; sec: () => void }[]): void {
+    this.npcPencereAcilis = performance.now();
+    const ac = (d: DiyalogPenceresi) => d.gosterMetin(npcAdi, d.konusmaMetni(konusmaNo), dugmeler.map((x) => ({ yazi: d.dugmeMetni(x.metinNo), sec: x.sec })));
+    if (this.diyalog) { ac(this.diyalog); return; }
+    void DiyalogPenceresi.olustur({ sec: (i) => this.b.diyalogSec?.(i), kapandi: () => this.b.diyalogKapandi?.(), olcek: () => arayuzOlcegi(), oyuncuAdi: () => this.b.oyuncu.ad }, this.b.kok).then((d) => { this.diyalog = d; ac(d); });
+  }
+  diyalogKapat(): void { this.diyalog?.sessizKapat(); }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
   npcPencereleriniKapat(): void {
     if (performance.now() - this.npcPencereAcilis < 400) return;
     if (this.magazaYeni?.acik) this.magazaYeni.kapat();
     if (this.acik.has('depo')) this.ac('depo', false);
+    if (this.diyalog?.acik) this.diyalog.kapat();
   }
   private tamirModuDegistir(ac: boolean): void {
     this.tamirModu = ac; this.sonEnvanterImza = ''; this.b.ipucuGizle();

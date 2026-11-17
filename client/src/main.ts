@@ -27,6 +27,9 @@ import { ALTIN_NO as BANKA_ALTIN, BANKA_ISLEMI, SAYFA_YUVASI, bankaAcIstegi, ban
 import { oturmaIstegi, statArtirmaIstegi } from '../../kopru/protokol/karakter.ts';
 import { MAGAZA_HATALARI, MAGAZA_MENZILI, satinAlmaIstegi, satisIstegi, type MagazaCevabi } from '../../kopru/protokol/magaza.ts';
 import { SOHBET_TURU, ozelHedefIstegi, sohbetIstegi, type SohbetPaketi } from '../../kopru/protokol/sohbet.ts';
+import { gorevSecimiIstegi, type GorevPaketi } from '../../kopru/protokol/gorev.ts';
+import { diyalogVerisi, uygunGorevler } from './oyun/diyalogVeri';
+import { npcOlayiIstegi, secimCevabi, type SecimMesaji } from '../../kopru/protokol/diyalog.ts';
 import { ESYA_YONU, esyaSilmeCevabi, esyaSilmeIstegi, esyaTamirIstegi, esyaTasimaIstegi, type TasimaCevabi } from '../../kopru/protokol/envanter.ts';
 import { ALTIN_NO, GANIMET_HATALARI, esyaAlmaIstegi, kutuAcmaIstegi, type AlmaCevabi, type KutuIcerigi } from '../../kopru/protokol/ganimet.ts';
 import { BECERI_HATALARI, BECERI_KOMUTU, beceriIstegi, type BeceriPaketi } from '../../kopru/protokol/beceri.ts';
@@ -349,6 +352,7 @@ async function basla(): Promise<void> {
         hud.mesaj('You returned to town.', 'sistem');
       },
       emote: (no) => { if (oyuncu.olu || !oyuncu.model) return; kalk(); oyuncu.yuruHedef = null; oyuncu.animKilidi = oyuncu.model.numaraOynat(no) || 0; }, otur: () => oturDegistir(), yuruKos: () => yuruKosDegistir(), esyaCikar: (p) => esyaCikar(p), beceriKullan: (no) => beceriKullan(no), magazaSatinAl: (e) => magazaSatinAl(e), magazaSat: (i, adet) => magazaSat(i, adet), ganimetAl: (k, s) => hud.ganimetAl(k, s), haritaBilgi: () => ({ ad: HARITA, genislik: arazi.genislik }), npcler: () => npcler.map((n) => ({ ad: n.ad, x: n.konum.x, y: n.konum.y })),
+      diyalogSec: (sira) => { if (aktifDiyalog?.lua) sunucuOturumu?.gonder(WIZ.SECIM_MESAJI, secimCevabi(sira, aktifDiyalog.lua)); },
       durum: () => ({ oturuyor: !!oyuncu.model?.oturuyor, kosuyor }),
     });
     await a.baslat(); arayuz = a;
@@ -697,7 +701,30 @@ async function basla(): Promise<void> {
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
     if (sayfalar && arayuz) { aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); return; }
     if (n.tanim.tur === 31 && n.tanim.sid !== 19999 && arayuz) { if (sunucuOturumu) { bankaAcSunucu(n); return; } arayuz.depoAc(); return; } // Inn Hostess = banka (Clan Bank ayrı, henüz yok)
-    hud.mesaj(`${n.ad}: (conversation is not available yet)`, 'bilgi');
+    if (sunucuOturumu) { // diğer NPC'ler: sunucu Lua betiği konuşma menüsünü yollar (WIZ_SELECT_MSG)
+      const id = npcSunucuKimligi(n);
+      if (!id) { hud.mesaj(`${n.ad}: (this NPC is not available on the server)`, 'bilgi'); return; }
+      if (oyuncu.konum.distanceTo(n.konum) > MAGAZA_MENZILI - 0.5) { hud.mesaj('You are too far from the NPC.', 'sistem'); return; }
+      aktifDiyalog = { npc: n, lua: '' };
+      sunucuOturumu.gonder(WIZ.NPC_OLAYI, npcOlayiIstegi(id));
+      return;
+    }
+    hud.mesaj(`${n.ad}: (conversation needs a server connection)`, 'bilgi');
+  };
+  let aktifDiyalog: { npc: Npc; lua: string } | null = null;
+  /** Sunucudan gelen görev durumları (görev no → durum); NPC'nin hangi görev satırlarını sunacağı buna göre seçilir. */
+  const gorevDurumlari = new Map<number, number>();
+  const gorevSunucudan = async (g: GorevPaketi) => {
+    if (g.durumlar) { if (g.alt === 1) gorevDurumlari.clear(); for (const d of g.durumlar) gorevDurumlari.set(d.gorev, d.durum); return; }
+    if (g.alt !== 7 || !aktifDiyalog || g.metinNo === undefined || g.npcSid === undefined) return;
+    const v = await diyalogVerisi(), npc = aktifDiyalog.npc;
+    const satirlar = uygunGorevler(v, g.npcSid, oyuncu.seviye, oyuncu.sinif, gorevDurumlari);
+    arayuz?.diyalogMetinle(npc.ad, g.metinNo, satirlar.map((s) => ({ metinNo: s.menuMetni, sec: () => sunucuOturumu?.gonder(WIZ.GOREV, gorevSecimiIstegi(s.satir)) })));
+  };
+  const diyalogSunucudan = (m: SecimMesaji) => {
+    if (!aktifDiyalog) return;
+    aktifDiyalog.lua = m.lua;
+    arayuz?.diyalogGoster(aktifDiyalog.npc.ad, m.baslik, m.dugmeler);
   };
   /** Mağazaya satış (sunucu NPCHandler.cpp): fiyat = alış fiyatı / 6 (varsayılan kural). */
   /** Mağazaya satış; `adet` verilirse yığının yalnız o kadarı satılır (varsayılan: tamamı). */
@@ -1099,7 +1126,7 @@ async function basla(): Promise<void> {
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
   });
-  (window as unknown as { ke: unknown }).ke = { secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
+  (window as unknown as { ke: unknown }).ke = { gorevDurumlari, secilenAyarla: (d: DigerOyuncu | null) => { secilenOyuncu = d; }, npcler, sahne, kamera, oyuncu, canavarlar, digerOyuncular, kutular, arazi, hud, savas, yonetici, ses, npcTikla: npcEtkilesim, arayuz: () => arayuz, deneyimKaybet, ganimetUret,
     // DENEYSEL: .fxb tahmini efekt denemesi, oyuncunun önünde oynatır. Gerçek bir skill'e bağlı değildir (bkz. dunya/efektDeneme.ts).
     efektDene: () => { if (!efektDeneme) return; const k = oyuncu.grup.position.clone(); k.y += 0.3; efektTanecikleri.push(...efektDeneme.oynat(sahne, k)); },
     /** Geliştirme: karakteri (x, z)'ye ışınlar ve sunucuya "durağan" konum paketiyle bildirir (Town ile aynı yöntem). */
@@ -1135,7 +1162,8 @@ async function basla(): Promise<void> {
         },
         seviyeAtlandi: () => envanterYenile(),
         beceri: (p) => beceriSunucudan(p),
-        ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
+        sinifDegisti: (s) => { arayuz?.sinifAyarla(s); envanterYenile(); hud.mesaj('Congratulations! You have been promoted.', 'odul'); },
+        diyalog: diyalogSunucudan, gorev: (g) => { void gorevSunucudan(g); }, ganimetDustu: ganimetDustuSunucudan, tasimaCevabi: tasimaCevabiSunucudan, dayanim: (yuva, d) => { const e = yuva < 14 ? oyuncu.ekipman[yuva] : oyuncu.envanter[yuva - 14]; if (e) { e.suru = d; envanterYenile(); } }, tamirCevabi: tamirCevabiSunucudan, esyaAdedi: (l) => { for (const g of l) { const e = oyuncu.envanter[g.yuva]; if (e && (e.sunucuNo ?? e.no) === g.no) { if (g.adet <= 0) oyuncu.envanter[g.yuva] = null; else e.adet = g.adet; } } envanterYenile(); }, esyaSilindi: silmeSunucudan, magaza: magazaSunucudan, banka: bankaSunucudan, sohbet: sohbetSunucudan, ozelHedef: ozelHedefSunucudan, kutuIcerigi: kutuIcerigiSunucudan, almaCevabi: almaCevabiSunucudan,
         parti: (p) => {
           if (p.tur === 'hata') { partidayiz = false; hud.mesaj(p.metin, 'sistem'); }
           else if (p.tur === 'davet') {

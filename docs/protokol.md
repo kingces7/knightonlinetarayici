@@ -249,3 +249,12 @@ Canlı test (kotest2): Mage Flash seviye-1 solucanı öldürdü (EXP, ganimet, s
 - `0x38` (sunucu→client): `u8 yuva` (0–13 giyili, 14+ çanta), `u16 dayanıklılık`. Envanter listesindeki her eşya da dayanıklılık taşır.
 - Tamir (`0x3B`): client→sunucu `u8 yer (1 giyili, 2 çanta), u8 yuva, u16 NPC kimliği, u32 eşya no`; cevap `u8 sonuç, u32 kalan Noah`. Ücret = ((fiyat−10)/10000 + fiyat^0,75) × eksik/azami. Yalnız tamirci NPC (tür 22: Armor/Weapon/Sundries) tamir eder.
 - Client: tamirci mağazasında `Repair` düğmesi tamir modunu açar; eşyaya gelince "Repair Cost", tıklayınca tamir. Mağaza ve envanter sağ kenarda üst üste tek pencere gibi açılır.
+
+## NPC diyalogu ve görevler (WIZ_NPC_EVENT 0x20, WIZ_SELECT_MSG 0x55, WIZ_QUEST 0x64)
+Gerçek Myko sunucusuyla doğrulandı (Grand Merchant Kaishan, sid 18004). Kod: `kopru/protokol/diyalog.ts`, `gorev.ts`, `sinif.ts`; client: `client/src/arayuz/diyalogPenceresi.ts` (orijinal `re_Quest_Npc_Menu` penceresi), `client/src/oyun/diyalogVeri.ts`.
+- **Akış:** NPC'ye sağ tık → client `0x20` (`u8 1, u16 NPC kimliği, i32 -1`) → sunucu Lua betiği (`Quests/<sid>_*.lua`, olay 100) çalışır.
+- Myko betikleri çoğunlukla `NpcMsg(UID, metinNo, NPC)` çağırır → sunucu `0x64` alt 7 (`u32 metin no, u16 NPC sid`) yollar. Client konuşmayı gösterir ve düğme olarak NPC'nin **uygun görev satırlarını** listeler (sunucu `QuestV2SearchEligibleQuest` kuralları: seviye, ulus, sınıf, görev durumu = satır durumu, tamamlanmamış). Satır `Quest_Helper_us`'tan (`araclar/oyun/diyalog.ts`), görev durumları `0x64` alt 1 (liste: `u16 adet, adet × (u16 görev, u8 durum)`) ve alt 2 (`u16 görev, u8 durum`) ile gelir.
+- Düğmeye basınca client `0x64` alt 3 (`u8 3, u32 satır no`) yollar; sunucu satırın tetik olayını Lua'da çalıştırır.
+- Lua `SelectMsg(...)` → `0x55`: `i16 NPC sid, u8 bayrak, i32 görev, i32 konuşma no, 12 × i32 düğme metin no, string(1 bayt uzunluk) lua dosyası`. Seçim: client `0x55` ile `u8 düğme sırası, string(1 bayt) lua dosyası, i8 ödül (-1)` yollar.
+- Metinler: konuşma `Quest_Talk_us`, düğme `Quest_Menu_us` (`npm run diyalog` → `donusturulmus/web/oyun/diyalog.json`). `|` satır sonu, `<selfname>` oyuncu adı, `^` kaldırılır.
+- **Terfi (ilk meslek değişimi, seviye ≥ 10, 3000 Noah):** Kaishan → `PromoteUserNovice` → `0x34` alt 6 (`u16 yeni sınıf, u16 kimlik`; ör. 205 = El Morad novice savaşçı) + `0x4A` Noah değişimi (`u8 tür, u32 değişim, u32 yeni toplam`).
