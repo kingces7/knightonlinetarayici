@@ -344,3 +344,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] GM kapi yetkisi: irk ayrimi yok (`gm-isinlanma-kapilari.patch`) ve rakip irkin sehrinde yeniden giriste Moradon'a atilmaz (`gm-giriste-rakip-bolge.patch`). El Morad GM test hesabi Karus kapisindan Luferson'a gidip orada kaldi (dogrulandi).
 - [ ] Dukkanda 56 sunucuya ozel esyanin simge/bilgisi yok (Item_Org_us.tbl'de yok): gorunmuyor.
 - [ ] Magaza listesinde esya sirasi yalnizca numaraya gore (silah/zirh/taki ayrimi yok); istenirse kategori sayfalari.
+
+## Luferson tüccarları (2026-11-18)
+- [x] Luferson ana şehrine Accessory Merchant Hera (13001, grup 203002) ve Scrolls Charon (22301, 254000) / Amon (23400, 281000) eklendi: (421,1644), (428,1651), (435,1644). `araclar/sunucu/luferson-tuccarlar.sql`; sunucuda doğrulandı (alım çalışıyor).
+- [ ] Luferson'un diğer iki yerleşiminde (Linate ~ (361,673), Bellua ~ (1752,816)) ve El Morad'da bu üç tüccar yok.
+- [ ] Test notu: sunucu bölgesi ile client haritası eşleşmeli; testte `?harita=karus2004` için karakterin bölgesi de 1 olmalı (aksi halde NPC/canavar gelmez).
