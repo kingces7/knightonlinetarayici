@@ -1,0 +1,106 @@
+satis_grubu,npc_adi,esya_no,esya_adi
+253000,[Potion Merchant] Amore,389010000,Holy water
+253000,[Potion Merchant] Amore,389011000,Water of life
+253000,[Potion Merchant] Amore,389012000,Water of love
+253000,[Potion Merchant] Amore,389013000,Water of grace
+253000,[Potion Merchant] Amore,389014000,Water of favors
+253000,[Potion Merchant] Amore,389016000,Potion of Spirit
+253000,[Potion Merchant] Amore,389017000,Potion of Intelligence
+253000,[Potion Merchant] Amore,389018000,Potion of Sagacity
+253000,[Potion Merchant] Amore,389019000,Potion of Wisdom
+253000,[Potion Merchant] Amore,389020000,Potion of Soul
+255000,Beron[Sundries],391010000,Arrow
+255000,Beron[Sundries],389023000,Spell of life
+255000,Beron[Sundries],379001000,Prayer of life
+255000,Beron[Sundries],379003000,Prayer of grace
+255000,Beron[Sundries],379004000,Prayer of favors
+255000,Beron[Sundries],379006000,Stone of life
+255000,Beron[Sundries],370004000,Blood of wolf
+255000,Beron[Sundries],370005000,Blessing Potion
+255000,Beron[Sundries],370006000,Cure Potion
+255000,Beron[Sundries],389026000,Prayer of god's power
+255000,Beron[Sundries],389083000,Acid potion
+255000,Beron[Sundries],389033000,Styx
+255000,Beron[Sundries],389038000,Flame Resistance Potion
+255000,Beron[Sundries],389039000,Glacier Resistance Potion
+255000,Beron[Sundries],389040000,Lightning Resistance Potion
+255000,Beron[Sundries],389043000,Sling
+255000,Beron[Sundries],389050000,Calling Friend Scroll
+255000,Beron[Sundries],381001000,Transformation Scroll 
+255000,Beron[Sundries],379059000,Stone of Warrior
+255000,Beron[Sundries],379060000,Stone of Rogue
+255000,Beron[Sundries],379061000,Stone of Mage
+255000,Beron[Sundries],379062000,Stone of Priest
+255000,Beron[Sundries],379067000,Silver bar 
+255000,Beron[Sundries],379068000,Gold bar
+255000,Beron[Sundries],379107000,Gold Coin
+255000,Beron[Sundries],379109000,Silver Coin
+255000,Beron[Sundries],379110000,Bronze Coin
+255000,Beron[Sundries],389155000,Weapon Enchant Scroll
+255000,Beron[Sundries],389156000,Armor Enchant Scroll
+201001,[QuarterInstructor] Amy,110110001,
+201001,[QuarterInstructor] Amy,110410001,
+201001,[QuarterInstructor] Amy,110610001,
+201001,[QuarterInstructor] Amy,110710001,
+201001,[QuarterInstructor] Amy,110810001,
+201001,[QuarterInstructor] Amy,120110001,
+201001,[QuarterInstructor] Amy,120310001,
+201001,[QuarterInstructor] Amy,120510001,
+201001,[QuarterInstructor] Amy,120710001,
+201001,[QuarterInstructor] Amy,120810001,
+201001,[QuarterInstructor] Amy,120910001,
+201001,[QuarterInstructor] Amy,125210001,
+201001,[QuarterInstructor] Amy,125310001,
+201001,[QuarterInstructor] Amy,125610001,
+201001,[QuarterInstructor] Amy,125810001,
+201001,[QuarterInstructor] Amy,125910001,
+201001,[QuarterInstructor] Amy,126010001,
+201001,[QuarterInstructor] Amy,130210001,
+201001,[QuarterInstructor] Amy,130410001,
+201001,[QuarterInstructor] Amy,130610001,
+201001,[QuarterInstructor] Amy,130710001,
+201001,[QuarterInstructor] Amy,135310001,
+201001,[QuarterInstructor] Amy,135510001,
+201001,[QuarterInstructor] Amy,135710001,
+201001,[QuarterInstructor] Amy,135810001,
+201001,[QuarterInstructor] Amy,140210001,
+201001,[QuarterInstructor] Amy,140410001,
+201001,[QuarterInstructor] Amy,140610001,
+201001,[QuarterInstructor] Amy,140710001,
+201001,[QuarterInstructor] Amy,145310001,
+201001,[QuarterInstructor] Amy,145510001,
+201001,[QuarterInstructor] Amy,145710001,
+201001,[QuarterInstructor] Amy,150210001,
+201001,[QuarterInstructor] Amy,150410001,
+201001,[QuarterInstructor] Amy,150610001,
+201001,[QuarterInstructor] Amy,150710001,
+201001,[QuarterInstructor] Amy,155310001,
+201001,[QuarterInstructor] Amy,155510001,
+201001,[QuarterInstructor] Amy,155710001,
+201001,[QuarterInstructor] Amy,160100001,
+201001,[QuarterInstructor] Amy,160210001,
+201001,[QuarterInstructor] Amy,160410001,
+201001,[QuarterInstructor] Amy,160610001,
+201001,[QuarterInstructor] Amy,180110001,
+201001,[QuarterInstructor] Amy,180310001,
+201001,[QuarterInstructor] Amy,180510001,
+201001,[QuarterInstructor] Amy,180610001,
+201001,[QuarterInstructor] Amy,180710001,
+201001,[QuarterInstructor] Amy,190210001,
+201001,[QuarterInstructor] Amy,190410001,
+201001,[QuarterInstructor] Amy,190610001,
+201001,[QuarterInstructor] Amy,190710001,
+201001,[QuarterInstructor] Amy,170110001,
+201001,[QuarterInstructor] Amy,170210001,
+201001,[QuarterInstructor] Amy,170310001,
+201001,[QuarterInstructor] Amy,170410001,
+201001,[QuarterInstructor] Amy,171510001,
+256000,[QuarterMaster] Kalson,389102000,Ram Key
+256000,[QuarterMaster] Kalson,389117000,Moving Tower
+256000,[QuarterMaster] Kalson,389101000,Catapult Key
+256000,[QuarterMaster] Kalson,389084000,MP Shell
+256000,[QuarterMaster] Kalson,389085000,Super MP Shell
+256000,[QuarterMaster] Kalson,389087000,Durability Shell
+256000,[QuarterMaster] Kalson,389088000,Super Durability Shell
+256000,[QuarterMaster] Kalson,389090000,HP Shell
+256000,[QuarterMaster] Kalson,389091000,Super HP Shell

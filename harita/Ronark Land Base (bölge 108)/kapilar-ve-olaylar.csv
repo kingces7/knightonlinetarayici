@@ -1,0 +1,8 @@
+tur,no,ad / tür,bölge,x,z,ek
+başlangıç noktası,108,Karus x:z / El Morad x:z,,515:104,513:916,
+ışınlanma kapısı,7311,Luferson Castle,1,437,1627,"ücret 5000, ulus 1"
+ışınlanma kapısı,7314,Moradon,21,263,300,"ücret 0, ulus 1"
+ışınlanma kapısı,7321,El Morad Castle,2,1598,407,"ücret 0, ulus 2"
+ışınlanma kapısı,7324,Moradon,21,263,300,"ücret 0, ulus 2"
+nesne olayı,4019,tür 5,,526,916,"sahip 2, npc 732"
+nesne olayı,4020,tür 5,,502,105,"sahip 1, npc 731"

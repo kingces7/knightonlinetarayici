@@ -1,0 +1,78 @@
+bolge_no,harita,klasor,sunucu_haritasi,durum,canavar_yerlesimi,canavar_adedi,npc_yerlesimi,seviye_araligi
+1,Luferson Castle,Luferson Castle,1098karus2004.smd,açık,67,1267,37,24-110
+2,El Morad Castle,El Morad Castle,1098elmo2004.smd,açık,63,1188,37,24-110
+5,Luferson Castle II,Luferson Castle II,1098karus2004.smd,açık,0,0,0,
+6,Luferson Castle III,Luferson Castle III,1098karus2004.smd,açık,0,0,0,
+7,El Morad Castle II,El Morad Castle II,1098elmo2004.smd,açık,0,0,0,
+8,El Morad Castle III,El Morad Castle III,1098elmo2004.smd,açık,0,0,0,
+11,Eslant,Eslant,k_eslant.smd,açık,25,334,5,55-150
+12,Elmorad Eslant,Elmorad Eslant,e_eslant.smd,açık,0,0,0,
+13,Karus Eslant II,Karus Eslant II,k_eslant.smd,açık,24,352,11,40-145
+14,Karus Eslant III,Karus Eslant III,k_eslant.smd,açık,0,0,0,
+15,Elmorad Eslant II,Elmorad Eslant II,e_eslant.smd,açık,0,0,0,
+16,Elmorad Eslant III,Elmorad Eslant III,e_eslant.smd,açık,0,0,0,
+18,Kecoon Valley,Kecoon Valley (bölge 18),1098moradon_0826.smd,açık,5,77,4,6-20
+21,Moradon,Moradon,old_moradon.smd,açık,31,418,30,1-68
+22,Moradon II,Moradon II,1098moradon_0826.smd,açık,0,0,0,
+23,Moradon III,Moradon III,1098moradon_0826.smd,açık,0,0,0,
+24,Moradon IV,Moradon IV,1098moradon_0826.smd,açık,0,0,0,
+25,Moradon V,Moradon V,1098moradon_0826.smd,açık,0,0,0,
+28,Old Human,Old Human,elmo_oldtime_2003.smd,açık,0,0,0,
+29,Old Moradon,Old Moradon,14th_oldmoradon.smd,açık,0,0,0,
+30,Delos,Delos,1098war_a.smd,açık,0,0,20,
+31,Bifrost,Bifrost,dungeon_a.smd,açık,14,94,20,42-150
+32,Desperation Abyss,Desperation Abyss,dungeon_b1th.smd,açık,10,390,29,20-80
+33,Hell Abyss,Hell Abyss,dungeon_b2th.smd,açık,12,193,20,30-170
+34,Felankor Lair,Felankor Lair (bölge 34),dragon_a.smd,açık,1,1,1,170-170
+35,Delos Basement,Delos Basement,dungeond.smd,açık,6,63,9,50-80
+36,Flag War,Flag War,2017_flagwar.smd,açık,0,0,0,
+48,Battle Arena,Battle Arena,arena.smd,açık,0,0,3,
+51,Kecoon Valley,Kecoon Valley (bölge 51),clanfight_b.smd,açık,1,33,1,10-10
+52,Blood Don Quest,Blood Don Quest,clanfight_b.smd,açık,1,26,1,20-20
+53,Goblin Quest,Goblin Quest,clanfight_b.smd,açık,1,30,1,40-40
+54,Cape Quest,Cape Quest,clanfight_b.smd,açık,1,1,1,110-110
+55,Forgotten Temple,Forgotten Temple,clanfight_b.smd,açık,0,0,2,
+61,Napies Gorge,Napies Gorge,BattleZone.smd,açık,0,0,169,
+62,Alseids Prairie,Alseids Prairie,BattleZone_b.smd,açık,0,0,102,
+63,Nieds Triangle,Nieds Triangle,BattleZone_d.smd,açık,0,0,125,
+64,Nereids Island,Nereids Island,BattleZone_e.smd,açık,0,0,25,
+65,Moradon War,Moradon War (bölge 65),Msoft_Moradon_war.smd,açık,0,0,6,
+66,Oreads,Oreads,new_runawar.smd,açık,0,0,296,
+67,Test Zone,Test Zone (bölge 67),battlezone_67.smd,açık,0,0,0,
+69,Snow War,Snow War (bölge 69),BattleZone_b.smd,açık,0,0,2,
+71,Colony Zone,Colony Zone,1098freezone_b.smd,açık,32,746,58,40-145
+72,Ardream,Ardream,1098freezone_a.smd,kapalı,36,412,58,37-145
+73,Ronark Land Base,Ronark Land Base (bölge 73),1098freezone_c.smd,kapalı,13,137,63,50-90
+74,Test Zone,Test Zone (bölge 74),freezone.smd,açık,0,0,0,
+75,Krowaz Domion,Krowaz Domion,itemzone_a.smd,açık,13,203,149,1-220
+76,Knight Royale,Knight Royale,battlezone_e_fl.smd,açık,5,96,0,1-10
+77,Clan War Ardream,Clan War Ardream,freezone_a_event2012.smd,açık,0,0,0,
+78,Clan War Ronark Land,Clan War Ronark Land,freezone_b_2012event.smd,açık,0,0,0,
+81,Monster Stone,Monster Stone,In_dungeon01.smd,açık,0,0,0,
+82,Monster Stone II,Monster Stone II,In_dungeon02.smd,açık,0,0,0,
+83,Monster Stone III,Monster Stone III,In_dungeon03.smd,açık,0,0,0,
+84,Border Defance War,Border Defance War,In_dungeon04.smd,açık,1,60,360,30-30
+85,Chaos Dengueon,Chaos Dengueon,sky_war_2009.smd,açık,0,0,1020,
+86,Under The Castle,Under The Castle,bossmode.smd,açık,0,0,0,
+87,Juraid Mountain,Juraid Mountain,In_Dungeon05.smd,açık,7,1500,600,100-100
+88,Lk War,Lk War,LK_war_a01.smd,açık,0,0,0,
+89,Dungeon Defence,Dungeon Defence,dungeon_defense.smd,açık,0,0,0,
+92,Prison,Prison,clanfight_b.smd,açık,12,60,1,1-40
+93,Isillion Lair,Isillion Lair,dungeon_b2th.smd,açık,1,1,1,120-120
+94,Felankor Lair,Felankor Lair (bölge 94),dragon_a.smd,açık,1,1,1,170-170
+95,Drakis Tower,Drakis Tower,dungeon_b3th2015.smd,açık,0,0,0,
+96,Party War 1,Party War 1,In_dungeon06.smd,açık,0,0,1,
+97,Party War 2,Party War 2,In_dungeon06.smd,açık,0,0,1,
+98,Party War 3,Party War 3,In_dungeon06.smd,açık,0,0,1,
+99,Party War 4,Party War 4,In_dungeon06.smd,açık,0,0,1,
+105,Zindan War,Zindan War,dungeond.smd,açık,2,29,37,80-97
+106,Piana War,Piana War,elmo_oldtime_2003.smd,açık,1,25,58,71-71
+107,Mini Colony Zone,Mini Colony Zone,2003_karus_oldtime.smd,açık,0,0,47,
+108,Ronark Land Base,Ronark Land Base (bölge 108),1098freezone_c.smd,açık,4,33,57,71-97
+109,Moradon War,Moradon War (bölge 109),Msoft_Moradon_war.smd,açık,0,0,70,
+110,Snow War,Snow War (bölge 110),dungeond.smd,açık,0,0,30,
+111,Night Delos War,Night Delos War,kobawar.smd,açık,3,52,41,71-97
+112,Folk War,Folk War,kobawar.smd,açık,0,0,42,
+113,Ronark Land,Ronark Land,freezone_b.smd,açık,0,0,2,
+114,Castle Colony Zone,Castle Colony Zone,freezone_b.smd,açık,0,0,50,
+115,Mini Ardream,Mini Ardream,freezone_a.smd,açık,0,0,91,

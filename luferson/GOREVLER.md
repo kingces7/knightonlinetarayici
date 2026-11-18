@@ -59,3 +59,6 @@ Her görev bitince RAPOR.md'ye yaz; takıldığında soru yaz.
 ### Terimler (ces, 2026-11-19) — fast için
 - **emc** = El Morad Castle (sunucu bölgesi 2, harita `elmo2004`). **lufer** = Luferson Castle (bölge 1, `karus2004`). Ces bundan sonra bu kısaltmaları kullanacak; raporlarında ve dosya adlarında da kullanabilirsin ("emc canavar analizi" gibi).
 - Not: arazi karo yönü kodu araştırıldı ve düzeltildi (`araclar/harita/karo-yon-arastirma.ts`); Görev 3'teki "yön UV tablosu" bölümünü bu sonuçla karşılaştır (yön numarası = 4 döndürme × ayna dönüşüm numarası; orijinal D3D tablosunda döndürme yönü ters yazılmış).
+
+### Harita klasörü erişimi (ces, 2026-11-19)
+Ces fast'in **`harita/` klasörünün tamamını okumasına** izin verdi (77 bölge: her birinde canavarlar.csv, drop-listesi.csv, npc-listesi.csv, magaza-listesi.csv, kapilar-ve-olaylar.csv, bolge-bilgisi.json, istemci-dosyalari.csv). Okuyabilir, karşılaştırma/analiz dosyalarını ilgili harita klasörüne **yeni dosya** olarak (ör. `harita/El Morad Castle/analiz.md`) ve `NOTLAR.md`'ye yazabilirsin. `harita/` içindeki üretilmiş CSV/JSON dosyalarını **değiştirme** (üretici betik yeniler); düzeltme gerekirse RAPOR.md'ye yaz. `luferson/` dışına başka yazma yok. emc ve lufer analizi için `harita/El Morad Castle/` ve `harita/Luferson Castle/` kullanılabilir.

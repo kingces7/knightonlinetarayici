@@ -1,0 +1,13 @@
+tur,no,ad / tür,bölge,x,z,ek
+başlangıç noktası,83,Karus x:z / El Morad x:z,,204:200,204:200,
+ışınlanma kapısı,8312,Luferson Castle,1,441,1625,"ücret 0, ulus 1"
+ışınlanma kapısı,8322,El Morad Castle,2,1595,412,"ücret 0, ulus 2"
+ışınlanma kapısı,8311,Moradon,21,259,303,"ücret 0, ulus 1"
+ışınlanma kapısı,8321,Moradon,21,259,303,"ücret 0, ulus 2"
+ışınlanma kapısı,8313,Boss Teleport,83,79,52,"ücret 0, ulus 1"
+ışınlanma kapısı,8323,Boss Teleport,83,79,52,"ücret 0, ulus 2"
+nesne olayı,8301,tür 0,,110,206,"sahip 0, npc 0"
+nesne olayı,8321,tür 5,,204,213,"sahip 2, npc 832"
+nesne olayı,8311,tür 5,,203,190,"sahip 1, npc 831"
+nesne olayı,8302,tür 0,,163,122,"sahip 0, npc 0"
+nesne olayı,8303,tür 0,,121,46,"sahip 0, npc 0"

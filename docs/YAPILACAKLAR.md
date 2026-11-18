@@ -381,3 +381,8 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] **Kekuri Ring**: oyundaki gerçek eşya 330310014 (Dex +8, ateş/buz/şimşek direnci 15; Kekurikekukaka'nın özgün ganimeti %20). Kekurikekukaka boss'una yanlış eşya (810864000, fiyatı 100 olan etkinlik eşyası) konmuştu; düzeltildi (oran %15 kaldı).
 - [ ] Sword dancing / Howling Sword vuruş animasyonu: tablo iAct = 113 (skill_axe01_B), 135, 150 (NumCombo 1); "bir ayağı havaya kalkan vuruş" için hangi klibin doğru olduğu görsel karşılaştırma ister (adaylar: 135 twoH_sword_B, 143 attack_Kick0_A, 150 attack_jamadar_B).
 - [ ] Item tooltip'te canavar ganimetindeki yükseltmeli eşyaların (+bonus) değerleri client tablosunda yok (tum.json'da bonus alanları tutulmuyor).
+
+## Harita klasörü ve diğerleri (2026-11-19)
+- [x] `harita/<harita adı>/` (77 bölge): canavarlar, drop, npc, mağaza, kapılar/olaylar, bölge bilgisi, istemci dosyaları; `harita/README.md` + `_tum-haritalar.csv`. Üretici: `node araclar/oyun/harita-klasoru.ts` (CSV'ler yenilenir, `NOTLAR.md` yenilenmez). Fast'in okuma erişimi var.
+- [x] Dragon tooth Mentor: 62 kağıtları tek gruba (900062): %15 tutarsa 4 kağıttan **yalnız biri** düşer; Blessed Item Upgrade Scroll %50 (`araclar/sunucu/dragon-62-grubu.sql`).
+- [x] Simgesiz 17 eşya oyundan kaldırıldı (ITEM'den; `ITEM_SILINEN_YEDEK` tablosunda ve `docs/esya-silinen.csv`'de saklı; drop/mağaza kayıtlarından da çıkarıldı; hiçbir oyuncuda yoktu). Geri almak için yedek tablodan ITEM'e kopyala. Sunucu yeniden başlayınca geçerli.

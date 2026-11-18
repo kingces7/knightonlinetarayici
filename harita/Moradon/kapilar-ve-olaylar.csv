@@ -1,0 +1,15 @@
+tur,no,ad / tür,bölge,x,z,ek
+başlangıç noktası,21,Karus x:z / El Morad x:z,,264:302,264:302,
+ışınlanma kapısı,2115,델로스,30,506,249,"ücret 17000, ulus 1"
+ışınlanma kapısı,2125,델로스,30,506,249,"ücret 17000, ulus 2"
+ışınlanma kapısı,2111,루퍼슨성,1,441,1625,"ücret 5000, ulus 1"
+ışınlanma kapısı,2121,엘모라드성,2,1595,412,"ücret 5000, ulus 2"
+ışınlanma kapısı,2114,루나 계곡 입구,1,1860,169,"ücret 5000, ulus 1"
+ışınlanma kapısı,2124,루나 계곡 입구,2,216,1847,"ücret 5000, ulus 2"
+ışınlanma kapısı,2116,아르드림,72,848,129,"ücret 3000, ulus 1"
+ışınlanma kapısı,2123,로나크 랜드,71,630,920,"ücret 17000, ulus 2"
+ışınlanma kapısı,2126,아르드림,72,193,898,"ücret 3000, ulus 2"
+ışınlanma kapısı,2113,로나크 랜드,71,1380,1090,"ücret 17000, ulus 1"
+nesne olayı,5001,tür 8,,338,390,"sahip 1, npc 0"
+nesne olayı,4013,tür 5,,338,318,"sahip 2, npc 212"
+nesne olayı,4014,tür 5,,282,374,"sahip 1, npc 211"
