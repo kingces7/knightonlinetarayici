@@ -1,0 +1,176 @@
+sid,ad,tur,sunucuda_var_mi,sunucudaki_slot_sayisi,toplam_adet,ornek_konum
+256,Keilan,canavar,hayır,0,0,
+450,Glyptodont,canavar,hayır,0,0,
+452,Stegodon,canavar,evet,3,6,1131:1638
+453,Mastodon,canavar,evet,2,4,570:1119
+454,Megarodon,canavar,evet,1,2,784:1907
+553,Shadow seeker,canavar,hayır,0,0,
+555,Dire wolf,canavar,evet,2,10,669:1616
+650,Smilodon,canavar,evet,4,20,449:892
+652,Wild smilodon,canavar,hayır,0,0,
+653,saber tooth,canavar,evet,5,21,506:917
+654,Machirodus,canavar,evet,4,16,289:1037
+655,Meganthereon,canavar,evet,3,15,146:1001
+666,Hell hound,canavar,evet,5,25,114:365
+956,Antares,canavar,hayır,0,0,
+1002,Battalion,canavar,hayır,0,0,
+1003,Rotten Eyes,canavar,hayır,0,0,
+1051,Decayed Zombie,canavar,evet,4,20,1009:1339
+1052,Battalion,canavar,hayır,0,0,
+1053,Rotten Eyes,canavar,evet,4,20,1008:1403
+1054,undying,canavar,evet,4,20,1032:1325
+1055,Hyde,canavar,hayır,0,0,
+1113,Ash knight,canavar,hayır,0,0,
+1150,Skeleton,canavar,evet,3,21,918:1203
+1151,Skeleton warrior,canavar,hayır,0,0,
+1152,Skeleton knight,canavar,evet,3,21,1043:1078
+1153,Skeleton champion,canavar,evet,4,20,1236:1130
+1154,Death knight,canavar,evet,5,25,1252:1159
+1163,Ash knight,canavar,evet,6,26,915:724
+1164,Dragon Tooth Skeleton,canavar,evet,4,20,926:517
+1250,Scolar,canavar,evet,3,15,537:515
+1251,Sheriff,canavar,hayır,0,0,
+1252,Laird,canavar,hayır,0,0,
+1253,Baron,canavar,evet,2,10,631:727
+1254,Cardinal,canavar,evet,2,10,687:864
+1350,Kongau,canavar,evet,4,16,1427:1795
+1352,Garuna,canavar,evet,3,13,1520:1551
+1353,Haunga,canavar,evet,4,20,1294:1504
+1362,Haunga Warrior,canavar,evet,4,20,1104:1819
+1671,Orc Watcher,canavar,evet,3,15,1241:1357
+1672,Dusk Orc,canavar,evet,3,15,440:439
+1673,Lard Orc,canavar,evet,6,26,1195:371
+1692,Uruk Hai,canavar,evet,4,18,1397:853
+1693,Uruk Blade,canavar,evet,4,18,1716:604
+1694,Uruk Tron,canavar,evet,2,8,1425:198
+1772,Troll Warrior,canavar,evet,5,25,1202:492
+1777,Troll,canavar,hayır,0,0,
+1824,Manticore,canavar,hayır,0,0,
+2051,Lamia,canavar,evet,5,25,929:481
+2151,Deruvish,canavar,evet,2,10,1440:785
+2152,Apostle,canavar,evet,3,15,1559:956
+2251,Harpy,canavar,evet,6,30,1628:1254
+2252,Raven Harpy,canavar,evet,4,20,1870:1366
+2451,Stone Golem,canavar,evet,5,25,1953:843
+2452,Giant golem,canavar,evet,3,15,1929:807
+2657,Centaur,canavar,hayır,0,0,
+2951,KOBOLD,canavar,evet,6,26,240:161
+2952,BUGBEAR,canavar,evet,9,39,263:158
+2953,POOKA,canavar,evet,4,18,313:147
+2954,GOBLIN bouncer,canavar,evet,2,8,316:119
+3151,scouting soldier,canavar,hayır,0,0,
+3651,burning skeleton,canavar,evet,2,10,1140:1194
+3801,Flame Rock,canavar,hayır,0,0,
+4251,Ape,canavar,evet,5,25,238:1318
+4351,Tyon,canavar,evet,9,45,381:1223
+4401,HORNET,canavar,hayır,0,0,
+4451,HORNET,canavar,evet,5,25,1404:1259
+4551,LICH,canavar,evet,5,20,630:262
+4651,GRAY OOZY,canavar,evet,7,35,645:1144
+4751,GRELL,canavar,evet,5,25,243:592
+5351,Ancient,canavar,evet,7,35,1218:152
+5451,Treant,canavar,evet,7,35,1131:168
+8002,Dragon Tooth soldier,canavar,hayır,0,0,
+8003,Dragon Tooth commander,canavar,hayır,0,0,
+8010,Blood Don,canavar,hayır,0,0,
+8653,[Captine] Garukonga,canavar,hayır,0,0,
+8654,[Captine] Lapiona,canavar,hayır,0,0,
+8655,[Captine] Calllmecolar,canavar,hayır,0,0,
+8656,[Captine] Urukthrone,canavar,hayır,0,0,
+8657,[Captine] Alkedrada,canavar,hayır,0,0,
+8658,[Captine] Threthonez,canavar,hayır,0,0,
+9062,Burning Stone,canavar,hayır,0,0,
+9072,Half-Troll Warrior,canavar,hayır,0,0,
+9087,Niverius,canavar,hayır,0,0,
+9088,Merias,canavar,hayır,0,0,
+9089,Hagentee,canavar,hayır,0,0,
+9090,Orias,canavar,hayır,0,0,
+9099,Efos,canavar,hayır,0,0,
+9100,Gaap,canavar,hayır,0,0,
+9101,Bifloans,canavar,hayır,0,0,
+9102,Ose,canavar,hayır,0,0,
+9111,Furson,canavar,hayır,0,0,
+9112,Foras,canavar,hayır,0,0,
+9113,Chooks,canavar,hayır,0,0,
+9114,Orobeth,canavar,hayır,0,0,
+9414,Mammoth Summon Tower,canavar,hayır,0,0,
+14403,[Novice Weapon Rental]Soren,npc,hayır,0,0,
+18028,,tanimsiz,hayır,0,0,
+18031,[Manager] Roktar,npc,hayır,0,0,
+20004,Karus Bulletine Board,npc,hayır,0,0,
+20301,Luferson Monument,npc,evet,1,1,353:1739
+20302,Linate Monument,npc,evet,1,1,1726:816
+20303,Bellua monument,npc,evet,1,1,399:685
+20304,Laon Camp Monument,npc,evet,1,1,1012:919
+20305,Laon Camp Gate,npc,evet,1,1,1843:151
+21011,Guard,npc,hayır,0,0,
+21013,Guard,npc,hayır,0,0,
+21020,Guard,npc,hayır,0,0,
+21021,Guard,npc,hayır,0,0,
+21023,Guard,npc,hayır,0,0,
+21030,Guard,npc,hayır,0,0,
+21031,Guard,npc,hayır,0,0,
+21051,Recon,npc,hayır,0,0,
+21510,[Captain] Fargo,npc,hayır,0,0,
+21610,[Knight Clerk]Delaga,npc,evet,1,1,352:1746
+21810,[Great Priest] Murka,npc,evet,3,3,377:1680
+22000,[InnHost]Galid,npc,evet,3,3,368:1688
+22100,[Armor Merchant] Cubense,npc,evet,3,3,425:1620
+22200,[Weapon]Mori,npc,evet,3,3,413:1632
+22202,[Healing Potions]Shama,npc,evet,3,3,472:1667
+22208,[Sundries]Veron,npc,evet,4,4,433:671
+24201,[Warrior Master] Skaki,npc,evet,1,1,391:1738
+24202,[Secret Agent] Clarence,npc,evet,1,1,431:709
+24203,[Archmage] Drake,npc,evet,1,1,1695:806
+24204,[Priest] Minerva,npc,evet,1,1,384:1744
+24404,[Election Official]Roben,npc,evet,1,1,317:1780
+24405,[Grand Chamberlain] Rina,npc,evet,1,1,310:1774
+24406,[Imperial Palace Guard] Verca,npc,hayır,0,0,
+24407,[Advisor]Herga,npc,hayır,0,0,
+24410,[Imperial Palace Guard] Jakata,npc,hayır,0,0,
+24411,Lunar Gate Sentinel,npc,hayır,0,0,
+24412,Eslant Woman,npc,hayır,0,0,
+24413,Farm Manager,npc,hayır,0,0,
+24427,[Sentinel]Melverick,npc,hayır,0,0,
+24430,[Mercenary]Russel,npc,hayır,0,0,
+24431,[Sentinel]Hashan,npc,hayır,0,0,
+24432,[Sentinel]Cape,npc,hayır,0,0,
+24435,[Moradon Merchant] Shymer,npc,hayır,0,0,
+24440,Sanctuary,npc,hayır,0,0,
+24441,[Tomb Keeper]Bertem,npc,hayır,0,0,
+26031,[Mantle]Habice,npc,evet,1,1,401:1737
+26051,Sentinel of the Key,npc,hayır,0,0,
+26052,Watcher of the Key,npc,hayır,0,0,
+26053,Protector of the Key,npc,hayır,0,0,
+26054,Ranger of the Key,npc,hayır,0,0,
+26055,Patroller of the Key,npc,hayır,0,0,
+26056,Recon of the Key,npc,hayır,0,0,
+26057,Keeper of the Key,npc,hayır,0,0,
+29002,[12 Devil Summon Stone],npc,hayır,0,0,
+29003,[11 Devil Summon Stone],npc,hayır,0,0,
+29004,[10 Devil Summon Stone],npc,hayır,0,0,
+29005,[9 Devil Summon Stone],npc,hayır,0,0,
+29006,[8 Devil Summon Stone],npc,hayır,0,0,
+29007,[7 Devil Summon Stone],npc,hayır,0,0,
+29029,[Election Campaign Officer] Zeros,npc,hayır,0,0,
+29057,[DC Sundries] Diska,npc,hayır,0,0,
+29070,[Magic Association] Gather,npc,hayır,0,0,
+29092,,npc,hayır,0,0,
+29093,,npc,hayır,0,0,
+29189,[Breaker] Narche,npc,hayır,0,0,
+30390,Tower of Power,npc,hayır,0,0,
+31505,[National Enchanter],npc,hayır,0,0,
+31511,[Pitman] kurushack,npc,hayır,0,0,
+31515,Runaway slaves,npc,hayır,0,0,
+31526,[White Shadow Captin] Sirin,npc,hayır,0,0,
+31550,[Goblin Subjugation]Raul,npc,hayır,0,0,
+31552,[Goblin cauldron],npc,hayır,0,0,
+31553,[Goblin food box],npc,hayır,0,0,
+31554,[Goblin wells],npc,hayır,0,0,
+31556,[Captain]Pasha,npc,hayır,0,0,
+31558,[Mariners]hayeseu,npc,hayır,0,0,
+31560,[Mariners]armada,npc,hayır,0,0,
+31562,[Hunter]jareugeu,npc,hayır,0,0,
+31573,[Subjugation staff]Bergamo,npc,hayır,0,0,
+31700,[Tactical]Josiah,npc,hayır,0,0,
+32608,[Karus Secret Locker],npc,hayır,0,0,

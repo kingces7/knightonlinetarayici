@@ -27,5 +27,15 @@ Luferson haritasının (karus2004) doku paketindeki tüm elemanların haritada d
 
 Öncelik: Görev 1 (geri alma) → 2 → 3 → 4. Her görev bitince `RAPOR.md`'ye rapor yaz.
 
+### GÜNCEL SIRA (master, ces onayıyla): Görev 2 → 3 → 4 → 1(denge)
+Önceki raporlarındaki engeller kalktı:
+- **Harita dönüştürüldü:** `donusturulmus/web/harita/karus2004/` var (arazi, nesneler, gökyüzü, NPC, canavar; sunucu eşi `1098karus2004.smd`). Görev 4 artık yapılabilir.
+- **`.mob` ayrıştırıldı (master):** `luferson/mob-listesi.csv` (1.mob = 175 numara, konum içermez) ve **`luferson/canavarlar-orijinal.csv`** = ORİJİNAL (resmî 1298 veritabanı, K_NPCPOS bölge 1) yerleşim: 354 satır; `durum` sütunu: "aynı" 235, "koordinat farklı" 42, "Myko'da yok" 77. Koordinatlar orijinalden, değişmedi. Sunucuya aktarmayı master yapar.
+- **Görev 3 tamam sayıldı:** Luferson mağaza grupları zaten Moradon'unkiyle aynı (22100→202001, 22200→201001, 22202→253000, 22208→255000; sunucuda doğrulandı). Eksik: Luferson'da Accessory Merchant ve Scrolls NPC'si yok — karar ces'te.
+
+**Görev 2 (şimdi — fast'e düşen):** `canavarlar-orijinal.csv`'yi incele ve `luferson/canavarlar-orijinal-analiz.md` yaz: (a) "Myko'da yok" 77 satırı sid'e göre grupla (hangi canavarlar, kaç yer, seviye aralığı — seviye için `canavarlar.csv` ve `mob-listesi.csv`'ye bak), (b) "koordinat farklı" 42 satırda orijinal ile Myko konumlarını yan yana koy (mesafe farkı), (c) hangilerinin `mob-listesi.csv`'de olduğunu işaretle (1.mob'da olan = client'ın zaten yüklediği canavar), (d) "master'ın eklemesi önerilen" kısa liste (ekleme riski/etkisi notuyla). Koordinatları değiştirme.
+**Görev 4 (sonra):** `luferson/doku-denetimi.csv` — `donusturulmus/web/harita/karus2004/` içindeki dosyaları (arazi.json, karolar.bin, nesneler.glb, renk.bin, su.json, gökyüzü) `istemci-dosyalari.csv` ile karşılaştır; eksik/boş/anormal boyutlu olanları yaz.
+**Görev 1 / denge (en son):** `canavarlar.csv`'deki canavarların seviye–can–savunma–hasar–exp–altın eğrisini incele; aykırı değerleri (komşu seviyelere göre) `luferson/denge-onerileri.md` olarak listele. Değer değiştirme, yalnız öner.
+
 ## Biten görevler
 (henüz yok)
