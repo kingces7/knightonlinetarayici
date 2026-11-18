@@ -16,7 +16,10 @@ await s.evaluate((k) => { const g = window.ke.kapilar.find((x) => x.indeks === k
 await s.evaluate((k) => window.ke.kapiyaGit(window.ke.kapilar.find((x) => x.indeks === k)), kapi); await s.waitForTimeout(2000);
 console.log('mesaj', JSON.stringify(await msg()));
 await s.screenshot({ path: `${klasor}/kapi_liste.png` });
-await s.evaluate(() => { [...document.querySelectorAll('div')].find((e) => e.children.length === 0 && /Luferson|El Morad Castle/.test(e.textContent))?.click(); });
+const konum0 = await s.evaluate(() => [window.ke.oyuncu.konum.x, window.ke.oyuncu.konum.y]);
+const kutu = await s.evaluate(() => { const e = [...document.querySelectorAll('div')].find((e) => e.children.length === 0 && /Luferson|El Morad Castle/.test(e.textContent)); const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, ad: e.textContent }; });
+console.log('GERÇEK fare tıklaması:', JSON.stringify(kutu)); await s.mouse.click(kutu.x, kutu.y); // gerçek fare: tıklama menüde kalmalı, karakter yürümemeli
+await s.waitForTimeout(500); console.log('yürüme hedefi var mı', await s.evaluate(() => !!window.ke.oyuncu.yuruHedef), 'konum değişti', JSON.stringify(konum0), JSON.stringify(await s.evaluate(() => [window.ke.oyuncu.konum.x, window.ke.oyuncu.konum.y])));
 await s.waitForTimeout(6000);
 console.log('mesaj', JSON.stringify(await msg().catch(() => 'sayfa yenileniyor')));
 await s.waitForFunction(() => /harita=(karus|elmo)2004/.test(location.search), null, { timeout: 30000 }).catch(() => console.log('yönlenmedi'));

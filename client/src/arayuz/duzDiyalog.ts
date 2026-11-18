@@ -10,9 +10,10 @@ export class DuzDiyalog {
     Object.assign(k.style, {
       position: 'fixed', display: 'none', zIndex: '8', boxSizing: 'border-box', width: '613px', minHeight: '180px', padding: '12px 14px 18px',
       background: 'rgba(14,12,10,0.74)', border: '3px solid #c9a24a', borderRadius: '5px', boxShadow: '0 0 0 1px #3a2c10 inset, 0 4px 18px rgba(0,0,0,.65)',
-      fontFamily: 'Verdana, Arial, sans-serif', userSelect: 'none', transformOrigin: 'top center',
+      fontFamily: 'Verdana, Arial, sans-serif', userSelect: 'none', pointerEvents: 'auto', // arayüz katmanı pointer-events:none olabilir: pencere kendi tıklamalarını almalı
+     transformOrigin: 'top center',
     } as Partial<CSSStyleDeclaration>);
-    k.addEventListener('mousedown', (e) => e.stopPropagation()); // oyun alanına tıklama sayılmasın
+    for (const ad of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'contextmenu']) k.addEventListener(ad, (e) => e.stopPropagation()); // oyun alanına tıklama (yürüme, seçim) geçmesin
     ust.appendChild(k);
   }
   get acik(): boolean { return this.acikMi; }
