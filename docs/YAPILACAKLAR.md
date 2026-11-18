@@ -332,3 +332,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Işınlanma uçtan uca doğrulandı (2026-11-18): El Morad kapısı (kotestkar → El Morad Castle 1594,411) ve Karus kapısı (PvPRobot → Luferson 441,1622); `client/scripts/isinlanmaTesti.mjs`.
 - [ ] Haritası olmayan bölgeler (Delos, Ronark Land, Ardream) kapı listesinde gri.
 - [ ] `Town` komutu Moradon koordinatına ışınlar (Luferson/El Morad'da yanlış yer).
+
+## Büyük haritalarda performans (2026-11-18, El Morad / Luferson)
+- [x] Kök neden: arazi tek geometriydi (513×513 → ≈526 bin üçgen) ve aynı dokulu nesneler tüm harita boyunca tek geometride birleşiyordu; ikisi de görüş alanı kırpmasına takılmadan hep çiziliyordu (El Morad ≈797 bin üçgen/kare; Moradon ≈200 bin).
+- [x] Çözüm: arazi 32×32 karelik parçalara (`dunya/arazi.ts`), nesneler 256 m'lik hücrelere (`dunya/nesneler.ts`, `?hucre=0` eski davranış) bölündü: El Morad ≈126 bin, Luferson ≈140 bin üçgen. Görüntü piksel piksel aynı. Ölçüm: `client/scripts/fpsOlcum.mjs`.
+- [ ] Test makinesinde (güçlü GPU) kare süresi değişmedi (≈8-9 ms, çizim çağrısı sınırlı: ≈385); asıl kazanç zayıf ekran kartlarında beklenir. Daha fazlası için dokuları atlasa birleştirmek (çizim çağrısını düşürür) gerekir.
+- [ ] Zemin geçiş karolarının (yol kenarındaki turuncu lekeler) birebir karışım kuralı hâlâ bilinmiyor.

@@ -73,9 +73,47 @@ export async function nesneleriYukle(url: string, anizotropi = 8): Promise<THREE
       side: std.side, depthWrite: !std.transparent,
     });
     if (std.alphaTest > 0) { yeni.alphaTest = std.alphaTest; yeni.transparent = false; yeni.depthWrite = true; }
-    const mesh = new THREE.Mesh(birlesik, yeni);
-    mesh.name = mat.name;
-    sonuc.add(mesh);
+    // Aynı dokulu tüm nesneler tek geometri olunca bütün harita hep çiziliyordu (görüş alanı kırpması işe yaramaz). Üçgenler HUCRE metrelik karelere bölünür:
+    // yalnız görüş alanındaki kareler çizilir (büyük haritalarda — Luferson, El Morad — üçgen sayısı kat kat düşer). Malzeme ortak kalır (doku animasyonu bozulmaz).
+    for (const p of HUCRE > 0 ? hucrelereBol(birlesik, HUCRE) : [birlesik]) {
+      const mesh = new THREE.Mesh(p, yeni);
+      mesh.name = mat.name;
+      sonuc.add(mesh);
+    }
+    if (HUCRE > 0) birlesik.dispose();
+  }
+  return sonuc;
+}
+
+/** Bir kare hücrenin kenarı (metre). 256: 2048 m'lik haritada 8×8 hücre; küçük haritalarda (Moradon 512 m) 2×2. */
+const HUCRE = Number(new URLSearchParams(location.search).get('hucre') ?? 256); // 0 = bölme yok (karşılaştırma için)
+
+/** Üçgenleri ağırlık merkezlerine göre (x, z) karelerine böler; girdi indekssiz olmalı (3 köşe ardışık). */
+function hucrelereBol(g: THREE.BufferGeometry, hucre: number): THREE.BufferGeometry[] {
+  const konum = g.getAttribute('position') as THREE.BufferAttribute, normal = g.getAttribute('normal') as THREE.BufferAttribute, uv = g.getAttribute('uv') as THREE.BufferAttribute;
+  const kovalar = new Map<string, number[]>();
+  const ucgen = konum.count / 3;
+  for (let t = 0; t < ucgen; t++) {
+    const i = t * 3;
+    const cx = (konum.getX(i) + konum.getX(i + 1) + konum.getX(i + 2)) / 3, cz = (konum.getZ(i) + konum.getZ(i + 1) + konum.getZ(i + 2)) / 3;
+    const anahtar = Math.floor(cx / hucre) + ',' + Math.floor(cz / hucre);
+    let k = kovalar.get(anahtar); if (!k) kovalar.set(anahtar, k = []);
+    k.push(t);
+  }
+  const sonuc: THREE.BufferGeometry[] = [];
+  for (const liste of kovalar.values()) {
+    const n = liste.length * 3, p = new Float32Array(n * 3), nr = new Float32Array(n * 3), u = new Float32Array(n * 2);
+    let o = 0;
+    for (const t of liste) for (let v = 0; v < 3; v++, o++) {
+      const i = t * 3 + v;
+      p[o * 3] = konum.getX(i); p[o * 3 + 1] = konum.getY(i); p[o * 3 + 2] = konum.getZ(i);
+      nr[o * 3] = normal.getX(i); nr[o * 3 + 1] = normal.getY(i); nr[o * 3 + 2] = normal.getZ(i);
+      u[o * 2] = uv.getX(i); u[o * 2 + 1] = uv.getY(i);
+    }
+    const yeni = new THREE.BufferGeometry();
+    yeni.setAttribute('position', new THREE.BufferAttribute(p, 3)); yeni.setAttribute('normal', new THREE.BufferAttribute(nr, 3)); yeni.setAttribute('uv', new THREE.BufferAttribute(u, 2));
+    yeni.computeBoundingSphere(); yeni.computeBoundingBox();
+    sonuc.push(yeni);
   }
   return sonuc;
 }

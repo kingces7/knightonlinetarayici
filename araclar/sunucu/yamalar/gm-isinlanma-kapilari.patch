@@ -1,0 +1,28 @@
+--- E:/tmp/UOS.orig	2026-11-18 03:19:04.052390000 +0300
++++ UserObjectSystem.cpp	2026-11-18 03:19:31.010475400 +0300
+@@ -22,11 +22,11 @@
+ 		|| sqrtf(GetDistance(pEvent->fPosX, pEvent->fPosZ)) >= MAX_OBJECT_RANGE)
+ 		goto fail_return;
+ 
+-	if (pEvent->sBelong != 0 && pEvent->sBelong != GetNation())
++	if (!isGM() && pEvent->sBelong != 0 && pEvent->sBelong != GetNation())
+ 		goto fail_return;
+ 
+ 	_WARP_INFO* pWarp = GetMap()->GetWarp(warpid);
+-	if (pWarp == nullptr || (pWarp->sNation != 0 && pWarp->sNation != GetNation()))
++	if (pWarp == nullptr || (!isGM() && pWarp->sNation != 0 && pWarp->sNation != GetNation()))
+ 		goto fail_return;
+ 
+ 	short zoneid = pWarp->sZone;
+@@ -373,9 +373,9 @@
+ bool CUser::WarpListObjectEvent(_OBJECT_EVENT *pEvent)
+ {
+ 	// If the warp gate belongs to a nation, which isn't us...
+-	if (pEvent->sBelong != 0 && pEvent->sBelong != GetNation()
++	if ((!isGM() && pEvent->sBelong != 0 && pEvent->sBelong != GetNation())
+ 		// or we're in the opposing nation's zone...
+-		|| (GetZoneID() != GetNation() && GetZoneID() <= (uint8)Nation::ELMORAD)
++		|| (!isGM() && GetZoneID() != GetNation() && GetZoneID() <= (uint8)Nation::ELMORAD)
+ 		// or we're unable to retrieve the warp list...
+ 		|| !GetWarpList(pEvent->sControlNpcID))
+ 		return false;

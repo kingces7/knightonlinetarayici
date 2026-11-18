@@ -13,14 +13,16 @@ export interface AraziBilgisi {
 export class Arazi {
   readonly bilgi: AraziBilgisi;
   readonly yukseklik: Float32Array;
-  readonly mesh: THREE.Mesh;
+  /** Arazi parçaları (her biri kendi sınırıyla görüş alanı dışında çizilmez); tıklama ışını için `intersectObject(mesh)` kullanılır. */
+  readonly mesh: THREE.Group;
+  private readonly malzeme: THREE.ShaderMaterial;
   /** Haritanın kenar uzunluğu (metre). */
   readonly genislik: number;
   /** Sunucu haritasından gelen duvar/zemin üçgenleri (varsa). */
   carpisma: Carpisma | null = null;
 
-  private constructor(bilgi: AraziBilgisi, yukseklik: Float32Array, mesh: THREE.Mesh) {
-    this.bilgi = bilgi; this.yukseklik = yukseklik; this.mesh = mesh;
+  private constructor(bilgi: AraziBilgisi, yukseklik: Float32Array, mesh: THREE.Group, malzeme: THREE.ShaderMaterial) {
+    this.bilgi = bilgi; this.yukseklik = yukseklik; this.mesh = mesh; this.malzeme = malzeme;
     this.genislik = (bilgi.boyut - 1) * bilgi.birim;
   }
 
@@ -78,6 +80,22 @@ export class Arazi {
     geo.setAttribute('position', new THREE.BufferAttribute(konum, 3));
     geo.setIndex(new THREE.BufferAttribute(indeks, 1));
     geo.computeVertexNormals();
+    // Tüm arazi tek geometriydi (513×513 haritada ≈526 bin üçgen, hep çizilirdi). Şimdi PARCA×PARCA karelik parçalara bölünür: köşe ve normal verisi ortak, her parçanın kendi indeksi ve sınır küresi var;
+    // görüş alanı (ve kamera uzak sınırı) dışındaki parçalar çizilmez. Üçgen bölünmesi öncekiyle aynı (yükseklikAl ve çarpışma bozulmaz).
+    const PARCA = 32;
+    const parcalar: { ix: Uint32Array; kure: THREE.Sphere }[] = [];
+    for (let px = 0; px < k; px += PARCA) for (let pz = 0; pz < k; pz += PARCA) {
+      const x1 = Math.min(px + PARCA, k), z1 = Math.min(pz + PARCA, k);
+      const ix = new Uint32Array((x1 - px) * (z1 - pz) * 6); let q = 0, yMin = Infinity, yMax = -Infinity;
+      for (let x = px; x < x1; x++) for (let z = pz; z < z1; z++) {
+        const a = x * n + z, b = (x + 1) * n + z, c = x * n + z + 1, e = (x + 1) * n + z + 1;
+        ix[q++] = a; ix[q++] = b; ix[q++] = c; ix[q++] = c; ix[q++] = b; ix[q++] = e;
+        for (const v of [a, b, c, e]) { const h = yukseklik[v]; if (h < yMin) yMin = h; if (h > yMax) yMax = h; }
+      }
+      const cx = ((px + x1) / 2) * bilgi.birim, cz = -((pz + z1) / 2) * bilgi.birim, cy = (yMin + yMax) / 2;
+      const yar = Math.hypot(((x1 - px) * bilgi.birim) / 2, ((z1 - pz) * bilgi.birim) / 2, (yMax - yMin) / 2) + 1;
+      parcalar.push({ ix, kure: new THREE.Sphere(new THREE.Vector3(cx, cy, cz), yar) });
+    }
 
     const malzeme = new THREE.ShaderMaterial({
       glslVersion: THREE.GLSL3,
@@ -149,9 +167,17 @@ export class Arazi {
           #include <colorspace_fragment>
         }`,
     });
-    const mesh = new THREE.Mesh(geo, malzeme);
+    const mesh = new THREE.Group();
     mesh.name = 'arazi';
-    const arazi = new Arazi(bilgi, yukseklik, mesh);
+    const konumAttr = geo.getAttribute('position'), normalAttr = geo.getAttribute('normal');
+    for (const p of parcalar) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', konumAttr); g.setAttribute('normal', normalAttr); g.setIndex(new THREE.BufferAttribute(p.ix, 1));
+      g.boundingSphere = p.kure; g.boundingBox = new THREE.Box3().setFromCenterAndSize(p.kure.center, new THREE.Vector3(p.kure.radius * 2, p.kure.radius * 2, p.kure.radius * 2));
+      const m = new THREE.Mesh(g, malzeme); m.name = 'arazi-parca'; mesh.add(m);
+    }
+    geo.dispose();
+    const arazi = new Arazi(bilgi, yukseklik, mesh, malzeme);
     // Çarpışma verisi isteğe bağlı: yoksa karakterler duvarlardan geçer (eski davranış).
     arazi.carpisma = await Carpisma.yukle(`${klasor}/carpisma.bin`, arazi.genislik).catch(() => null);
     return arazi;
@@ -170,7 +196,7 @@ export class Arazi {
 
   /** Sis ayarı (nesnelerle uyumlu olsun diye). */
   sisAyarla(renk: THREE.Color, yakin: number, uzak: number): void {
-    const u = (this.mesh.material as THREE.ShaderMaterial).uniforms;
+    const u = this.malzeme.uniforms;
     u.sisRengi.value.copy(renk); u.sisYakin.value = yakin; u.sisUzak.value = uzak;
   }
 }
