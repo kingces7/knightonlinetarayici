@@ -121,16 +121,15 @@ export class Arazi {
         uniform float birim; uniform float karoSayisi; uniform float detay; uniform vec3 gunesYonu;
         uniform vec3 sisRengi; uniform float sisYakin; uniform float sisUzak;
         in vec3 vDunya; in vec3 vNormal; in float vDerinlik;
-        vec2 yonUv(float yon, vec2 uv) {
-          int d = int(yon + 0.5) & 7;
-          if (d == 1) return vec2(uv.y, 1.0 - uv.x);
-          if (d == 2) return vec2(1.0 - uv.x, 1.0 - uv.y);
-          if (d == 3) return vec2(1.0 - uv.y, uv.x);
-          if (d == 4) return vec2(1.0 - uv.x, uv.y);
-          if (d == 5) return vec2(uv.x, 1.0 - uv.y);
-          if (d == 6) return vec2(uv.y, uv.x);
-          if (d == 7) return vec2(1.0 - uv.y, 1.0 - uv.x);
-          return uv;
+        // Orijinal client (N3Terrain.cpp m_fTileDirU/V + N3TerrainPatch.cpp): her karonun 4 köşesine yönden gelen sabit UV dizisi verilir.
+        // Köşe sırası [LT, RT, LB, RB]; karo köşeleri: (x,z)=LB, (x,z+1)=LT, (x+1,z+1)=RT, (x+1,z)=RB. Yön 0-3 döndürme, 4-7 aynalı döndürme.
+        const float YU[32] = float[32](0.,1.,0.,1.,  0.,0.,1.,1.,  1.,0.,1.,0.,  1.,1.,0.,0.,  1.,0.,1.,0.,  0.,0.,1.,1.,  0.,1.,0.,1.,  1.,1.,0.,0.);
+        const float YV[32] = float[32](0.,0.,1.,1.,  1.,0.,1.,0.,  1.,1.,0.,0.,  0.,1.,0.,1.,  0.,0.,1.,1.,  0.,1.,0.,1.,  1.,1.,0.,0.,  1.,0.,1.,0.);
+        vec2 yonUv(float yon, vec2 p) {
+          int d = (int(yon + 0.5) & 7) * 4;
+          float u = mix(mix(YU[d + 2], YU[d + 3], p.x), mix(YU[d], YU[d + 1], p.x), p.y);
+          float v = mix(mix(YV[d + 2], YV[d + 3], p.x), mix(YV[d], YV[d + 1], p.x), p.y);
+          return vec2(u, 1.0 - v); // D3D'de v aşağı doğru artar; atlas dokuları WebGL'de ters yüklenir
         }
         void main() {
           vec2 ko = vec2(vDunya.x, -vDunya.z) / birim;
@@ -138,22 +137,15 @@ export class Arazi {
           vec2 yerel = fract(ko);
           vec4 b1 = texelFetch(bilgi1, karo, 0) * 255.0;
           vec4 b2 = texelFetch(bilgi2, karo, 0) * 255.0;
-          // Türevleri karo sınırında sıçramasın diye sürekli koordinattan al
-          vec2 dx = dFdx(ko), dy = dFdy(ko);
-          // Geçiş karoları kenarlarında kararır (rengi saydamlıkla önceden çarpılmış gibi).
-          // Karanlığı saydamlık olarak kullanıp katmanları alttan üste bindiriyoruz:
-          // taban renk (yaklaşık renk haritası) -> 1. karo -> 2. karo.
-          // Not: Oyunun birebir karışım kuralı şifreli renk haritası çözülünce uygulanacak.
-          vec3 c = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
-          vec2 uv1 = yonUv(b1.z, yerel);
-          vec3 t1 = textureGrad(karolar, vec3(uv1, b1.x + b1.y * 256.0), dx, dy).rgb;
-          float a1 = smoothstep(0.02, 0.22, max(t1.r, max(t1.g, t1.b)));
-          c = mix(c, t1 / max(a1, 0.35), a1 * detay);
-          if (b2.w > 0.5) {
-            vec2 uv2 = yonUv(b2.z, yerel);
-            vec3 t2 = textureGrad(karolar, vec3(uv2, b2.x + b2.y * 256.0), dx, dy).rgb;
-            float a2 = smoothstep(0.02, 0.22, max(t2.r, max(t2.g, t2.b)));
-            c = mix(c, t2 / max(a2, 0.35), a2 * 0.85 * detay);
+          vec2 dx = dFdx(ko), dy = dFdy(ko); // türevler karo sınırında sıçramasın diye sürekli koordinattan
+          // Orijinal çizim (N3TerrainPatch.cpp Render): iki katman varsa doku1 + doku2 (D3DTOP_ADD), tek katman ise yalnız doku1; geçerli doku yoksa renk haritası.
+          float ilk = b1.x + b1.y * 256.0;
+          vec3 c;
+          if (ilk >= karoSayisi) {
+            c = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
+          } else {
+            c = textureGrad(karolar, vec3(yonUv(b1.z, yerel), ilk), dx, dy).rgb;
+            if (b2.w > 0.5) c += textureGrad(karolar, vec3(yonUv(b2.z, yerel), b2.x + b2.y * 256.0), dx, dy).rgb;
           }
           c = min(c, vec3(1.0));
           // Yumuşak diz: koyu/orta tonlar korunur (zemin canlı kalır), yalnızca parlak tonlar sıkıştırılır (beyaza/açık griye yanmasın, nesnelerle aynı koyulukta dursun).

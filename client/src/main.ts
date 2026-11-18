@@ -426,6 +426,7 @@ async function basla(): Promise<void> {
       partiDavet: () => partiDavetEt(),
       // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
       sehreDon: () => {
+        if (ayar.bolge !== 21) { hud.mesaj('Town only works in Moradon. Use a warp gate to return.', 'sistem'); return; } // başka bölgede Moradon koordinatına ışınlamak sunucudaki bölgeyle uyuşmaz (karakter "boyuta" takılır)
         const [x, z] = SEHIR_NOKTASI; kalk(); oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null;
         if (sunucuOturumu) { const p = (m: number) => Math.round(m * 10); const y = p(arazi.yukseklikAl(x, z)); sunucuOturumu.gonder(WIZ.HAREKET, new PaketYazici().u16(p(x)).u16(p(z)).u16(y).i16(0).u8(0).u16(p(x)).u16(p(z)).u16(y).baytlar()); }
         hud.mesaj('You returned to town.', 'sistem');
@@ -797,7 +798,7 @@ async function basla(): Promise<void> {
   };
   const npcEtkilesim = (n: Npc) => {
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
-    if (/Sundries/i.test(n.tanim.ad) && sayfalar && arayuz) { // [Sundries]: önce orijinal konuşma menüsü (alışveriş / tamir / takas / ayrıl)
+    if (sayfalar && arayuz) { // mağazası olan her NPC (Inn Hostess hariç: o ayrı menü): önce orijinal konuşma menüsü (alışveriş / tamir / takas / ayrıl)
       const magazaAc = (tamir: boolean) => { arayuz.diyalogKapat(); aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); if (tamir) hud.mesaj('Right-click an item to repair it.', 'sistem'); };
       arayuz.diyalogDuz(n.ad, 'A great blacksmith like me is hard to find. Tell me if you need anything...', [
         { yazi: 'I want to trade.', sec: () => magazaAc(false) },
