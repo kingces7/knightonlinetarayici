@@ -32,6 +32,8 @@ esya_no,ad,tur,sinif_kodu,irk,gereken_seviye,fiyat,aciklama
 160250000,Bamboo Bow,silah,2,0,0,349,Bamboo Bow
 160410000,Rapt Bow,silah,2,0,0,1542,A bow with good grip even for a novice archer.
 160450000,Hunter's Bow,silah,2,0,0,1542,Hunter's Bow
+160450255,Chitin Bow,silah,2,0,0,1542,Hunter's Bow
+160450256,Scorpion Bow,silah,2,0,0,1542,Hunter's Bow
 160451000,Hunter's Bow,silah,2,0,0,1542,
 160610000,Composite Bow,silah,2,0,0,9460,A small bow made by combining various odd materials.
 160612000,Composite Bow,silah,2,0,0,946,A small bow which is made with many objects. A popular addition. Sells cheaply to NPC merchants...
@@ -58,6 +60,7 @@ esya_no,ad,tur,sinif_kodu,irk,gereken_seviye,fiyat,aciklama
 168312000,Iron Crossbow,silah,2,0,0,12296,"A crossbow with higher elasticity due to struts made of iron. It was added as a popular addition, and sold at cheap prices to NPC mechants."
 168322000,Iron Crossbow,silah,2,0,0,12296,"A crossbow with higher elasticity due to struts made of iron. It was added as a popular addition, and sold at cheap prices  to NPC mechants."
 168410000,Iron Bow,silah,2,0,0,191899,A powerful bow that requires great agility.
+168410001,Iron Bow(+1),silah,2,0,0,383798,A powerful bow that requires great agility.
 168411000,Iron Bow,silah,2,0,0,191899,A powerful bow that requires great agility.
 168610000,Exceptional Iron Bow,silah,2,0,0,191899,A powerful bow that requires great agility.
 168611000,Exceptional Iron Bow,silah,2,0,0,191899,A powerful bow that requires great agility.

@@ -55,3 +55,7 @@ Her görev bitince RAPOR.md'ye yaz; takıldığında soru yaz.
 
 ## Biten görevler
 (henüz yok)
+
+### Terimler (ces, 2026-11-19) — fast için
+- **emc** = El Morad Castle (sunucu bölgesi 2, harita `elmo2004`). **lufer** = Luferson Castle (bölge 1, `karus2004`). Ces bundan sonra bu kısaltmaları kullanacak; raporlarında ve dosya adlarında da kullanabilirsin ("emc canavar analizi" gibi).
+- Not: arazi karo yönü kodu araştırıldı ve düzeltildi (`araclar/harita/karo-yon-arastirma.ts`); Görev 3'teki "yön UV tablosu" bölümünü bu sonuçla karşılaştır (yön numarası = 4 döndürme × ayna dönüşüm numarası; orijinal D3D tablosunda döndürme yönü ters yazılmış).

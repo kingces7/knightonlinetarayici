@@ -28,9 +28,11 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 110912000,Kukry,silah,0,0,0,17576,"A dagger that is somewhat like a boomerang. It was added as a popular addition, and sold at cheap prices to NPC mechants."
 110930000,Kukry,silah,0,0,0,175760,A dagger that is a little like the boomerang.
 111010000,Cleaver,silah,0,0,0,286230,A big knife for cutting meat.
+111010001,Cleaver(+1),silah,0,0,0,572460,A big knife for cutting meat.
 111012000,Cleaver,silah,0,0,0,28623,"A big knife for cutting meat. It was added as a popular addition, and sold at cheap prices to NPC mechants."
 111030000,Cleaver,silah,0,0,0,286230,A big knife for cutting meat.
 111110000,Mirage Dagger,silah,0,0,0,443040,A dagger of mirage.
+111110001,Mirage Dagger(+1),silah,0,0,0,886080,A dagger of mirage.
 111111000,Mirage Dagger,silah,0,0,0,443045,A dagger of mirage.
 111112000,Exceptional Mirage Dagger,silah,0,0,0,44304,A dagger of mirage.
 111122000,Exceptional Mirage Dagger,silah,0,0,0,44304,A dagger of mirage.
@@ -64,7 +66,9 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 120310000,Long Sword,silah,0,0,0,1043,A light and relatively short one-handed sword.
 120350000,Broad Sword,silah,0,0,0,1043,A common sword.
 120510000,Scimitar,silah,0,0,0,7647,"A gently curved sword, wielded by Calenuil!"
+120510255,Tooth,silah,0,0,0,7647,"A gently curved sword, wielded by Calenuil!"
 120550000,Falchion,silah,0,0,0,7647,A broad and greatly curved sword.
+120550256,Sword of Beast,silah,0,0,0,7647,A broad and greatly curved sword.
 120710000,Flame Sword,silah,0,0,0,32270,A sword engulfed in flames.
 120750000,Sabre,silah,0,0,0,32270,One-handed sword
 120810000,Rapier,silah,0,0,0,66563,A sword made exclusively for stabbing.
@@ -73,6 +77,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 121010000,Crescent,silah,0,0,0,208127,A sword of the crescent moon.
 121012000,Crescent,silah,0,0,0,20812,A sword called as Crescent. A popular addition. Sells cheaply to NPC merchants...
 121110000,Blade,silah,0,0,0,358112,A sword famous for its keen blade.
+121110001,Blade(+1),silah,0,0,0,716224,A sword famous for its keen blade.
 121112000,Blade,silah,0,0,0,35811,One of the swords with sharpest blades. A popular addition. Sells cheaply to NPC merchants...
 121210000,Slayer,silah,0,0,0,507711,A sword for hunting a specific target.
 121211000,Slayer,silah,0,0,0,507711,A sword for hunting a specific target.
@@ -98,6 +103,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 125250000,Bastard Sword,silah,0,0,0,495,"Two-handed sword, CaliMaestro's preferred sword!"
 125310000,Two-Handed Sword,silah,0,0,0,1197,A sword that is rather difficult to wield even with both hands.
 125350000,Twei Hander,silah,0,0,0,1197,Two-handed sword
+125350258,Sword of the Dead,silah,0,0,0,1197,Two-handed sword
 125610000,Battle Sword,silah,0,0,0,7913,A two-handed sword made solely for battle.
 125650000,War Sword,silah,0,0,0,7913,Two-handed sword
 125810000,Great Sword,silah,0,0,0,32662,A double-edged sword with fearsome blades.
@@ -151,9 +157,11 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 130250000,Wood Cutter,silah,0,0,0,2572,Axe
 130410000,Double Axe,silah,0,0,0,13329,A double-edged hand axe.
 130450000,Giantic Axe,silah,0,0,0,13329,<font color=@#FF0077@><b>An ax used by magnificent <font color=@#00FF77@><b>warriors who have strong arms <font color=@#FF0033@><b> and can use two hands</b></font>
+130450256,Giantic Axe,silah,0,0,0,13329,Axe
 130451000,Large Axe,silah,0,0,0,13329,
 130610000,Bipennis,silah,0,0,0,41929,"Similar to double axe, "
 130650000,Warrior Axe,silah,0,0,0,41929,Axe
+130650255,Javana Axe,silah,0,0,0,41929,Axe
 130651000,Warrior Axe,silah,0,0,0,41929,
 130710000,Military Pick,silah,0,0,0,91644,A small hand axe made especially for hunting.
 130712000,Military Pick,silah,0,0,0,9164,A small professional axe which aims at hunting. A popular addition. Sells cheaply to NPC merchants...
@@ -187,6 +195,8 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 135710000,Twin Axe,silah,0,0,0,42349,"A two-handed axe with long, twin blades."
 135712000,Twin Axe,silah,0,0,0,4234,Two-handed axe with long blades. A popular addition. Sells cheaply to NPC merchants...
 135750000,Tabar,silah,0,0,0,42349,Two-handed axe
+135750258,Javana Axe,silah,0,0,0,42349,Two-handed axe
+135750259,Giantic Axe,silah,0,0,0,42349,Two-handed axe
 135751000,Tabar,silah,0,0,0,42349,
 135810000,Great Axe,silah,0,0,0,92160,An axe made only for chopping downward.
 135812000,Great Axe,silah,0,0,0,9216,"An axe made only for chopping downward. It was added as a popular addition, and sold at cheap prices to NPC mechants."
@@ -398,6 +408,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 151010000,Philum,silah,0,0,0,443711,A spear for throwing.
 151012000,Philum,silah,0,0,0,44371,A spear for javelin throwing. A popular addition. Sells cheaply to NPC merchants...
 151110000,Harpoon,silah,0,0,0,580110,A spear that is for stabbing like a harpoon.
+151110001,Harpoon(+1),silah,0,0,0,1160220,A spear that is for stabbing like a harpoon.
 151111000,Harpoon,silah,0,0,0,580118,A spear that is for stabbing like a harpoon.
 151112000,Harpoon,silah,0,0,0,58011,"A spear that is for stabbing like a harpoon. It  was added as a popular addition, and sold at cheap prices to NPC mechants."
 151122000,Harpoon,silah,0,0,0,58011,"A spear that is for stabbing like a harpoon. It was added as a popular addition, and sold at cheap prices to NPC mechants."
@@ -410,6 +421,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 155510000,Battle Scythe,silah,0,0,0,25172,A scythe for battle.
 155512000,Battle Scythe,silah,0,0,0,2517,A sickle for combat. A popular addition. Sells cheaply to NPC merchants...
 155550000,War Scythe,silah,0,0,0,25172,War Scythe
+155550255,Scorpion Scythe,silah,0,0,0,25172,War Scythe
 155710000,Grim Scythe,silah,0,0,0,67444,A scythe that would look perfect when wielded by the Grim Reaper.
 155750000,Harsh Scythe,silah,0,0,0,67444,Harsh Scythe
 155810000,Bill,silah,0,0,0,148430,"A long, pole-axe like spear that is also good for stabbing."
@@ -420,6 +432,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 156012000,Bardish,silah,0,0,0,31015,A long spear with unique blades with excellent performance at cutting large pieces. A popular addition. Sells cheaply to NPC merchants...
 156030000,Bardish,silah,0,0,0,310158,"A long spear with a peculiar shaped blade, it is the ultimate slashing weapon."
 156110000,Glave,silah,0,0,0,444490,"A two-handed weapon that is a cross between war hammer and bill, it can be both slash or stab."
+156110001,Glave(+1),silah,0,0,0,888980,"A two-handed weapon that is a cross between war hammer and bill, it can be both slash or stab."
 156111000,Glave,silah,0,0,0,444495,"A two-handed weapon that is a cross between war hammer and bill, it can both slash or stab."
 156112000,Glave,silah,0,0,0,44449,"A two-handed weapon that is a cross between war hammer and bill, it can both slash or stab. It was added as a popular addition, and sold at cheap prices to NPC mechants."
 156122000,Glave,silah,0,0,0,44449,"A two-handed weapon that is a cross between war hammer and bill, it can both slash or stab. It was added as a popular addition, and sold at cheap prices to NPC mechants."
@@ -455,6 +468,8 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 160250000,Bamboo Bow,silah,0,2,0,349,Bamboo Bow
 160410000,Rapt Bow,silah,0,2,0,1542,A bow with good grip even for a novice archer.
 160450000,Hunter's Bow,silah,0,2,0,1542,Hunter's Bow
+160450255,Chitin Bow,silah,0,2,0,1542,Hunter's Bow
+160450256,Scorpion Bow,silah,0,2,0,1542,Hunter's Bow
 160451000,Hunter's Bow,silah,0,2,0,1542,
 160610000,Composite Bow,silah,0,2,0,9460,A small bow made by combining various odd materials.
 160612000,Composite Bow,silah,0,2,0,946,A small bow which is made with many objects. A popular addition. Sells cheaply to NPC merchants...
@@ -481,6 +496,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 168312000,Iron Crossbow,silah,0,2,0,12296,"A crossbow with higher elasticity due to struts made of iron. It was added as a popular addition, and sold at cheap prices to NPC mechants."
 168322000,Iron Crossbow,silah,0,2,0,12296,"A crossbow with higher elasticity due to struts made of iron. It was added as a popular addition, and sold at cheap prices  to NPC mechants."
 168410000,Iron Bow,silah,0,2,0,191899,A powerful bow that requires great agility.
+168410001,Iron Bow(+1),silah,0,2,0,383798,A powerful bow that requires great agility.
 168411000,Iron Bow,silah,0,2,0,191899,A powerful bow that requires great agility.
 168610000,Exceptional Iron Bow,silah,0,2,0,191899,A powerful bow that requires great agility.
 168611000,Exceptional Iron Bow,silah,0,2,0,191899,A powerful bow that requires great agility.
@@ -501,6 +517,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 170110000,Small Shield,kalkan,0,0,0,415,Small Shield
 170150000,Wooden Shield,kalkan,0,0,0,415,Wooden Shield
 170210000,Large Shield,kalkan,0,0,0,2256,Large Shield
+170210255,Scorpion Shield,kalkan,0,0,0,2256,Large Shield
 170211000,Large Shield,kalkan,0,0,0,2256,
 170250000,Round Shield,kalkan,0,0,0,2256,
 170251000,Round Shield,kalkan,0,0,0,2256,
@@ -539,6 +556,9 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 180010000,Wooden Staff,silah,0,0,0,50,Basic Magician Item
 180050000,Wooden Staff,silah,0,0,0,50,Basic Magician Item
 180110000,Wood Staff,silah,0,0,0,568,"<font color=@#FF0077@><b>Best Bitch staff, oh sorry Witch...</b></font>"
+180110251,Lobo Staff,silah,0,0,0,2272,Basic wooden staff.
+180110252,Lupus staff,silah,0,0,0,2272,Basic wooden staff.
+180110253,Lycaon staff,silah,0,0,0,2272,Basic wooden staff.
 180111000,Wood Staff,silah,0,0,0,568,
 180130000,Wood Staff,silah,0,0,0,568,Basic wooden Staff.
 180150000,Orc Staff,silah,0,0,0,568,Orc Staff
@@ -654,11 +674,16 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 190050000,Priest Mace,sarf,0,0,0,50,Basic Priest Item
 190210000,Priest Maul,sarf,0,0,0,585,A maul that has been modified to be more convenient for priests.
 190250000,Priest Morning Star,silah,0,0,0,585,Priest Morning Star
+190250251,Lobo hammer,sarf,0,0,0,2340,Priest Morning Star
+190250252,Lupus hammer,sarf,0,0,0,2340,Priest Morning Star
+190250253,Lycaon hammer,sarf,0,0,0,2340,Priest Morning Star
+190250255,Skull hammer,sarf,0,0,0,585,Priest Morning Star
 190251000,Priest Morning Star,silah,0,0,0,585,
 190290000,Priest Maul,sarf,0,0,0,585,Maul that has been modified to be more  convenient for priests. (Quest Item)
 190410000,Priest Mace,sarf,0,0,0,3566,A mace that has been modified to be more convenient for priests.
 190450000,Priest Iron Star,sarf,0,0,0,3566,Priest Iron Star
 190610000,Priest War Hammer,sarf,0,0,0,32975,A hammer that has been modified to be more convenient for priests.
+190610256,Dragon tooth hammer,sarf,0,0,0,32975,A hammer that has been modified to be more convenient for priests.
 190611000,Priest War Hammer,sarf,0,0,0,32975,
 190612000,Priest War Hammer,sarf,0,0,0,3297,A hammer upgraded for a priest. A popular addition. Sells cheaply to NPC merchants...
 190650000,Priest Spike Club,sarf,0,0,0,32975,Priest Spike Club
@@ -1246,6 +1271,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 298005000,Krowaz Priest Boots,zirh,0,12,75,48384,A legendary armor made by casting Illusion Boots.
 300080000,Gold Premium,sarf,19,0,0,2500,Use Gold Premium service Can be exchanged at [Peddler]Hemes <font color=@#FFCCCC@><b>[Peddler]Hemes'te kullanabilirsiniz.</b></font>
 300144000,Monster Stone,sarf,0,0,0,50,Teleport to a monster nest
+300144036,Monster Stone ( NEW ),sarf,0,0,0,100000,Teloport to a monster nest
 300145000,Green Monster Stone,sarf,0,0,0,50,Teleport to a monster nest
 300146000,Red Monster Stone,sarf,0,0,0,50,Teleport to a monster nest
 300150000,Jack Point Exp Scroll,sarf,19,0,0,2000,Jack Point Exp Scroll
@@ -1342,6 +1368,9 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 320370000,Old Intelligence Necklace,sarf,0,0,0,640,Old Intelligence Necklace Too old to go with other accessories.
 320380000,Old Magic Power Necklace,sarf,0,0,0,640,Old Magic Power Necklace Too old to go with other accessories.
 320410000,Rare Accessories,sarf,0,0,0,640,
+320410011,Lobo Pendant,sarf,0,0,0,640,
+320410012,Lupus Pendant,sarf,0,0,0,640,
+320410013,Lycaon Pendant,sarf,0,0,0,640,
 320510000,Rare Accessories,sarf,0,0,0,640,
 320520000,Old Goddess Necklace,sarf,0,0,0,640,Old Goddess Necklace Too old to go with other accessories.
 320530000,Old Green Dragon Necklace,sarf,0,0,0,640,Old Green Dragon Necklace Too old to go with other accessories.
@@ -1354,6 +1383,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 320630000,Old Strength Necklace,sarf,0,0,0,640,Old Strength Necklace Too old to go with other accessories.
 320640000,Old Crystal Necklace,sarf,0,0,0,640,Old Crystal Necklace  Too old to go with other accessories.
 330110000,Sapphire Ring,sarf,0,0,0,640,Sapphire with enhanced ability
+330110255,Ring of Courage,sarf,0,0,0,640,Sapphire with enhanced ability
 330111000,Hero's Valor,sarf,0,21,0,640,Blessed Ring of  Light's Courage
 330112000,Necklace of the Lost One,sarf,0,0,0,640,(Sealed)
 330113000,Saint Valentine Ring,sarf,0,0,0,640,"Saint Valentine Ring A ring to celebrate February 14, 2008"
@@ -1362,8 +1392,11 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 330130000,Old Emerald Ring,sarf,0,0,0,640,Old Emerald Ring Too old to go with  other accessories.
 330140000,Old Crystal Ring,sarf,0,0,0,640,Old Crystal Ring Too old to go with  other accessories.
 330150000,Red Pearl Ring,sarf,0,0,0,640,Red pearl with improved ability
+330150256,Ring of Magic,sarf,0,0,0,640,Red pearl with improved ability
+330150257,Ring of Life,sarf,0,0,0,640,Red pearl with improved ability
 330151000,Legionnaire Band,sarf,0,21,0,640,Blessed Ring of  Light's Life
 330310000,Rare Accessories,sarf,0,0,0,640,
+330310014,Kekuri Ring,sarf,0,0,0,640,
 330410000,Rare Accessories,sarf,0,0,0,640,
 330420000,Leader's Ring,sarf,0,0,0,100,Leader's Ring Cannot be upgraded through compounding.
 330430000,Red Pearl Ring,sarf,0,0,0,640,Red pearl with improved ability
@@ -1389,6 +1422,7 @@ esya_no,ad,tur,irk,sinif,gereken_seviye,fiyat,aciklama
 332150000,Noah Ring of Magic,sarf,20,0,0,640,Red pearl with improved ability
 339910000,Tester Ring,sarf,0,0,0,20,Souvenir for Closed Beta Testers
 340110000,Linen Belt,sarf,0,0,0,640,Belt made with thin cloth
+340110255,Kekuri Belt,sarf,0,0,0,640,Belt made with thin cloth
 340120000,Old Light's Belt,sarf,0,0,0,640,Old Light's Ring Too old to go with  other accessories.
 340130000,Old Kekuri Belt,sarf,0,0,0,640,Old Kekuri Belt Too old to go with  other accessories.
 340140000,Old Curse Belt,sarf,0,0,0,640,Old Curse Belt Too old to go with  other accessories.

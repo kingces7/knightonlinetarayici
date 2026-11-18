@@ -372,3 +372,12 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Buff şeridi: solda süslü tutaç, sol tıkla sürüklenir, konum hatırlanır (`ke.buffKonum`).
 - [ ] **Warrior skill vuruş animasyonları:** animasyon numaraları orijinal kaynakla (GameDef.h ANI_SKILL_*) tutarlı (iAct[0], NumCombo hepsinde 1); hangi skill'in neresinin yanlış göründüğü kullanıcıdan istenecek (vuruş anı, hedefin tepkisi, efekt?).
 - [ ] Orijinalde yakın dövüş skill'inde `iSelfAnimID1` (başlangıç) ve `iSelfAnimID2` (bitiş) ayrı oynar; büyülerde uygulanıyor, melee için kombo yoksa tek animasyon.
+
+## Güncelleme (2026-11-19)
+- [x] Command → Town her haritanın kendi noktasına: Moradon (305,342), emc (1600,408), lufer (başlangıç 441,1625).
+- [x] Arazi karo yönü: `araclar/harita/karo-yon-arastirma.ts` komşu karo dikişlerinden yön→dönüşüm eşlemesini ölçer (Moradon/lufer/emc'te aynı sonuç, eski tablodan %5–12 daha sürekli); orijinal N3Terrain tablosunun döndürme yönü D3D v-tersi yüzünden çevrilmişti. Shader güncellendi (yol kenarları artık doğal).
+- [x] Eşya nadirliği: `docs/esya-nadirlik/` (low/middle/high/unique/aksesuar/özel); sınıf listesi `docs/esya-siniflar/`.
+- [x] Eşya statları: resmî 1298 veritabanıyla karşılaştırma: ortak 56 280 satırdan yalnız **152**'si farklıydı (Dark Vane +7…+10 hasar, Tooth/Sword of Beast serisi gecikme 114→108) → orijinale döndürüldü (`araclar/sunucu/esya-stat-orijinal.sql`, yedek `ITEM_STAT_YEDEK`). Myko'ya özel 48 755 satır (resmî tabloda olmayan) olduğu gibi kaldı.
+- [x] **Kekuri Ring**: oyundaki gerçek eşya 330310014 (Dex +8, ateş/buz/şimşek direnci 15; Kekurikekukaka'nın özgün ganimeti %20). Kekurikekukaka boss'una yanlış eşya (810864000, fiyatı 100 olan etkinlik eşyası) konmuştu; düzeltildi (oran %15 kaldı).
+- [ ] Sword dancing / Howling Sword vuruş animasyonu: tablo iAct = 113 (skill_axe01_B), 135, 150 (NumCombo 1); "bir ayağı havaya kalkan vuruş" için hangi klibin doğru olduğu görsel karşılaştırma ister (adaylar: 135 twoH_sword_B, 143 attack_Kick0_A, 150 attack_jamadar_B).
+- [ ] Item tooltip'te canavar ganimetindeki yükseltmeli eşyaların (+bonus) değerleri client tablosunda yok (tum.json'da bonus alanları tutulmuyor).

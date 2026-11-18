@@ -3,8 +3,9 @@ luferson_sid,luferson_ad,moradon_karsiligi,satis_grubu,notlar
 22200,[Weapon]Mori,13008 [Weapon Merchant] Gargameth,201001,Weapon merchant grubu
 22202,[Healing Potions]Shama,13005 [Healing Potion] Karpis,253000,Healing potion grubu
 22208,[Sundries]Veron,13007 [Sundries] Zarta,255000,Sundries grubu
-,EKSIK: [Accessory Merchant],13001 [Accessory Merchant] Hera,203002,Luferson'da accessory merchant yok
-,EKSIK: [Scrolls],22301 [Scrolls] Charon,254000,Luferson'da scroll merchant yok
-,EKSIK: [Scrolls],23400 Amon [Scrolls],281000,Luferson'da scroll merchant yok (amon)
+13001,[Accessory Merchant]Hera,13001 [Accessory Merchant] Hera,203002,eklendi (421:1644; Moradon'daki Hera ile ayni sid)
+22301,[Scrolls]Charon,22301 [Scrolls] Charon,254000,eklendi (428:1651; Moradon'daki Charon ile ayni sid)
+23400,Lilith [Scrolls],23400 Amon [Scrolls],281000,eklendi (435:1644; Luferson'da adi Lilith Moradon'da Amon; ayni sid ve satis grubu)
+29990,[Item Master] Aurora,,999000,eklendi (GM esya dukkani 447:1630; Moradon karsiligi yok)
 21610,[Knight Clerk]Delaga,13015 [Priest] Iris,0,Özel NPC - priest grubu (store yok)
 21810,[Great Priest] Murka,13015 [Priest] Iris,0,Priest karşılığı (store yok)

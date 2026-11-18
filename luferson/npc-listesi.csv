@@ -1,7 +1,8 @@
 sid,ad,x,z
-551,Safety Zone Gate1,600,1561
-551,Safety Zone Gate1,578,1602
-551,Safety Zone Gate1,532,1502
+551,Lycan [canavar],600,1561
+551,Lycan [canavar],578,1602
+551,Lycan [canavar],532,1502
+13001,[Accessory Merchant]Hera,421,1644
 20301,Luferson Monument,353,1739
 20302,Linate Monument,1726,816
 20303,Bellua monument,399,685
@@ -27,6 +28,8 @@ sid,ad,x,z
 22208,[Sundries]Veron,1702,780
 22208,[Sundries]Veron,451,1687
 22208,[Sundries]Veron,1025,906
+22301,[Scrolls]Charon,428,1651
+23400,Lilith [Scrolls],435,1644
 24201,[Warrior Master] Skaki,391,1738
 24202,[Secret Agent] Clarence,431,709
 24203,[Archmage] Drake,1695,806
@@ -35,3 +38,4 @@ sid,ad,x,z
 24405,[Grand Chamberlain] Rina,310,1774
 25267,<Draki Rift>,436,1603
 26031,[Mantle]Habice,401,1737
+29990,[Item Master] Aurora,447,1630

@@ -1,0 +1,2273 @@
+nadirlik,esya_no,ad,tur,sinif_kodu,irk,gereken_seviye,fiyat
+Low class,100010000,Fork,silah,0,0,0,10000
+Low class,100020000,Hand mirror,silah,0,0,0,10000
+Low class,100030000,Roar of Yellow Dragon,silah,0,0,1,10000
+Low class,100110000,Hero Sword,silah,0,0,0,120000
+Low class,100120000,Hero Knife,silah,0,0,0,120000
+Low class,100150000,Hero Staff,silah,0,0,0,120000
+Low class,110010000,Dagger,silah,0,0,0,50
+Low class,110050000,Dagger,silah,0,0,0,50
+Low class,110110000,Dagger,silah,0,0,0,383
+Low class,110111000,Practice Dagger,silah,0,0,0,100
+Low class,110150000,Fine Yard,silah,0,0,0,383
+Low class,110190000,Dagger,silah,0,0,0,383
+Low class,110410000,Knife,silah,0,0,0,3188
+Low class,110450000,Dirk,silah,0,0,0,3188
+Low class,110610000,Stiletto,silah,0,0,0,24499
+Low class,110612000,Stiletto,silah,0,0,0,2449
+Low class,110650000,Mail Breaker,silah,0,0,0,24499
+Low class,110710000,Assassin Dagger,silah,0,0,0,53070
+Low class,110712000,Assassin Dagger,silah,0,0,0,5307
+Low class,110810000,Sword Breaker,silah,0,0,0,101018
+Low class,110812000,Sword Breaker,silah,0,0,0,10101
+Low class,112501000,Turtle Shells,kalkan,0,0,1,10000
+Low class,119103000,Noah Islante Icicle,silah,0,20,0,310158
+Low class,119121000,Noah Dark Vane,silah,0,20,0,310158
+Low class,119321000,Noah Sherian,silah,0,20,0,453216
+Low class,120010000,Short Sword,silah,0,0,0,50
+Low class,120050000,Short Sword,silah,0,0,0,50
+Low class,120110000,Short Blade,silah,0,0,0,205
+Low class,120150000,Short Blade,silah,0,0,0,205
+Low class,120190000,Short Blade,silah,0,0,0,205
+Low class,120310000,Long Sword,silah,0,0,0,1043
+Low class,120350000,Broad Sword,silah,0,0,0,1043
+Low class,120510000,Scimitar,silah,0,0,0,7647
+Low class,120550000,Falchion,silah,0,0,0,7647
+Low class,120710000,Flame Sword,silah,0,0,0,32270
+Low class,120750000,Sabre,silah,0,0,0,32270
+Low class,120810000,Rapier,silah,0,0,0,66563
+Low class,120812000,Rapier,silah,0,0,0,6656
+Low class,120910000,Gradius,silah,0,0,0,122547
+Low class,121510000,Skeleton Sword,silah,0,0,0,30000
+Low class,125210000,Combined Blade,silah,0,0,0,495
+Low class,125250000,Bastard Sword,silah,0,0,0,495
+Low class,125310000,Two-Handed Sword,silah,0,0,0,1197
+Low class,125350000,Twei Hander,silah,0,0,0,1197
+Low class,125610000,Battle Sword,silah,0,0,0,7913
+Low class,125650000,War Sword,silah,0,0,0,7913
+Low class,125810000,Great Sword,silah,0,0,0,32662
+Low class,125850000,Giant Sword,silah,0,0,0,32662
+Low class,125910000,Claymore,silah,0,0,0,67039
+Low class,126010000,Flamberge,silah,0,0,0,123107
+Low class,126012000,Flamberge,silah,0,0,0,12310
+Low class,127910000,Noah Undefeatable Wirinom,silah,0,20,70,373467
+Low class,127920000,Noah Bombastic Giant Wirinom,silah,0,20,70,373467
+Low class,127930000,Noah Chaos Wirinom,silah,0,20,70,373467
+Low class,127940000,Noah Sweet Kiss Wirinom,silah,0,20,70,373467
+Low class,128910000,Noah Undefeatable Raum,silah,0,20,70,453216
+Low class,128920000,Noah Raum on Severe Diet,silah,0,20,70,453216
+Low class,128930000,Noah Bombastic Giant Raum,silah,0,20,70,453216
+Low class,128940000,Noah Lousy Pickpocket Raum,silah,0,20,70,453216
+Low class,129102000,Baal's Soul Stone,silah,0,0,0,0
+Low class,129121000,Noah Hanguk Sword,silah,0,20,0,310158
+Low class,130110000,Stone Axe,silah,0,0,0,405
+Low class,130210000,Hand Axe,silah,0,0,0,2572
+Low class,130250000,Wood Cutter,silah,0,0,0,2572
+Low class,130410000,Double Axe,silah,0,0,0,13329
+Low class,130450000,Giantic Axe,silah,0,0,0,13329
+Low class,130610000,Bipennis,silah,0,0,0,41929
+Low class,130650000,Warrior Axe,silah,0,0,0,41929
+Low class,130710000,Military Pick,silah,0,0,0,91644
+Low class,130712000,Military Pick,silah,0,0,0,9164
+Low class,131510000,Cyclops Giant Arrow,silah,0,0,0,20000
+Low class,131610000,Attila Axe,silah,0,0,0,759000
+Low class,131710000,Dreadmare Axe,silah,0,0,0,20000
+Low class,135310000,Battle Axe,silah,0,0,0,2768
+Low class,135350000,War Axe,silah,0,0,0,2768
+Low class,135510000,Timber Axe,silah,0,0,0,13637
+Low class,135550000,Lumber Axe,silah,0,0,0,13637
+Low class,135710000,Twin Axe,silah,0,0,0,42349
+Low class,135712000,Twin Axe,silah,0,0,0,4234
+Low class,135750000,Tabar,silah,0,0,0,42349
+Low class,135810000,Great Axe,silah,0,0,0,92160
+Low class,135812000,Great Axe,silah,0,0,0,9216
+Low class,136750000,Boss monster?7kinds..one-hand[for Mammoth],silah,0,0,0,205
+Low class,136820000,Weapon1,silah,0,0,0,205
+Low class,136830000,Weapon2,silah,0,0,0,205
+Low class,139321000,Noah Abardon,silah,0,20,0,619333
+Low class,139910000,Noah Undefeatable Baal,silah,0,20,70,619333
+Low class,139920000,Noah Bombastic Giant Baal,silah,0,20,70,619333
+Low class,139930000,Noah Chaos Baal,silah,0,20,70,619333
+Low class,139940000,Noah Sweet Kiss Baal,silah,0,20,70,619333
+Low class,140210000,Maul,silah,0,0,0,4213
+Low class,140250000,Morning Star,silah,0,0,0,4213
+Low class,140410000,Mace,silah,0,0,0,21440
+Low class,140450000,Iron Star,silah,0,0,0,21440
+Low class,140610000,War Hammer,silah,0,0,0,53406
+Low class,140650000,Spiked Club,silah,0,0,0,53406
+Low class,140710000,Breaker,silah,0,0,0,111803
+Low class,140712000,Breaker,silah,0,0,0,11180
+Low class,142110000,monster weapon,silah,0,0,0,701959
+Low class,145310000,Great Maul,silah,0,0,0,4325
+Low class,145350000,Giant Maul,silah,0,0,0,4325
+Low class,145510000,Battle Mace,silah,0,0,0,18619
+Low class,145550000,War Club,silah,0,0,0,18619
+Low class,145710000,Great Mace,silah,0,0,0,53630
+Low class,145712000,Great Mace,silah,0,0,0,5363
+Low class,145750000,Giant Morning Star,silah,0,0,0,53630
+Low class,145810000,Weight Hammer,silah,0,0,0,112070
+Low class,145812000,Weight Hammer,silah,0,0,0,11207
+Low class,149121000,Noah Hell Breaker,silah,0,20,0,580958
+Low class,149205000,Arc Crasher,silah,0,0,0,0
+Low class,149206000,Little Cat's Right Paw,silah,0,0,0,0
+Low class,149207000,Little Cat's Left Paw,silah,0,0,0,0
+Low class,149540000,Flower Shield,kalkan,0,0,1,50
+Low class,150210000,Spear,silah,0,0,0,6471
+Low class,150250000,Spike,silah,0,0,0,6471
+Low class,150410000,Cross Spear,silah,0,0,0,24808
+Low class,150450000,Battle Pork,silah,0,0,0,24808
+Low class,150610000,Spetum,silah,0,0,0,66968
+Low class,150650000,Spetum,silah,0,0,0,66968
+Low class,150710000,Long Spear,silah,0,0,0,147851
+Low class,150810000,Pike,silah,0,0,0,226460
+Low class,150812000,Pike,silah,0,0,0,22646
+Low class,155310000,Pole Axe,silah,0,0,0,6723
+Low class,155350000,Spear Axe,silah,0,0,0,6723
+Low class,155510000,Battle Scythe,silah,0,0,0,25172
+Low class,155512000,Battle Scythe,silah,0,0,0,2517
+Low class,155550000,War Scythe,silah,0,0,0,25172
+Low class,155550255,Scorpion Scythe,silah,0,0,0,25172
+Low class,155710000,Grim Scythe,silah,0,0,0,67444
+Low class,155750000,Harsh Scythe,silah,0,0,0,67444
+Low class,155810000,Bill,silah,0,0,0,148430
+Low class,155812000,Bill,silah,0,0,0,14843
+Low class,156219000,Noah Raptor,silah,0,20,0,580958
+Low class,159303000,Noah Sad Swamps,silah,0,20,0,453216
+Low class,159321000,Noah Rugiars,silah,0,20,0,453216
+Low class,159539000,Flower Shield,kalkan,0,0,1,50
+Low class,159910000,Noah Undefeatable Nebiros,silah,0,20,70,453216
+Low class,159920000,Noah Bombastic Giant Nebiros,silah,0,20,70,453216
+Low class,159930000,Noah Chaos Nebiros,silah,0,20,70,453216
+Low class,159940000,Noah Sweet Kiss Nebiros,silah,0,20,70,453216
+Low class,169010000,Centaur bow,silah,0,0,0,24000
+Low class,169538000,Bouquet,silah,0,0,1,50
+Low class,170110000,Small Shield,kalkan,0,0,0,415
+Low class,170150000,Wooden Shield,kalkan,0,0,0,415
+Low class,170210000,Large Shield,kalkan,0,0,0,2256
+Low class,170250000,Round Shield,kalkan,0,0,0,2256
+Low class,170310000,Kite Shield,kalkan,0,0,0,10650
+Low class,170312000,Kite Shield,kalkan,0,0,0,1065
+Low class,170350000,Octagon Shield,kalkan,0,0,0,10650
+Low class,170352000,Octagon Shield,kalkan,0,0,0,1065
+Low class,179103000,Noah Jurad Mountain Defense,kalkan,0,20,0,84974
+Low class,179121000,Noah Defender of the Lord,kalkan,0,20,0,84974
+Low class,179202000,Kentaraus's Face,kalkan,0,0,0,0
+Low class,179321000,Noah Sipioric,kalkan,0,20,0,184974
+Low class,179537000,Bouquet,silah,0,0,1,50
+Low class,180010000,Wooden Staff,silah,0,0,0,50
+Low class,180050000,Wooden Staff,silah,0,0,0,50
+Low class,180110000,Wood Staff,silah,0,0,0,568
+Low class,180150000,Orc Staff,silah,0,0,0,568
+Low class,180190000,Wood Staff,silah,0,0,0,568
+Low class,180250000,Noah Chitin Shield,kalkan,0,20,0,2256
+Low class,180310000,Wizard Staff,silah,0,0,0,3534
+Low class,180350000,Red Eye Staff,silah,0,0,0,3534
+Low class,180510000,Mythril Staff,silah,0,0,0,32917
+Low class,180550000,Bone Staff,silah,0,0,0,32917
+Low class,180610000,Mage Staff,silah,0,0,0,67348
+Low class,180710000,Alchemy Staff,silah,0,0,0,123471
+Low class,181510000,Decayed Bone Staff,silah,0,0,0,40000
+Low class,182110000,Deruvish cane,silah,0,0,0,747517
+Low class,182910000,Noah Undefeatable Fulitol,silah,0,20,70,444495
+Low class,182920000,Noah Trainer Kate Fulitol,silah,0,20,70,444495
+Low class,182930000,Noah Aztec Gold Fulitol,silah,0,20,70,444495
+Low class,183730000,Noah Aztec Gold Molok,silah,0,20,70,444495
+Low class,183910000,Noah Undefeatable Molok,silah,0,20,70,444495
+Low class,183920000,Noah Trainer Kate Molok,silah,0,20,70,444495
+Low class,184910000,Noah Undefeatable Faun,silah,0,20,70,444495
+Low class,184920000,Noah Trainer Kate Faun,silah,0,20,70,444495
+Low class,184930000,Noah Aztec Gold Faun,silah,0,20,70,444495
+Low class,189103000,Noah Oasis of Scorched Desert,silah,0,20,0,444495
+Low class,189121000,Noah Erenion's Anger,silah,0,20,0,444495
+Low class,189203000,Noah Chaos of Scorched Desert,silah,0,20,0,444495
+Low class,189221000,Glacier of Noah Erenion,silah,0,20,0,444495
+Low class,189303000,Noah Thirst of Scorched Desert,silah,0,20,0,444495
+Low class,189321000,Cruelty of Noah Erenion,silah,0,20,0,444495
+Low class,189421000,Noah Ron's Intelligence,silah,0,20,0,444495
+Low class,189503000,Magic Cleaning Tool,silah,0,0,0,0
+Low class,189504000,Magical Umbrella,silah,0,0,0,0
+Low class,189621000,Noah Hell Blood,silah,0,20,0,453216
+Low class,189622000,Noah Garuph,silah,0,20,0,453216
+Low class,189623000,Noah Eregium,silah,0,20,0,453216
+Low class,190250000,Priest Morning Star,silah,0,0,0,585
+Low class,191304000,New El Morad Weapon,silah,0,0,0,580958
+Low class,191319000,Bamboo,silah,0,0,1,10000
+Low class,191320000,Skewer,silah,0,0,1,10000
+Low class,191402000,New Karus Weapon,silah,0,0,0,580958
+Low class,191600000,Halloween's star cane,silah,0,0,0,100
+Low class,191610000,Halloween Spear,silah,0,0,0,100
+Low class,191640000,Huge fan,silah,0,0,0,100
+Low class,197910000,Noah Gab's Adamant,kalkan,0,20,70,84974
+Low class,197920000,Noah Gab's Blessing,kalkan,0,20,70,84974
+Low class,300176000,Prasia`s Heart,sarf,0,20,1,0
+Low class,310110000,Ruby Earring,sarf,0,0,0,640
+Low class,310120000,Old Gold Earring,sarf,0,0,0,640
+Low class,310130000,Old Bronze Earring,sarf,0,0,0,640
+Low class,310140000,Quest earing,sarf,0,20,70,640
+Low class,310150000,Pearl Earring,sarf,0,0,0,640
+Low class,310160000,Quest necklace,sarf,0,20,70,640
+Low class,310170000,Quest ring,sarf,0,20,70,640
+Low class,310180000,Quest belt,sarf,0,20,70,640
+Low class,310310000,Rare Accessories,sarf,0,0,0,640
+Low class,310410000,Rare Accessories,sarf,0,0,0,640
+Low class,310420000,Leader's Earrings,sarf,0,0,0,100
+Low class,310430000,Ruby Earring,sarf,0,0,0,640
+Low class,310440000,Old Platinum Earring,sarf,0,0,0,640
+Low class,310450000,Old Secret Silver Earring,sarf,0,0,0,640
+Low class,310460000,Old Mano Earring,sarf,0,0,0,640
+Low class,310510000,Rare Accessories,sarf,0,0,0,640
+Low class,310520000,Old Crystal Earring,sarf,0,0,0,640
+Low class,310530000,Old Opal Earring,sarf,0,0,0,640
+Low class,310610000,Rare Accessories,sarf,0,0,0,640
+Low class,310620000,Old Silver Earring,sarf,0,0,0,640
+Low class,310650000,Old Elf Metal Earring,sarf,0,0,0,640
+Low class,310660000,Old White Silver Earring,sarf,0,0,0,640
+Low class,311003000,Warrior's Earring,sarf,0,73,0,640
+Low class,311004000,Elf Metal Earring,sarf,0,73,0,640
+Low class,311005000,Secret Silver Earring,sarf,0,73,0,640
+Low class,311006000,Light's Belt,sarf,0,73,0,640
+Low class,311007000,Elf Belt,sarf,0,73,0,640
+Low class,311008000,Skeleton Belt,sarf,0,73,0,640
+Low class,311009000,Warrior Pendant,sarf,0,73,0,640
+Low class,311010000,Priest Pendant,sarf,0,73,0,640
+Low class,311011000,Elemental Pendant,sarf,0,73,0,640
+Low class,311012000,Ring of Courage,sarf,0,73,0,640
+Low class,311013000,Ring of Life,sarf,0,73,0,640
+Low class,311014000,Flame Ring,sarf,0,73,0,640
+Low class,311015000,Shio Tears,sarf,0,73,0,640
+Low class,311016000,Imir Ring,sarf,0,73,0,640
+Low class,311310000,Noah Rogue's Earring,sarf,0,20,0,640
+Low class,312310000,Noah Magic Earring,sarf,0,20,0,640
+Low class,313310000,Noah Priest's Earring,sarf,0,20,0,640
+Low class,320110000,Golden Pendant,sarf,0,0,0,640
+Low class,320120000,Necklace of Life,sarf,0,0,0,640
+Low class,320150000,Topaz Pendant,sarf,0,0,0,640
+Low class,320310000,Rare Accessories,sarf,0,0,0,640
+Low class,320320000,Leader's Necklace,sarf,0,0,0,100
+Low class,320330000,Golden Pendant,sarf,0,0,0,640
+Low class,320340000,Old Elemental Necklace,sarf,0,0,0,640
+Low class,320350000,Old Red Dragon Necklace,sarf,0,0,0,640
+Low class,320360000,Old Black Dragon Necklace,sarf,0,0,0,640
+Low class,320370000,Old Intelligence Necklace,sarf,0,0,0,640
+Low class,320380000,Old Magic Power Necklace,sarf,0,0,0,640
+Low class,320410000,Rare Accessories,sarf,0,0,0,640
+Low class,320510000,Rare Accessories,sarf,0,0,0,640
+Low class,320520000,Old Goddess Necklace,sarf,0,0,0,640
+Low class,320530000,Old Green Dragon Necklace,sarf,0,0,0,640
+Low class,320540000,Old White Dragon Necklace,sarf,0,0,0,640
+Low class,320550000,Old Agility Necklace,sarf,0,0,0,640
+Low class,320560000,Old Health Necklace,sarf,0,0,0,640
+Low class,320570000,Old Curse Necklace,sarf,0,0,0,640
+Low class,320610000,Rare Accessories,sarf,0,0,0,640
+Low class,320620000,Old Blue Dragon Necklace,sarf,0,0,0,640
+Low class,320630000,Old Strength Necklace,sarf,0,0,0,640
+Low class,320640000,Old Crystal Necklace,sarf,0,0,0,640
+Low class,330110000,Sapphire Ring,sarf,0,0,0,640
+Low class,330112000,Necklace of the Lost One,sarf,0,0,0,640
+Low class,330113000,Saint Valentine Ring,sarf,0,0,0,640
+Low class,330114000,Ring of Purity,sarf,0,0,0,640
+Low class,330120000,Old Opal Ring,sarf,0,0,0,640
+Low class,330130000,Old Emerald Ring,sarf,0,0,0,640
+Low class,330140000,Old Crystal Ring,sarf,0,0,0,640
+Low class,330150000,Red Pearl Ring,sarf,0,0,0,640
+Low class,330310000,Rare Accessories,sarf,0,0,0,640
+Low class,330410000,Rare Accessories,sarf,0,0,0,640
+Low class,330420000,Leader's Ring,sarf,0,0,0,100
+Low class,330430000,Red Pearl Ring,sarf,0,0,0,640
+Low class,330440000,Old Platinum Ring,sarf,0,0,0,640
+Low class,330450000,Old Diamond Ring,sarf,0,0,0,640
+Low class,330510000,Rare Accessories,sarf,0,0,0,640
+Low class,330610000,Rare Accessories,sarf,0,0,0,640
+Low class,330620000,Ring of the Felankor,sarf,0,0,0,640
+Low class,330630000,Old Mano Ring,sarf,0,0,0,640
+Low class,330640000,Old Ruby Ring,sarf,0,0,0,640
+Low class,330650000,Old Elf Ring,sarf,0,0,0,640
+Low class,330660000,Old Gold Ring,sarf,0,0,0,640
+Low class,330670000,Old Silver Ring,sarf,0,0,0,640
+Low class,330910000,Flame Ring,sarf,0,0,0,640
+Low class,330920000,Shio Tears,sarf,0,0,0,640
+Low class,330930000,Imir Ring,sarf,0,0,0,640
+Low class,330940000,Foverin,sarf,0,0,0,640
+Low class,331110000,Noah Ring of Courage,sarf,0,20,0,640
+Low class,331150000,Noah Ring of Life,sarf,0,20,0,640
+Low class,331910000,Noah Spark Flame Ring,sarf,0,20,0,640
+Low class,331920000,Noah Tears of Siyo,sarf,0,20,0,640
+Low class,331930000,Ring of Noah Imiru,sarf,0,20,0,640
+Low class,332150000,Noah Ring of Magic,sarf,0,20,0,640
+Low class,339910000,Tester Ring,sarf,0,0,0,20
+Low class,340110000,Linen Belt,sarf,0,0,0,640
+Low class,340120000,Old Light's Belt,sarf,0,0,0,640
+Low class,340130000,Old Kekuri Belt,sarf,0,0,0,640
+Low class,340140000,Old Curse Belt,sarf,0,0,0,640
+Low class,340150000,Low Fur Belt,sarf,0,0,0,640
+Low class,340310000,Rare Accessories,sarf,0,0,0,640
+Low class,340320000,Leader's Belt,sarf,0,0,0,100
+Low class,340330000,Linen Belt,sarf,0,0,0,640
+Low class,340340000,Old Mana Belt,sarf,0,0,0,640
+Low class,340350000,Old Fire Belt,sarf,0,0,0,640
+Low class,340360000,Old Bronze Belt,sarf,0,0,0,640
+Low class,340410000,Rare Accessories,sarf,0,0,0,640
+Low class,340420000,Old Ice Belt,sarf,0,0,0,640
+Low class,340510000,Rare Accessories,sarf,0,0,0,640
+Low class,340520000,Old Strength Belt,sarf,0,0,0,640
+Low class,340530000,Old Intelligence Belt,sarf,0,0,0,640
+Low class,340540000,Old Lightening Belt,sarf,0,0,0,640
+Low class,340610000,Rare Accessories,sarf,0,0,0,640
+Low class,340620000,Holy Ghost Belt,sarf,0,0,0,60000
+Low class,340630000,Old Crystal Belt,sarf,0,0,0,640
+Low class,340640000,Old Agility Belt,sarf,0,0,0,640
+Low class,340650000,Old Harpy's Belt,sarf,0,0,0,640
+Low class,340940000,Old Mage Earring,sarf,0,0,0,640
+Low class,340941000,Taurus' pendant,sarf,0,0,75,640
+Low class,340942000,Ararat's pendant,sarf,0,0,75,640
+Low class,340943000,Pontus' pendant,sarf,0,0,75,640
+Low class,340944000,Taurus' belt,sarf,0,0,75,640
+Low class,340945000,Ararat's belt,sarf,0,0,75,640
+Low class,340946000,Pontus' belt,sarf,0,0,75,640
+Low class,340947000,Antala ring,sarf,0,0,65,640
+Low class,340948000,Antalas ring,sarf,0,0,65,640
+Low class,340949000,Toros ring,sarf,0,0,65,640
+Low class,340950000,Cosahan ring,sarf,0,0,65,640
+Low class,340951000,Taurus ring,sarf,0,0,75,640
+Low class,340952000,Ararat ring,sarf,0,0,75,640
+Low class,340953000,Pontus ring,sarf,0,0,75,640
+Low class,341230000,Old Warrior's Earring,sarf,0,0,0,640
+Low class,341520000,Old Rogue's Earring,sarf,0,0,0,640
+Low class,341810000,Old Priest's Earring,sarf,0,0,0,640
+Low class,342100000,Old Warrior Pendant,sarf,0,0,0,640
+Low class,342390000,Old Elemental Pendant,sarf,0,0,0,640
+Low class,342680000,Old Priest Pendant,sarf,0,0,0,640
+Low class,342970000,Old Ring of Life,sarf,0,0,0,640
+Low class,343260000,Old Ring of Courage,sarf,0,0,0,640
+Low class,343550000,Old Flame Ring,sarf,0,0,0,640
+Low class,343840000,Old Shio Tears,sarf,0,0,0,640
+Low class,344130000,Old Imir Ring,sarf,0,0,0,640
+Low class,344710000,Old Elf Belt,sarf,0,0,0,640
+Low class,345000000,Old Skeleton Belt,sarf,0,0,0,640
+Low class,360420000,Noah Diamond Ring,sarf,0,20,0,640
+Low class,379090000,Transformation Totem,sarf,0,0,0,20000
+Low class,379093000,Transformation Totem,sarf,0,0,0,20000
+Low class,379147000,Wedding Ring,sarf,0,0,0,10000
+Low class,379198000,X-Mas Candy Cane,silah,0,0,0,10000
+Low class,379199000,Lantern,silah,0,20,0,10000
+Low class,379263000,Christmas Cross,sarf,0,20,0,2500
+Low class,389132000,Mattock,silah,0,20,0,5000
+Low class,389135000,Golden Mattock,silah,0,20,35,5000
+Low class,389411000,Wake up toy hammer,silah,0,0,0,1000
+Low class,390310000,Noah Iron Necklace,sarf,0,20,0,640
+Low class,390610000,Noah Iron Belt,sarf,0,20,0,640
+Low class,391310000,Noah Warrior's Earring,sarf,0,20,0,640
+Low class,399198000,X-Mas Candy Cane,silah,0,0,0,10000
+Low class,399430000,Necklace of quickness,sarf,0,0,55,640
+Low class,399440000,Belt of quickness,sarf,0,0,55,640
+Low class,399450000,Old necklace of quickness,sarf,0,0,55,640
+Low class,399460000,Old belt of quickness,sarf,0,0,55,640
+Low class,508200000,Santa's Hat,zirh,0,20,1,2000
+Low class,508229000,Fork,silah,0,0,0,10000
+Low class,810252000,Luck Lantern,silah,0,0,0,10000
+Low class,810575000,Dagger,silah,0,0,0,383
+Low class,810576000,Knife,silah,0,0,0,3188
+Low class,810577000,Stiletto,silah,0,0,0,24499
+Low class,810578000,Short Blade,silah,0,0,0,205
+Low class,810579000,Long Sword,silah,0,0,0,1043
+Low class,810580000,Scimitar,silah,0,0,0,7647
+Low class,810581000,Combined Blade,silah,0,0,0,495
+Low class,810582000,Two-Handed Sword,silah,0,0,0,1197
+Low class,810583000,Battle Sword,silah,0,0,0,7913
+Low class,810587000,Wood Staff,silah,0,0,0,568
+Low class,810588000,Wizard Staff,silah,0,0,0,3534
+Low class,810589000,Mythril Staff,silah,0,0,0,32917
+Low class,810590000,Maul,silah,0,0,0,4213
+Low class,810591000,Mace,silah,0,0,0,21440
+Low class,810592000,War Hammer,silah,0,0,0,53406
+Low class,810593000,Draki's Pendant,sarf,0,0,0,640
+Low class,810613000,Old Warrior's Earring,sarf,0,73,0,640
+Low class,810614000,Old Light's Belt,sarf,0,73,0,640
+Low class,810615000,Old Warrior Pendant,sarf,0,73,0,640
+Low class,810616000,Old Ring of Courage,sarf,0,73,0,640
+Low class,810617000,Old Elf Metal Earring,sarf,0,73,0,640
+Low class,810618000,Old Elf Belt,sarf,0,73,0,640
+Low class,810619000,Old Priest Pendant,sarf,0,73,0,640
+Low class,810620000,Old Ring of Life,sarf,0,73,0,640
+Low class,810621000,Old Secret Silver Earring,sarf,0,73,0,640
+Low class,810622000,Old Skeleton Belt,sarf,0,73,0,640
+Low class,810623000,Old Elemental Necklace,sarf,0,73,0,640
+Low class,810624000,Old Flame Ring,sarf,0,73,0,640
+Low class,810625000,Old Shio Tears,sarf,0,73,0,640
+Low class,810626000,Old Imir Ring,sarf,0,73,0,640
+Low class,810627000,,sarf,0,73,55,640
+Low class,810628000,,sarf,0,73,55,640
+Low class,810693000,Draki's Pendant: LV1,sarf,0,0,0,640
+Low class,810694000,Draki's Pendant: LV2,sarf,0,0,0,640
+Low class,810979000,Red Amulet,sarf,0,20,0,10000
+Low class,814064000,Golden Light Star Ring,sarf,0,20,0,1
+Low class,814065000,Golden Light Star Earrings,sarf,0,20,0,1
+Low class,890225000,Solar Ring,sarf,0,20,0,1
+Low class,890226000,Solar Pendant,sarf,0,20,0,1
+Low class,900025000,Necklace of quickness,sarf,0,0,55,640
+Low class,900027000,Belt of quickness,sarf,0,0,55,640
+Low class,900097000,Sword of Novice Mercenary ,silah,0,0,30,310158
+Low class,900098000,Two-handed Sword of Novice Mercenary ,silah,0,0,30,123107
+Low class,900099000,Dagger of Novice Assassin ,silah,0,0,30,6000
+Low class,900101000,Staff of Novice Rudimentary Magic Scholar ,silah,0,0,30,509051
+Low class,900102000,Staff of Novice Rudimentary Magic Scholar ,silah,0,0,30,509051
+Low class,900103000,Staff of Novice Rudimentary Magic Scholar ,silah,0,0,30,509051
+Low class,900111000,Novice Evil Sage Staff,silah,0,0,30,509051
+Low class,900112000,Novice Evil Sage Staff,silah,0,0,30,509051
+Low class,900113000,Novice Evil Sage Staff,silah,0,0,30,509051
+Low class,900115000,Glaive,silah,0,0,0,44449
+Low class,900116000,Piana Knights Defender,kalkan,0,0,0,84974
+Low class,900335000,Timing flow (Tyon),silah,0,0,0,2000
+Low class,900336000,Timing flow (Meganthereon.),silah,0,0,0,2000
+Low class,900337000,Timing flow (Hell Hound),silah,0,0,0,2000
+Low class,900356000,Punishment?Stick,silah,0,0,1,10000
+Low class,900457000,Ring of Purity,sarf,0,0,0,640
+Low class,900521000,Messenger Ring,sarf,0,20,0,1
+Low class,900522000,Mercenary Ring,sarf,0,20,0,1
+Low class,900523000,Assassin Ring,sarf,0,20,0,1
+Low class,900524000,Priest Ring,sarf,0,20,0,1
+Low class,900525000,Mage Earring,sarf,0,20,0,1
+Low class,900526000,Mercenary Earring,sarf,0,20,0,1
+Low class,900527000,Assassin Earring,sarf,0,20,0,1
+Low class,900528000,Priest Earring,sarf,0,20,0,1
+Low class,900529000,Mercenary Pendant,sarf,0,20,0,1
+Low class,900530000,Messenger Pendant,sarf,0,20,0,1
+Low class,900531000,Cleric Pendant,sarf,0,20,0,1
+Low class,900613000,Jed Ring,sarf,0,20,0,100
+Low class,900720000,[Test] Gold Earring,sarf,0,0,0,100
+Low class,900721000,[Test] Warrior Earring,sarf,0,0,0,100
+Low class,900722000,[Test] Platinum Earring,sarf,0,0,0,100
+Low class,900723000,[Test] Crystal Earring,sarf,0,0,0,100
+Low class,900724000,[Test] Iron Neckalace,sarf,0,0,0,100
+Low class,900725000,[Test] Cursed Necklace,sarf,0,0,0,100
+Low class,900726000,[Test] Courage Ring,sarf,0,0,0,100
+Low class,900727000,[Test] Crystal Ring,sarf,0,0,0,100
+Low class,900728000,[Test] Platinum Ring,sarf,0,0,0,100
+Low class,900729000,[Test] Bone Belt of Light,sarf,0,0,0,100
+Low class,900730000,[Test] Crystal Belt,sarf,0,0,0,100
+Low class,900852000,Christmas Belt,sarf,0,0,0,2500
+Low class,910024000,Sword of Shojin?,silah,0,0,0,120000
+Low class,910028000,Sword of Cursed Knight,silah,0,0,0,120000
+Low class,910030000,Sword of Kill'em All,silah,0,0,0,120000
+Low class,910031000,Christmas Cross,sarf,0,0,0,2500
+Low class,910034000,Sword of Jingangyi,silah,0,0,0,120000
+Low class,910037000,Good Fortune Fragrant Bag,sarf,0,0,0,640
+Low class,910058000,Sword of Chaeun Blade,silah,0,0,0,120000
+Low class,910060000,Sword of The Unseen One Shall Die,silah,0,0,0,120000
+Low class,910061000,Dagger of ?Shin?,silah,0,0,0,120000
+Low class,910062000,Sword of ?????.,silah,0,0,0,120000
+Low class,910063000,Sword of Tuff,silah,0,0,0,120000
+Low class,910064000,Sword of the Successor of Warrior,silah,0,0,0,120000
+Low class,910068000,Sword of ?????,silah,0,0,0,120000
+Low class,910069000,Sword of ?????,silah,0,0,0,120000
+Low class,910070000,Sword of Kwaenam,silah,0,0,0,120000
+Low class,910071000,Dagger of Chicken That Ate Sansam,silah,0,0,0,120000
+Low class,910072000,Sword of Wild Fighter,silah,0,0,0,120000
+Low class,910073000,Sword of Gumgaegi,silah,0,0,0,120000
+Low class,910074000,King's Sceptor,silah,0,0,0,120000
+Low class,910075000,Lataino Monster Weapon,silah,0,0,0,746801
+Low class,910077000,Lataino Monster Weapon,silah,0,0,0,746801
+Low class,910093000,Bifrost Event Two-Handed Spear,silah,0,0,0,100000
+Low class,910094000,Bifrost Event Two-Handed Spear,silah,0,0,0,100000
+Low class,910095000,Bifrost Event Two-Handed Spear,silah,0,0,0,100000
+Low class,910096000,Bifrost Event Two-Handed Spear,silah,0,0,0,100000
+Low class,910098000,Bifrost Event Two-Handed Spear,kalkan,0,0,0,100000
+Low class,910099000,Bifrost Event Two-Handed Spear,silah,0,0,0,100000
+Low class,910153000,Mage Earring,sarf,0,0,0,1
+Low class,910154000,Mercenary Earring,sarf,0,0,0,1
+Low class,910155000,Assassin Earring,sarf,0,0,0,1
+Low class,910156000,Priest Earring,sarf,0,0,0,1
+Low class,910157000,Mercenary Pendant,sarf,0,0,0,1
+Low class,910158000,Messenger Pendant,sarf,0,0,0,1
+Low class,910159000,Cleric Pendant,sarf,0,0,0,1
+Low class,910160000,Body Belt,sarf,0,0,0,1
+Low class,910161000,Messenger Ring,sarf,0,0,0,1
+Low class,910162000,Mercenary Ring,sarf,0,0,0,1
+Low class,910163000,Assassin Ring,sarf,0,0,0,1
+Low class,910164000,Priest Ring,sarf,0,0,0,1
+Low class,910221000,Spear of Noah <selfname>,silah,0,20,0,373400
+Low class,910223000,Staff of Noah <selfname>,silah,0,20,0,373758
+Low class,910224000,Cane of Noah <selfname>,silah,0,20,0,373758
+Low class,910225000,Mace of Noah <selfname>,silah,0,20,0,351442
+Low class,910226000,Shield of Noah <selfname>,kalkan,0,20,0,84974
+Low class,910966000,The Spear of Ultima,silah,0,0,0,746801
+Low class,911110000,Mirage Dagger,silah,0,0,0,443040
+Low class,911210000,Shard,silah,0,0,0,618052
+Low class,911219000,Dagger of Noah <selfname>,silah,0,20,0,309026
+Low class,911220000,Two-Handed Sword of Noah <selfname>,silah,0,20,0,373467
+Low class,914047000,Lunar Belt,sarf,0,20,0,1
+Low class,919731000,Christmas Cross,sarf,0,20,0,1
+Low class,920031000,Christmas Belt,sarf,0,0,0,2500
+Low class,929731000,Christmas Belt,sarf,0,20,0,1
+Low class,930031000,Christmas Cross,sarf,0,20,0,2500
+Low class,930550000,,silah,0,0,0,746801
+Low class,930560000,,kalkan,0,0,0,84974
+Low class,930650000,,silah,0,0,0,746801
+Low class,930660000,,silah,0,0,0,746801
+Low class,930662000,Dagger,silah,0,73,0,50
+Low class,930666000,Long Sword,silah,0,73,0,50
+Low class,930671000,Greatsword,silah,0,73,0,50
+Low class,931659000,Old Knife,silah,0,73,0,50
+Low class,940941000,Taurus's pendent,sarf,0,0,75,640
+Low class,940942000,Ararat's pendent,sarf,0,0,75,640
+Low class,940943000,Pontus's pendent,sarf,0,0,75,640
+Low class,940944000,Taurus's belt,sarf,0,0,75,640
+Low class,940945000,Ararat's belt,sarf,0,0,75,640
+Low class,940946000,Pontus's belt,sarf,0,0,75,640
+Low class,940947000,Antalra ring,sarf,0,0,55,640
+Low class,940948000,Antalia ring,sarf,0,0,55,640
+Low class,940949000,Torose ring,sarf,0,0,55,640
+Low class,940950000,Kojahan ring,sarf,0,0,55,640
+Low class,940951000,Taurus ring,sarf,0,0,75,640
+Low class,940952000,Ararat ring,sarf,0,0,75,640
+Low class,940953000,Pontus's ring,sarf,0,0,75,640
+Low class,940955000,Saint valentine ring,sarf,0,0,0,640
+Low class,956112000,Glave,silah,0,0,0,44449
+Low class,956210000,Raptor,silah,0,0,0,580958
+Low class,971730000,Novice Shortsword of Hepa,silah,0,0,0,383
+Low class,971740000,Hepa's Novice Staff,silah,0,0,0,568
+Low class,971770000,Hepa's Novice Dirk,silah,0,0,0,205
+Low class,971780000,Finely-Crafted Vulture Blade,silah,0,0,0,3188
+Low class,971790000,Horned Staff,silah,0,0,0,3534
+Low class,971810000,Vulture Obliterator,silah,0,0,0,42349
+Low class,971830000,Massive Horn Maul,silah,0,0,0,4213
+Low class,971850000,Moradon Guards Dirk,silah,0,0,0,24499
+Low class,971860000,Moradon Valedictorian Mage Staff,silah,0,0,0,32917
+Low class,971880000,Moradon Honorary Guard Longsword,silah,0,0,0,7913
+Low class,971900000,Moradon Village Watch,silah,0,0,0,21440
+Low class,971910000,Moradon Harvesting Scythe,silah,0,0,0,67444
+Low class,971920000,Moradon Decorative Spear,silah,0,0,0,66968
+Low class,971930000,Mordon Guards Shield,kalkan,0,0,0,10650
+Low class,971950000,Skeleton Rib,silah,0,0,0,53070
+Low class,971960000,Eerie Skull Cane,silah,0,0,0,123471
+Low class,971980000,Thigh Bone,silah,0,0,0,67039
+Low class,972000000,Skull Destroyer,silah,0,0,0,53406
+Low class,972010000,Wolf Hunting Blade,silah,0,0,0,358850
+Low class,972020000,Sharp Fang,silah,0,0,0,286230
+Low class,972030000,Wolf Tail Staff,silah,0,0,0,333980
+Low class,972050000,Wolf Slayer,silah,0,0,0,161980
+Low class,972070000,Wolf Slayer Shield,kalkan,0,0,0,34230
+Low class,972080000,Pointed Wolf Nail,silah,0,0,0,309440
+Low class,972090000,Ultimate Wolf Eradicator,silah,0,0,0,227120
+Low class,972100000,Effective Orc Eradication Sword,silah,0,0,0,358850
+Low class,972110000,Berserk Orc Devastator,silah,0,0,0,286230
+Low class,972120000,Orc Shaman Staff,silah,0,0,0,333980
+Low class,972140000,Axe of Lard Orc,silah,0,0,0,161980
+Low class,972160000,Dinged Orc Tribe Shield,kalkan,0,0,0,57810
+Low class,972170000,Orc Hunting Harpoon,silah,0,0,0,309440
+Low class,972180000,Nightmare of Orc,silah,0,0,0,227120
+Low class,972190000,Monster Annihilation Leader,silah,0,0,0,444490
+Low class,972200000,Captain's Emergency Dirk,silah,0,0,0,443040
+Low class,972210000,Gift from Great Wizad,silah,0,0,0,509050
+Low class,972230000,Longsword of an Unknown Soldier,silah,0,0,0,508520
+Low class,972250000,Guardian Shield of Captain,kalkan,0,0,0,84970
+Low class,972260000,Reformed Guards Longspear,silah,0,0,0,580110
+Low class,972270000,Axe of Grave Reaper,silah,0,0,0,414340
+Low class,972280000,Agent's Guardian Sword,silah,0,0,0,444490
+Low class,972290000,Clarence's Training Dirk,silah,0,0,0,443040
+Low class,972300000,Hidden Secret Staff,silah,0,0,0,509050
+Low class,972320000,Agent's Guardian Longsword,silah,0,0,0,508520
+Low class,972350000,Agent's Guardian Longspear,silah,0,0,0,580110
+Low class,972360000,Secret Executor,silah,0,0,0,414340
+Low class,978008000,Mithril Sword,silah,0,73,0,50
+Low class,979101000,Defender of the Lord,kalkan,0,0,0,84974
+Low class,980812000,Elemental Staff,silah,0,0,0,20919
+Low class,981110000,Elixir Staff,silah,0,0,0,747517
+Low class,1113328000,,silah,0,0,0,746801
+Low class,1190029000,Draki's Pendant,sarf,0,0,1,640
+Low class,1310310000,Akara Unique Accessory,sarf,0,0,0,640
+Low class,1310410000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1310510000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1310610000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1320110000,Akara Golden Pendant,sarf,0,0,0,640
+Low class,1320310000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1320510000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1320610000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1340410000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1340510000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1340610000,Akara Rare Accessory,sarf,0,0,0,640
+Low class,1399308000,Akara Ring of Courage,sarf,0,0,0,640
+Low class,1399309000,Akara Ring of Life,sarf,0,0,0,640
+Low class,1399310000,Akara Flame Ring,sarf,0,0,0,640
+Low class,1399311000,Akara Shio Tears,sarf,0,0,0,640
+Low class,1399312000,Akara Imir Ring,sarf,0,0,0,640
+Low class,1930570000,? ???? ?,silah,0,0,0,746801
+Low class,1930580000,? ???? ??,kalkan,0,0,0,84974
+Low class,121420000,Novice Sword 2,silah,1,0,0,0
+Low class,121430000,Training Warrior's Sword 1,silah,1,0,0,0
+Low class,121440000,Training Warrior's Sword 2,silah,1,0,0,0
+Low class,121450000,Skilled Warrior's Sword 1,silah,1,0,0,0
+Low class,121460000,Skilled Warrior's Sword 2,silah,1,0,0,0
+Low class,121470000,Novice Sword 1,silah,1,0,0,0
+Low class,125010000,Novice Two-Handed Sword 1,silah,1,0,0,0
+Low class,125020000,Novice Two-Handed Sword 2,silah,1,0,0,0
+Low class,125030000,Training Warrior's Two-Handed Sword 1,silah,1,0,0,0
+Low class,125040000,Training Warrior's Two-Handed Sword 2,silah,1,0,0,0
+Low class,125050000,Skilled Warrior's Two-Handed Sword 1,silah,1,0,0,0
+Low class,125060000,Skilled Warrior's Two-Handed Sword 2,silah,1,0,0,0
+Low class,125070000,Two-Handed Training Sword,silah,1,0,0,50
+Low class,201001000,Quilted Pauldron,zirh,1,0,0,560
+Low class,201002000,Leather Pads,zirh,1,0,0,336
+Low class,201003000,Leather Cap,zirh,1,0,0,224
+Low class,201004000,Leather Gloves,zirh,1,0,0,112
+Low class,201005000,Leather Shoes,zirh,1,0,0,112
+Low class,201011000,Novice Warrior's Pauldron,zirh,1,0,0,0
+Low class,201012000,Novice Warrior's Pants,zirh,1,0,0,0
+Low class,201013000,Novice Warrior's Helmet,zirh,1,0,0,0
+Low class,201014000,Novice Warrior's Gauntlets,zirh,1,0,0,0
+Low class,201015000,Novice Warrior's Boots,zirh,1,0,0,0
+Low class,202001000,Half Plate Pauldron,zirh,1,0,0,4500
+Low class,202002000,Half Plate Pads,zirh,1,0,0,2700
+Low class,202003000,Half Plate Helmet,zirh,1,0,0,1800
+Low class,202004000,Half Plate Gauntlet,zirh,1,0,0,900
+Low class,202005000,Half Plate Boots,zirh,1,0,0,900
+Low class,202013000,Helmet of Destruction,zirh,1,0,0,288000
+Low class,202021000,Training warriors' Pauldron,zirh,1,0,0,0
+Low class,202022000,Training warriors' Pants,zirh,1,0,0,0
+Low class,202023000,Training warriors' Helmet,zirh,1,0,0,0
+Low class,202024000,Training warriors' Gauntlets,zirh,1,0,0,0
+Low class,202025000,Training warriors' Boots,zirh,1,0,0,0
+Low class,203011000,Armor of Destruction,zirh,1,0,0,720000
+Low class,203012000,Pads of Destruction,zirh,1,0,0,432000
+Low class,203014000,Gauntlet of Destruction,zirh,1,0,0,144000
+Low class,203015000,Boots of Destruction,zirh,1,0,0,144000
+Low class,203021000,Talia skin,zirh,1,0,0,100000
+Low class,203031000,Skilled Warrior's Pauldron,zirh,1,0,0,0
+Low class,203032000,Skilled Warrior's Pants,zirh,1,0,0,0
+Low class,203033000,Skilled Warrior's Helmet,zirh,1,0,0,0
+Low class,203034000,Skilled Warrior's Gauntlets,zirh,1,0,0,0
+Low class,203035000,Skilled Warrior's Boots,zirh,1,0,0,0
+Low class,905001000,Chitin Armor Pauldron,zirh,1,0,0,144000
+Low class,905002000,Chitin Armor Pads,zirh,1,0,0,86400
+Low class,905003000,Chitin Helmet,zirh,1,0,0,57600
+Low class,905004000,Chitin Gauntlets,zirh,1,0,0,28800
+Low class,905005000,Chitin Boots,zirh,1,0,0,28800
+Low class,925000000,Troll Armor: Upper Garment,zirh,1,0,0,144000
+Low class,925001000,Troll Armor: Lower Garment,zirh,1,0,0,86400
+Low class,925002000,Troll Armor: Helmet,zirh,1,0,0,57600
+Low class,925003000,Troll Armor: Gauntlets,zirh,1,0,0,28800
+Low class,925004000,Troll Armor: Boots,zirh,1,0,0,28800
+Low class,930001000,Pauldron of Novice Mercenary,zirh,1,0,30,216000
+Low class,930002000,Pads of Novice Mercenary,zirh,1,0,30,129600
+Low class,930003000,Helmet of Novice Mercenary,zirh,1,0,30,86400
+Low class,930004000,Gauntlets of Novice Mercenary,zirh,1,0,30,43200
+Low class,930005000,Boots of Novice Mercenary,zirh,1,0,30,43200
+Low class,100130000,Hero Bow,silah,2,0,0,120000
+Low class,111410000,Novice Knife 1,silah,2,0,0,0
+Low class,111420000,Novice Knife 2,silah,2,0,0,0
+Low class,111430000,Training Rogue's Knife 1,silah,2,0,0,0
+Low class,111440000,Training Rogue's Knife 2,silah,2,0,0,0
+Low class,111450000,Skilled Rogue's Knife 1,silah,2,0,0,0
+Low class,111460000,Skilled Rogue's Knife 2,silah,2,0,0,0
+Low class,111470000,Training Knife,silah,2,0,0,50
+Low class,160100000,Bow,silah,2,0,0,146
+Low class,160150000,Bow,silah,2,0,0,146
+Low class,160190000,Bow,silah,2,0,0,146
+Low class,160210000,Short Bow,silah,2,0,0,349
+Low class,160250000,Bamboo Bow,silah,2,0,0,349
+Low class,160410000,Rapt Bow,silah,2,0,0,1542
+Low class,160450000,Hunter's Bow,silah,2,0,0,1542
+Low class,160610000,Composite Bow,silah,2,0,0,9460
+Low class,160612000,Composite Bow,silah,2,0,0,946
+Low class,160650000,Horn Bow,silah,2,0,0,9460
+Low class,161410000,Novice Bow 1,silah,2,0,0,0
+Low class,161420000,Novice Bow 2,silah,2,0,0,0
+Low class,161430000,Training Rogue's Bow 1,silah,2,0,0,0
+Low class,161440000,Training Rogue's Bow 2,silah,2,0,0,0
+Low class,161450000,Skilled Rogue's Bow 1,silah,2,0,0,0
+Low class,161460000,Skilled Rogue's Bow 2,silah,2,0,0,0
+Low class,161470000,Training Bow,silah,2,0,0,50
+Low class,168110000,Crossbow,silah,2,0,0,42030
+Low class,168112000,Crossbow,silah,2,0,0,4203
+Low class,168113000,Crossbow,silah,2,0,0,4203
+Low class,168150000,Crossbow,silah,2,0,0,42034
+Low class,169121000,Noah Enion Bow,silah,2,20,0,580958
+Low class,169202000,Death Wing Bow,silah,2,0,0,484974
+Low class,169205000,Angel's Hairpin,silah,2,0,0,0
+Low class,169303000,Noah Eyes of Rough Mountain Eagle,silah,2,20,0,191899
+Low class,169321000,Noah Herenid Crossbow,silah,2,20,0,306548
+Low class,180920000,Noah Windforce on Severe Diet,silah,2,20,70,580958
+Low class,180930000,Noah Warm Downpour Windforce,silah,2,20,70,580958
+Low class,180940000,Noah Bombastic Giant Windforce,silah,2,20,70,580958
+Low class,180950000,Noah Lousy Pickpocket Windforce,silah,2,20,70,580958
+Low class,180960000,Noah Undefeatable Windforce,silah,2,20,70,580958
+Low class,241001000,Rogue Shirt,zirh,2,0,0,448
+Low class,241002000,Rogue Pads,zirh,2,0,0,268
+Low class,241003000,Rogue Cap,zirh,2,0,0,179
+Low class,241004000,Rogue Gloves,zirh,2,0,0,89
+Low class,241005000,Rogue Shoes,zirh,2,0,0,89
+Low class,241011000,Novice Rogue's Pauldron,zirh,2,0,0,0
+Low class,241012000,Novice Rogue's Pants,zirh,2,0,0,0
+Low class,241013000,Novice Rogue's Helmet,zirh,2,0,0,0
+Low class,241014000,Novice Rogue's Gauntlets,zirh,2,0,0,0
+Low class,241015000,Novice Rogue's Boots,zirh,2,0,0,0
+Low class,242001000,Rogue Half Plate Pauldron,zirh,2,0,0,3600
+Low class,242002000,Rogue Half Plate Pads,zirh,2,0,0,2160
+Low class,242003000,Rogue Helmet,zirh,2,0,0,1440
+Low class,242004000,Rogue Gauntlet,zirh,2,0,0,720
+Low class,242005000,Rogue Boots,zirh,2,0,0,720
+Low class,242013000,Helmet of Destruction,zirh,2,0,0,288000
+Low class,242021000,Training Rogue's Pauldron,zirh,2,0,0,0
+Low class,242022000,Training Rogue's Pants,zirh,2,0,0,0
+Low class,242023000,Training Rogue's Helmet,zirh,2,0,0,0
+Low class,242024000,Training Rogue's Gauntlets,zirh,2,0,0,0
+Low class,242025000,Training Rogue's Boots,zirh,2,0,0,0
+Low class,243011000,Armor of Destruction,zirh,2,0,0,720000
+Low class,243012000,Pads of Destruction,zirh,2,0,0,432000
+Low class,243014000,Gauntlet of Destruction,zirh,2,0,0,144000
+Low class,243015000,Boots of Destruction,zirh,2,0,0,144000
+Low class,243021000,Talia skin,zirh,2,0,0,100000
+Low class,243031000,Skilled Rogue's Pauldron,zirh,2,0,0,0
+Low class,243032000,Skilled Rogue's Pants,zirh,2,0,0,0
+Low class,243033000,Skilled Rogue's Helmet,zirh,2,0,0,0
+Low class,243034000,Skilled Rogue's Gauntlets,zirh,2,0,0,0
+Low class,243035000,Skilled Rogue's Boots,zirh,2,0,0,0
+Low class,810584000,Bow,silah,2,0,0,146
+Low class,810585000,Short Bow,silah,2,0,0,349
+Low class,810586000,Rapt Bow,silah,2,0,0,1542
+Low class,900100000,Bow of Novice Assassin ,silah,2,0,30,1000
+Low class,900534000,Hunter? Bow,silah,2,20,0,1
+Low class,910025000,Bow of Mirsol,silah,2,0,0,120000
+Low class,910032000,Bow of Heavenly Phoenix,silah,2,0,0,120000
+Low class,910033000,Bow of ???Nakjji???,silah,2,0,0,120000
+Low class,910035000,Bow of Strong Bukkung,silah,2,0,0,120000
+Low class,910059000,Bow of 4U1004,silah,2,0,0,120000
+Low class,910067000,Bow of Darkness_of_Shadow,silah,2,0,0,120000
+Low class,910222000,Bow of Noah <selfname>,silah,2,20,0,191899
+Low class,925005000,Troll Armor: Upper Garment,zirh,2,0,0,115200
+Low class,925006000,Troll Armor: Lower Garment,zirh,2,0,0,69120
+Low class,925007000,Troll Armor: Helmet,zirh,2,0,0,46080
+Low class,925008000,Troll Armor: Gauntlets,zirh,2,0,0,23040
+Low class,925009000,Troll Armor: Boots,zirh,2,0,0,23040
+Low class,930006000,Pauldron of Novice Mercenary,zirh,2,0,30,172800
+Low class,930007000,Pads of Novice Mercenary,zirh,2,0,30,103680
+Low class,930008000,Helmet of Novice Mercenary,zirh,2,0,30,69120
+Low class,930009000,Gauntlets of Novice Mercenary,zirh,2,0,30,34560
+Low class,931001000,Boots of Novice Mercenary,zirh,2,0,30,34560
+Low class,945001000,Rogue Chitin Armor Pauldron,zirh,2,0,0,115200
+Low class,945002000,Rogue Chitin Armor Pads,zirh,2,0,0,69120
+Low class,945003000,Rogue Chitin Helmet,zirh,2,0,0,46080
+Low class,945004000,Rogue Chitin Gauntlets,zirh,2,0,0,23040
+Low class,945005000,Rogue Chitin Boots,zirh,2,0,0,23040
+Low class,960450000,Hunter's Bow,silah,2,0,0,1542
+Low class,968410000,Iron Bow,silah,2,0,0,191899
+Low class,971760000,Hepa's Novice Bow,silah,2,0,0,146
+Low class,971820000,Vulture Hunting Bow,silah,2,0,0,349
+Low class,971890000,Moradon Elite Bow,silah,2,0,0,1542
+Low class,971990000,Cross Bow,silah,2,0,0,42030
+Low class,972060000,Swift Wolf Hunter,silah,2,0,0,74560
+Low class,972150000,Persistent Orc Tracker,silah,2,0,0,74560
+Low class,972240000,Tendon of Grave Reaper,silah,2,0,0,122960
+Low class,972330000,Clarence's Training Bow,silah,2,0,0,122960
+Low class,181420000,Novice Staff 2,silah,3,0,0,0
+Low class,181430000,Training Magician's Staff 1,silah,3,0,0,0
+Low class,181440000,Training Magician's Staff 2,silah,3,0,0,0
+Low class,181450000,Skilled Magician's Staff 1,silah,3,0,0,0
+Low class,181460000,Skilled Magician's Staff 2,silah,3,0,0,0
+Low class,181470000,Novice Staff 1,silah,3,0,0,0
+Low class,181480000,Training Staff ,silah,3,0,0,50
+Low class,261001000,Mage Cotton Robe,zirh,3,0,0,504
+Low class,261001000,Mage Cotton Robe,zirh,3,0,0,504
+Low class,261002000,Mage Cloth Pants,zirh,3,0,0,302
+Low class,261002000,Mage Cloth Pants,zirh,3,0,0,302
+Low class,261003000,Mage Hat,zirh,3,0,0,201
+Low class,261003000,Mage Hat,zirh,3,0,0,201
+Low class,261004000,Mage Gloves,zirh,3,0,0,100
+Low class,261004000,Mage Gloves,zirh,3,0,0,100
+Low class,261005000,Mage Shoes,zirh,3,0,0,100
+Low class,261005000,Mage Shoes,zirh,3,0,0,100
+Low class,261011000,Novice Magician's Robe,zirh,3,0,0,0
+Low class,261012000,Novice Magician's Pants,zirh,3,0,0,0
+Low class,261013000,Novice Magician's Helmet,zirh,3,0,0,0
+Low class,261014000,Novice Magician's Gauntlets,zirh,3,0,0,0
+Low class,261015000,Novice Magician's Boots,zirh,3,0,0,0
+Low class,262001000,Mage Linen Robe,zirh,3,0,0,4050
+Low class,262002000,Mage Linen Pants,zirh,3,0,0,2430
+Low class,262003000,Mage Linen Cap,zirh,3,0,0,1620
+Low class,262004000,Mage Leather Gloves,zirh,3,0,0,810
+Low class,262005000,Mage Leather Boots,zirh,3,0,0,810
+Low class,262013000,Helmet of Destruction,zirh,3,0,0,288000
+Low class,262021000,Training Magician's Robe,zirh,3,0,0,0
+Low class,262022000,Training Magician's Pants,zirh,3,0,0,0
+Low class,262023000,Training Magician's Helmet,zirh,3,0,0,0
+Low class,262024000,Training Magician's Gauntlets,zirh,3,0,0,0
+Low class,262025000,Training Magician's Boots,zirh,3,0,0,0
+Low class,263011000,Armor of Destruction,zirh,3,0,0,720000
+Low class,263012000,Pads of Destruction,zirh,3,0,0,432000
+Low class,263014000,Gauntlet of Destruction,zirh,3,0,0,144000
+Low class,263015000,Boots of Destruction,zirh,3,0,0,144000
+Low class,263021000,Talia skin,zirh,3,0,0,100000
+Low class,263031000,Skilled Magician's Robe,zirh,3,0,0,0
+Low class,263032000,Skilled Magician's Pants,zirh,3,0,0,0
+Low class,263033000,Skilled Magician's Helmet,zirh,3,0,0,0
+Low class,263034000,Skilled Magician's Gauntlets,zirh,3,0,0,0
+Low class,263035000,Skilled Magician's Boots,zirh,3,0,0,0
+Low class,271001000,Black Mage Cotton Robe,zirh,3,162,0,504
+Low class,271002000,Black Mage Cloth Pants,zirh,3,162,0,302
+Low class,271003000,Black Mage Hat,zirh,3,162,0,201
+Low class,271004000,Black Mage Gloves,zirh,3,162,0,100
+Low class,271005000,Black Mage Shoes,zirh,3,162,0,100
+Low class,926000000,Troll Armor: Upper Garment,zirh,3,0,0,129600
+Low class,926001000,Troll Armor: Lower Garment,zirh,3,0,0,77760
+Low class,926002000,Troll Armor: Helmet,zirh,3,0,0,51840
+Low class,926003000,Troll Armor: Gauntlets,zirh,3,0,0,25920
+Low class,926004000,Troll Armor: Boots,zirh,3,0,0,25920
+Low class,931002000,Robe of Novice Rudimentary Magic Scholar,zirh,3,0,30,194400
+Low class,931003000,Pants of of Novice Rudimentary Magic Scholar,zirh,3,0,30,116640
+Low class,931004000,Helmet of Novice Rudimentary Magic Scholar,zirh,3,0,30,77760
+Low class,931005000,Gauntlets of Novice Rudimentary Magic Scholar,zirh,3,0,30,38880
+Low class,931006000,Boots of Novice Rudimentary Magic Scholar,zirh,3,0,30,38880
+Low class,965001000,Crimson Robe,zirh,3,0,0,129600
+Low class,965002000,Crimson Pants,zirh,3,0,0,77760
+Low class,965003000,Crimson Helmet,zirh,3,0,0,51840
+Low class,965004000,Crimson Gloves,zirh,3,0,0,25920
+Low class,965005000,Crimson Boots,zirh,3,0,0,25920
+Low class,272001000,Black Fabric Coat,zirh,4,163,0,392
+Low class,272002000,Black Fabric Pants,zirh,4,163,0,235
+Low class,272003000,Black Priest Cap,zirh,4,163,0,156
+Low class,272004000,Black Priest Gloves,zirh,4,163,0,78
+Low class,272005000,Black Priest Shoes,zirh,4,163,0,78
+Low class,281001000,Fabric Coat,zirh,4,0,0,392
+Low class,281002000,Fabric Pants,zirh,4,0,0,235
+Low class,281003000,Priest Cap,zirh,4,0,0,156
+Low class,281004000,Priest Gloves,zirh,4,0,0,78
+Low class,281005000,Priest Shoes,zirh,4,0,0,78
+Low class,281011000,Novice Priest's Pauldron,zirh,4,0,0,0
+Low class,281012000,Novice Priest's Pants,zirh,4,0,0,0
+Low class,281013000,Novice Priest's Helmet,zirh,4,0,0,0
+Low class,281014000,Novice Priest's Gauntlets,zirh,4,0,0,0
+Low class,281015000,Novice Priest's Boots,zirh,4,0,0,0
+Low class,282001000,Silk Coat,zirh,4,0,0,3150
+Low class,282002000,Silk Pants,zirh,4,0,0,1890
+Low class,282003000,Priest Helmet,zirh,4,0,0,1260
+Low class,282004000,Priest Gauntlet,zirh,4,0,0,630
+Low class,282005000,Priest Boots,zirh,4,0,0,630
+Low class,282013000,Helmet of Destruction,zirh,4,0,0,288000
+Low class,282021000,Training Priest's Pauldron,zirh,4,0,0,0
+Low class,282022000,Training Priest's Pants,zirh,4,0,0,0
+Low class,282023000,Training Priest's Helmet,zirh,4,0,0,0
+Low class,282024000,Training Priest's Gauntlets,zirh,4,0,0,0
+Low class,282025000,Training Priest's Boots,zirh,4,0,0,0
+Low class,283011000,Armor of Destruction,zirh,4,0,0,720000
+Low class,283012000,Pads of Destruction,zirh,4,0,0,432000
+Low class,283014000,Gauntlet of Destruction,zirh,4,0,0,144000
+Low class,283015000,Boots of Destruction,zirh,4,0,0,144000
+Low class,283021000,Talia skin,zirh,4,0,0,100000
+Low class,283031000,Skilled Priest's Pauldron,zirh,4,0,0,0
+Low class,283032000,Skilled Priest's Pants,zirh,4,0,0,0
+Low class,283033000,Skilled Priest's Helmet,zirh,4,0,0,0
+Low class,283034000,Skilled Priest's Gauntlets,zirh,4,0,0,0
+Low class,283035000,Skilled Priest's Boots,zirh,4,0,0,0
+Low class,926005000,Troll Armor: Upper Garment,zirh,4,0,0,100800
+Low class,926006000,Troll Armor: Lower Garment,zirh,4,0,0,60480
+Low class,926007000,Troll Armor: Helmet,zirh,4,0,0,40320
+Low class,926008000,Troll Armor: Gauntlets,zirh,4,0,0,20160
+Low class,926009000,Troll Armor: Boots,zirh,4,0,0,20160
+Low class,931007000,Pauldron of Novice Paladin,zirh,4,0,30,151200
+Low class,931008000,Pads of Novice Paladin,zirh,4,0,30,90720
+Low class,931009000,Helmet of Novice Paladin,zirh,4,0,30,60480
+Low class,932001000,Gauntlets of Novice Paladin,zirh,4,0,30,30240
+Low class,932002000,Boots of Novice Paladin,zirh,4,0,30,30240
+Low class,972340000,Hidden Secret Holy Shield,kalkan,4,0,55,106500
+Low class,985001000,Priest Chitin Armor Pauldron,zirh,4,0,0,100800
+Low class,985002000,Priest Chitin Armor Pads,zirh,4,0,0,60480
+Low class,985003000,Priest Chitin Helmet,zirh,4,0,0,40320
+Low class,985004000,Priest Chitin Gauntlets,zirh,4,0,0,20160
+Low class,985005000,Priest Chitin Boots,zirh,4,0,0,20160
+Low class,207001000,Sturdy Weapon Breaker Upper Garment,zirh,6,20,0,216000
+Low class,207002000,Sturdy Weapon Breaker Lower Garment,zirh,6,20,0,129600
+Low class,207003000,Sturdy Weapon Breaker Helmet,zirh,6,20,0,86400
+Low class,207004000,Sturdy Weapon Breaker Gauntlets,zirh,6,20,0,43200
+Low class,207005000,Sturdy Weapon Breaker Boots,zirh,6,20,0,43200
+Low class,209001000,Legendary king's steel corset,zirh,6,20,70,216000
+Low class,209002000,Legendary king's strong armor,zirh,6,20,70,129600
+Low class,209003000,Legendary king's helmet,zirh,6,20,70,86400
+Low class,209004000,Legendary king's gauntlet,zirh,6,20,70,43200
+Low class,209005000,Legendary king's boots,zirh,6,20,70,43200
+Low class,306001000,Noah Chitin Shell Pauldron,zirh,6,20,0,216000
+Low class,306002000,Noah Chitin Shell Pads,zirh,6,20,0,129600
+Low class,306003000,Noah Chitin Shell Helmet,zirh,6,20,0,86400
+Low class,306004000,Noah Chitin Shell Gauntlets,zirh,6,20,0,43200
+Low class,306005000,Noah Chitin Shell Boots,zirh,6,20,0,43200
+Low class,310511000,Minotaur's Earring,sarf,6,0,0,640
+Low class,390511000,Noah Minotaur's Earrings,sarf,6,20,0,640
+Low class,508771000,Subjugation Force's Pauldron,zirh,6,119,0,0
+Low class,508772000,Subjugation Force's Pants,zirh,6,119,0,0
+Low class,508773000,Subjugation Force's Hat,zirh,6,119,0,0
+Low class,508774000,Subjugation Force's Gloves,zirh,6,119,0,0
+Low class,508775000,Subjugation Force's Shoes,zirh,6,119,0,0
+Low class,906001000,Chitin Shell Pauldron,zirh,6,0,0,216000
+Low class,906002000,Chitin Shell Pads,zirh,6,0,0,129600
+Low class,906003000,Chitin Shell Helmet,zirh,6,0,0,86400
+Low class,906004000,Chitin Shell Gauntlets,zirh,6,0,0,43200
+Low class,906005000,Chitin Shell Boots,zirh,6,0,0,43200
+Low class,907001000,Noah Dragon Scale Armor Top,zirh,6,0,0,216000
+Low class,907002000,Noah Dragon Scale Armor Pants,zirh,6,0,0,129600
+Low class,907003000,Noah Dragon Scale Helmet,zirh,6,0,0,86400
+Low class,907004000,Noah Dragon Scale Gauntlet,zirh,6,0,0,43200
+Low class,907005000,Noah Dragon Scale Boots,zirh,6,0,0,43200
+Low class,1310511000,Akara Minotaur Earring,sarf,6,0,0,640
+Low class,247001000,Swift Weapon Breaker Upper Garment,zirh,8,20,0,172800
+Low class,247002000,Swift Weapon Breaker Lower Garment,zirh,8,20,0,103680
+Low class,247003000,Swift Weapon Breaker Helmet,zirh,8,20,0,69120
+Low class,247004000,Swift Weapon Breaker Gauntlets,zirh,8,20,0,34560
+Low class,247005000,Swift Weapon Breaker Boots,zirh,8,20,0,34560
+Low class,249001000,Cool-headed king's chest armor,zirh,8,20,70,172800
+Low class,249002000,Cool-headed king's leg armor,zirh,8,20,70,103680
+Low class,249003000,Cool-headed king's do-rag,zirh,8,20,70,69120
+Low class,249004000,Cool-headed king's glove,zirh,8,20,70,34560
+Low class,249005000,Cool-headed king's boots,zirh,8,20,70,34560
+Low class,310512000,Cockatrice's Earrings,sarf,8,0,0,640
+Low class,346001000,Chitin Shell Pauldron for Noah Rogue,zirh,8,20,0,172800
+Low class,346002000,Chitin Shell Pads for Noah Rogue,zirh,8,20,0,103680
+Low class,346003000,Chitin Shell Helmet for Noah Rogue,zirh,8,20,0,69120
+Low class,346004000,Chitin Shell Gauntlets for Noah Rogue,zirh,8,20,0,34560
+Low class,346005000,Chitin Shell Boots for Noah Rogue,zirh,8,20,0,34560
+Low class,390512000,Noah Cockatrice's Earrings,sarf,8,20,0,640
+Low class,548771000,Amazon's Pauldron,zirh,8,120,0,0
+Low class,548772000,Amazon's Skirt,zirh,8,120,0,0
+Low class,548773000,Amazon's Hairband,zirh,8,120,0,0
+Low class,548774000,Amazon's Gloves,zirh,8,120,0,0
+Low class,548775000,Amazon's Shoes,zirh,8,120,0,0
+Low class,946001000,Rogue Chitin Shell Pauldron,zirh,8,0,0,172800
+Low class,946002000,Rogue Chitin Shell Pads,zirh,8,0,0,103680
+Low class,946003000,Rogue Chitin Shell Helmet,zirh,8,0,0,69120
+Low class,946004000,Rogue Chitin Shell Gauntlets,zirh,8,0,0,34560
+Low class,946005000,Rogue Chitin Shell Boots,zirh,8,0,0,34560
+Low class,947001000,Noah Mythril Armor Top,zirh,8,0,0,172800
+Low class,947002000,Noah Mythril Armor Pants,zirh,8,0,0,103680
+Low class,947003000,Noah Mythril Armor Helmet,zirh,8,0,0,69120
+Low class,947004000,Noah Mythril Armor Gauntlets,zirh,8,0,0,34560
+Low class,947005000,Noah Mythril Armor Boots,zirh,8,0,0,34560
+Low class,1310512000,Akara Cockatrice's Earrings,sarf,8,0,0,640
+Low class,267001000,Shrewd Weapon Breaker Robe,zirh,10,20,0,194400
+Low class,267002000,Shrewd Weapon Breaker Lower Garment,zirh,10,20,0,116640
+Low class,267003000,Shrewd Weapon Breaker Helmet,zirh,10,20,0,77760
+Low class,267004000,Shrewd Weapon Breaker Gauntlets,zirh,10,20,0,38880
+Low class,267005000,Shrewd Weapon Breaker Boots,zirh,10,20,0,38880
+Low class,269001000,Intelligent king's robe,zirh,10,20,70,194400
+Low class,269002000,Intelligent king's kilt,zirh,10,20,70,116640
+Low class,269003000,Intelligent king's head armor,zirh,10,20,70,77760
+Low class,269004000,Intelligent king's hands armor,zirh,10,20,70,38880
+Low class,269005000,Intelligent king's boots,zirh,10,20,70,38880
+Low class,310513000,Lich King's Earring,sarf,10,0,0,640
+Low class,366001000,Noah Complete Robe,zirh,10,20,0,194400
+Low class,366002000,Noah Complete Pants,zirh,10,20,0,116640
+Low class,366003000,Noah Complete Helmet,zirh,10,20,0,77760
+Low class,366004000,Noah Complete Gloves,zirh,10,20,0,38880
+Low class,366005000,Noah Complete Boots,zirh,10,20,0,38880
+Low class,390513000,Noah Lich King's Earrings,sarf,10,20,0,640
+Low class,568771000,Wisdom's Robe,zirh,10,121,0,0
+Low class,568772000,Wisdom's Cloth Pants,zirh,10,121,0,0
+Low class,568773000,Wisdom's Hat,zirh,10,121,0,0
+Low class,568774000,Wisdom's Gloves,zirh,10,121,0,0
+Low class,568775000,Wisdom's Shoes,zirh,10,121,0,0
+Low class,966001000,Complete Robe,zirh,10,0,0,194400
+Low class,966002000,Complete Pants,zirh,10,0,0,116640
+Low class,966003000,Complete Helmet,zirh,10,0,0,77760
+Low class,966004000,Complete Glove,zirh,10,0,0,38880
+Low class,966005000,Complete Boots,zirh,10,0,0,38880
+Low class,967001000,Noah Ron's Robe,zirh,10,0,0,194400
+Low class,967002000,Noah Ron's Pants,zirh,10,0,0,116640
+Low class,967003000,Noah Ron's Helmet,zirh,10,0,0,77760
+Low class,967004000,Noah Ron's Gloves,zirh,10,0,0,38880
+Low class,967005000,Noah Ron's Boots,zirh,10,0,0,38880
+Low class,1310513000,Akara Lich King Earring,sarf,10,0,0,640
+Low class,287001000,Sacred Weapon Breaker Upper Garment,zirh,12,20,0,151200
+Low class,287002000,Sacred Weapon Breaker Lower Garment,zirh,12,20,0,90720
+Low class,287003000,Sacred  Weapon Breaker Helmet,zirh,12,20,0,60480
+Low class,287004000,Sacred Weapon Breaker Gauntlets,zirh,12,20,0,30240
+Low class,287005000,Sacred Weapon Breaker Boots,zirh,12,20,0,30240
+Low class,289001000,Wise king's steel corset,zirh,12,20,70,151200
+Low class,289002000,Wise king's strong armor,zirh,12,20,70,90720
+Low class,289003000,Wise king's helmet,zirh,12,20,70,60480
+Low class,289004000,Wise king's gauntlet,zirh,12,20,70,30240
+Low class,289005000,Wise king's boots,zirh,12,20,70,30240
+Low class,310514000,Lillime's Enticement,sarf,12,0,0,640
+Low class,386001000,Chitin Shell Pauldron for Noah Priest,zirh,12,20,0,151200
+Low class,386002000,Chitin Shell Pads for Noah Priest,zirh,12,20,0,90720
+Low class,386003000,Chitin Shell Helmet for Noah Priest,zirh,12,20,0,60480
+Low class,386004000,Chitin Shell Gauntlets for Noah Priest,zirh,12,20,0,30240
+Low class,386005000,Chitin Shell Boots for Noah Priest,zirh,12,20,0,30240
+Low class,390514000,Noah Lillime's Earrings,sarf,12,20,0,640
+Low class,588771000,Protection Fabric Coat,zirh,12,122,0,0
+Low class,588772000,Protection Fabric Pants,zirh,12,122,0,0
+Low class,588773000,Protection Hat,zirh,12,122,0,0
+Low class,588774000,Protection Gloves,zirh,12,122,0,0
+Low class,588775000,Protection Shoes,zirh,12,122,0,0
+Low class,986001000,Priest Chitin Shell Pauldron,zirh,12,0,0,151200
+Low class,986002000,Priest Chitin Shell Pads,zirh,12,0,0,90720
+Low class,986003000,Priest Chitin Shell Helmet,zirh,12,0,0,60480
+Low class,986004000,Priest Chitin Shell Gauntlets,zirh,12,0,0,30240
+Low class,986005000,Priest Chitin Shell Boots,zirh,12,0,0,30240
+Low class,987001000,Noah Abyss' Armor Top,zirh,12,0,0,151200
+Low class,987002000,Noah Abyss' Armor Pants,zirh,12,0,0,90720
+Low class,987003000,Noah Abyss' Armor Helmet,zirh,12,0,0,60480
+Low class,987004000,Noah Abyss' Armor Gauntlets,zirh,12,0,0,30240
+Low class,987005000,Noah Abyss' Armor Boots,zirh,12,0,0,30240
+Low class,1310514000,Akara Lillime Earring,sarf,12,0,0,640
+Low class,330111000,Hero's Valor,sarf,21,0,0,640
+Low class,330151000,Legionnaire Band,sarf,21,0,0,640
+Low class,390111000,Noah Ring of Light's Courage,sarf,21,20,0,640
+Low class,390151000,Noah Ring of Light's Life,sarf,21,20,0,640
+Low class,1399306000,Akara Hero's Valor,sarf,21,0,0,640
+Low class,1399307000,Akara Legionnaire Band,sarf,21,0,0,640
+Low class,930663000,Short Bow,silah,255,73,0,50
+Low class,930667000,Bow,silah,255,73,0,50
+Low class,930672000,Composite Bow,silah,255,73,0,50
+Low class,931660000,Old Bow,silah,255,73,0,50
+Low class,978009000,Mithril Bow,silah,255,73,0,50
+Middle class,110910000,Kukry,silah,0,0,0,175760
+Middle class,110912000,Kukry,silah,0,0,0,17576
+Middle class,111010000,Cleaver,silah,0,0,0,286230
+Middle class,111010001,Cleaver(+1),silah,0,0,0,572460
+Middle class,111012000,Cleaver,silah,0,0,0,28623
+Middle class,121010000,Crescent,silah,0,0,0,208127
+Middle class,121012000,Crescent,silah,0,0,0,20812
+Middle class,121110000,Blade,silah,0,0,0,358112
+Middle class,121110001,Blade(+1),silah,0,0,0,716224
+Middle class,121112000,Blade,silah,0,0,0,35811
+Middle class,121210000,Slayer,silah,0,0,0,507711
+Middle class,126110000,Double Blade,silah,0,0,0,208760
+Middle class,126112000,Double Blade,silah,0,0,0,20876
+Middle class,126210000,Destroyer,silah,0,0,0,358850
+Middle class,126212000,Destroyer,silah,0,0,0,35885
+Middle class,126310000,Durandal,silah,0,0,0,508520
+Middle class,126312000,Durandal,silah,0,0,0,50852
+Middle class,130810000,Cleaver Axe,silah,0,0,0,161385
+Middle class,130910000,Wrist Cutter,silah,0,0,0,265254
+Middle class,130912000,Wrist Cutter,silah,0,0,0,26525
+Middle class,131010000,Tomahawk,silah,0,0,0,413572
+Middle class,135910000,Broad Axe,silah,0,0,0,161980
+Middle class,135912000,Broad Axe,silah,0,0,0,16198
+Middle class,135920000,Candy Greatsword,silah,0,20,0,508520
+Middle class,135940000,Candy Dagger,silah,0,20,0,443040
+Middle class,135950000,Candy Cane,silah,0,20,0,509050
+Middle class,136010000,Bone Axe,silah,0,0,0,265940
+Middle class,136012000,Bone Axe,silah,0,0,0,26594
+Middle class,136110000,Bone Cleaver,silah,0,0,0,414340
+Middle class,136112000,Bone Cleaver,silah,0,0,0,41434
+Middle class,136320000,Hepa's Mirage Dagger,silah,0,0,0,443040
+Middle class,136350000,Hepa's Slayer,silah,0,0,0,507711
+Middle class,136380000,Hepa's Durandal,silah,0,0,0,508520
+Middle class,136410000,Hepa's Tomahawk,silah,0,0,0,413572
+Middle class,136440000,Hepa's Bone Cleaver,silah,0,0,0,414340
+Middle class,136470000,Hepa's Bone Crasher,silah,0,0,0,475131
+Middle class,136500000,Hepa's Totamic Club,silah,0,0,0,475530
+Middle class,136530000,Hepa's Harpoon,silah,0,0,0,58011
+Middle class,136560000,Hepa's Glave,silah,0,0,0,444490
+Middle class,136620000,Hepa's Salamander Staff,silah,0,0,0,509050
+Middle class,136680000,Hepa's Hoplon,kalkan,0,0,0,84974
+Middle class,136770000,Falchion[Mammoth],silah,0,0,0,444490
+Middle class,136780000,Spear[Mammoth],silah,0,0,0,58011
+Middle class,136860000,,silah,0,0,0,444490
+Middle class,140810000,Hacker,silah,0,0,0,191899
+Middle class,140812000,Hacker,silah,0,0,0,19189
+Middle class,140910000,Cracker,silah,0,0,0,333324
+Middle class,140912000,Cracker,silah,0,0,0,33332
+Middle class,141010000,Bone Crasher,silah,0,0,0,475131
+Middle class,145910000,Large Breaker,silah,0,0,0,192214
+Middle class,145912000,Large Breaker,silah,0,0,0,19221
+Middle class,146010000,Large Hacker,silah,0,0,0,333688
+Middle class,146012000,Large Hacker,silah,0,0,0,33368
+Middle class,146112000,Totamic Club,silah,0,0,0,47553
+Middle class,150910000,Trident,silah,0,0,0,309440
+Middle class,150912000,Trident,silah,0,0,0,30944
+Middle class,151010000,Philum,silah,0,0,0,443711
+Middle class,151012000,Philum,silah,0,0,0,44371
+Middle class,151110000,Harpoon,silah,0,0,0,580110
+Middle class,151112000,Harpoon,silah,0,0,0,58011
+Middle class,155910000,Halberd,silah,0,0,0,227120
+Middle class,155912000,Halberd,silah,0,0,0,22712
+Middle class,156010000,Bardish,silah,0,0,0,310158
+Middle class,156012000,Bardish,silah,0,0,0,31015
+Middle class,156112000,Glave,silah,0,0,0,44449
+Middle class,170410000,Large Kite Shield,kalkan,0,0,0,34230
+Middle class,170412000,Large Kite Shield,kalkan,0,0,0,3423
+Middle class,170450000,Round Kite Shield,kalkan,0,0,0,34230
+Middle class,171510000,Plate Shield,kalkan,0,0,0,84970
+Middle class,171512000,Plate Shield,kalkan,0,0,0,8497
+Middle class,171550000,Hoplon,kalkan,0,0,0,84974
+Middle class,180810000,Elemental Staff,silah,0,0,0,209190
+Middle class,180812000,Elemental Staff,silah,0,0,0,20919
+Middle class,180910000,Viper Staff,silah,0,0,0,333980
+Middle class,180912000,Viper Staff,silah,0,0,0,33398
+Middle class,181010000,Salamander Staff,silah,0,0,0,509050
+Middle class,181012000,Salamander Staff,silah,0,0,0,50905
+Middle class,900532000,Glave,silah,0,20,0,1
+Middle class,900533000,Mirage Dagger,silah,0,20,0,1
+Middle class,900535000,Elemental Staff,silah,0,20,0,1
+Middle class,136700000,Hepa's Sacred Defender,kalkan,1,0,55,106500
+Middle class,171570000,Sacred Defender,kalkan,1,0,55,106500
+Middle class,203001000,Plate Armor Pauldron,zirh,1,0,0,64000
+Middle class,203002000,Plate Armor Pads,zirh,1,0,0,38400
+Middle class,203003000,Plate Armor Helmet,zirh,1,0,0,25600
+Middle class,203004000,Plate Armor Gauntlet,zirh,1,0,0,12800
+Middle class,203005000,Plate Armor Boots,zirh,1,0,0,12800
+Middle class,204001000,Full Plate Armor Pauldron,zirh,1,0,0,96000
+Middle class,204002000,Full Plate Armor Pads,zirh,1,0,0,57600
+Middle class,204003000,Full Plate Armor Helmet,zirh,1,0,0,38400
+Middle class,204004000,Full Plate Armor Gauntlet,zirh,1,0,0,19200
+Middle class,204005000,Full Plate Armor Boots,zirh,1,0,0,19200
+Middle class,214005000,Full Plate Armor Boots,zirh,1,0,0,852
+Middle class,514001000,Hepa's Chitin Armor Pauldron,zirh,1,0,0,144000
+Middle class,514002000,Hepa's Chitin Armor Pads,zirh,1,0,0,86400
+Middle class,514003000,Hepa's Chitin Helmet,zirh,1,0,0,57600
+Middle class,514004000,Hepa's Chitin Gauntlets,zirh,1,0,0,28800
+Middle class,514005000,Hepa's Chitin Boots,zirh,1,0,0,28800
+Middle class,135930000,Candy Bow,silah,2,20,0,122960
+Middle class,136590000,Hepa's Iron Crossbow,silah,2,0,0,122960
+Middle class,168210000,Horn Crossbow,silah,2,0,0,74560
+Middle class,168212000,Horn Crossbow,silah,2,0,0,7456
+Middle class,168250000,Horn Crossbow,silah,2,0,0,74560
+Middle class,168312000,Iron Crossbow,silah,2,0,0,12296
+Middle class,243001000,Rogue Plate Armor Pauldron,zirh,2,0,0,51200
+Middle class,243002000,Rogue Plate Armor Pads,zirh,2,0,0,30720
+Middle class,243003000,Rogue Plate Helmet,zirh,2,0,0,20480
+Middle class,243004000,Rogue Plate Gauntlet,zirh,2,0,0,10240
+Middle class,243005000,Rogue Plate Boots,zirh,2,0,0,10240
+Middle class,244001000,Rogue Full Plate Armor Pauldron,zirh,2,0,0,76800
+Middle class,244002000,Rogue Full Plate Armor Pads,zirh,2,0,0,46080
+Middle class,244003000,Rogue Full Plate Armor Helmet,zirh,2,0,0,30720
+Middle class,244004000,Rogue Full Plate Armor Gauntlet,zirh,2,0,0,15360
+Middle class,244005000,Rogue Full Plate Armor Boots,zirh,2,0,0,15360
+Middle class,254005000,Rogue Full Plate Armor Boots,zirh,2,0,0,1278
+Middle class,516001000,Hepa's Rogue Chitin Armor Pauldron,zirh,2,0,0,115200
+Middle class,516002000,Hepa's Rogue Chitin Armor Pads,zirh,2,0,0,69120
+Middle class,516003000,Hepa's Rogue Chitin Helmet,zirh,2,0,0,46080
+Middle class,516004000,Hepa's Rogue Chitin Gauntlets,zirh,2,0,0,23040
+Middle class,516005000,Hepa's Rogue Chitin Boots,zirh,2,0,0,23040
+Middle class,263001000,Mage Silk Robe,zirh,3,0,0,57600
+Middle class,263002000,Mage Silk Pants,zirh,3,0,0,34560
+Middle class,263003000,Mage Helmet,zirh,3,0,0,23040
+Middle class,263004000,Mage Hard Leather Gloves,zirh,3,0,0,11520
+Middle class,263005000,Mage Hard Leather Boots,zirh,3,0,0,11520
+Middle class,264001000,Crystal Robe,zirh,3,0,0,86400
+Middle class,264002000,Crystal Pants,zirh,3,0,0,51840
+Middle class,264003000,Crystal Helmet,zirh,3,0,0,34560
+Middle class,264004000,Crystal Gloves,zirh,3,0,0,17280
+Middle class,264005000,Crystal Boots,zirh,3,0,0,17280
+Middle class,520001000,Hepa's Crimson Robe,zirh,3,0,0,129600
+Middle class,520002000,Hepa's Crimson Pants,zirh,3,0,0,77760
+Middle class,520003000,Hepa's Crimson Helmet,zirh,3,0,0,51840
+Middle class,520004000,Hepa's Crimson Gloves,zirh,3,0,0,25920
+Middle class,520005000,Hepa's Crimson Boots,zirh,3,0,0,25920
+Middle class,136690000,Hepa's Sacred Shield,kalkan,4,0,55,106500
+Middle class,171560000,Sacred Shield,kalkan,4,0,55,106500
+Middle class,283001000,Priest Plate Pauldron,zirh,4,0,0,44800
+Middle class,283002000,Priest Plate Pads,zirh,4,0,0,26880
+Middle class,283003000,Priest Plate Helmet,zirh,4,0,0,17920
+Middle class,283004000,Priest Plate Gauntlet,zirh,4,0,0,8960
+Middle class,283005000,Priest Plate Boots,zirh,4,0,0,8960
+Middle class,284001000,Priest Full Plate Armor Pauldron,zirh,4,0,0,67200
+Middle class,284002000,Priest Full Plate Armor Pads,zirh,4,0,0,40320
+Middle class,284003000,Priest Full Plate Armor Helmet,zirh,4,0,0,26880
+Middle class,284004000,Priest Full Plate Armor Gauntlet,zirh,4,0,0,13440
+Middle class,284005000,Priest Full Plate Armor Boots,zirh,4,0,0,13440
+Middle class,294005000,Priest Full Plate Armor Boots,zirh,4,0,0,2875
+Middle class,522001000,Hepa's Priest Chitin Armor Pauldron,zirh,4,0,0,100800
+Middle class,522002000,Hepa's Priest Chitin Armor Pads,zirh,4,0,0,60480
+Middle class,522003000,Hepa's Priest Chitin Helmet,zirh,4,0,0,40320
+Middle class,522004000,Hepa's Priest Chitin Gauntlets,zirh,4,0,0,20160
+Middle class,522005000,Hepa's Priest Chitin Boots,zirh,4,0,0,20160
+High class,111110000,Mirage Dagger,silah,0,0,0,443040
+High class,111110001,Mirage Dagger(+1),silah,0,0,0,886080
+High class,111112000,Exceptional Mirage Dagger,silah,0,0,0,44304
+High class,111210000,Shard,silah,0,0,0,618052
+High class,111310000,Exceptional Shard,silah,0,0,0,618052
+High class,120510255,Tooth,silah,0,0,0,7647
+High class,120550256,Sword of Beast,silah,0,0,0,7647
+High class,121310000,Graham,silah,0,0,0,746039
+High class,121410000,Exceptional Graham,silah,0,0,0,746039
+High class,125350258,Sword of the Dead,silah,0,0,0,1197
+High class,126410000,Mirage,silah,0,0,0,746935
+High class,126610000,Exceptional Mirage,silah,0,0,0,746935
+High class,130450256,Giantic Axe,silah,0,0,0,13329
+High class,130650255,Javana Axe,silah,0,0,0,41929
+High class,131110000,Deep Scar,silah,0,0,0,618479
+High class,131210000,Exceptional Deep Scar,silah,0,0,0,618479
+High class,135750258,Javana Axe,silah,0,0,0,42349
+High class,135750259,Giantic Axe,silah,0,0,0,42349
+High class,136210000,Blade Axe,silah,0,0,0,619333
+High class,136310000,Exceptional Blade Axe,silah,0,0,0,619333
+High class,136330000,Hepa's Shard,silah,0,0,0,618052
+High class,136340000,Hepa's Exceptional Shard,silah,0,0,0,618052
+High class,136360000,Hepa's Graham,silah,0,0,0,746039
+High class,136370000,Hepa's Exceptional Graham,silah,0,0,0,746039
+High class,136390000,Hepa's Mirage,silah,0,0,0,746935
+High class,136400000,Hepa's Exceptional Mirage,silah,0,0,0,746935
+High class,136420000,Hepa's Deep Scar,silah,0,0,0,618479
+High class,136430000,Hepa's Exceptional Deep Scar,silah,0,0,0,618479
+High class,136450000,Hepa's Blade Axe,silah,0,0,0,619333
+High class,136460000,Hepa's Exceptional Blade Axe,silah,0,0,0,619333
+High class,136480000,Hepa's Impact,silah,0,0,0,701959
+High class,136490000,Hepa's Exceptional Impact,silah,0,0,0,701959
+High class,136510000,Hepa's Iron Impact,silah,0,0,0,702400
+High class,136520000,Hepa's Exceptional Iron Impact,silah,0,0,0,702400
+High class,136540000,Hepa's Totamic Spear,silah,0,0,0,746801
+High class,136550000,Hepa's Exceptional Totamic Spear,silah,0,0,0,746801
+High class,136570000,Hepa's Raptor,silah,0,0,0,580958
+High class,136580000,Hepa's Exceptional Raptor,silah,0,0,0,580958
+High class,136630000,Hepa's Elixir Staff,silah,0,0,0,747517
+High class,136640000,Hepa's Exceptional Elixir Staff,silah,0,0,0,747517
+High class,136790000,Three-shooter vulcan[Boomboom],silah,0,0,0,746801
+High class,136800000,Cannon[Boomboom],silah,0,0,0,702400
+High class,141110000,Impact,silah,0,0,0,701959
+High class,141210000,Exceptional Impact,silah,0,0,0,701959
+High class,146110000,Totamic Club,silah,0,0,0,475530
+High class,146210000,Iron Impact,silah,0,0,0,702400
+High class,146310000,Exceptional Iron Impact,silah,0,0,0,702400
+High class,151110001,Harpoon(+1),silah,0,0,0,1160220
+High class,151210000,Totamic Spear,silah,0,0,0,746801
+High class,151310000,Exceptional Totamic Spear,silah,0,0,0,746801
+High class,156110000,Glave,silah,0,0,0,444490
+High class,156110001,Glave(+1),silah,0,0,0,888980
+High class,156210000,Raptor,silah,0,0,0,580958
+High class,156310000,Exceptional Raptor,silah,0,0,0,580958
+High class,170210255,Scorpion Shield,kalkan,0,0,0,2256
+High class,180110251,Lobo Staff,silah,0,0,0,2272
+High class,180110252,Lupus staff,silah,0,0,0,2272
+High class,180110253,Lycaon staff,silah,0,0,0,2272
+High class,181110000,Elixir Staff,silah,0,0,0,747517
+High class,181210000,Exceptional Elixir Staff,silah,0,0,0,747517
+High class,191620000,Halloween Cane,silah,0,0,0,100
+High class,191630000,Halloween Spear,silah,0,0,0,100
+High class,197930000,Karus Guardian's Weapon,silah,0,0,0,373467
+High class,900537000,Defender of the Lord,kalkan,0,20,0,1
+High class,1110422000,Kanjale,silah,0,0,75,741662
+High class,1110424000,Buju,silah,0,0,75,697149
+High class,1110426000,Kodeks Gigas,silah,0,0,75,897020
+High class,136720000,Hepa's Tentora Defender,kalkan,1,0,65,156500
+High class,136740000,Hepa's Blessing Aegis,kalkan,1,0,75,186500
+High class,171590000,Tentora Defender,kalkan,1,0,65,156500
+High class,171610000,Blessing Aegis,kalkan,1,0,75,186500
+High class,205001000,Chitin Armor Pauldron,zirh,1,0,0,144000
+High class,205002000,Chitin Armor Pads,zirh,1,0,0,86400
+High class,205003000,Chitin Helmet,zirh,1,0,0,57600
+High class,205004000,Chitin Gauntlets,zirh,1,0,0,28800
+High class,205005000,Chitin Boots,zirh,1,0,0,28800
+High class,505001000,Black Chitin Armor Pauldron,zirh,1,111,0,14400
+High class,505002000,Black Chitin Armor Pads,zirh,1,111,0,8640
+High class,505003000,Black Chitin Helmet,zirh,1,111,0,5760
+High class,505004000,Black Chitin Gauntlets,zirh,1,111,0,2880
+High class,505005000,Black Chitin Boots,zirh,1,111,0,2880
+High class,605001000,Red Chitin Armor Pauldron,zirh,1,123,0,2000
+High class,605002000,Red Chitin Armor Pads,zirh,1,123,0,2000
+High class,605003000,Red Chitin Armor Helmet,zirh,1,123,0,2000
+High class,605004000,Red Chitin Armor Gauntlets,zirh,1,123,0,2000
+High class,605005000,Red Chitin Armor Boots,zirh,1,123,0,2000
+High class,136600000,Hepa's Iron Bow,silah,2,0,0,191899
+High class,136610000,Hepa's Exceptional Iron Bow,silah,2,0,0,191899
+High class,160450255,Chitin Bow,silah,2,0,0,1542
+High class,160450256,Scorpion Bow,silah,2,0,0,1542
+High class,168310000,Iron Crossbow,silah,2,0,0,122960
+High class,168311000,Iron Crossbow,silah,2,0,0,122967
+High class,168410000,Iron Bow,silah,2,0,0,191899
+High class,168410001,Iron Bow(+1),silah,2,0,0,383798
+High class,168610000,Exceptional Iron Bow,silah,2,0,0,191899
+High class,169201000,Matchlock,silah,2,0,0,74560
+High class,245001000,Rogue Chitin Armor Pauldron,zirh,2,0,0,115200
+High class,245002000,Rogue Chitin Armor Pads,zirh,2,0,0,69120
+High class,245003000,Rogue Chitin Helmet,zirh,2,0,0,46080
+High class,245004000,Rogue Chitin Gauntlets,zirh,2,0,0,23040
+High class,245005000,Rogue Chitin Boots,zirh,2,0,0,23040
+High class,545001000,Black Rogue Chitin Armor Pauldron,zirh,2,112,0,11520
+High class,545002000,Black Rogue Chitin Armor Pads,zirh,2,112,0,6912
+High class,545003000,Black Rogue Chitin Helmet,zirh,2,112,0,4608
+High class,545004000,Black Rogue Chitin Gauntlets,zirh,2,112,0,2304
+High class,545005000,Black Rogue Chitin Boots,zirh,2,112,0,2304
+High class,645001000,Red Rogue Chitin Armor Pauldron,zirh,2,124,0,21600
+High class,645002000,Red Rogue Chitin Armor Pads,zirh,2,124,0,9720
+High class,645003000,Red Rogue Chitin Armor Helmet,zirh,2,124,0,69120
+High class,645004000,Red Rogue Chitin Armor Gauntlets,zirh,2,124,0,34560
+High class,645005000,Red Rogue Chitin Armor Boots,zirh,2,124,0,2880
+High class,1110425000,Azagai,silah,2,0,75,230278
+High class,265001000,Crimson Robe,zirh,3,0,0,129600
+High class,265002000,Crimson Pants,zirh,3,0,0,77760
+High class,265003000,Crimson Helmet,zirh,3,0,0,51840
+High class,265004000,Crimson Gloves,zirh,3,0,0,25920
+High class,265005000,Crimson Boots,zirh,3,0,0,25920
+High class,565001000,Black Crimson Robe,zirh,3,113,0,10080
+High class,565002000,Black Crimson Pants,zirh,3,113,0,6048
+High class,565003000,Black Crimson Helmet,zirh,3,113,0,4032
+High class,565004000,Black Crimson Gloves,zirh,3,113,0,2016
+High class,565005000,Black Crimson Boots,zirh,3,113,0,2016
+High class,685001000,Red Crimson Robe,zirh,3,125,0,18255
+High class,685002000,Red Crimson Pants,zirh,3,125,0,16521
+High class,685003000,Red Crimson Helmet,zirh,3,125,0,77760
+High class,685004000,Red Crimson Glove,zirh,3,125,0,4860
+High class,685005000,Red Crimson Boots,zirh,3,125,0,4860
+High class,136710000,Hepa's Tentora Shield,kalkan,4,0,65,156500
+High class,136730000,Hepa's Edmont Aegis,kalkan,4,0,75,186500
+High class,136760000,Shield[Mammoth],kalkan,4,0,65,156500
+High class,171580000,Tentora Shield,kalkan,4,0,65,156500
+High class,171600000,Edmont Aegis,kalkan,4,0,75,186500
+High class,285001000,Priest Chitin Armor Pauldron,zirh,4,0,0,100800
+High class,285002000,Priest Chitin Armor Pads,zirh,4,0,0,60480
+High class,285003000,Priest Chitin Helmet,zirh,4,0,0,40320
+High class,285004000,Priest Chitin Gauntlets,zirh,4,0,0,20160
+High class,285005000,Priest Chitin Boots,zirh,4,0,0,20160
+High class,505101000,Black Priest Chitin Armor Pauldron,zirh,4,114,0,10080
+High class,505102000,Black Priest Chitin Armor Pads,zirh,4,114,0,6048
+High class,505103000,Black Priest Chitin Helmet,zirh,4,114,0,4032
+High class,505104000,Black Priest Chitin Gauntlets,zirh,4,114,0,2016
+High class,505105000,Black Priest Chitin Boots,zirh,4,114,0,2016
+High class,585001000,Black Priest Chitin Armor Pauldron,zirh,4,114,0,10080
+High class,585002000,Black Priest Chitin Armor Pads,zirh,4,114,0,6048
+High class,585003000,Black Priest Chitin Helmet,zirh,4,114,0,4032
+High class,585004000,Black Priest Chitin Gauntlets,zirh,4,114,0,2016
+High class,585005000,Black Priest Chitin Boots,zirh,4,114,0,2016
+High class,605101000,Red Priest Chitin Armor Pauldron,zirh,4,126,0,18900
+High class,605102000,Red Priest Chitin Armor Pads,zirh,4,126,0,8505
+High class,605103000,Red Priest Chitin Armor Helmet,zirh,4,126,0,7560
+High class,605104000,Red Priest Chitin Armor Gauntlets,zirh,4,126,0,3780
+High class,605105000,Red Priest Chitin Armor Boots,zirh,4,126,0,3780
+High class,1110428000,Ahgada,kalkan,4,0,75,223800
+High class,206001000,Chitin Shell Pauldron,zirh,6,0,0,216000
+High class,206002000,Chitin Shell Pads,zirh,6,0,0,129600
+High class,206003000,Chitin Shell Helmet,zirh,6,0,0,86400
+High class,206004000,Chitin Shell Gauntlets,zirh,6,0,0,43200
+High class,206005000,Chitin Shell Boots,zirh,6,0,0,43200
+High class,208001000,Krowaz Warrior Upper Garment,zirh,6,0,75,345600
+High class,208002000,Krowaz Warrior Lower Garment,zirh,6,0,75,207360
+High class,208003000,Krowaz Warrior Helmet,zirh,6,0,75,138240
+High class,208004000,Krowaz Warrior Gauntlets,zirh,6,0,75,69120
+High class,208005000,Krowaz Warrior Boots,zirh,6,0,75,69120
+High class,210001000,Secret warrior top,zirh,6,127,70,216000
+High class,210002000,Secret warrior bottom,zirh,6,127,70,129600
+High class,210003000,Secret warrior helmet,zirh,6,127,70,86400
+High class,210004000,Secret warrior gauntlet,zirh,6,127,70,43200
+High class,210005000,Secret warrior boot,zirh,6,127,70,43200
+High class,231511000,Holy Knight Warrior Pauldron,zirh,6,167,75,345600
+High class,231512000,Holy Knight Warrior Pads,zirh,6,167,75,207360
+High class,231513000,Holy Knight Warrior Helmet,zirh,6,167,75,138240
+High class,231514000,Holy Knight Warrior Gauntlets,zirh,6,167,75,69120
+High class,231515000,Holy Knight Warrior Boots,zirh,6,167,75,69120
+High class,236001000,Chitin Shell Pauldron,zirh,6,20,0,1
+High class,236002000,Chitin Shell Pads,zirh,6,20,0,1
+High class,236003000,Chitin Shell Helmet,zirh,6,20,0,1
+High class,236004000,Chitin Shell Gauntlets,zirh,6,20,0,1
+High class,236005000,Chitin Shell Boots,zirh,6,20,0,1
+High class,314511000,Holy Knight Warrior Pauldron,zirh,6,167,75,345600
+High class,314512000,Holy Knight Warrior Pads,zirh,6,167,75,207360
+High class,314513000,Holy Knight Warrior Helmet,zirh,6,167,75,138240
+High class,314514000,Holy Knight Warrior Gauntlets,zirh,6,167,75,69120
+High class,314515000,Holy Knight Warrior Boots,zirh,6,167,75,69120
+High class,507001000,Dragon Scale Armor Top,zirh,6,0,0,216000
+High class,507002000,Dragon Scale Armor Pants,zirh,6,0,0,129600
+High class,507003000,Dragon Scale Helmet,zirh,6,0,0,86400
+High class,507004000,Dragon Scale Gauntlet,zirh,6,0,0,43200
+High class,507005000,Dragon Scale Boots,zirh,6,0,0,43200
+High class,509001000,Exceptional Dragon Flight Pauldron,zirh,6,115,70,216000
+High class,509002000,Exceptional Dragon Flight Pad,zirh,6,115,70,129600
+High class,509003000,Exceptional Dragon Flight Helmet,zirh,6,115,70,86400
+High class,509004000,Exceptional Dragon Flight Gauntlet,zirh,6,115,70,43200
+High class,509005000,Exceptional Dragon Flight Boots,zirh,6,115,70,43200
+High class,515001000,Hepa's Chitin Shell Pauldron,zirh,6,0,0,216000
+High class,515002000,Hepa's Chitin Shell Pads,zirh,6,0,0,129600
+High class,515003000,Hepa's Chitin Shell Helmet,zirh,6,0,0,86400
+High class,515004000,Hepa's Chitin Shell Gauntlets,zirh,6,0,0,43200
+High class,515005000,Hepa's Chitin Shell Boots,zirh,6,0,0,43200
+High class,521511000,Rosetta Warrior Top,zirh,6,150,75,345600
+High class,521512000,Rosetta Warrior Bottom,zirh,6,150,75,207360
+High class,521513000,Rosetta Warrior Helmet,zirh,6,150,75,138240
+High class,521514000,Rosetta Warrior Guntlet,zirh,6,150,75,69120
+High class,521515000,Rosetta Warrior Boots,zirh,6,150,75,69120
+High class,605201000,Red Chitin Armor Pauldron,zirh,6,0,0,2000
+High class,605202000,Red Chitin Armor Pads,zirh,6,0,0,2000
+High class,605203000,Red Chitin Armor Helmet,zirh,6,0,0,2000
+High class,605204000,Red Chitin Armor Gauntlets,zirh,6,0,0,2000
+High class,605205000,Red Chitin Armor Boots,zirh,6,0,0,2000
+High class,917001000,Dragon Scale Armor Top,zirh,6,0,0,216000
+High class,917002000,Dragon Scale Armor Pants,zirh,6,0,0,129600
+High class,917003000,Dragon Scale Helmet,zirh,6,0,0,86400
+High class,917004000,Dragon Scale Gauntlet,zirh,6,0,0,43200
+High class,917005000,Dragon Scale Boots,zirh,6,0,0,43200
+High class,940611000,Draki Legion Warrior Pauldrons,zirh,6,173,0,216000
+High class,940612000,Draki Legion Warrior Pads,zirh,6,173,0,129600
+High class,940613000,Draki Legion Warrior Helm,zirh,6,173,0,86400
+High class,940614000,Draki Legion Warrior Gauntlets,zirh,6,173,0,43200
+High class,940615000,Draki Legion Warrior Boots,zirh,6,173,0,43200
+High class,211001000,Secret assassin top,zirh,8,128,70,172800
+High class,211002000,Secret assassin bottom,zirh,8,128,70,103680
+High class,211003000,Secret assassin helmet,zirh,8,128,70,69120
+High class,211004000,Secret assassin gauntlet,zirh,8,128,70,34560
+High class,211005000,Secret assassin boot,zirh,8,128,70,34560
+High class,232511000,Holy Knight Assassin Pauldron,zirh,8,168,75,276480
+High class,232512000,Holy Knight Assassin Pads,zirh,8,168,75,165888
+High class,232513000,Holy Knight Assassin Helmet,zirh,8,168,75,110592
+High class,232514000,Holy Knight Assassin Gauntlets,zirh,8,168,75,55296
+High class,232515000,Holy Knight Assassin Boots,zirh,8,168,75,55296
+High class,237001000,Rogue Chitin Shell Pauldron,zirh,8,20,0,1
+High class,237002000,Rogue Chitin Shell Pads,zirh,8,20,0,1
+High class,237003000,Rogue Chitin Shell Helmet,zirh,8,20,0,1
+High class,237004000,Rogue Chitin Shell Gauntlets,zirh,8,20,0,1
+High class,237005000,Rogue Chitin Shell Boots,zirh,8,20,0,1
+High class,246001000,Rogue Chitin Shell Pauldron,zirh,8,0,0,172800
+High class,246002000,Rogue Chitin Shell Pads,zirh,8,0,0,103680
+High class,246003000,Rogue Chitin Shell Helmet,zirh,8,0,0,69120
+High class,246004000,Rogue Chitin Shell Gauntlets,zirh,8,0,0,34560
+High class,246005000,Rogue Chitin Shell Boots,zirh,8,0,0,34560
+High class,248001000,Krowaz Assassin Upper Garment,zirh,8,0,75,276480
+High class,248002000,Krowaz Assassin Lower Garment,zirh,8,0,75,165888
+High class,248003000,Krowaz Assassin Helmet,zirh,8,0,75,110592
+High class,248004000,Krowaz Assassin Gauntlets,zirh,8,0,75,55296
+High class,248005000,Krowaz Assassin Boots,zirh,8,0,75,55296
+High class,314521000,Holy Knight Assassin Pauldron,zirh,8,168,75,276480
+High class,314522000,Holy Knight Assassin Pads,zirh,8,168,75,165888
+High class,314523000,Holy Knight Assassin Helmet,zirh,8,168,75,110592
+High class,314524000,Holy Knight Assassin Gauntlets,zirh,8,168,75,55296
+High class,314525000,Holy Knight Assassin Boots,zirh,8,168,75,55296
+High class,509006000,Exceptional Mythril Pauldron,zirh,8,116,70,172800
+High class,509007000,Exceptional Mythril Pad,zirh,8,116,70,103680
+High class,509008000,Exceptional Mythril Helmet,zirh,8,116,70,69120
+High class,509009000,Exceptional Mythril Gauntlet,zirh,8,116,70,34560
+High class,510001000,Exceptional Mythril Boots,zirh,8,116,70,34560
+High class,519001000,Hepa's Rogue Chitin Shell Pauldron,zirh,8,0,0,172800
+High class,519002000,Hepa's Rogue Chitin Shell Pads,zirh,8,0,0,103680
+High class,519003000,Hepa's Rogue Chitin Shell Helmet,zirh,8,0,0,69120
+High class,519004000,Hepa's Rogue Chitin Shell Gauntlets,zirh,8,0,0,34560
+High class,519005000,Hepa's Rogue Chitin Shell Boots,zirh,8,0,0,34560
+High class,522511000,Rosetta Assassin Top,zirh,8,151,75,276480
+High class,522512000,Rosetta Assassin Bottom,zirh,8,151,75,165888
+High class,522513000,Rosetta Assassin Helmet,zirh,8,151,75,110592
+High class,522514000,Rosetta Assassin Guntlet,zirh,8,151,75,55296
+High class,522515000,Rosetta Assassin Boots,zirh,8,151,75,55296
+High class,547001000,Mythril Pauldron,zirh,8,0,0,172800
+High class,547002000,Mythril Pad,zirh,8,0,0,103680
+High class,547003000,Mythril Helmet,zirh,8,0,0,69120
+High class,547004000,Mythril Gauntlet,zirh,8,0,0,34560
+High class,547005000,Mythril Boots,zirh,8,0,0,34560
+High class,919001000,Mythril Pauldron,zirh,8,0,0,172800
+High class,919002000,Mythril Pad,zirh,8,0,0,103680
+High class,919003000,Mythril Helmet,zirh,8,0,0,69120
+High class,919004000,Mythril Gauntlet,zirh,8,0,0,34560
+High class,919005000,Mythril Boots,zirh,8,0,0,34560
+High class,950611000,Draki Legion Rogue Pauldrons,zirh,8,174,0,172800
+High class,950612000,Draki Legion Rogue Pads,zirh,8,174,0,103680
+High class,950613000,Draki Legion Rogue Helm,zirh,8,174,0,69120
+High class,950614000,Draki Legion Rogue Gauntlets,zirh,8,174,0,34560
+High class,950615000,Draki Legion Rogue Boots,zirh,8,174,0,34560
+High class,212001000,Secret mage robe,zirh,10,129,70,194400
+High class,212002000,Secret mage pants,zirh,10,129,70,116640
+High class,212003000,Secret mage helmet,zirh,10,129,70,77760
+High class,212004000,Secret mage grove,zirh,10,129,70,38880
+High class,212005000,Secret mage boot,zirh,10,129,70,38880
+High class,233511000,Holy Knight Mage Robe,zirh,10,169,75,311040
+High class,233512000,Holy Knight Mage Pants,zirh,10,169,75,186624
+High class,233513000,Holy Knight Mage Helmet,zirh,10,169,75,124416
+High class,233514000,Holy Knight Mage Gloves,zirh,10,169,75,62208
+High class,233515000,Holy Knight Mage Boots,zirh,10,169,75,62208
+High class,238001000,Complete Robe,zirh,10,20,0,1
+High class,238002000,Complete Pants,zirh,10,20,0,1
+High class,238003000,Complete Helmet,zirh,10,20,0,1
+High class,238004000,Complete Glove,zirh,10,20,0,1
+High class,238005000,Complete Boots,zirh,10,20,0,1
+High class,266001000,Complete Robe,zirh,10,0,0,194400
+High class,266002000,Complete Pants,zirh,10,0,0,116640
+High class,266003000,Complete Helmet,zirh,10,0,0,77760
+High class,266004000,Complete Glove,zirh,10,0,0,38880
+High class,266005000,Complete Boots,zirh,10,0,0,38880
+High class,268001000,Krowaz Mage Robe,zirh,10,0,75,311040
+High class,268002000,Krowaz Mage Pants,zirh,10,0,75,186624
+High class,268003000,Krowaz Mage Helmet,zirh,10,0,75,124416
+High class,268004000,Krowaz Mage Gauntlets,zirh,10,0,75,62208
+High class,268005000,Krowaz Mage Boots,zirh,10,0,75,62208
+High class,314531000,Holy Knight Mage Robe,zirh,10,169,75,311040
+High class,314532000,Holy Knight Mage Pants,zirh,10,169,75,186624
+High class,314533000,Holy Knight Mage Helmet,zirh,10,169,75,124416
+High class,314534000,Holy Knight Mage Gloves,zirh,10,169,75,62208
+High class,314535000,Holy Knight Mage Boots,zirh,10,169,75,62208
+High class,510002000,Exceptional Ron's Robe,zirh,10,117,70,194400
+High class,510003000,Exceptional Ron's Pants,zirh,10,117,70,116640
+High class,510004000,Exceptional Ron's Helmet,zirh,10,117,70,77760
+High class,510005000,Exceptional Ron's Gloves,zirh,10,117,70,38880
+High class,510006000,Exceptional Ron's Boots,zirh,10,117,70,38880
+High class,521001000,Hepa's Complete Robe,zirh,10,0,0,194400
+High class,521002000,Hepa's Complete Pants,zirh,10,0,0,116640
+High class,521003000,Hepa's Complete Helmet,zirh,10,0,0,77760
+High class,521004000,Hepa's Complete Glove,zirh,10,0,0,38880
+High class,521005000,Hepa's Complete Boots,zirh,10,0,0,38880
+High class,523511000,Rosetta Mage Robe,zirh,10,152,75,311040
+High class,523512000,Rosetta Mage Pants,zirh,10,152,75,186624
+High class,523513000,Rosetta Mage Helmet,zirh,10,152,75,124416
+High class,523514000,Rosetta Mage Gloves,zirh,10,152,75,62208
+High class,523515000,Rosetta Mage Boots,zirh,10,152,75,62208
+High class,567001000,Ron's Robe,zirh,10,0,0,194400
+High class,567002000,Ron's Pants,zirh,10,0,0,116640
+High class,567003000,Ron's Helmet,zirh,10,0,0,77760
+High class,567004000,Ron's Gloves,zirh,10,0,0,38880
+High class,567005000,Ron's Boots,zirh,10,0,0,38880
+High class,920001000,Ron's Robe,zirh,10,0,0,194400
+High class,920002000,Ron's Pants,zirh,10,0,0,116640
+High class,920003000,Ron's Helmet,zirh,10,0,0,77760
+High class,920004000,Ron's Gloves,zirh,10,0,0,38880
+High class,920005000,Ron's Boots,zirh,10,0,0,38880
+High class,960611000,Draki Legion Mage Coat,zirh,10,175,0,194400
+High class,960612000,Draki Legion Mage Leggings,zirh,10,175,0,116640
+High class,960613000,Draki Legion Mage Crown,zirh,10,175,0,77760
+High class,960614000,Draki Legion Mage Gloves,zirh,10,175,0,38880
+High class,960615000,Draki Legion Mage Shoes,zirh,10,175,0,38880
+High class,213001000,Secret priest top,zirh,12,130,70,151200
+High class,213002000,Secret priest bottom,zirh,12,130,70,90720
+High class,213003000,Secret priest helmet,zirh,12,130,70,60480
+High class,213004000,Secret priest gauntlet,zirh,12,130,70,30240
+High class,213005000,Secret priest boot,zirh,12,130,70,30240
+High class,234511000,Holy Knight Priest Pauldron,zirh,12,170,75,241920
+High class,234512000,Holy Knight Priest Pads,zirh,12,170,75,145152
+High class,234513000,Holy Knight Priest Helmet,zirh,12,170,75,96768
+High class,234514000,Holy Knight Priest Gauntlets,zirh,12,170,75,48384
+High class,234515000,Holy Knight Priest Boots,zirh,12,170,75,48384
+High class,239001000,Priest Chitin Shell Pauldron,zirh,12,20,0,1
+High class,239002000,Priest Chitin Shell Pads,zirh,12,20,0,1
+High class,239003000,Priest Chitin Shell Helmet,zirh,12,20,0,1
+High class,239004000,Priest Chitin Shell Gauntlets,zirh,12,20,0,1
+High class,239005000,Priest Chitin Shell Boots,zirh,12,20,0,1
+High class,286001000,Priest Chitin Shell Pauldron,zirh,12,0,0,151200
+High class,286002000,Priest Chitin Shell Pads,zirh,12,0,0,90720
+High class,286003000,Priest Chitin Shell Helmet,zirh,12,0,0,60480
+High class,286004000,Priest Chitin Shell Gauntlets,zirh,12,0,0,30240
+High class,286005000,Priest Chitin Shell Boots,zirh,12,0,0,30240
+High class,288001000,Krowaz Priest Upper Garment,zirh,12,0,75,241920
+High class,288002000,Krowaz Priest Lower Garment,zirh,12,0,75,145152
+High class,288003000,Krowaz Priest Helmet,zirh,12,0,75,96768
+High class,288004000,Krowaz Priest Gauntlet,zirh,12,0,75,48384
+High class,288005000,Krowaz Priest Boots,zirh,12,0,75,48384
+High class,314541000,Holy Knight Priest Pauldron,zirh,12,170,75,241920
+High class,314542000,Holy Knight Priest Pads,zirh,12,170,75,145152
+High class,314543000,Holy Knight Priest Helmet,zirh,12,170,75,96768
+High class,314544000,Holy Knight Priest Gauntlets,zirh,12,170,75,48384
+High class,314545000,Holy Knight Priest Boots,zirh,12,170,75,48384
+High class,510007000,Exceptional Pauldron of Trial,zirh,12,118,70,151200
+High class,510008000,Exceptional Pads of Trial,zirh,12,118,70,90720
+High class,510009000,Exceptional Helmet of Trial,zirh,12,118,70,60480
+High class,511001000,Exceptional Gauntlet of Trial,zirh,12,118,70,30240
+High class,511002000,Exceptional Boots of Trial,zirh,12,118,70,30240
+High class,523001000,Hepa's Priest Chitin Shell Pauldron,zirh,12,0,0,151200
+High class,523002000,Hepa's Priest Chitin Shell Pads,zirh,12,0,0,90720
+High class,523003000,Hepa's Tentora Defender,zirh,12,0,0,60480
+High class,523004000,Hepa's Edmont Aegis,zirh,12,0,0,30240
+High class,523005000,Hepa's Blessing Aegis,zirh,12,0,0,30240
+High class,524511000,Rosetta Priest Top,zirh,12,153,75,241920
+High class,524512000,Rosetta Priest Bottom,zirh,12,153,75,145152
+High class,524513000,Rosetta Priest Helmet,zirh,12,153,75,96768
+High class,524514000,Rosetta Priest Guntlet,zirh,12,153,75,48384
+High class,524515000,Rosetta Priest Boots,zirh,12,153,75,48384
+High class,587001000,Pauldron of Trial,zirh,12,0,0,151200
+High class,587002000,Pads of Trial,zirh,12,0,0,90720
+High class,587003000,Helmet of Trial,zirh,12,0,0,60480
+High class,587004000,Gauntlet of Trial,zirh,12,0,0,30240
+High class,587005000,Boots of Trial,zirh,12,0,0,30240
+High class,921001000,Pauldron of Trial,zirh,12,0,0,151200
+High class,921002000,Pads of Trial,zirh,12,0,0,90720
+High class,921003000,Helmet of Trial,zirh,12,0,0,60480
+High class,921004000,Gauntlet of Trial,zirh,12,0,0,30240
+High class,921005000,Boots of Trial,zirh,12,0,0,30240
+High class,970611000,Draki Legion Priest Coat,zirh,12,176,0,151200
+High class,970612000,Draki Legion Priest Leggings,zirh,12,176,0,90720
+High class,970613000,Draki Legion Priest Crown,zirh,12,176,0,60480
+High class,970614000,Draki Legion Priest Gloves,zirh,12,176,0,30240
+High class,970615000,Draki Legion Priest Shoes,zirh,12,176,0,30240
+Unique class,110730000,Assassin Dagger,silah,0,0,0,53070
+Unique class,110813000,Sword Breaker,silah,0,0,0,101018
+Unique class,110930000,Kukry,silah,0,0,0,175760
+Unique class,111030000,Cleaver,silah,0,0,0,286230
+Unique class,111111000,Mirage Dagger,silah,0,0,0,443045
+Unique class,111122000,Exceptional Mirage Dagger,silah,0,0,0,44304
+Unique class,111211000,Shard,silah,0,0,0,618052
+Unique class,111311000,Exceptional Shard,silah,0,0,0,618052
+Unique class,121211000,Slayer,silah,0,0,0,507711
+Unique class,121311000,Graham,silah,0,0,0,746039
+Unique class,121411000,Exceptional Graham,silah,0,0,0,746039
+Unique class,126311000,Durandal,silah,0,0,0,508523
+Unique class,126322000,Durandal,silah,0,0,0,50852
+Unique class,126411000,Mirage,silah,0,0,0,746935
+Unique class,126611000,Exceptional Mirage,silah,0,0,0,746935
+Unique class,130451000,Large Axe,silah,0,0,0,13329
+Unique class,130651000,Warrior Axe,silah,0,0,0,41929
+Unique class,131011000,Tomahawk,silah,0,0,0,413572
+Unique class,131111000,Deep Scar,silah,0,0,0,618479
+Unique class,131211000,Exceptional Deep Scar,silah,0,0,0,618479
+Unique class,135751000,Tabar,silah,0,0,0,42349
+Unique class,136020000,Candy Greatsword,silah,0,20,0,508520
+Unique class,136040000,Candy Dagger,silah,0,20,0,443040
+Unique class,136111000,Bone Cleaver,silah,0,0,0,414342
+Unique class,136122000,Bone Cleaver,silah,0,0,0,41434
+Unique class,136211000,Blade Axe,silah,0,0,0,619333
+Unique class,136311000,Exceptional Blade Axe,silah,0,0,0,619333
+Unique class,137320000,Hepa's Mirage Dagger,silah,0,0,0,443045
+Unique class,137330000,Hepa's Shard,silah,0,0,0,618052
+Unique class,137340000,Hepa's Exceptional Shard,silah,0,0,0,618052
+Unique class,137350000,Hepa's Slayer,silah,0,0,0,507711
+Unique class,137360000,Hepa's Graham,silah,0,0,0,746039
+Unique class,137370000,Hepa's Exceptional Graham,silah,0,0,0,746039
+Unique class,137380000,Hepa's Durandal,silah,0,0,0,508523
+Unique class,137390000,Hepa's Mirage,silah,0,0,0,746935
+Unique class,137400000,Hepa's Exceptional Mirage,silah,0,0,0,746935
+Unique class,137410000,Hepa's Tomahawk,silah,0,0,0,413572
+Unique class,137420000,Hepa's Deep Scar,silah,0,0,0,618479
+Unique class,137430000,Hepa's Exceptional Deep Scar,silah,0,0,0,618479
+Unique class,137440000,Hepa's Bone Cleaver,silah,0,0,0,414342
+Unique class,137450000,Hepa's Blade Axe,silah,0,0,0,619333
+Unique class,137460000,Hepa's Exceptional Blade Axe,silah,0,0,0,619333
+Unique class,137470000,Hepa's Bone Crasher,silah,0,0,0,475131
+Unique class,137480000,Hepa's Impact,silah,0,0,0,701959
+Unique class,137490000,Hepa's Exceptional Impact,silah,0,0,0,701959
+Unique class,137500000,Hepa's Totamic Club,silah,0,0,0,475530
+Unique class,137510000,Hepa's Iron Impact,silah,0,0,0,702400
+Unique class,137520000,Hepa's Exceptional Iron Impact,silah,0,0,0,702400
+Unique class,137530000,Hepa's Harpoon,silah,0,0,0,580118
+Unique class,137540000,Hepa's Totamic Spear,silah,0,0,0,746801
+Unique class,137550000,Hepa's Exceptional Totamic Spear,silah,0,0,0,746801
+Unique class,137560000,Hepa's Glave,silah,0,0,0,444495
+Unique class,137570000,Hepa's Raptor,silah,0,0,0,580958
+Unique class,137580000,Hepa's Exceptional Raptor,silah,0,0,0,580958
+Unique class,137620000,Hepa's Salamander Staff,silah,0,0,0,509051
+Unique class,137630000,Hepa's Elixir Staff,silah,0,0,0,747517
+Unique class,137640000,Hepa's Exceptional  Elixir Staff,silah,0,0,0,747517
+Unique class,141011000,Bone Crasher,silah,0,0,0,475131
+Unique class,141111000,Impact,silah,0,0,0,701959
+Unique class,141211000,Exceptional Impact,silah,0,0,0,701959
+Unique class,145930000,Large Breaker,silah,0,0,0,192214
+Unique class,146111000,Totamic Club,silah,0,0,0,475530
+Unique class,146122000,Totamic Club,silah,0,0,0,47553
+Unique class,146211000,Iron Impact,silah,0,0,0,702400
+Unique class,146311000,Exceptional Iron Impact,silah,0,0,0,702400
+Unique class,151111000,Harpoon,silah,0,0,0,580118
+Unique class,151122000,Harpoon,silah,0,0,0,58011
+Unique class,151211000,Totamic Spear,silah,0,0,0,746801
+Unique class,151311000,Exceptional Totamic Spear,silah,0,0,0,746801
+Unique class,156030000,Bardish,silah,0,0,0,310158
+Unique class,156111000,Glave,silah,0,0,0,444495
+Unique class,156122000,Glave,silah,0,0,0,44449
+Unique class,156211000,Raptor,silah,0,0,0,580958
+Unique class,156311000,Exceptional Raptor,silah,0,0,0,580958
+Unique class,170211000,Large Shield,kalkan,0,0,0,2256
+Unique class,170251000,Round Shield,kalkan,0,0,0,2256
+Unique class,180111000,Wood Staff,silah,0,0,0,568
+Unique class,180130000,Wood Staff,silah,0,0,0,568
+Unique class,180330000,Wizard Staff,silah,0,0,0,3534
+Unique class,180530000,Mythril Staff,silah,0,0,0,32917
+Unique class,180630000,Mage Staff,silah,0,0,0,67348
+Unique class,180730000,Alchemy Staff,silah,0,0,0,123471
+Unique class,181011000,Salamander Staff,silah,0,0,0,509051
+Unique class,181022000,Salamander Staff,silah,0,0,0,50905
+Unique class,181111000,Elixir Staff,silah,0,0,0,747517
+Unique class,181211000,Exceptional Elixir Staff,silah,0,0,0,747517
+Unique class,190251000,Priest Morning Star,silah,0,0,0,585
+Unique class,900713000,[Test]Raptor,silah,0,0,0,100
+Unique class,900714000,[Test]Raptor,silah,0,0,0,100
+Unique class,1110522000,Kanjale,silah,0,0,75,741662
+Unique class,1110524000,Buju,silah,0,0,75,697149
+Unique class,1110526000,Kodeks Gigas,silah,0,0,75,897020
+Unique class,137720000,Hepa's Tentora Defender,kalkan,1,0,65,156500
+Unique class,137740000,Hepa's Blessing Aegis,kalkan,1,0,75,186500
+Unique class,171690000,Tentora Defender,kalkan,1,0,65,156500
+Unique class,171710000,Blessing Aegis,kalkan,1,0,75,186500
+Unique class,215001000,Chitin Armor Pauldron,zirh,1,0,0,216000
+Unique class,215002000,Chitin Armor Pads,zirh,1,0,0,129600
+Unique class,215003000,Chitin Helmet,zirh,1,0,0,86400
+Unique class,215004000,Chitin Gauntlets,zirh,1,0,0,43200
+Unique class,215005000,Chitin Boots,zirh,1,0,0,43200
+Unique class,224001000,Full Plate Armor Pauldron,zirh,1,0,0,96000
+Unique class,224002000,Full Plate Armor Pads,zirh,1,0,0,57600
+Unique class,224003000,Full Plate Armor Helmet,zirh,1,0,0,38400
+Unique class,224004000,Full Plate Armor Gauntlet,zirh,1,0,0,19200
+Unique class,224005000,Full Plate Armor Boots,zirh,1,0,0,19200
+Unique class,524001000,Hepa's Chitin Armor Pauldron,zirh,1,0,0,216000
+Unique class,524002000,Hepa's Chitin Armor Pads,zirh,1,0,0,129600
+Unique class,524003000,Hepa's Chitin Helmet,zirh,1,0,0,86400
+Unique class,524004000,Hepa's Chitin Gauntlets,zirh,1,0,0,43200
+Unique class,524005000,Hepa's Chitin Boots,zirh,1,0,0,43200
+Unique class,615001000,Black Chitin Armor Pauldron,zirh,1,111,0,216000
+Unique class,615002000,Black Chitin Armor Pads,zirh,1,111,0,129600
+Unique class,615003000,Black Chitin Helmet,zirh,1,111,0,86400
+Unique class,615004000,Black Chitin Gauntlets,zirh,1,111,0,43200
+Unique class,615005000,Black Chitin Boots,zirh,1,111,0,43200
+Unique class,715001000,Red Chitin Armor Pauldron,zirh,1,123,0,216000
+Unique class,715002000,Red Chitin Armor Pads,zirh,1,123,0,129600
+Unique class,715003000,Red Chitin Armor Helmet,zirh,1,123,0,86400
+Unique class,715004000,Red Chitin Armor Gauntlets,zirh,1,123,0,43200
+Unique class,715005000,Red Chitin Armor Boots,zirh,1,123,0,43200
+Unique class,136030000,Candy Bow,silah,2,20,0,122960
+Unique class,137590000,Hepa's Iron Crossbow,silah,2,0,0,122967
+Unique class,137600000,Hepa's Iron Bow,silah,2,0,0,191899
+Unique class,137610000,Hepa's Exceptional Iron Bow,silah,2,0,0,191899
+Unique class,160451000,Hunter's Bow,silah,2,0,0,1542
+Unique class,160630000,Composite Bow,silah,2,0,0,9460
+Unique class,168130000,Crossbow,silah,2,0,0,42030
+Unique class,168230000,Horn Crossbow,silah,2,0,0,74560
+Unique class,168322000,Iron Crossbow,silah,2,0,0,12296
+Unique class,168411000,Iron Bow,silah,2,0,0,191899
+Unique class,168611000,Exceptional Iron Bow,silah,2,0,0,191899
+Unique class,250001000,Rogue Full Plate Armor Pauldron,zirh,2,0,0,76800
+Unique class,250002000,Rogue Full Plate Armor Pads,zirh,2,0,0,46080
+Unique class,250003000,Rogue Full Plate Armor Helmet,zirh,2,0,0,30720
+Unique class,250004000,Rogue Full Plate Armor Gauntlet,zirh,2,0,0,15360
+Unique class,250005000,Rogue Full Plate Armor Boots,zirh,2,0,0,15360
+Unique class,255001000,Rogue Chitin Armor Pauldron,zirh,2,0,0,115200
+Unique class,255002000,Rogue Chitin Armor Pads,zirh,2,0,0,69120
+Unique class,255003000,Rogue Chitin Helmet,zirh,2,0,0,46080
+Unique class,255004000,Rogue Chitin Gauntlets,zirh,2,0,0,23040
+Unique class,255005000,Rogue Chitin Boots,zirh,2,0,0,23040
+Unique class,526001000,Hepa's Rogue Chitin Armor Pauldron,zirh,2,0,0,115200
+Unique class,526002000,Hepa's Rogue Chitin Armor Pads,zirh,2,0,0,69120
+Unique class,526003000,Hepa's Rogue Chitin Helmet,zirh,2,0,0,46080
+Unique class,526004000,Hepa's Rogue Chitin Gauntlets,zirh,2,0,0,23040
+Unique class,526005000,Hepa's Rogue Chitin Boots,zirh,2,0,0,23040
+Unique class,555001000,Black Rogue Chitin Armor Pauldron,zirh,2,112,0,115200
+Unique class,555002000,Black Rogue Chitin Armor Pads,zirh,2,112,0,69120
+Unique class,555003000,Black Rogue Chitin Helmet,zirh,2,112,0,46080
+Unique class,555004000,Black Rogue Chitin Gauntlets,zirh,2,112,0,23040
+Unique class,555005000,Black Rogue Chitin Boots,zirh,2,112,0,23040
+Unique class,655001000,Red Rogue Chitin Armor Pauldron,zirh,2,124,0,172800
+Unique class,655002000,Red Rogue Chitin Armor Pads,zirh,2,124,0,103680
+Unique class,655003000,Red Rogue Chitin Armor Helmet,zirh,2,124,0,69120
+Unique class,655004000,Red Rogue Chitin Armor Gauntlets,zirh,2,124,0,34560
+Unique class,655005000,Red Rogue Chitin Armor Boots,zirh,2,124,0,34560
+Unique class,1110525000,Azagai,silah,2,0,75,230278
+Unique class,273001000,Mage Cotton Robe,zirh,3,0,0,504
+Unique class,273002000,Mage Cloth Pants,zirh,3,0,0,302
+Unique class,273003000,Mage Hat,zirh,3,0,0,201
+Unique class,273004000,Mage Gloves,zirh,3,0,0,100
+Unique class,273005000,Mage Shoes,zirh,3,0,0,100
+Unique class,274001000,Mage Linen Robe,zirh,3,0,0,4050
+Unique class,274002000,Mage Linen Pants,zirh,3,0,0,2430
+Unique class,274003000,Mage Linen Cap,zirh,3,0,0,1620
+Unique class,274004000,Mage Leather Gloves,zirh,3,0,0,810
+Unique class,274005000,Mage Leather Boots,zirh,3,0,0,810
+Unique class,275001000,Crimson Robe,zirh,3,0,0,129600
+Unique class,275002000,Crimson Pants,zirh,3,0,0,77760
+Unique class,275003000,Crimson Helmet,zirh,3,0,0,51840
+Unique class,275004000,Crimson Gloves,zirh,3,0,0,25920
+Unique class,275005000,Crimson Boots,zirh,3,0,0,25920
+Unique class,292001000,Black Mage Cotton Robe,zirh,3,162,0,504
+Unique class,292002000,Black Mage Cloth Pants,zirh,3,162,0,302
+Unique class,292003000,Black Mage Hat,zirh,3,162,0,201
+Unique class,292004000,Black Mage Gloves,zirh,3,162,0,100
+Unique class,292005000,Black Mage Shoes,zirh,3,162,0,100
+Unique class,297001000,Crystal Robe,zirh,3,0,0,86400
+Unique class,297002000,Crystal Pants,zirh,3,0,0,51840
+Unique class,297003000,Crystal Helmet,zirh,3,0,0,34560
+Unique class,297004000,Crystal Gloves,zirh,3,0,0,17280
+Unique class,297005000,Crystal Boots,zirh,3,0,0,17280
+Unique class,530001000,Hepa's Crimson Robe,zirh,3,0,0,129600
+Unique class,530002000,Hepa's Crimson Pants,zirh,3,0,0,77760
+Unique class,530003000,Hepa's Crimson Helmet,zirh,3,0,0,51840
+Unique class,530004000,Hepa's Crimson Gloves,zirh,3,0,0,25920
+Unique class,530005000,Hepa's Crimson Boots,zirh,3,0,0,25920
+Unique class,575001000,Black Crimson Robe,zirh,3,113,0,129600
+Unique class,575002000,Black Crimson Pants,zirh,3,113,0,77760
+Unique class,575003000,Black Crimson Helmet,zirh,3,113,0,51840
+Unique class,575004000,Black Crimson Gloves,zirh,3,113,0,25920
+Unique class,575005000,Black Crimson Boots,zirh,3,113,0,25920
+Unique class,675001000,Red Crimson Robe,zirh,3,125,0,194400
+Unique class,675002000,Red Crimson Pants,zirh,3,125,0,116640
+Unique class,675003000,Red Crimson Helmet,zirh,3,125,0,77760
+Unique class,675004000,Red Crimson Glove,zirh,3,125,0,38880
+Unique class,675005000,Red Crimson Boots,zirh,3,125,0,38880
+Unique class,137710000,Hepa's Tentora Shield,kalkan,4,0,65,156500
+Unique class,137730000,Hepa's Edmont Aegis,kalkan,4,0,75,186500
+Unique class,171680000,Tentora Shield,kalkan,4,0,65,156500
+Unique class,171700000,Edmont Aegis,kalkan,4,0,75,186500
+Unique class,290001000,Priest Full Plate Armor Pauldron,zirh,4,0,0,67200
+Unique class,290002000,Priest Full Plate Armor Pads,zirh,4,0,0,40320
+Unique class,290003000,Priest Full Plate Armor Helmet,zirh,4,0,0,26880
+Unique class,290004000,Priest Full Plate Armor Gauntlet,zirh,4,0,0,13440
+Unique class,290005000,Priest Full Plate Armor Boots,zirh,4,0,0,13440
+Unique class,291001000,Fabric Coat,zirh,4,0,0,392
+Unique class,291002000,Fabric Pants,zirh,4,0,0,235
+Unique class,291003000,Priest Cap,zirh,4,0,0,156
+Unique class,291004000,Priest Gloves,zirh,4,0,0,78
+Unique class,291005000,Priest Shoes,zirh,4,0,0,78
+Unique class,293001000,Black Fabric Coat,zirh,4,163,0,392
+Unique class,293002000,Black Fabric Pants,zirh,4,163,0,235
+Unique class,293003000,Black Priest Cap,zirh,4,163,0,156
+Unique class,293004000,Black Priest Gloves,zirh,4,163,0,78
+Unique class,293005000,Black Priest Shoes,zirh,4,163,0,78
+Unique class,295001000,Priest Chitin Armor Pauldron,zirh,4,0,0,100800
+Unique class,295002000,Priest Chitin Armor Pads,zirh,4,0,0,60480
+Unique class,295003000,Priest Chitin Helmet,zirh,4,0,0,40320
+Unique class,295004000,Priest Chitin Gauntlets,zirh,4,0,0,20160
+Unique class,295005000,Priest Chitin Boots,zirh,4,0,0,20160
+Unique class,532001000,Hepa's Priest Chitin Armor Pauldron,zirh,4,0,0,100800
+Unique class,532002000,Hepa's Priest Chitin Armor Pads,zirh,4,0,0,60480
+Unique class,532003000,Hepa's Priest Chitin Helmet,zirh,4,0,0,40320
+Unique class,532004000,Hepa's Priest Chitin Gauntlets,zirh,4,0,0,20160
+Unique class,532005000,Hepa's Priest Chitin Boots,zirh,4,0,0,20160
+Unique class,595001000,Black Priest Chitin Armor Pauldron,zirh,4,114,0,100800
+Unique class,595002000,Black Priest Chitin Armor Pads,zirh,4,114,0,60480
+Unique class,595003000,Black Priest Chitin Helmet,zirh,4,114,0,40320
+Unique class,595004000,Black Priest Chitin Gauntlets,zirh,4,114,0,20160
+Unique class,595005000,Black Priest Chitin Boots,zirh,4,114,0,20160
+Unique class,695001000,Red Priest Chitin Armor Pauldron,zirh,4,126,0,2000
+Unique class,695002000,Red Priest Chitin Armor Pads,zirh,4,126,0,2000
+Unique class,695003000,Red Priest Chitin Armor Helmet,zirh,4,126,0,2000
+Unique class,695004000,Red Priest Chitin Armor Gauntlets,zirh,4,126,0,2000
+Unique class,695005000,Red Priest Chitin Armor Boots,zirh,4,126,0,2000
+Unique class,1110528000,Ahgada,kalkan,4,0,75,223800
+Unique class,216001000,Chitin Shell Pauldron,zirh,6,0,0,216000
+Unique class,216002000,Chitin Shell Pads,zirh,6,0,0,129600
+Unique class,216003000,Chitin Shell Helmet,zirh,6,0,0,86400
+Unique class,216004000,Chitin Shell Gauntlets,zirh,6,0,0,43200
+Unique class,216005000,Chitin Shell Boots,zirh,6,0,0,43200
+Unique class,218001000,Krowaz Warrior Upper Garment,zirh,6,0,75,345600
+Unique class,218002000,Krowaz Warrior Lower Garment,zirh,6,0,75,207360
+Unique class,218003000,Krowaz Warrior Helmet,zirh,6,0,75,138240
+Unique class,218004000,Krowaz Warrior Gauntlets,zirh,6,0,75,69120
+Unique class,218005000,Krowaz Warrior Boots,zirh,6,0,75,69120
+Unique class,220001000,Secret warrior top,zirh,6,127,70,216000
+Unique class,220002000,Secret warrior bottom,zirh,6,127,70,129600
+Unique class,220003000,Secret warrior helmet,zirh,6,127,70,86400
+Unique class,220004000,Secret warrior gauntlet,zirh,6,127,70,43200
+Unique class,220005000,Secret warrior boot,zirh,6,127,70,43200
+Unique class,235511000,Holy Knight Warrior Pauldron,zirh,6,167,75,345600
+Unique class,235512000,Holy Knight Warrior Pads,zirh,6,167,75,207360
+Unique class,235513000,Holy Knight Warrior Helmet,zirh,6,167,75,138240
+Unique class,235514000,Holy Knight Warrior Gauntlets,zirh,6,167,75,69120
+Unique class,235515000,Holy Knight Warrior Boots,zirh,6,167,75,69120
+Unique class,511003000,Exceptional Dragon Flight Pauldron,zirh,6,115,70,216000
+Unique class,511004000,Exceptional Dragon Flight Pad,zirh,6,115,70,129600
+Unique class,511005000,Exceptional Dragon Flight Helmet,zirh,6,115,70,86400
+Unique class,511006000,Exceptional Dragon Flight Gauntlet,zirh,6,115,70,43200
+Unique class,511007000,Exceptional Dragon Flight Boots,zirh,6,115,70,43200
+Unique class,517001000,Dragon Scale Armor Top,zirh,6,0,0,216000
+Unique class,517002000,Dragon Scale Armor Pants,zirh,6,0,0,129600
+Unique class,517003000,Dragon Scale Helmet,zirh,6,0,0,86400
+Unique class,517004000,Dragon Scale Gauntlet,zirh,6,0,0,43200
+Unique class,517005000,Dragon Scale Boots,zirh,6,0,0,43200
+Unique class,525001000,Hepa's Chitin Shell Pauldron,zirh,6,0,0,216000
+Unique class,525002000,Hepa's Chitin Shell Pads,zirh,6,0,0,129600
+Unique class,525003000,Hepa's Chitin Shell Helmet,zirh,6,0,0,86400
+Unique class,525004000,Hepa's Chitin Shell Gauntlets,zirh,6,0,0,43200
+Unique class,525005000,Hepa's Chitin Shell Boots,zirh,6,0,0,43200
+Unique class,525511000,Rosetta Warrior Top,zirh,6,150,75,345600
+Unique class,525512000,Rosetta Warrior Bottom,zirh,6,150,75,207360
+Unique class,525513000,Rosetta Warrior Helmet,zirh,6,150,75,138240
+Unique class,525514000,Rosetta Warrior Guntlet,zirh,6,150,75,69120
+Unique class,525515000,Rosetta Warrior Boots,zirh,6,150,75,69120
+Unique class,900715000,[Test] Krowaz Warrior,zirh,6,160,75,100
+Unique class,900716000,[Test] Krowaz Warrior Bottom,zirh,6,160,75,100
+Unique class,900717000,[Test] Krowaz Warrior Helmet,zirh,6,160,75,100
+Unique class,900718000,[Test] Krowaz Warrior Guntlet,zirh,6,160,75,100
+Unique class,900719000,[Test] Krowaz Warrior Boots,zirh,6,160,75,100
+Unique class,922001000,Dragon Scale Armor Top,zirh,6,0,0,216000
+Unique class,922002000,Dragon Scale Armor Pants,zirh,6,0,0,129600
+Unique class,922003000,Dragon Scale Helmet,zirh,6,0,0,86400
+Unique class,922004000,Dragon Scale Gauntlet,zirh,6,0,0,43200
+Unique class,922005000,Dragon Scale Boots,zirh,6,0,0,43200
+Unique class,941611000,Draki Legion Warrior Pauldrons,zirh,6,173,0,216000
+Unique class,941612000,Draki Legion Warrior Pads,zirh,6,173,0,129600
+Unique class,941613000,Draki Legion Warrior Helm,zirh,6,173,0,86400
+Unique class,941614000,Draki Legion Warrior Gauntlets,zirh,6,173,0,43200
+Unique class,941615000,Draki Legion Warrior Boots,zirh,6,173,0,43200
+Unique class,221001000,Secret assassin top,zirh,8,128,70,172800
+Unique class,221002000,Secret assassin bottom,zirh,8,128,70,103680
+Unique class,221003000,Secret assassin helmet,zirh,8,128,70,69120
+Unique class,221004000,Secret assassin gauntlet,zirh,8,128,70,34560
+Unique class,221005000,Secret assassin boot,zirh,8,128,70,34560
+Unique class,236511000,Holy Knight Assassin Pauldron,zirh,8,168,75,276480
+Unique class,236512000,Holy Knight Assassin Pads,zirh,8,168,75,165888
+Unique class,236513000,Holy Knight Assassin Helmet,zirh,8,168,75,110592
+Unique class,236514000,Holy Knight Assassin Gauntlets,zirh,8,168,75,55296
+Unique class,236515000,Holy Knight Assassin Boots,zirh,8,168,75,55296
+Unique class,256001000,Rogue Chitin Shell Pauldron,zirh,8,0,0,172800
+Unique class,256002000,Rogue Chitin Shell Pads,zirh,8,0,0,103680
+Unique class,256003000,Rogue Chitin Shell Helmet,zirh,8,0,0,69120
+Unique class,256004000,Rogue Chitin Shell Gauntlets,zirh,8,0,0,34560
+Unique class,256005000,Rogue Chitin Shell Boots,zirh,8,0,0,34560
+Unique class,258001000,Krowaz Assassin Upper Garment,zirh,8,0,75,276480
+Unique class,258002000,Krowaz Assassin Lower Garment,zirh,8,0,75,165888
+Unique class,258003000,Krowaz Assassin Helmet,zirh,8,0,75,110592
+Unique class,258004000,Krowaz Assassin Gauntlets,zirh,8,0,75,55296
+Unique class,258005000,Krowaz Assassin Boots,zirh,8,0,75,55296
+Unique class,511008000,Exceptional Mythril Pauldron,zirh,8,116,70,172800
+Unique class,511009000,Exceptional Mythril Pad,zirh,8,116,70,103680
+Unique class,512001000,Exceptional Mythril Helmet,zirh,8,116,70,69120
+Unique class,512002000,Exceptional Mythril Gauntlet,zirh,8,116,70,34560
+Unique class,512003000,Exceptional Mythril Boots,zirh,8,116,70,34560
+Unique class,526511000,Rosetta Assassin Top,zirh,8,151,75,276480
+Unique class,526512000,Rosetta Assassin Bottom,zirh,8,151,75,165888
+Unique class,526513000,Rosetta Assassin Helmet,zirh,8,151,75,110592
+Unique class,526514000,Rosetta Assassin Guntlet,zirh,8,151,75,55296
+Unique class,526515000,Rosetta Assassin Boots,zirh,8,151,75,55296
+Unique class,529001000,Hepa's Rogue Chitin Helmet,zirh,8,0,0,172800
+Unique class,529002000,Hepa's Rogue Chitin Gauntlets,zirh,8,0,0,103680
+Unique class,529003000,Hepa's Rogue Chitin Boots,zirh,8,0,0,69120
+Unique class,529004000,Hepa's Rogue Chitin Shell Pauldron,zirh,8,0,0,34560
+Unique class,529005000,Hepa's Rogue Chitin Shell Pads,zirh,8,0,0,34560
+Unique class,557001000,Mythril Pauldron,zirh,8,0,0,172800
+Unique class,557002000,Mythril Pad,zirh,8,0,0,103680
+Unique class,557003000,Mythril Helmet,zirh,8,0,0,69120
+Unique class,557004000,Mythril Gauntlet,zirh,8,0,0,34560
+Unique class,557005000,Mythril Boots,zirh,8,0,0,34560
+Unique class,923001000,Mythril Pauldron,zirh,8,0,0,172800
+Unique class,923002000,Mythril Pad,zirh,8,0,0,103680
+Unique class,923003000,Mythril Helmet,zirh,8,0,0,69120
+Unique class,923004000,Mythril Gauntlet,zirh,8,0,0,34560
+Unique class,923005000,Mythril Boots,zirh,8,0,0,34560
+Unique class,951611000,Draki Legion Rogue Pauldrons,zirh,8,174,0,172800
+Unique class,951612000,Draki Legion Rogue Pads,zirh,8,174,0,103680
+Unique class,951613000,Draki Legion Rogue Helm,zirh,8,174,0,69120
+Unique class,951614000,Draki Legion Rogue Gauntlets,zirh,8,174,0,34560
+Unique class,951615000,Draki Legion Rogue Boots,zirh,8,174,0,34560
+Unique class,222001000,Secret mage robe,zirh,10,129,70,194400
+Unique class,222002000,Secret mage pants,zirh,10,129,70,116640
+Unique class,222003000,Secret mage helmet,zirh,10,129,70,77760
+Unique class,222004000,Secret mage grove,zirh,10,129,70,38880
+Unique class,222005000,Secret mage boot,zirh,10,129,70,38880
+Unique class,237511000,Holy Knight Mage Robe,zirh,10,169,75,311040
+Unique class,237512000,Holy Knight Mage Pants,zirh,10,169,75,186624
+Unique class,237513000,Holy Knight Mage Helmet,zirh,10,169,75,124416
+Unique class,237514000,Holy Knight Mage Gloves,zirh,10,169,75,62208
+Unique class,237515000,Holy Knight Mage Boots,zirh,10,169,75,62208
+Unique class,276001000,Complete Robe,zirh,10,0,0,194400
+Unique class,276002000,Complete Pants,zirh,10,0,0,116640
+Unique class,276003000,Complete Helmet,zirh,10,0,0,77760
+Unique class,276004000,Complete Glove,zirh,10,0,0,38880
+Unique class,276005000,Complete Boots,zirh,10,0,0,38880
+Unique class,278001000,Krowaz Mage Robe,zirh,10,0,75,311040
+Unique class,278002000,Krowaz Mage Pants,zirh,10,0,75,186624
+Unique class,278003000,Krowaz Mage Helmet,zirh,10,0,75,124416
+Unique class,278004000,Krowaz Mage Gauntlets,zirh,10,0,75,62208
+Unique class,278005000,Krowaz Mage Boots,zirh,10,0,75,62208
+Unique class,512004000,Exceptional Ron's Robe,zirh,10,117,70,194400
+Unique class,512005000,Exceptional Ron's Pants,zirh,10,117,70,116640
+Unique class,512006000,Exceptional Ron's Helmet,zirh,10,117,70,77760
+Unique class,512007000,Exceptional Ron's Gloves,zirh,10,117,70,38880
+Unique class,512008000,Exceptional Ron's Boots,zirh,10,117,70,38880
+Unique class,527511000,Rosetta Mage Robe,zirh,10,152,75,311040
+Unique class,527512000,Rosetta Mage Pants,zirh,10,152,75,186624
+Unique class,527513000,Rosetta Mage Helmet,zirh,10,152,75,124416
+Unique class,527514000,Rosetta Mage Gloves,zirh,10,152,75,62208
+Unique class,527515000,Rosetta Mage Boots,zirh,10,152,75,62208
+Unique class,531001000,Hepa's Complete Robe,zirh,10,0,0,194400
+Unique class,531002000,Hepa's Complete Pants,zirh,10,0,0,116640
+Unique class,531003000,Hepa's Complete Helmet,zirh,10,0,0,77760
+Unique class,531004000,Hepa's Complete Glove,zirh,10,0,0,38880
+Unique class,531005000,Hepa's Complete Boots,zirh,10,0,0,38880
+Unique class,577001000,Ron's Robe,zirh,10,0,0,194400
+Unique class,577002000,Ron's Pants,zirh,10,0,0,116640
+Unique class,577003000,Ron's Helmet,zirh,10,0,0,77760
+Unique class,577004000,Ron's Gloves,zirh,10,0,0,38880
+Unique class,577005000,Ron's Boots,zirh,10,0,0,38880
+Unique class,924001000,Ron's Robe,zirh,10,0,0,194400
+Unique class,924002000,Ron's Pants,zirh,10,0,0,116640
+Unique class,924003000,Ron's Helmet,zirh,10,0,0,77760
+Unique class,924004000,Ron's Gloves,zirh,10,0,0,38880
+Unique class,924005000,Ron's Boots,zirh,10,0,0,38880
+Unique class,961611000,Draki Legion Mage Coat,zirh,10,175,0,194400
+Unique class,961612000,Draki Legion Mage Leggings,zirh,10,175,0,116640
+Unique class,961613000,Draki Legion Mage Crown,zirh,10,175,0,77760
+Unique class,961614000,Draki Legion Mage Gloves,zirh,10,175,0,38880
+Unique class,961615000,Draki Legion Mage Shoes,zirh,10,175,0,38880
+Unique class,223001000,Secret priest top,zirh,12,130,70,151200
+Unique class,223002000,Secret priest bottom,zirh,12,130,70,90720
+Unique class,223003000,Secret priest helmet,zirh,12,130,70,60480
+Unique class,223004000,Secret priest gauntlet,zirh,12,130,70,30240
+Unique class,223005000,Secret priest boot,zirh,12,130,70,30240
+Unique class,238511000,Holy Knight Priest Pauldron,zirh,12,170,75,241920
+Unique class,238512000,Holy Knight Priest Pads,zirh,12,170,75,145152
+Unique class,238513000,Holy Knight Priest Helmet,zirh,12,170,75,96768
+Unique class,238514000,Holy Knight Priest Gauntlets,zirh,12,170,75,48384
+Unique class,238515000,Holy Knight Priest Boots,zirh,12,170,75,48384
+Unique class,296001000,Priest Chitin Shell Pauldron,zirh,12,0,0,151200
+Unique class,296002000,Priest Chitin Shell Pads,zirh,12,0,0,90720
+Unique class,296003000,Priest Chitin Shell Helmet,zirh,12,0,0,60480
+Unique class,296004000,Priest Chitin Shell Gauntlets,zirh,12,0,0,30240
+Unique class,296005000,Priest Chitin Shell Boots,zirh,12,0,0,30240
+Unique class,298001000,Krowaz Priest Upper Garment,zirh,12,0,75,241920
+Unique class,298002000,Krowaz Priest Lower Garment,zirh,12,0,75,145152
+Unique class,298003000,Krowaz Priest Helmet,zirh,12,0,75,96768
+Unique class,298004000,Krowaz Priest Gauntlet,zirh,12,0,75,48384
+Unique class,298005000,Krowaz Priest Boots,zirh,12,0,75,48384
+Unique class,512009000,Exceptional Pauldron of Trial,zirh,12,118,70,151200
+Unique class,513001000,Exceptional Pads of Trial,zirh,12,118,70,90720
+Unique class,513002000,Exceptional Helmet of Trial,zirh,12,118,70,60480
+Unique class,513003000,Exceptional Gauntlet of Trial,zirh,12,118,70,30240
+Unique class,513004000,Exceptional Boots of Trial,zirh,12,118,70,30240
+Unique class,528511000,Rosetta Priest Top,zirh,12,153,75,241920
+Unique class,528512000,Rosetta Priest Bottom,zirh,12,153,75,145152
+Unique class,528513000,Rosetta Priest Helmet,zirh,12,153,75,96768
+Unique class,528514000,Rosetta Priest Guntlet,zirh,12,153,75,48384
+Unique class,528515000,Rosetta Priest Boots,zirh,12,153,75,48384
+Unique class,533001000,Hepa's Priest Chitin Shell Pauldron,zirh,12,0,0,151200
+Unique class,533002000,Hepa's Priest Chitin Shell Pads,zirh,12,0,0,90720
+Unique class,533003000,Hepa's Priest Chitin Shell Helmet,zirh,12,0,0,60480
+Unique class,533004000,Hepa's Priest Chitin Shell Gauntlets,zirh,12,0,0,30240
+Unique class,533005000,Hepa's Priest Chitin Shell Boots,zirh,12,0,0,30240
+Unique class,597001000,Pauldron of Trial,zirh,12,0,0,151200
+Unique class,597002000,Pads of Trial,zirh,12,0,0,90720
+Unique class,597003000,Helmet of Trial,zirh,12,0,0,60480
+Unique class,597004000,Gauntlet of Trial,zirh,12,0,0,30240
+Unique class,597005000,Boots of Trial,zirh,12,0,0,30240
+Unique class,941001000,Pauldron of Trial,zirh,12,0,0,151200
+Unique class,941002000,Pads of Trial,zirh,12,0,0,90720
+Unique class,941003000,Helmet of Trial,zirh,12,0,0,60480
+Unique class,941004000,Gauntlet of Trial,zirh,12,0,0,30240
+Unique class,941005000,Boots of Trial,zirh,12,0,0,30240
+Unique class,971611000,Draki Legion Priest Coat,zirh,12,176,0,151200
+Unique class,971612000,Draki Legion Priest Leggings,zirh,12,176,0,90720
+Unique class,971613000,Draki Legion Priest Crown,zirh,12,176,0,60480
+Unique class,971614000,Draki Legion Priest Gloves,zirh,12,176,0,30240
+Unique class,971615000,Draki Legion Priest Shoes,zirh,12,176,0,30240
+Aksesuar sınıfı (class 8),320410011,Lobo Pendant,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),320410012,Lupus Pendant,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),320410013,Lycaon Pendant,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),330110255,Ring of Courage,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),330150256,Ring of Magic,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),330150257,Ring of Life,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),330310014,Kekuri Ring,sarf,0,0,0,640
+Aksesuar sınıfı (class 8),340110255,Kekuri Belt,sarf,0,0,0,640
+"Özel seri (class 21, 22, 33, 34, 35)",119101000,Dark Vane,silah,0,0,0,310158
+"Özel seri (class 21, 22, 33, 34, 35)",119102000,Cold-Hearted Dagger,silah,0,0,0,310158
+"Özel seri (class 21, 22, 33, 34, 35)",119111000,Dark Vane,silah,0,0,0,310158
+"Özel seri (class 21, 22, 33, 34, 35)",119112000,Cold-Hearted Dagger,silah,0,0,0,310158
+"Özel seri (class 21, 22, 33, 34, 35)",119201000,Cut Snake Tail,silah,0,0,0,618052
+"Özel seri (class 21, 22, 33, 34, 35)",119301000,Sherion,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",119311000,Sherion,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",127410000,Undefeatable Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127411000,Undefeatable Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127420000,Bombastic Giant Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127421000,Bombastic Giant Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127430000,Chaos Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127431000,Chaos Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127440000,Sweet Kiss Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",127441000,Sweet Kiss Wirinom,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",128410000,Undefeatable Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128411000,Undefeatable Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128420000,Restricted Diet Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128421000,Restricted Diet Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128430000,Bombastic Giant Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128431000,Bombastic Giant Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128440000,Lousy Pickpocket Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",128441000,Lousy Pickpocket Raum,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",129101000,Hanguk Sword,silah,0,0,0,310158
+"Özel seri (class 21, 22, 33, 34, 35)",129111000,Hanguk Sword,silah,0,0,0,310158
+"Özel seri (class 21, 22, 33, 34, 35)",129201000,Nameless White Cherry Blossom,silah,0,0,0,746935
+"Özel seri (class 21, 22, 33, 34, 35)",139301000,Avedon,silah,0,0,0,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139311000,Avedon,silah,0,0,0,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139410000,Undefeatable Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139411000,Undefeatable Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139420000,Bombastic Giant Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139421000,Bombastic Giant Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139430000,Chaos Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139431000,Chaos Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139440000,Sweet Kiss Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",139441000,Sweet Kiss Baal,silah,0,0,70,619333
+"Özel seri (class 21, 22, 33, 34, 35)",149101000,Hell Breaker,silah,0,0,0,580958
+"Özel seri (class 21, 22, 33, 34, 35)",149111000,Hell Breaker,silah,0,0,0,580958
+"Özel seri (class 21, 22, 33, 34, 35)",159201000,Double Possession,silah,0,0,0,580118
+"Özel seri (class 21, 22, 33, 34, 35)",159301000,Lugias,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159302000,Spear of Murky Waters,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159311000,Lugias,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159312000,Spear of Murky Waters,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159410000,Undefeatable Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159411000,Undefeatable Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159420000,Bombastic Giant Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159421000,Bombastic Giant Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159430000,Chaos Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159431000,Chaos Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159440000,Sweet Kiss Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",159441000,Sweet Kiss Nebiros,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",179101000,Defender of the Lord,kalkan,0,0,0,84974
+"Özel seri (class 21, 22, 33, 34, 35)",179102000,Dread Shield,kalkan,0,0,0,84974
+"Özel seri (class 21, 22, 33, 34, 35)",179111000,Defender of the Lord,kalkan,0,0,0,84974
+"Özel seri (class 21, 22, 33, 34, 35)",179112000,Dread Shield,kalkan,0,0,0,84974
+"Özel seri (class 21, 22, 33, 34, 35)",179201000,Nonflammable Shield,kalkan,0,0,0,84974
+"Özel seri (class 21, 22, 33, 34, 35)",179301000,Syphioric,kalkan,0,0,0,184974
+"Özel seri (class 21, 22, 33, 34, 35)",179311000,Syphioric,kalkan,0,0,0,184974
+"Özel seri (class 21, 22, 33, 34, 35)",182410000,Undefeatable Fulitol,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",182411000,Undefeatable Fulitol,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",182420000,Kaul Fulitol,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",182421000,Kaul Fulitol,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",182430000,Aztec Gold Fulitol,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",182431000,Aztec Gold Fulitol,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",183230000,Aztec Gold Molok,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",183231000,Aztec Gold Molok,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",183410000,Undefeatable Molok,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",183411000,Undefeatable Molok,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",183420000,Kaul Molok,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",183421000,Kaul Molok,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",184410000,Undefeatable Faun,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",184411000,Undefeatable Faun,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",184420000,Kaul Faun,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",184421000,Kaul Faun,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",184430000,Aztec Gold Faun,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",184431000,Aztec Gold Faun,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189101000,Wrath of Erenion,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189102000,Oasis Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189111000,Wrath of Erenion,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189112000,Oasis Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189201000,Glacier Erenion,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189202000,Chaotic Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189211000,Glacial Erenion,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189212000,Chaotic Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189301000,Lightning Erenion,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189302000,Scorching Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189311000,Lightning Erenion,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189312000,Scorching Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189401000,Ron's Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189411000,Ron's Staff,silah,0,0,0,444495
+"Özel seri (class 21, 22, 33, 34, 35)",189501000,Monk's Staff of Destruction,silah,0,0,0,509051
+"Özel seri (class 21, 22, 33, 34, 35)",189601000,Hell Blood,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",189602000,Garp,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",189603000,Elysium,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",189611000,Hell Blood,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",189612000,Garp,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",189613000,Elysium,silah,0,0,0,453216
+"Özel seri (class 21, 22, 33, 34, 35)",191305000,Hrunting,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",191306000,Ascalon,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",191307000,Gungnir,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",191309000,Kerykeion,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",191311000,Aegis,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",191329000,Smart castellan's sword,silah,0,0,70,310158
+"Özel seri (class 21, 22, 33, 34, 35)",191330000,Stern castellan's sword,silah,0,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",191332000,Book of wisdom (Fire),silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",191333000,Book of wisdom (Air),silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",191334000,Book of wisdom (Appeal),silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",191429000,Smart castellan's sword,silah,0,0,70,310158
+"Özel seri (class 21, 22, 33, 34, 35)",191431000,Stern castellan's sword,silah,0,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",191433000,Book of wisdom (Fire),silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",191434000,Book of wisdom (Air),silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",191435000,Book of wisdom (Appeal),silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",197410000,Gab's Adamant,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",197411000,Gab's Adamant,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",197420000,Gab's Blessing,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",197421000,Gab's Blessing,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",910119000,Dagger of <selfname>,silah,0,0,70,309026
+"Özel seri (class 21, 22, 33, 34, 35)",910120000,Two-handed Sword of <selfname>,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",910121000,Spear of <selfname>,silah,0,0,70,373400
+"Özel seri (class 21, 22, 33, 34, 35)",910123000,Staff of <selfname>,silah,0,0,70,373758
+"Özel seri (class 21, 22, 33, 34, 35)",910124000,Pole of <selfname>,silah,0,0,70,373758
+"Özel seri (class 21, 22, 33, 34, 35)",910126000,Shield of <selfname>,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",910144000,Dagger of <selfname>,silah,0,0,70,309026
+"Özel seri (class 21, 22, 33, 34, 35)",910145000,Two-handed Sword of <selfname>,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",910146000,Spear of <selfname>,silah,0,0,70,373400
+"Özel seri (class 21, 22, 33, 34, 35)",910148000,Staff of <selfname>,silah,0,0,70,373758
+"Özel seri (class 21, 22, 33, 34, 35)",910149000,Pole of <selfname>,silah,0,0,70,373758
+"Özel seri (class 21, 22, 33, 34, 35)",910151000,Shield of <selfname>,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1110429000,<selfname>'s Kanjale,silah,0,0,80,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1110431000,<selfname>'s Buju,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1110433000,<selfname>'s Kodeks Gigas,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1110442000,Celestial Dragon Halberd,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1110443000,Golden Dragon Crescent Blade,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1110445000,Dragon Saddle,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1110529000,<selfname>'s Kanjale,silah,0,0,80,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1110531000,<selfname>'s Buju,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1110533000,<selfname>'s Kodeks Gigas,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1110542000,Celestial Dragon Halberd,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1110543000,Golden Dragon Crescent Blade,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1110545000,Dragon Saddle,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1110561000,Hrunting,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110562000,Ascalon,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",1110563000,Gungnir,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110565000,Kerykeion,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",1110567000,Aegis,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1110571000,Hrunting,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110572000,Ascalon,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",1110573000,Gungnir,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110575000,Kerykeion,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",1110577000,Aegis,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1110581000,Garges Dagger,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110582000,Garges Two-handed Sword,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",1110583000,Garges Scythe,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110585000,Garges Staff,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",1110587000,Garges Shield ,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1110591000,Garges Dagger,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110592000,Garges Two-handed Sword,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",1110593000,Garges Scythe,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1110595000,Garges Staff,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",1110597000,Garges Shield ,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1111452000,Bloody Dagger,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1111453000,Bloody Sword,silah,0,0,70,679684
+"Özel seri (class 21, 22, 33, 34, 35)",1111454000,Bloody Two-handed Sword,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",1111456000,Bloody Staff,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",1111458000,Bloody Shield,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1111459000,Bloody Dagger,silah,0,0,70,453216
+"Özel seri (class 21, 22, 33, 34, 35)",1111460000,Bloody Sword,silah,0,0,70,679684
+"Özel seri (class 21, 22, 33, 34, 35)",1111461000,Bloody Two-handed Sword,silah,0,0,70,373467
+"Özel seri (class 21, 22, 33, 34, 35)",1111463000,Bloody Staff,silah,0,0,70,444495
+"Özel seri (class 21, 22, 33, 34, 35)",1111465000,Bloody Shield,kalkan,0,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1111466000,Dark Knight Dagger,silah,0,0,80,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1111468000,Dark Knight Spear,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1111470000,Dark Knight Staff,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1111474000,Dark Knight Dagger,silah,0,0,80,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1111476000,Dark Knight Spear,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1111478000,Dark Knight Staff,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1113312000,Ruler of the Legend - Serpent,silah,0,0,70,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1113314000,Ruler of the Legend - Blue Dragon,silah,0,0,70,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1113316000,Ruler of the Legend - Pegasus,silah,0,0,70,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1113318000,Ruler of the Legend - Black Tortoise ,kalkan,0,0,70,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1113320000,Ruler of the Legend - Serpent,silah,0,0,70,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1113322000,Ruler of the Legend - Blue Dragon,silah,0,0,70,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1113324000,Ruler of the Legend - Pegasus,silah,0,0,70,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1113326000,Ruler of the Legend - Black Tortoise ,kalkan,0,0,70,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1910429000,<selfname>'s Kanjale,silah,0,0,80,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1910431000,<selfname>'s Buju,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1910433000,<selfname>'s Kodeks Gigas,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",1910438000,,silah,0,0,80,741662
+"Özel seri (class 21, 22, 33, 34, 35)",1910440000,,silah,0,0,80,697149
+"Özel seri (class 21, 22, 33, 34, 35)",1910442000,,silah,0,0,80,897020
+"Özel seri (class 21, 22, 33, 34, 35)",169101000,Enion Bow,silah,2,0,0,580958
+"Özel seri (class 21, 22, 33, 34, 35)",169111000,Enion Bow,silah,2,0,0,580958
+"Özel seri (class 21, 22, 33, 34, 35)",169301000,Helenid Cross Bow,silah,2,0,0,306548
+"Özel seri (class 21, 22, 33, 34, 35)",169302000,Eagle's Eye,silah,2,0,0,191899
+"Özel seri (class 21, 22, 33, 34, 35)",169311000,Helenid Cross Bow,silah,2,0,0,306548
+"Özel seri (class 21, 22, 33, 34, 35)",169312000,Eagle's Eye,silah,2,0,0,191899
+"Özel seri (class 21, 22, 33, 34, 35)",180410000,Undefeatable Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180411000,Undefeatable Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180420000,Restricted Diet Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180421000,Restricted Diet Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180430000,Fire Rain Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180431000,Fire Rain Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180440000,Bombastic Giant Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180441000,Bombastic Giant Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180450000,Lousy Pickpocket Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",180451000,Lousy Pickpocket Windforce,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",191308000,Saronga,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",191331000,Determined decision,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",191432000,Determined decision,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",910122000,Arrow of <selfname>,silah,2,0,70,191899
+"Özel seri (class 21, 22, 33, 34, 35)",910147000,Arrow of <selfname>,silah,2,0,70,191899
+"Özel seri (class 21, 22, 33, 34, 35)",1110432000,<selfname>'s Azagai,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1110444000,Shenlong Bow,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1110532000,<selfname>'s Azagai,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1110544000,Shenlong Bow,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1110564000,Saronga,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",1110574000,Saronga,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",1110584000,Garges Bow,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",1110594000,Garges Bow,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",1111455000,Bloody Bow,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",1111462000,Bloody Bow,silah,2,0,70,580958
+"Özel seri (class 21, 22, 33, 34, 35)",1111469000,Dark Knight Crossbow,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1111477000,Dark Knight Crossbow,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1113315000,Ruler of the Legend - Phoenix,silah,2,0,70,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1113323000,Ruler of the Legend - Phoenix,silah,2,0,70,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1910432000,<selfname>'s Azagai,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",1910441000,,silah,2,0,80,230278
+"Özel seri (class 21, 22, 33, 34, 35)",191336000,Dignity of Castellan,kalkan,4,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",191437000,Dignity of Castellan,kalkan,4,0,70,84974
+"Özel seri (class 21, 22, 33, 34, 35)",1110435000,<selfname>'s Ahgada,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1110447000,Dragon Horn Shield,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1110535000,<selfname>'s Ahgada,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1110547000,Dragon Horn Shield,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1111472000,Dark Knight Shield,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1111480000,Dark Knight Shield,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1910435000,<selfname>'s Ahgada,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",1910444000,,kalkan,4,0,80,223800
+"Özel seri (class 21, 22, 33, 34, 35)",139442000,Nepilim of dimension failure,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139443000,Nepilim of weak dwarf,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139444000,Nepilim of great chaos,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139445000,Nepilim of sweet kiss,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139446000,Nepilim of dimension failure,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139447000,Nepilim of weak dwarf,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139448000,Nepilim of great chaos,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",139449000,Nepilim of sweet kiss,silah,13,0,70,380471
+"Özel seri (class 21, 22, 33, 34, 35)",191438000,Intelligent guardian's ax,silah,13,0,70,390448
+"Özel seri (class 21, 22, 33, 34, 35)",191439000,Intelligent guardian's ax,silah,13,0,70,390448
+"Özel seri (class 21, 22, 33, 34, 35)",1111473000,Dark Knight Axe,silah,13,0,80,390448
+"Özel seri (class 21, 22, 33, 34, 35)",1111481000,Dark Knight Axe,silah,13,0,80,390448
+"Özel seri (class 21, 22, 33, 34, 35)",1113319000,Ruler of the Legend - Fenrir,silah,13,0,70,390448
+"Özel seri (class 21, 22, 33, 34, 35)",1113327000,Ruler of the Legend - Fenrir,silah,13,0,70,390448
+"Özel seri (class 21, 22, 33, 34, 35)",1910445000,,silah,13,0,80,390448

@@ -49,7 +49,7 @@ function main(): number {
   try {
     const ayrac = String.fromCharCode(30);
     const alanlar = ['Num', 'strName', 'Description', 'ItemIconID1', 'Kind', 'Slot', 'Race', 'Class', 'Damage', 'Delay', 'Range', 'Weight', 'Duration', 'BuyPrice', 'Ac', 'Countable', 'ReqLevel', 'ReqStr', 'ReqSta', 'ReqDex', 'ReqIntel', 'ReqCha', 'ItemClass', 'ItemIconID2'];
-    const sorgu = 'SET NOCOUNT ON; SELECT ' + alanlar.map((a) => (a === 'strName' || a === 'Description' ? `REPLACE(REPLACE(CAST(ISNULL(${a},'') AS NVARCHAR(400)),CHAR(13),' '),CHAR(10),' ')` : `CAST(ISNULL(${a},0) AS NVARCHAR(40))`)).join(`+CHAR(30)+`) + ' FROM ITEM WHERE Num % 1000 = 0';
+    const sorgu = 'SET NOCOUNT ON; SELECT ' + alanlar.map((a) => (a === 'strName' || a === 'Description' ? `REPLACE(REPLACE(CAST(ISNULL(${a},'') AS NVARCHAR(400)),CHAR(13),' '),CHAR(10),' ')` : `CAST(ISNULL(${a},0) AS NVARCHAR(40))`)).join(`+CHAR(30)+`) + ' FROM ITEM WHERE Num % 1000 = 0 OR Num IN (' + Array.from({ length: 12 }, (_, i) => `SELECT iItem${String(i + 1).padStart(2, '0')} FROM K_MONSTER_ITEM WHERE iItem${String(i + 1).padStart(2, '0')} >= 100000000`).join(' UNION ') + ')'; // temel kayıtlar + canavar ganimetinde geçen yükseltmeli/özel kayıtlar (ör. Kekuri Ring 330310014)
     const cikti = execFileSync('sqlcmd', ['-S', '.' + String.fromCharCode(92) + 'SQLEXPRESS', '-E', '-d', 'LILITH_MYKO', '-h', '-1', '-f', '65001', '-Q', sorgu], { encoding: 'utf8', maxBuffer: 1 << 26 });
     for (const satir of cikti.split(/\r?\n/)) {
       const a = satir.split(ayrac); if (a.length < alanlar.length) continue;

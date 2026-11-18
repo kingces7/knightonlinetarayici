@@ -50,7 +50,7 @@ function main(): number {
       } catch { /* sonraki aday */ }
     }
     const ad = String(s[2] || s[1]).trim();
-    liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[21]) === 0 && tip1.has(no) ? tip1.get(no) : Number(s[4]), kombo: Number(s[21]) === 0 && (kombolar.get(no)?.length ?? 0) > 1 ? kombolar.get(no) : undefined, efektKendi: Number(s[7]) || null, efektHedef: Number(s[12]) || null, efektUcan: Number(s[11]) || null, simge });
+    liste.push({ no, ad: ad.charAt(0).toUpperCase() + ad.slice(1), aciklama: String(s[3]).replace(/\|\s*/g, ' ').trim(), seviye: Number(s[15]), msp: Number(s[17]), sayfa: SAYFA, sira: simgeNo % 100, anim: Number(s[21]) === 0 && tip1.has(no) ? tip1.get(no) : Number(s[4]), vurusAnim: tip1.get(no), kombo: Number(s[21]) === 0 && (kombolar.get(no)?.length ?? 0) > 1 ? kombolar.get(no) : undefined, efektKendi: Number(s[7]) || null, efektHedef: Number(s[12]) || null, efektUcan: Number(s[11]) || null, simge });
   }
   // Kullanıcı kararı: yakın dövüş skill'lerinde (Stroke, Slash, Crash, Piercing — tüm sınıflar) kendinde parıltı yok; tablodaki 2601 heal_cast yalnızca iyileştirme skill'lerinde kalır.
   for (const b of liste) if (tip1.has(Number(b.no)) && b.efektKendi === 2601) b.efektKendi = null;

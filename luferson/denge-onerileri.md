@@ -35,7 +35,7 @@ Not: 66–75 bandında hp medyanı, 76–90 bandından yüksek (Troll/Apostle/Ha
 
 ## 3. Aykırılar (önem sırasıyla)
 
-### 3.1 Skeleton (1150), Lv80 — en büyük aykırı
+### 3.1 Skeleton (1150), Lv80 — en büyük aykırı (GÜNCELLEME: master orijinal Lv31 değerlerine döndürdü, bkz. bölüm 6.0)
 - Lv80 olmasına rağmen hp 1000 (Lv76–90 medyanı 12551; komşuya oranı **×0,08**), hasar 300 (×0,16), exp 2625 (×0,19), altın 110 (komşular 250–330).
 - Log eğrisine göre hp için z = −3,5, exp için z = −2,6: eğrideki en uç nokta.
 - Konumu (918:1203, 872:1083, 875:1128) Lv33–45 iskelet bölgesinin (Skeleton knight 982:1143, Death knight 1006:1109) yakınında (en yakın Skeleton knight yuvasına yaklaşık 90–125 birim). Seviyesi 80'e çekilirken diğer değerler çekilmemiş görünüyor.
@@ -101,3 +101,62 @@ Dusk Orc (Lv40, hp 617), Lard Orc (Lv50, 1058), Uruk Hai (Lv60, 1669), Uruk Blad
 - Golemler, Raven Harpy, Harpy: Myko'nun bilinçli ayarı gibi tutarlı.
 - Megarodon hasarı: orijinal; mini-boss niyeti olabilir.
 - Oyuncu gücü bilinmiyor; bu yüzden Uruk grubunun hasar/hp oranının gerçekten sorun olup olmadığı test oyuncusuyla görülmeli.
+
+## 6. Güncelleme (Görev C): eklenen canavarlar ve exp katsayısı
+
+Yöntem ve kaynak: Myko veritabanındaki `K_MONSTER` ve `LEVEL_UP` tabloları **yalnız okuma (`SELECT`)** ile okundu, hiçbir şey yazılmadı; orijinal değerler `cozulen.json`'dan. `canavarlar.csv`'deki 62 canavarın değerleri o dosyadaki anlık görüntüden (DB'den yeniden okunmadı; Skeleton'u master'ın bildirdiği orijinal değerlere göre aldım). Hiçbir değer değiştirilmedi.
+
+### 6.0 Skeleton (1150)
+Master orijinale döndürdü (Lv31 / hp 1193 / savunma 210 / hasar 89 / exp 9468). Bölüm 3.1 ve bölüm 4'teki 1. öncelik satırı artık geçerli değil.
+
+### 6.1 Eklenen (ve ekleneceklerin) Myko `K_MONSTER` değerleri, orijinaliyle
+
+| sid | ad | seviye | hp (Myko / orij.) | savunma | hasar | exp Myko | exp orijinal | exp oranı | durum |
+|---|---|---|---|---|---|---|---|---|---|
+| 554 | Dark eyes | 31 | 1193 / 1193 | 210 / 210 | 89 / 89 | 1382 | 9468 | 0,146 | tutarlı |
+| 955 | Stinger | 34 | 1286 / 1286 | 346 / 346 | 111 / 111 | 2187 | 11862 | 0,184 | tutarlı |
+| 1689 | Orc hunter | 40 | 617 / 617 | 288 / 288 | 190 / 190 | 2124 | 8910 | 0,238 | tutarlı (hp düşük: orijinal) |
+| 1055 | Hyde | 45 | 17790 / 17790 | 648 / 648 | **500 / 579** | **84942** | 24093 | **3,53** | **exp uyumsuz**, hasar −%14 |
+| 956 | Antares | 50 | 23010 / 23010 | 720 / 720 | 650 / 650 | **84124** | 31707 | **2,65** | **exp uyumsuz** |
+| 552 | Loup-garou | 27 | 879 / 879 | 155 / 155 | 51 / 51 | 1312 | 6813 | 0,193 | tutarlı |
+| 1450 | attila | 85 | 89650 / 89650 | 1224 / 1224 | **2357 / 2129** | 82491 | 129231 | 0,638 | hasar +%10,7; Lv85'e LEVEL_UP satırı yok |
+| 3151 | scouting soldier | 30 | 3000 / 3000 | 500 / 500 | 100 / 100 | **10208** | **0** | – | **exp uyumsuz**; `byActType` 1 (orijinal 7) |
+
+- Skeleton'daki türden bir uyumsuzluk (seviye ile statların birbirini tutmaması) bu sekizinde **yok**: hp, savunma, hasar orijinalle aynı veya yakın. Uyumsuzluk **yalnız exp'te**: 956, 1055 (ve 3151).
+- Myko'da `byActType` bütün canavarlarda 1 (orijinalde 5 veya 7).
+- El Morad eşleri de Myko `K_MONSTER`'da var (502, 504, 905, 906, 1005, 1400, 3101; aynı statlar), yani El Morad'a eklemek için yeni satır gerekmiyor. Ama aynı canavarın exp'i farklı: **906 Antares 13 125, 1005 Hyde 13 125** (Luferson'daki 956 ve 1055'in yaklaşık 6,4 katı az); 1400 attila hp 79650 / savunma 1285 / hasar 2074 / exp 61250 (Luferson'daki 1450'den farklı).
+
+### 6.2 Bir öldürme seviyenin yüzde kaçını verir? (Myko `LEVEL_UP`'a göre)
+
+| canavar | seviye | Myko exp | bir öldürme | karşılaştırma |
+|---|---|---|---|---|
+| Hyde (1055) | 45 | 84942 | **%11,6** | Lv36–45 medyanı %0,90; **yaklaşık 13 kat** |
+| Antares (956) | 50 | 84124 | **%3,93** | Lv46–50 medyanı %0,27; **yaklaşık 14 kat** |
+| scouting soldier (3151) | 30 | 10208 | **%19,7** (yaklaşık 5 öldürme) | Lv24–35 medyanı %3,3 (yaklaşık 30 öldürme); hp 3000, hasar 100, `byActType` 1 |
+| Antares El Morad (906) | 50 | 13125 | %0,61 | medyanın yaklaşık 2,2 katı |
+| Hyde El Morad (1005) | 45 | 13125 | %1,80 | medyanın yaklaşık 2 katı |
+
+Yani El Morad'daki değerler "orta güçte mini-boss ödülü" gibi görünüyor; Luferson'dakiler çok yüksek. 3151 eklenirse **Lv30'da bir exp çiftliği** olur (5 canavar, 300 sn doğuş).
+
+### 6.3 Myko `LEVEL_UP` tablosu (exp katsayısının dayanağı)
+- **Lv 11–50: Myko = orijinal × 0,141 (40 seviyede tam, ±0,0006).** Lv1–10: 0,120 → 0,140 kademeli. Bu, exp için tek ve doğru katsayının 0,141 olduğunu gösteriyor (sunucu zaten bu oranla ayarlı).
+- **Lv 51 sonrası düzensiz:** Lv51–53 ≈ 0,18–0,20 (Lv53 Lv52'den **düşük**: 3 598 558 < 3 714 597); Lv54–72 orijinalin 0,76–3,34 katı (Lv61 en düşük, çoğu 1–3,3); **Lv73–83'ün hepsi 180 742 047** (Lv72: 1 305 247 349; yani Lv72'den 73'e geçmek 7 kat az exp ister). Orijinal tablo Lv80'de bitiyor, Myko'da Lv83'e kadar.
+- Etkisi: Lv54–72 canavarlarında "seviye için gereken öldürme" medyan **13 430** (orijinalde 2 579); ör. Uruk Blade Lv70 için yaklaşık 177 000 öldürme. Lv85'te `LEVEL_UP` satırı yok.
+- Bölge bantlarına göre medyan öldürme sayısı (Myko / orijinal): Lv24–35 30 / 43, Lv36–45 111 / 155, Lv46–50 368 / 506, Lv54–72 13 430 / 2 579.
+
+### 6.4 Katsayı önerisi
+
+| seçenek | katsayı | ne sağlar | not |
+|---|---|---|---|
+| **A: orijinal ilerleme** | **0,141** (exp = orijinal exp × 0,141, Lv ≤ 50) | "seviye başına öldürme" orijinalle aynı; sunucunun kendi LEVEL_UP oranıyla tutarlı | Lv ≤ 50'deki 38 canavar (eklenen 6 dahil) bugün önerilenin **medyan 1,41 katını** veriyor; A uygulanırsa çoğu canavar yaklaşık %30 az exp verir, yani seviye atlamak yavaşlar. 29/38 canavarda fark ±%20–25'ten büyük (0,53 – 25 kat) |
+| B: mevcut hızı koru | 0,20 | dağınıklığı giderir, hızı değiştirmez (Lv ≤ 50 canavarlarının mevcut oranı medyanı 0,141 × 1,41 ≈ 0,199) | Boss/ayrık değerler yine bu katsayıya çekilir |
+
+- **Lv 50 üstü için tek katsayı vermiyorum:** `LEVEL_UP` düzensiz olduğundan (bölüm 6.3) bir oran seçmek anlamsız. Önce `LEVEL_UP`'ın düzeltilmesi gerekir (ces/master kararı); sonra canavar exp'i = orijinal exp × (Myko `LEVEL_UP[seviye]` / orijinal `LEVEL_UP[seviye]`) formülüyle bulunur.
+- **Boss'lar için** (A'ya göre): 956 Antares ≈ 4471, 1055 Hyde ≈ 3397 (bugün 84124 / 84942); 1450 attila için Lv85 `LEVEL_UP` olmadığından orijinal exp × 0,141 ≈ 18 222 yalnız fikir verir. Alternatif olarak El Morad değerlerine (13 125) çekmek de tutarlı bir "mini-boss" ödülü olur.
+- **3151 için:** exp 10208 orijinal değerden (0) sapıyor; eklemeden önce exp'in 0 ya da A'ya göre düşük bir değere çekilmesi gerekir.
+- Tam liste: **`exp-katsayi-onerisi.csv`** (69 satır = 62 canavar + eklenen 7; sütunlar: orijinal exp, mevcut exp, mevcut oran, iki seviye yüzdesi, A'ya göre önerilen exp ve mevcut/önerilen oranı; önerilen sütunu yalnız Lv ≤ 50'de dolu).
+
+### 6.5 Master'dan istenen karar/iş
+1. 956 ve 1055'in exp'i (84 124 / 84 942) kasıtlı bir boss ödülü mü? El Morad eşleri 13 125.
+2. 3151 / 3101 (exp 10 208 ve `byActType` 1) eklenmeden önce exp'in düşürülmesi.
+3. Katsayı seçimi (A 0,141 mi, B 0,20 mi) ve `LEVEL_UP` Lv51+ düzensizliğinin kasıtlı olup olmadığı (özellikle Lv73–83'ün aynı değeri ve Lv53 < Lv52).

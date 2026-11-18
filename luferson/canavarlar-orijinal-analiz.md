@@ -1,69 +1,69 @@
-# canavarlar-orijinal.csv analizi (Görev 2)
+# canavarlar-orijinal.csv analizi (Görev 2, yenilenen CSV'ye göre güncellendi)
 
-Girdi: `canavarlar-orijinal.csv` (354 satır), `canavarlar.csv` (Myko, 62 canavar), `mob-listesi.csv` (1.mob'daki 175 numara).
-Seviye/can/tür bilgisi: `Masaustu DB incele/cozulen.json` ve `cozulen2018.json` içindeki `K_MONSTER` / `K_NPC` tabloları (salt okunur; iki dökümde de bu sid'ler aynı değerde). Koordinatlara dokunulmadı, hiçbir şey sunucuya yazılmadı.
+Girdi: `canavarlar-orijinal.csv` (354 satır, yenilendi), `mob-listesi.csv` (1.mob'daki 175 numara). Myko tarafı: `donusturulmus/web/harita/karus2004/canavar.json` (257 yerleşim) ve `npc.json` (37 NPC); not: bu dışa aktarma master'ın eklediği 5 canavardan önce üretilmiş (956, 1055, 554, 955, 1689 henüz içinde yok), ama o satırlar CSV'de zaten "aynı" olduğu için aşağıdaki karşılaştırmayı etkilemiyor. Seviye/can/tür: `Masaustu DB incele/cozulen.json` `K_MONSTER` / `K_NPC` (salt okunur). Koordinatlara dokunulmadı, hiçbir şey sunucuya yazılmadı.
 
-## 0. Genel tablo
+## 0. Önceki sürüme göre ne değişti
+
+| durum | eski | yeni | fark |
+|---|---|---|---|
+| aynı | 235 | **254** | +19 |
+| koordinat farklı | 42 | **42** | 0 |
+| Myko'da yok | 77 | **58** | −19 |
+
+- +19 satır, master'ın eklediği 5 canavardır: 956 Antares (5), 1055 Hyde (5), 955 Stinger (5), 554 Dark eyes (2), 1689 Orc hunter (2). Hepsi artık "aynı".
+- "Koordinat farklı" 42 satır değişmedi.
+- Tür dağılımı: aynı 243 canavar + 11 NPC; farklı 22 canavar + 20 NPC; **yok 9 canavar + 49 NPC**.
+- Myko'da olup orijinalde olmayan canavar sid'i yok.
 
 | durum | canavar | npc | toplam |
 |---|---|---|---|
-| aynı | 224 | 11 | 235 |
+| aynı | 243 | 11 | 254 |
 | koordinat farklı | 22 | 20 | 42 |
-| Myko'da yok | 28 | 49 | 77 |
+| Myko'da yok | 9 | 49 | 58 |
 
-- Myko'da olup orijinalde **olmayan** canavar sid'i yok. Fark tek yönlü: orijinalde fazla olanlar var.
-- "Myko'da yok" 77 satırın **49'u NPC** (27 sid'in 19'u). Yani gerçek eksik canavar yalnız **28 satır / 8 sid**.
+## 1. "Myko'da yok" — 58 satır, 22 sid
 
-## 1. "Myko'da yok" — 77 satır, 27 sid
+### 1a. Canavarlar — kalan 3 sid, 9 satır
 
-Seviye ve can orijinal DB'den (`K_MONSTER`, NPC'lerde `K_NPC`). `mob` = sid `mob-listesi.csv`'de (1.mob'da) var mı.
+| sid | ad | seviye | can | yer | adet | konum aralığı (x / z) | doğuş sn | 1.mob |
+|---|---|---|---|---|---|---|---|---|
+| 552 | Loup-garou (CSV'de "Safety Zone Gate2") | 27 | 879 | 3 | 15 | 578–666 / 1473–1660 | 30 | hayır |
+| 3151 | scouting soldier | 30 | 3000 | 1 | 5 | 811 / 1806 | 300 | evet |
+| 1450 | attila | 85 | 89650 | 5 | 5 | 824–1592 / 557–1449 | 32000 | hayır |
 
-### 1a. Canavarlar (8 sid, 28 satır)
+Seviye aralığı 27–85. Master'ın 551/552 kuralı (`ActType` < 100 → canavar) uyarınca 552, K_NPC'deki "Safety Zone Gate2" değil, K_MONSTER'daki Loup-garou. Aynı kural 551 için işliyor: `canavar.json`'da 551 için 3 yerleşim (532:1502, 578:1602, 600:1561) var.
 
-| sid | ad | seviye | can | yer | adet | mob | konum aralığı (x / z) |
-|---|---|---|---|---|---|---|---|
-| 552 | Safety Zone Gate2 (bkz. not A) | 27 (K_MONSTER: Loup-garou) | 879 | 3 | 15 | hayır | 578–666 / 1473–1660 |
-| 554 | Dark eyes | 31 | 1193 | 2 | 10 | hayır | 685–718 / 1627–1687 |
-| 955 | Stinger | 34 | 1286 | 5 | 25 | hayır | 712–794 / 1497–1557 |
-| 1689 | Orc hunter | 40 | 617 | 2 | 2 | hayır | 1196–1404 / 371–999 |
-| 1055 | Hyde | 45 | 17790 | 5 | 5 | evet | 626–1782 / 331–1394 |
-| 956 | Antares | 50 | 23010 | 5 | 5 | evet | 259–1541 / 1192–1873 |
-| 1450 | attila (byType 3) | 85 | 89650 | 5 | 5 | hayır | 824–1592 / 557–1449 |
-| 3151 | scouting soldier | 30 | 3000 | 1 | 5 | evet | 811 / 1806 |
+**Tamamlananlar (artık "aynı"):** 956 Antares Lv50, 1055 Hyde Lv45, 955 Stinger Lv34, 554 Dark eyes Lv31, 1689 Orc hunter Lv40. 1.mob'da olmayanlar (554, 955, 1689) için master client'ın artık modeli sunucudan gelen sid'e göre yüklediğini bildirdi.
 
-Seviye aralığı: 27–85. 552/554/955 orijinalde Luferson başlangıç bölgesinin (x 578–794, z 1473–1687) hemen yanında; 1055/956/1450 haritaya dağılmış tek tek duran güçlü canavarlar (yer başına 1 adet).
+### 1b. NPC'ler (19 sid, 49 satır) — değişmedi
 
-**Not A (sid çakışması):** 551 ve 552 hem `K_NPC`'de ("Safety Zone Gate1/2", Lv60, 70000 can) hem `K_MONSTER`'da (551 = Lycan Lv25, 552 = Loup-garou Lv27) var. `canavarlar.csv` 551'i Lycan olarak veriyor ve 3 yer / 15 adet orijinalle aynı; `canavarlar-orijinal.csv`'deki "Safety Zone Gate" adı büyük ihtimalle yanlış tabloyla eşleşmiş. Bu **bir tahmin**, doğrulanmadı: sunucunun 551/552'yi hangi tablodan yüklediğine master bakmalı. Doğruysa 552 = Loup-garou (Lv27), `canavarlar.csv`'de de yok.
+| sid | ad | seviye | yer | adet | doğuş sn | 1.mob |
+|---|---|---|---|---|---|---|
+| 21021 | Guard | 60 | 10 | 14 | 3600 | evet |
+| 26051 | Sentinel of the Key | 80 | 4 | 4 | 1800 | evet |
+| 26052 | Watcher of the Key | 80 | 4 | 4 | 1800 | evet |
+| 26053 | Protector of the Key | 80 | 4 | 4 | 1800 | evet |
+| 26054 | Ranger of the Key | 80 | 4 | 4 | 1800 | evet |
+| 26055 | Patroller of the Key | 80 | 4 | 4 | 1800 | evet |
+| 26056 | Recon of the Key | 80 | 4 | 4 | 1800 | evet |
+| 26057 | Keeper of the Key | 80 | 4 | 4 | 1800 | evet |
+| 21051 | Recon | 60 | 1 | 1 | 1800 | evet |
+| 21510 | Captain Fargo | 90 | 1 | 1 | 1800 | evet |
+| 24406 | Royal Guard | 60 | 1 | 1 | 1800 | evet |
+| 24407 | Advisor | 60 | 1 | 1 | 1800 | evet |
+| 24410 | Royal Chef | 60 | 1 | 1 | 1800 | evet |
+| 24411 | Lunar Gate Guard | 60 | 1 | 1 | 1800 | evet |
+| 24412 | Eslant Woman | 60 | 1 | 1 | 1800 | evet |
+| 24413 | Farmer | 60 | 1 | 1 | 1800 | evet |
+| 24414 | Nameless Warrior | 60 | 1 | 1 | 1800 | hayır |
+| 14403 | Soren[Beginner Item Rental] | 70 | 1 | 1 | 1800 | evet |
+| 26041 | Adirian[Beginner Helper] | 60 | 1 | 1 | 1800 | hayır |
 
-### 1b. NPC'ler (19 sid, 49 satır)
+Kale içindekiler (Royal Guard, Advisor, Royal Chef, Captain Fargo) x 342–411 / z 1698–1739; Beginner Item Rental ve Beginner Helper başlangıçta (455–459 / 1633–1637); "of the Key" NPC'leri haritaya dağılmış (x 126–1735, z 168–1848). 26041 ve 24414'ün K_NPC satırı var (master doğruladı, canavar değil).
 
-| sid | ad | seviye | yer | adet | mob |
-|---|---|---|---|---|---|
-| 21021 | Guard | 60 | 10 | 14 | evet |
-| 26051 | Sentinel of the Key | 80 | 4 | 4 | evet |
-| 26052 | Watcher of the Key | 80 | 4 | 4 | evet |
-| 26053 | Protector of the Key | 80 | 4 | 4 | evet |
-| 26054 | Ranger of the Key | 80 | 4 | 4 | evet |
-| 26055 | Patroller of the Key | 80 | 4 | 4 | evet |
-| 26056 | Recon of the Key | 80 | 4 | 4 | evet |
-| 26057 | Keeper of the Key | 80 | 4 | 4 | evet |
-| 21051 | Recon | 60 | 1 | 1 | evet |
-| 21510 | Captain Fargo | 90 | 1 | 1 | evet |
-| 24406 | Royal Guard | 60 | 1 | 1 | evet |
-| 24407 | Advisor | 60 | 1 | 1 | evet |
-| 24410 | Royal Chef | 60 | 1 | 1 | evet |
-| 24411 | Lunar Gate Guard | 60 | 1 | 1 | evet |
-| 24412 | Eslant Woman | 60 | 1 | 1 | evet |
-| 24413 | Farmer | 60 | 1 | 1 | evet |
-| 24414 | Nameless Warrior | 60 | 1 | 1 | hayır |
-| 14403 | Soren[Beginner Item Rental] | 70 | 1 | 1 | evet |
-| 26041 | Adirian[Beginner Helper] | 60 | 1 | 1 | hayır |
+## 2. "Koordinat farklı" — 42 satır (değişmedi)
 
-Kale içindekiler (Royal Guard, Advisor, Royal Chef, Captain Fargo) x 342–411 / z 1698–1739 civarında. Beginner Item Rental ve Beginner Helper başlangıç bölgesinde (455–459 / 1633–1637). "of the Key" NPC'leri haritaya dağılmış; `byType` 111–117 ayrı ayrı, yani her biri farklı işlev taşıyor olabilir (içeriği doğrulanmadı).
-
-## 2. "Koordinat farklı" — 42 satır
-
-Yöntem: orijinal satırın (x:z) noktasına en yakın Myko noktası (canavarlarda `canavarlar.csv` slotu, NPC'lerde `npc-listesi.csv`). "içinde" = Myko noktası orijinal dikdörtgenin (x,z → x2,z2) içinde mi.
+Yöntem: orijinal satırın (x:z) noktasına en yakın Myko noktası (canavarlarda `canavar.json`, NPC'lerde `npc.json`); "içinde" = Myko noktası orijinal dikdörtgenin içinde mi.
 
 ### 2a. Canavarlar (22 satır)
 
@@ -72,9 +72,9 @@ Yöntem: orijinal satırın (x:z) noktasına en yakın Myko noktası (canavarlar
 | 353 | spoiler | 493:1571 | 517:1575 | 24 | hayır |
 | 353 | spoiler | 533:1604 | 545:1583 | 24 | hayır |
 | 452 | Stegodon | 1173:1902 | 1131:1638 | **267** | hayır |
-| 551 | (Lycan?) | 491:1547 | 532:1502 | 61 | hayır |
-| 551 | (Lycan?) | 542:1594 | 578:1602 | 37 | hayır |
-| 551 | (Lycan?) | 605:1587 | 600:1561 | 26 | hayır |
+| 551 | Lycan (CSV'de "Safety Zone Gate1") | 491:1547 | 532:1502 | 61 | hayır |
+| 551 | Lycan | 542:1594 | 578:1602 | 37 | hayır |
+| 551 | Lycan | 605:1587 | 600:1561 | 26 | hayır |
 | 555 | Dire wolf | 744:1698 | 669:1616 | **111** | hayır |
 | 1254 | Cardinal | 640:881 | 687:864 | 50 | evet |
 | 1350 | Kongau | 1376:1815 | 1400:1784 | 39 | evet |
@@ -92,43 +92,50 @@ Yöntem: orijinal satırın (x:z) noktasına en yakın Myko noktası (canavarlar
 | 4251 | Ape | 277:1368 | 279:1340 | 28 | hayır |
 | 4351 | Tyon | 386:1143 | 381:1223 | 80 | hayır |
 
-- 22 satırın 15'i 40 birim veya daha yakın (Myko noktası büyük ihtimalle aynı yerin hafif kaymış hali); 3'ü 41–100; 4'ü 100'ün üstünde.
-- **100'ün üstündeki 4 fark gerçek taşıma değil, fazladan yer olabilir:** Stegodon orijinalde 4 yer / Myko'da 3 slot, Uruk Tron 3 / 2, Flame Rock 2 / 1. Bu üçünde en yakın Myko noktası zaten başka bir orijinal satırla "aynı" eşleşmiş; yani o orijinal yerin Myko'da karşılığı yok. Dire wolf tersi: orijinalde 1 yer / 5 adet, Myko'da 2 slot / 10 adet.
-- Adet farkları (orijinal → Myko): spoiler 14 → 19, Dire wolf 5 → 10, Haunga 16 → 20, Uruk Blade 13 → 18, Uruk Tron 13 → 8, Stone golem 18 → 25, Giant golem 11 → 15, Flame Rock 10 → 5, Stegodon 8 → 6. Diğerleri eşit.
+- 15 satır ≤ 40 birim, 3'ü 41–100, 4'ü 100'ün üstünde; 6 satırda Myko noktası dikdörtgenin içinde.
+- 100'ün üstündeki 4 fark gerçek taşıma değil, **fazladan yer**: Stegodon orijinal 4 yer / 8 adet, Myko 3 / 6; Uruk Tron 3 / 13 → 2 / 8; Flame Rock 2 / 10 → 1 / 5. Dire wolf tersi: orijinal 1 yer / 5 adet, Myko 2 / 10.
+- Adet farkları (orijinal → Myko): spoiler 14 → 19, Haunga 16 → 20, Uruk Blade 13 → 18, Stone golem 18 → 25, Giant golem 11 → 15; Cardinal, Kongau, Ape, Tyon, Lycan aynı.
 
 ### 2b. NPC'ler (20 satır)
 
-Hepsi 21 birim veya daha yakın; 17'si ≤ 5. En büyük fark: Beron/Veron [Sundries] 426:651 → 433:671 (21), Warrior Master 383:1741 → 391:1738 (9), Habice[Mantle] 393:1736 → 401:1737 (8). Ad farkları yalnız yazım (Beron/Veron, Skaky/Skaki). Pratik etki yok.
+Hepsi ≤ 21 birim, 17'si ≤ 5. En büyüğü Beron/Veron [Sundries] 426:651 → 433:671 (21), sonra Warrior Master 9, Habice 8. Ad farkları yalnız yazım. Pratik etki yok.
 
 ## 3. mob-listesi.csv (1.mob) karşılaştırması
 
-- Orijinalin 354 satırından 301'i `mob-listesinde = evet`, 53'ü hayır.
-- **Client'ın yüklemediği ("hayır") ve orijinalde olup Myko'da eksik olanlar:** 552, 554, 955, 1450, 1689 (canavar) ve 24414, 26041 (NPC). Bunları sunucuya eklesek bile client'ta model/kayıt olmayabilir; görünmez ya da hatalı olabilir. (Bu client'ta henüz denenmedi, tahmin.)
-- Diğer 20 eksik sid'in hepsi 1.mob'da var, client tarafında hazır.
+- 354 satırdan 301'i `mob_listesinde = evet`, 53'ü hayır (eklenen 554/955/1689'un 9 satırı dahil).
+- Kalan eksik 22 sid'in 18'i 1.mob'da var; **1.mob'da olmayanlar: 552, 1450, 24414, 26041.** Master'ın bildirdiğine göre client modeli sunucudan gelen sid'e göre yüklüyor, bu yüzden 1.mob'da olmamak artık engel değil; yine de 1450 ve 552 eklenince ilk doğrulama oyunda yapılmalı.
 
-## 4. Master'ın eklemesi önerilen kısa liste
+## 4. Master'ın eklemesi önerilen kısa sıra (kalan eksikler)
 
-Not: bu değerler orijinal DB'den. Myko `K_MONSTER`/`K_NPC` tablosunda bu sid satırı yoksa spawn tek başına yetmez, satırın da eklenmesi gerekir. Myko'daki exp/can ölçeği orijinalle aynı olmayabilir; ben karşılaştırmadım.
+Not: tablo değerleri orijinal DB'den. Myko `K_MONSTER` satırları sonradan okundu (salt okunur `SELECT`); 552, 1450 ve 3151'in Myko değerleri aşağıdaki notlarda ve `denge-onerileri.md` bölüm 6'da.
 
 | öncelik | sid | ad | satır | neden | risk / etki |
 |---|---|---|---|---|---|
-| 1 | 956 | Antares (Lv50) | 5 | 1.mob'da var, tek tek duran güçlü canavar | Can 23010, hasar 650. Aynı seviyedeki Myko canavarından (Kongau Lv50, can 4602) kat kat güçlü; oyuncuya "mini boss" gibi görünür |
-| 1 | 1055 | Hyde (Lv45) | 5 | 1.mob'da var, aynı tür | Can 17790. Aynı not |
-| 2 | 554 | Dark eyes (Lv31) | 2 yer / 10 adet | Luferson başlangıç bölgesinin yanı, düşük seviye | 1.mob'da yok: önce client'ta model var mı bakılmalı |
-| 2 | 955 | Stinger (Lv34) | 5 yer / 25 adet | aynı bölge, en kalabalık eksik grup | 1.mob'da yok: aynı not |
-| 2 | 1689 | Orc hunter (Lv40) | 2 yer / 2 adet | küçük ekleme | 1.mob'da yok |
-| 3 | 1450 | attila (Lv85, byType 3) | 5 | üst seviye boss | Can 89650, hasar 2129; ayrıca 1.mob'da yok. Dengeyi ces onaylamalı |
-| bekle | 551 / 552 | Lycan / Loup-garou? | 3 + 3 | Not A'daki sid çakışması | Yanlış tablodan yüklenirse kapı NPC'si (Lv60, 70000 can) doğabilir. Doğrulanmadan ekleme |
-| bekle | 3151 | scouting soldier | 1 / 5 adet | `byActType` 7, yani saldırgan canavar mı muhafız mı belli değil | Anlamı doğrulanmadı |
-| ces kararı | 21021 ve kale NPC'leri | Guard, Royal Guard, Advisor, Royal Chef, Captain Fargo, Lunar Gate Guard, Eslant Woman, Farmer | 17 satır | kale atmosferi | Çoğunun işlevi (görev/script) bilinmiyor; işlevsiz dekor olabilir. Önce Myko `K_NPC`'de satırları var mı |
-| ces kararı | 26051–26057 | "of the Key" NPC'leri | 28 satır | orijinalde haritaya dağılmış | `byType` 111–117, olay/görev bağlantısı olabilir; tek başına işlevsiz kalabilir |
-| ces kararı | 14403, 26041 | Beginner Item Rental, Beginner Helper | 2 | başlangıç yardımcıları | Script gerektirir; 26041 1.mob'da yok |
+| 1 | 552 | Loup-garou (Lv27) | 3 yer / 15 adet | Kalan tek "sıradan" canavar. 551 Lycan ile aynı bölgede (578–666 / 1473–1660), 551'de aynı kural çalışıyor | Düşük risk. Sid çakışması (K_NPC "Safety Zone Gate2" Lv60, 70000 can) `ActType` kuralıyla çözülüyor; ilk doğuştan sonra kapı değil Loup-garou doğduğu doğrulanmalı |
+| 2 | 1450 | attila (Lv85) | 5 yer / 1'er | Üst seviye tek tek duran mini-boss | Ayrı not (aşağıda). Ces onayı şart |
+| bekle | 3151 | scouting soldier (Lv30) | 1 yer / 5 adet | Recon NPC'sinin (21051) yanındaki garnizon | Ayrı not (aşağıda). Tek başına eklenmesi önerilmez |
+| ces kararı | 21021 ve kale NPC'leri (Royal Guard, Advisor, Royal Chef, Captain Fargo, Lunar Gate Guard, Eslant Woman, Farmer), "of the Key" NPC'leri, 14403 Soren, 26041 Adirian, 24414 | 18 + 28 + 3 satır | Atmosfer / başlangıç yardımcıları | Çoğunun işlevi (görev/script) bilinmiyor; işlevsiz dekor olabilir. 14403 ve 26041 script ister |
 
-Öneri sırası: önce 1. öncelik (956, 1055: client hazır, satır sayısı az), sonra client kontrolüyle 2. öncelik grubu. 551/552 çakışması çözülmeden hiçbir "Safety Zone" satırı eklenmemeli.
+### Ayrı not — 1450 attila (Lv85)
+- Orijinal değerler: can **89650**, savunma 1224, hasar 2129, exp **129231**, `byType` 3, doğuş **32000 sn (yaklaşık 8,9 saat)**, 5 yer × 1 adet (824:557, 993:1449, 1394:1198, 1478:937, 1592:1175).
+- Luferson'daki mevcut en dayanıklı canavarla kıyas: Troll Warrior (Lv80) hp 38190, Giant golem (Lv110) hp 29392; attila 2,3–3 kat. Savunması da en yüksek (Giant golem 1039'a karşı 1224). Hasarı Troll Warrior'dan (3760) düşük.
+- **Myko `K_MONSTER` 1450 (okundu):** hp 89650, savunma 1224 (orijinalle aynı), **hasar 2357** (orijinal 2129, +%10,7), **exp 82491** (orijinal 129231, ×0,638), `byActType` 1. Myko'nun diğer en yüksek exp'i Troll Warrior 21962; attila bunun 3,8 katı. Lv85 için `LEVEL_UP` satırı yok (tablo Lv83'te bitiyor).
+- **El Morad'daki eşi 1400** başka değerlerle duruyor (hp 79650, savunma 1285, hasar 2074, exp 61250); iki bölgenin attila'sı kendi aralarında da tutarsız.
+- Öneri: exp için katsayı seçeneği A (orijinal × 0,141 ≈ 18 222) ya da mevcut hızı koruyan B (≈ 0,20 × 129231 ≈ 25 800); ayrıntı `denge-onerileri.md` bölüm 6.4.
+- Seviye 85; Myko'daki Lv80+ canavarlar haritanın doğusunda (x yaklaşık 1100–1950). attila'nın yerleri ise daha düşük seviye bölgelerine denk geliyor: 1394:1198 HORNET (Lv45) yuvalarının, 824:557 Lamia (Lv60) yuvalarının yakınında.
+- 8,9 saatlik doğuş ve 5 ayrı yer, onu "haritada rastgele dolaşan nadir boss" yapar. **Öneri:** ancak ces bu mini-boss'u istiyorsa ve exp/drop (K_NPC_ITEM) kontrol edildikten sonra eklensin.
+
+### Ayrı not — 3151 scouting soldier (Lv30)
+- Orijinal değerler: can 3000, savunma 500, hasar 100, **exp 0**, `byActType` **7**, `byType` 0.
+- **Myko `K_MONSTER` 3151 (okundu):** can/savunma/hasar aynı, ama **exp 10208** (orijinal 0) ve `byActType` **1**. Lv30'da seviye atlamak 51 750 exp ister; bir öldürme seviyenin **%19,7'sini** verir (sıradan Lv30 canavarı yaklaşık %3, 30 öldürme). 3151 5 adet / 300 sn doğuşla eklenirse exp çiftliği olur (3101 de aynı değerde).
+- `byActType` 7'nin anlamı: elimdeki açık kaynak 1299 sunucusunda (`AIServer/Npc.cpp`) `byActType` 1 ve 2 pasif (yalnız saldırılınca karşılık verir), 3 ve 4 saldırgan + yardım çağırır, 6 değişmez, **diğer her değer (7 dahil) saldırgan**. Yani bu kodda scouting soldier oyuncuya kendisi saldırır ve exp vermez. **Myko'nun kendi kaynağında aynı olduğunu doğrulamadım.**
+- K_MONSTER'da `byActType` 7 yalnız iki satırda var, ikisi de scouting soldier (3101 ve 3151). K_NPC'de 285 satırda 7 var (Blade Master, Rogue, ranger gibi insansı NPC'ler).
+- Konumu Recon NPC'siyle (21051 → 821:1802) 10 birim mesafede (811:1806). El Morad'da aynı çift: 3101 (1480:964) ile Recon 11051 (1487:953). Yani bu iki yerleşim bir garnizon/karakol.
+- **Öneri:** Myko'daki exp 10208 değeriyle eklenmemeli. Önce exp'in düşürülmesi (0 ya da seviye 30'a uygun yaklaşık 1000–1400) gerekir. Recon NPC'si eklenmeyecekse 3151'in de eklenmesine gerek yok; ikisi birlikte ces kararı. (Orijinaldeki `byActType` 7 açık kaynak kodda "saldırgan" dalına düşüyordu; Myko satırı 1 olduğu için davranış bilinmiyor.)
 
 ## 5. Doğrulanmayanlar (master'dan istenen karar/iş)
 
-1. 551/552 sid'inin sunucuda `K_MONSTER` mi `K_NPC` mi olarak yüklendiği.
-2. Eksik sid'lerin Myko `K_MONSTER`/`K_NPC` tablosunda satırı var mı.
-3. `byActType` 7 (scouting soldier, Guard vb.) ve NPC `byType` değerlerinin anlamı.
-4. 1.mob'da olmayan sid'ler (552, 554, 955, 1450, 1689, 24414, 26041) client'ta görünür mü.
+1. 1450 ve 3151 için `K_NPC_ITEM` (drop) kayıtları (bakılmadı); 1450'nin exp'i (82491) ve 3151'in exp'i (10208) kasıtlı mı.
+2. 552 eklendikten sonra kapı NPC'si değil Loup-garou doğduğunun teyidi.
+3. `byActType` 1 (Myko) ve 7 (orijinal) davranışının Myko sunucusunda ne yaptığı (açık kaynak kodda 1–2 pasif, 7 saldırgan; Myko kaynağında doğrulanmadı).
+4. `canavar.json` / `npc.json` dışa aktarmasını yenilemek (eklenen 5 canavar içinde yok).

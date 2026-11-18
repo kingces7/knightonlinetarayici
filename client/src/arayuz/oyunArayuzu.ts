@@ -20,7 +20,7 @@ import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
-export interface Beceri { /** yakın dövüş kombo animasyonları (orijinal iAct[0..2]); yalnız birden çok vuruşlu skill'lerde */ kombo?: number[]; /** yakın dövüş skill'inin silah hasarı yüzdesi (skill_magic_1) */ hasarYuzde?: number; /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
+export interface Beceri { /** yakın dövüş skill'inin VURUŞ animasyonu (skill_magic_1 iAct[0]); hazırlık süresi olan skill'lerde hazırlık animasyonu ayrı, vuruş bunla oynar */ vurusAnim?: number; /** yakın dövüş kombo animasyonları (orijinal iAct[0..2]); yalnız birden çok vuruşlu skill'lerde */ kombo?: number[]; /** yakın dövüş skill'inin silah hasarı yüzdesi (skill_magic_1) */ hasarYuzde?: number; /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
 
 export interface ArayuzBaglami {
   kok: HTMLElement;
@@ -876,6 +876,7 @@ export class OyunArayuzu {
   /** Skill'in client tablosundaki adı (sunucu tablosunda adı boş olan skill'ler için). */
   beceriAdi(no: number): string | undefined { return this.beceriBul(no)?.ad; }
   beceriAnimNo(no: number): number | undefined { return this.beceriBul(no)?.anim; }
+  beceriVurusAnim(no: number): number | undefined { return this.beceriBul(no)?.vurusAnim; }
   beceriKombo(no: number): number[] | undefined { return this.beceriBul(no)?.kombo; }
   /** Skill'in efekt numaraları (fx.tbl): kendinde ve hedefte oynayan. */
   beceriEfekt(no: number): { kendi: number | null; hedef: number | null; ucan: number | null } { const b = this.beceriBul(no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null, ucan: b?.efektUcan ?? null }; }

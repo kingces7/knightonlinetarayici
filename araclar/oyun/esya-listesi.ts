@@ -34,3 +34,30 @@ for (const [dosya, s] of Object.entries(SINIFLAR)) {
 }
 fs.writeFileSync(path.join(klasor, 'README.md'), readme);
 console.log('docs/esya-siniflar/ yazıldı');
+
+// Nadirlik (rarity) sıralaması: sunucu kaynağındaki ItemClass (ItemUpgradeSystem.cpp: 0/1 low class, 2/7 middle class, 3 high class, 4/5 unique (yüksekten yeniden doğuşa / rebirth), 8 aksesuar, 21/22/33/34/35 özel seri).
+// Yalnız silah/zırh/kalkan/takı için; iksir, kâğıt, kutu gibi (sarf) eşyalar "nadirliksiz" listededir.
+const NADIRLIK: { dosya: string; ad: string; kodlar: number[] }[] = [
+  { dosya: '1-low-class', ad: 'Low class', kodlar: [0, 1] },
+  { dosya: '2-middle-class', ad: 'Middle class', kodlar: [2, 7] },
+  { dosya: '3-high-class', ad: 'High class', kodlar: [3] },
+  { dosya: '4-unique-class', ad: 'Unique class', kodlar: [4, 5] },
+  { dosya: '5-aksesuar-sinifi', ad: 'Aksesuar sınıfı (class 8)', kodlar: [8] },
+  { dosya: '6-ozel-seri', ad: 'Özel seri (class 21, 22, 33, 34, 35)', kodlar: [21, 22, 33, 34, 35] },
+];
+const donanim = (e: { tur: string; tip?: number }) => e.tur === 'silah' || e.tur === 'zirh' || e.tur === 'kalkan' || [91, 92, 93, 94].includes(e.tip ?? 0); // 91-94: küpe/kolye/yüzük/kemer
+const nKlasor = path.join(DEPO_KOKU, 'docs', 'esya-nadirlik'); fs.mkdirSync(nKlasor, { recursive: true });
+let nReadme = '# Eşyalar — nadirliğe göre (low → middle → high → unique)\n\n`node araclar/oyun/esya-listesi.ts` ile üretilir. Nadirlik = sunucu `ItemClass` değeri (kaynak: `ItemUpgradeSystem.cpp`). Her dosya sınıf (Warrior/Rogue/Mage/Priest) ve eşya numarasına göre sıralıdır.\n\n| Dosya | Nadirlik | Eşya |\n|---|---|---|\n';
+const hepsi: string[] = [csv(['nadirlik', 'esya_no', 'ad', 'tur', 'sinif_kodu', 'irk', 'gereken_seviye', 'fiyat'])];
+for (const g of NADIRLIK) {
+  const l = (t as unknown as { no: number; ad: string; tur: string; tip: number; sinif: number; irk: number; gerekSeviye: number; fiyat: number; sinifDerece: number }[]).filter((e) => g.kodlar.includes(e.sinifDerece) && donanim(e)).sort((a, b) => a.sinif - b.sinif || a.no - b.no);
+  fs.writeFileSync(path.join(nKlasor, `${g.dosya}.csv`), [baslik, ...l.map((e) => csv([e.no, e.ad, e.tur, e.sinif, e.irk, e.gerekSeviye, e.fiyat, '']))].join('\n') + '\n');
+  for (const e of l) hepsi.push(csv([g.ad, e.no, e.ad, e.tur, e.sinif, e.irk, e.gerekSeviye, e.fiyat]));
+  nReadme += `| ${g.dosya}.csv | ${g.ad} | ${l.length} |\n`;
+}
+const digerler = (t as unknown as { no: number; ad: string; tur: string; tip: number; sinif: number; irk: number; gerekSeviye: number; fiyat: number; sinifDerece: number }[]).filter((e) => !donanim(e) || ![0, 1, 2, 7, 3, 4, 5, 8, 21, 22, 33, 34, 35].includes(e.sinifDerece));
+fs.writeFileSync(path.join(nKlasor, '7-nadirliksiz-sarf-diger.csv'), [baslik, ...digerler.sort((a, b) => a.no - b.no).map((e) => csv([e.no, e.ad, e.tur, e.sinif, e.irk, e.gerekSeviye, e.fiyat, '']))].join('\n') + '\n');
+nReadme += `| 7-nadirliksiz-sarf-diger.csv | Nadirlik yok (iksir, kâğıt, kutu, diğer) | ${digerler.length} |\n`;
+fs.writeFileSync(path.join(nKlasor, 'tum-donanim-nadirlige-gore.csv'), hepsi.join('\n') + '\n');
+fs.writeFileSync(path.join(nKlasor, 'README.md'), nReadme);
+console.log('docs/esya-nadirlik/ yazıldı');

@@ -302,6 +302,9 @@ async function basla(): Promise<void> {
         if (buyuHazirlik?.no !== no) return; buyuHazirlik = null; // iptal edildi (yürüdün ya da öldün)
         if (oyuncu.olu) return;
         gonder(BECERI_KOMUTU.UCUS); ucanEfektOynat(efektNo(no).ucan, oyuncu.grup, hedefGrup);
+        // Orijinal (MagicSkillMng): hazırlık süresi olan yakın dövüş skill'inde (Sword dancing, Howling sword…) hazırlık animasyonundan sonra VURUŞ animasyonu (iAct) oynar
+        const vurus = v.tip === 1 ? arayuz?.beceriVurusAnim(no) : undefined;
+        if (vurus && !hareketEdiyor) oyuncu.animKilidi = Math.max(oyuncu.animKilidi, oyuncu.model?.beceriOynat(vurus) ?? 0);
         setTimeout(() => gonder(BECERI_KOMUTU.ETKI), 350); // uçuş süresi
       }, sure * 1000);
     } else {
@@ -438,8 +441,7 @@ async function basla(): Promise<void> {
       partiDavet: () => partiDavetEt(),
       // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
       sehreDon: () => {
-        if (ayar.bolge !== 21) { hud.mesaj('Town only works in Moradon. Use a warp gate to return.', 'sistem'); return; } // başka bölgede Moradon koordinatına ışınlamak sunucudaki bölgeyle uyuşmaz (karakter "boyuta" takılır)
-        const [x, z] = SEHIR_NOKTASI; kalk(); oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null;
+        const [x, z] = ayar.sehir ?? ayar.baslangic ?? SEHIR_NOKTASI; // her haritanın kendi town noktası (aynı bölge: sunucuyla uyumlu) kalk(); oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null;
         if (sunucuOturumu) { const p = (m: number) => Math.round(m * 10); const y = p(arazi.yukseklikAl(x, z)); sunucuOturumu.gonder(WIZ.HAREKET, new PaketYazici().u16(p(x)).u16(p(z)).u16(y).i16(0).u8(0).u16(p(x)).u16(p(z)).u16(y).baytlar()); }
         hud.mesaj('You returned to town.', 'sistem');
       },

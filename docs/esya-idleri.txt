@@ -27,9 +27,11 @@
 110912000  Kukry
 110930000  Kukry
 111010000  Cleaver
+111010001  Cleaver(+1)
 111012000  Cleaver
 111030000  Cleaver
 111110000  Mirage Dagger
+111110001  Mirage Dagger(+1)
 111111000  Mirage Dagger
 111112000  Exceptional Mirage Dagger
 111122000  Exceptional Mirage Dagger
@@ -63,7 +65,9 @@
 120310000  Long Sword
 120350000  Broad Sword
 120510000  Scimitar
+120510255  Tooth
 120550000  Falchion
+120550256  Sword of Beast
 120710000  Flame Sword
 120750000  Sabre
 120810000  Rapier
@@ -72,6 +76,7 @@
 121010000  Crescent
 121012000  Crescent
 121110000  Blade
+121110001  Blade(+1)
 121112000  Blade
 121210000  Slayer
 121211000  Slayer
@@ -97,6 +102,7 @@
 125250000  Bastard Sword
 125310000  Two-Handed Sword
 125350000  Twei Hander
+125350258  Sword of the Dead
 125610000  Battle Sword
 125650000  War Sword
 125810000  Great Sword
@@ -150,9 +156,11 @@
 130250000  Wood Cutter
 130410000  Double Axe
 130450000  Giantic Axe
+130450256  Giantic Axe
 130451000  Large Axe
 130610000  Bipennis
 130650000  Warrior Axe
+130650255  Javana Axe
 130651000  Warrior Axe
 130710000  Military Pick
 130712000  Military Pick
@@ -186,6 +194,8 @@
 135710000  Twin Axe
 135712000  Twin Axe
 135750000  Tabar
+135750258  Javana Axe
+135750259  Giantic Axe
 135751000  Tabar
 135810000  Great Axe
 135812000  Great Axe
@@ -397,6 +407,7 @@
 151010000  Philum
 151012000  Philum
 151110000  Harpoon
+151110001  Harpoon(+1)
 151111000  Harpoon
 151112000  Harpoon
 151122000  Harpoon
@@ -409,6 +420,7 @@
 155510000  Battle Scythe
 155512000  Battle Scythe
 155550000  War Scythe
+155550255  Scorpion Scythe
 155710000  Grim Scythe
 155750000  Harsh Scythe
 155810000  Bill
@@ -419,6 +431,7 @@
 156012000  Bardish
 156030000  Bardish
 156110000  Glave
+156110001  Glave(+1)
 156111000  Glave
 156112000  Glave
 156122000  Glave
@@ -454,6 +467,8 @@
 160250000  Bamboo Bow
 160410000  Rapt Bow
 160450000  Hunter's Bow
+160450255  Chitin Bow
+160450256  Scorpion Bow
 160451000  Hunter's Bow
 160610000  Composite Bow
 160612000  Composite Bow
@@ -480,6 +495,7 @@
 168312000  Iron Crossbow
 168322000  Iron Crossbow
 168410000  Iron Bow
+168410001  Iron Bow(+1)
 168411000  Iron Bow
 168610000  Exceptional Iron Bow
 168611000  Exceptional Iron Bow
@@ -500,6 +516,7 @@
 170110000  Small Shield
 170150000  Wooden Shield
 170210000  Large Shield
+170210255  Scorpion Shield
 170211000  Large Shield
 170250000  Round Shield
 170251000  Round Shield
@@ -538,6 +555,9 @@
 180010000  Wooden Staff
 180050000  Wooden Staff
 180110000  Wood Staff
+180110251  Lobo Staff
+180110252  Lupus staff
+180110253  Lycaon staff
 180111000  Wood Staff
 180130000  Wood Staff
 180150000  Orc Staff
@@ -653,11 +673,16 @@
 190050000  Priest Mace
 190210000  Priest Maul
 190250000  Priest Morning Star
+190250251  Lobo hammer
+190250252  Lupus hammer
+190250253  Lycaon hammer
+190250255  Skull hammer
 190251000  Priest Morning Star
 190290000  Priest Maul
 190410000  Priest Mace
 190450000  Priest Iron Star
 190610000  Priest War Hammer
+190610256  Dragon tooth hammer
 190611000  Priest War Hammer
 190612000  Priest War Hammer
 190650000  Priest Spike Club
@@ -1245,6 +1270,7 @@
 298005000  Krowaz Priest Boots
 300080000  Gold Premium
 300144000  Monster Stone
+300144036  Monster Stone ( NEW )
 300145000  Green Monster Stone
 300146000  Red Monster Stone
 300150000  Jack Point Exp Scroll
@@ -1341,6 +1367,9 @@
 320370000  Old Intelligence Necklace
 320380000  Old Magic Power Necklace
 320410000  Rare Accessories
+320410011  Lobo Pendant
+320410012  Lupus Pendant
+320410013  Lycaon Pendant
 320510000  Rare Accessories
 320520000  Old Goddess Necklace
 320530000  Old Green Dragon Necklace
@@ -1353,6 +1382,7 @@
 320630000  Old Strength Necklace
 320640000  Old Crystal Necklace
 330110000  Sapphire Ring
+330110255  Ring of Courage
 330111000  Hero's Valor
 330112000  Necklace of the Lost One
 330113000  Saint Valentine Ring
@@ -1361,8 +1391,11 @@
 330130000  Old Emerald Ring
 330140000  Old Crystal Ring
 330150000  Red Pearl Ring
+330150256  Ring of Magic
+330150257  Ring of Life
 330151000  Legionnaire Band
 330310000  Rare Accessories
+330310014  Kekuri Ring
 330410000  Rare Accessories
 330420000  Leader's Ring
 330430000  Red Pearl Ring
@@ -1388,6 +1421,7 @@
 332150000  Noah Ring of Magic
 339910000  Tester Ring
 340110000  Linen Belt
+340110255  Kekuri Belt
 340120000  Old Light's Belt
 340130000  Old Kekuri Belt
 340140000  Old Curse Belt

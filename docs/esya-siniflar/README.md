@@ -4,9 +4,9 @@
 
 | Dosya | Sınıf | Eşya |
 |---|---|---|
-| herkes.csv | Herkes (sınıf şartı yok: iksir, kağıt, takı, ortak eşyalar) | 4071 |
+| herkes.csv | Herkes (sınıf şartı yok: iksir, kağıt, takı, ortak eşyalar) | 4102 |
 | savasci.csv | Warrior | 281 |
-| rogue.csv | Rogue | 376 |
+| rogue.csv | Rogue | 379 |
 | buyucu.csv | Mage | 282 |
 | rahip.csv | Priest | 317 |
 | ozel.csv | Özel setler (sınıf kodu 13, 15, 21, 25, 255: Kurian/Porutu setleri, yaylar, yüzük/kolye serileri) | 62 |

@@ -1,7 +1,7 @@
 grup,dosya,beklenen,bulunan,durum,not
 zones-tablosu,Zones/karus2004.gtd,2478284 bayt (CSV),2478284 bayt,tamam,Arazi: 513x513 kose = 2048 m; arazi.bin'e donusturuldu
 zones-tablosu,Zones/karus2004.tct,11188224 bayt (CSV),11188224 bayt,tamam,256 x 43704 bayt parca (16x16 x 128 px) = renk.bin 2048x2048; tam bolunuyor
-zones-tablosu,Zones/karus2004.tlt,10064544 bayt (CSV),10064544 bayt,uyari,Format cozulmemis (docs/formatlar/README.md: tlt belirsiz); donusumde kullanilmiyor; boyutu old_karus.tlt'ye (10133704) yakin = makul; GTD ile eslesmesi dogrulanamadi
+zones-tablosu,Zones/karus2004.tlt,10064544 bayt (CSV),10064544 bayt,uyari,Isik haritasi (golge katmani) - duzeni kaynaktan ve dosyadan dogrulandi: 4096 yamalik adres tablosu; 1527 yamada var; ilk doku 32x32 A4R4G4B4 siyah alfa 0-85 (arazi-doku-notlari.md); donusumde kullanilmiyor = client'ta zemin golgesi yok
 zones-tablosu,Zones/karus2004.opd,4080816 bayt (CSV),4080816 bayt,tamam,nesneler.glb'ye donusturuldu (8326 dugum / 742 mesh)
 zones-tablosu,Zones/karus2004.opdext,600693 bayt (CSV),600693 bayt,bilgi,Format cozulmemis; donusumde kullanilmiyor
 zones-tablosu,Zones/karus2004.opdsub,13440 bayt (CSV),13440 bayt,bilgi,Format cozulmemis; donusumde kullanilmiyor
@@ -14,7 +14,7 @@ zones-tablosu,Zones/karus2004.NaviMesh,9646441 bayt (CSV),9646441 bayt,bilgi,Zon
 zones-tablosu,Zones/1.mob,708 bayt (CSV),708 bayt,tamam,175 numara; mob-listesi.csv'ye ayristirildi
 zones-tablosu,Misc/Sky/Karus.N3Sky,2026 bayt (CSV),2026 bayt,tamam,gokyuzu.json'a donusturuldu (4 zaman anahtari; 10 doku)
 zones-tablosu,Misc/Sky/Karus_hdr.N3Sky,2026 bayt (CSV),2026 bayt,tamam,Karus.N3Sky ile ayni boyut; hdr surumu
-zones-tablosu,Zones/karus_start.glo,2528 bayt (CSV),2528 bayt,uyari,Zones.csv bolge 10 (ve 30/50/60) karus2004.glo yerine karus_start.glo'yu gosteriyor; karus2004.glo (1520 bayt) hicbir Zones.csv satirinda yok. Orijinal ayar olabilir; glo anlami cozulmemis
+zones-tablosu,Zones/karus_start.glo,2528 bayt (CSV),2528 bayt,uyari,Zones.csv bolge 10 (ve 30/50/60) karus2004.glo yerine karus_start.glo'yu gosteriyor; karus2004.glo (9 isik) hicbir Zones.csv satirinda yok. .glo = bolge isik nesneleri (zemin dokusu degil); karus_start.glo (15 isik) = old_karus.glo bayt bayt ayni. Orijinal ayar olabilir
 yetim,Zones/karus 2004.dxt,349598 bayt,349598 bayt,yetim,Adinda bosluk var; karus2004.dxt'den 53 bayt farkli; Zones.csv'de yok. Eski kopya gibi duruyor
 yetim,Zones/karus2004.gfo + .glo + .gmd,386+1520+84 bayt,mevcut,yetim,Adi karus2004 ama hicbir Zones.csv satirinda basvuru yok
 ilgisiz-harita,Zones/karus_start.DXT + .gev + .gmd + .gtd + .opd + .opdsub + .tct + .tlt,8 dosya,mevcut,ilgisiz,Baska harita (karus_start); karus2004 ile ilgisiz. Yalniz karus_start.glo Zones.csv'de basvuruluyor
