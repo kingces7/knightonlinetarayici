@@ -329,6 +329,6 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Luferson (`karus2004`) ve El Morad (`elmo2004`) haritaları dönüştürüldü (harita, gökyüzü, NPC, canavar, modeller); `?harita=karus2004` / `?harita=elmo2004`.
 - [x] Moradon'daki iki ışınlanma kapısı (Karus 4014, El Morad 4013) sağ tıkla kullanılır; kapı listesi orijinal görünümlü menüyle açılır; seçim → bölge değişimi → harita yeniden yüklenir (kayıtlı girişle otomatik). Protokol: `kopru/protokol/isinlanma.ts` (+ test).
 - [x] Kök neden: sunucu Moradon için `1098moradon_0826.smd` kullanıyordu; kapılar client'ta olmayan x≈800-840'taydı (seçim "kapıya yakın değil" diye reddediliyordu). `ZONE_INFO1098` bölge 21 → `old_moradon.smd` yapıldı (`araclar/sunucu/moradon-smd.sql`, özgün değer yedekli). **Sunucu yeniden başlatılınca geçerli olur.**
-- [ ] Işınlanma uçtan uca testi (sunucu yeniden başlatıldıktan sonra): `client/scripts/isinlanmaTesti.mjs`.
+- [x] Işınlanma uçtan uca doğrulandı (2026-11-18): El Morad kapısı (kotestkar → El Morad Castle 1594,411) ve Karus kapısı (PvPRobot → Luferson 441,1622); `client/scripts/isinlanmaTesti.mjs`.
 - [ ] Haritası olmayan bölgeler (Delos, Ronark Land, Ardream) kapı listesinde gri.
 - [ ] `Town` komutu Moradon koordinatına ışınlar (Luferson/El Morad'da yanlış yer).
