@@ -386,3 +386,11 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] `harita/<harita adı>/` (77 bölge): canavarlar, drop, npc, mağaza, kapılar/olaylar, bölge bilgisi, istemci dosyaları; `harita/README.md` + `_tum-haritalar.csv`. Üretici: `node araclar/oyun/harita-klasoru.ts` (CSV'ler yenilenir, `NOTLAR.md` yenilenmez). Fast'in okuma erişimi var.
 - [x] Dragon tooth Mentor: 62 kağıtları tek gruba (900062): %15 tutarsa 4 kağıttan **yalnız biri** düşer; Blessed Item Upgrade Scroll %50 (`araclar/sunucu/dragon-62-grubu.sql`).
 - [x] Simgesiz 17 eşya oyundan kaldırıldı (ITEM'den; `ITEM_SILINEN_YEDEK` tablosunda ve `docs/esya-silinen.csv`'de saklı; drop/mağaza kayıtlarından da çıkarıldı; hiçbir oyuncuda yoktu). Geri almak için yedek tablodan ITEM'e kopyala. Sunucu yeniden başlayınca geçerli.
+
+## Güncelleme (2026-11-19, ikinci)
+- [x] NPC diyalogları (ışınlanma dahil) artık opak (şeffaf kısım kaldırıldı).
+- [x] PvP hedefi: seçili oyuncunun ayağında yeşil halka; can çubuğunun yavaş akan "geriden gelen" animasyonu oyuncu hedefinde de çalışır (hedef nesnesi kare kare yeniden yaratılıyordu).
+- [x] GM komutları: sohbete `/statsıfırla` ve `/skillsıfırla` (yalnız GM; ücretsiz, giyili eşya olsa da). Sunucu yaması `araclar/sunucu/yamalar/gm-stat-skill-sifirla.patch` (`+statsifirla`, `+skillsifirla`); client komuttan sonra karakteri yeniden yükler. **Sunucu yeniden başlatılınca geçerli.**
+- [x] Klasik Knight Online yükleme ekranı (`ka_loading_us` / `el_loading_us`: sanat + ilerleme çubuğu): harita açılışında ve haritalar arası geçişte; ulus son girişten.
+- [x] Giriş ekranı: Myko'nun Lilith arka planı kaldırıldı; resmî 1298 giriş görseli (KNIGHT ONLINE logolu) — `araclar/arayuz/giris-orijinal.ts` (npm run arayuz sonrası yeniden çalıştırılmalı). Orijinal 3D giriş sahnesi (`Intro/intro.n3chr` orc + ay animasyonu) henüz yok.
+- [x] Eşya nadirliği: `docs/esya-nadirlik/` (low/middle/high/unique; iksir/kâğıt/kutu "nadirliksiz").

@@ -443,10 +443,13 @@ export class OyunArayuzu {
     }
     void ad;
   }
+  private opHedef: { olu: boolean; tur: { ad: string; seviye: number }; can: number; enCok: number } | null = null;
   private hedefCubukHedef: unknown = null; private hedefCubukSon = 0; private hedefCubukOran = 1;
   private hedefCiz(): void {
     const h = this.hedefCubugu, hd0 = this.b.oyuncu.hedef, op = !hd0 ? this.b.hedefOyuncu?.() ?? null : null;
-    const hd = hd0 ?? (op ? { olu: false, tur: { ad: op.ad, seviye: op.seviye }, can: op.can, enCok: op.enCok } : null); // seçili başka oyuncu (PvP) de aynı çerçevede görünür
+    // seçili başka oyuncu (PvP) de aynı çerçevede görünür; nesne kimliği sabit tutulur ki can çubuğunun 'geriden gelen' animasyonu çalışsın (her karede yeni nesne animasyonu sıfırlıyordu)
+    if (op) { if (!this.opHedef || this.opHedef.tur.ad !== op.ad) this.opHedef = { olu: false, tur: { ad: op.ad, seviye: op.seviye }, can: op.can, enCok: op.enCok }; this.opHedef.can = op.can; this.opHedef.enCok = op.enCok; this.opHedef.tur.seviye = op.seviye; } else this.opHedef = null;
+    const hd = hd0 ?? this.opHedef;
     if (!hd || hd.olu) { if (h.el.style.display !== 'none') h.el.style.display = 'none'; return; }
     h.el.style.display = '';
     // Seviye farkına göre renk çubuğu (grpg_level_0..3); eşikler tahmin: orijinal kural bilinmiyor

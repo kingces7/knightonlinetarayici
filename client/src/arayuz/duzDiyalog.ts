@@ -13,7 +13,7 @@ export class DuzDiyalog {
     const k = this.kutu = document.createElement('div');
     Object.assign(k.style, {
       position: 'fixed', display: 'none', zIndex: '8', boxSizing: 'border-box', width: `${GENISLIK}px`, minHeight: '180px',
-      background: 'rgba(14,12,10,0.8)', boxShadow: '0 4px 22px rgba(0,0,0,.7)',
+      background: 'linear-gradient(#1b1610, #120e0a)', boxShadow: '0 4px 22px rgba(0,0,0,.7)',
       fontFamily: 'Verdana, Arial, sans-serif', userSelect: 'none', pointerEvents: 'auto', transformOrigin: 'top left', // arayüz katmanı pointer-events:none olabilir: pencere kendi tıklamalarını almalı
     } as Partial<CSSStyleDeclaration>);
     for (const ad of ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'contextmenu']) k.addEventListener(ad, (e) => e.stopPropagation()); // oyun alanına tıklama (yürüme, seçim) geçmesin

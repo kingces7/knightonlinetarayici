@@ -7,6 +7,7 @@ import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
+import { YuklemeEkrani, ulusKaydet } from './arayuz/yuklemeEkrani';
 import { BOLGE_HARITASI, HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { BOLGE_DEGISIMI, bolgeDegisimiIstegi, bolgeIsinlanmasi, kapiSecimiIstegi, nesneOlayiIstegi } from '../../kopru/protokol/isinlanma.ts';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, solSilahTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
@@ -66,9 +67,14 @@ const OTURMA_MANA_ORANI = 0.05;
 /** Savaştan bu kadar saniye sonra oturulabilir. */
 const OTURMA_SAVAS_BEKLEME = 4;
 
+/** Klasik yükleme ekranı (harita açılışı ve haritalar arası geçiş). */
+let yukleme: YuklemeEkrani | null = null;
+const ADIMLAR: Record<string, number> = { 'Loading terrain…': 0.1, 'Loading objects…': 0.35, 'Loading characters…': 0.7 };
 function durum(metin: string): void {
   const el = document.getElementById('yukleme-durum');
   if (el) el.textContent = metin;
+  if (!yukleme) yukleme = new YuklemeEkrani();
+  yukleme.ilerle(ADIMLAR[metin] ?? 0.05, metin.replace('…', '...'));
 }
 
 async function basla(): Promise<void> {
@@ -501,6 +507,14 @@ async function basla(): Promise<void> {
   let ozelBekleyen: { ad: string; mesaj: string } | null = null;
   const sohbetGonder = (mod: string, mesaj: string): boolean => {
     if (!sunucuOturumu) return false;
+    const kmt = /^\/(stats[ıi]f[ıi]rla|skills[ıi]f[ıi]rla)\s*$/i.exec(mesaj.trim()); // GM: kendi stat/skill puanlarını ücretsiz sıfırlar (sunucu +statsifirla / +skillsifirla); sonra karakter yeniden yüklenir
+    if (kmt) {
+      const stat = /^stat/i.test(kmt[1]);
+      sunucuOturumu.gonder(WIZ.SOHBET, sohbetIstegi(SOHBET_TURU.GENEL, stat ? '+statsifirla' : '+skillsifirla'));
+      hud.mesaj(stat ? 'Resetting your stat points… the game will reload.' : 'Resetting your skill points… the game will reload.', 'sistem');
+      setTimeout(() => haritayaGec(HARITA.toLowerCase(), 3500), 1200);
+      return true;
+    }
     const ozel = /^\/(\S+)\s+(.+)$/.exec(mesaj);
     if (ozel) { ozelBekleyen = { ad: ozel[1], mesaj: ozel[2] }; sunucuOturumu.gonder(WIZ.SOHBET_HEDEFI, ozelHedefIstegi(ozel[1])); return true; }
     const tur = mod === 'shout' ? SOHBET_TURU.BAGIRMA : mod === 'party' ? SOHBET_TURU.PARTI : mod === 'clan' ? SOHBET_TURU.KLAN : SOHBET_TURU.GENEL;
@@ -948,7 +962,9 @@ async function basla(): Promise<void> {
   let bekleyenBolge: { harita: string } | null = null;
   const haritayaGec = (harita: string, gecikmeMs: number) => {
     const q = new URLSearchParams(location.search); q.set('harita', harita);
-    hud.mesaj('Loading the map…', 'sistem'); sunucuOturumu?.kapat(); sunucuOturumu = null; hareketGonderici = null;
+    hud.mesaj('Loading the map…', 'sistem');
+    if (!yukleme) yukleme = new YuklemeEkrani(); yukleme.ilerle(0.04, 'Moving to the next zone...'); // klasik yükleme ekranı hemen açılır; yeni sayfa kendi yüklemesini gösterir
+    sunucuOturumu?.kapat(); sunucuOturumu = null; hareketGonderici = null;
     setTimeout(() => { location.search = `?${q.toString()}`; }, gecikmeMs); // sunucu eski bağlantıyı kapatıp kaydedene kadar beklenir (aynı hesapla çifte giriş olmasın)
   };
 
@@ -1284,6 +1300,7 @@ async function basla(): Promise<void> {
 
   const saat = new THREE.Clock();
   document.getElementById('yukleniyor')?.remove();
+  if (yukleme) { yukleme.ilerle(1, 'Welcome to KnightEmpire!'); const y = yukleme; yukleme = null; setTimeout(() => y.kapat(), 500); }
   cizici.setAnimationLoop(() => {
     const dt = Math.min(saat.getDelta(), 0.1);
     oyuncuGuncelle(dt);
@@ -1320,7 +1337,7 @@ async function basla(): Promise<void> {
     // Hedef (agro) halkası: oyunun kendi yeşil halka resmi (Misc/target_symbol_plane), seçili canavarın ayağında
     if (oyuncu.hedef) secilenNpc = null; // canavar hedefi seçilince NPC seçimi kalkar
     if (secilenNpc && secilenNpc.konum.distanceTo(oyuncu.konum) > 40) secilenNpc = null;
-    const th: { grup: THREE.Group; secimYaricapi: number } | null = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : secilenNpc;
+    const th: { grup: THREE.Group; secimYaricapi: number } | null = oyuncu.hedef && !oyuncu.hedef.olu ? oyuncu.hedef : (secilenOyuncu && digerOyuncular.includes(secilenOyuncu) ? secilenOyuncu : secilenNpc); // seçili oyuncunun (PvP) ayağında da yeşil halka
     halka.visible = !!th;
     if (th) { halka.position.set(th.grup.position.x, th.grup.position.y + 0.06, th.grup.position.z); halka.scale.setScalar(Math.max(1.2, th.secimYaricapi * 2.6)); }
     cizici.render(sahne, kamera.kamera);
@@ -1339,7 +1356,7 @@ async function basla(): Promise<void> {
       await tumEsyalariYukle(); // sunucu her eşyayı verebilir: tüm eşya tablosu
       sunucuDunyasi?.tumunuKaldir(); sunucuOturumu?.kapat(); hareketGonderici = null;
       const s = await sunucuyaBaglan(hesap, sifre, kopru, karakter, secici);
-      sunucuOturumu = s;
+      sunucuOturumu = s; ulusKaydet(s.ulus); // yükleme ekranı ulusa göre (Karus/El Morad)
       const hedefHarita = BOLGE_HARITASI[s.bolge]; // karakter başka bir bölgedeyse (ör. Luferson) o haritaya geçilir; kayıtlı giriş yeniden girer
       if (hedefHarita && hedefHarita !== HARITA.toLowerCase() && (!navigator.webdriver || parametre.has('bolgeYonlendir'))) {
         haritayaGec(hedefHarita, 3500);

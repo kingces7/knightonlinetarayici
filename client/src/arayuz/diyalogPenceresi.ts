@@ -27,7 +27,7 @@ export class DiyalogPenceresi {
   }
 
   private constructor(private p: UiPencere, private k: DiyalogKancalari, ust: HTMLElement) {
-    p.el.style.display = 'none'; p.el.style.zIndex = '8'; p.surukle(); ust.appendChild(p.el);
+    p.el.style.backgroundColor = '#14100c'; p.el.style.display = 'none'; p.el.style.zIndex = '8'; p.surukle(); ust.appendChild(p.el);
     p.el.querySelectorAll<HTMLElement>('.ui-yazi').forEach((y) => { if (!y.closest('.ui-t1')) y.style.pointerEvents = 'none'; });
     p.tikla.set('btn_close', () => this.kapat());
     for (let i = 0; i < GRUP_SAYISI; i++) p.tikla.set(`btn_${i}`, () => this.k.sec(i));

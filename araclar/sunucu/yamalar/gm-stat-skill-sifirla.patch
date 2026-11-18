@@ -1,0 +1,70 @@
+--- E:/tmp/CH.orig	2026-11-18 07:30:12.047680100 +0300
++++ ChatHandler.cpp	2026-11-18 07:30:12.250540600 +0300
+@@ -108,6 +108,8 @@
+ 		// Command				Handler											Help message
+ 		{ "help",				&CUser::HandleHelpCommand,						"Show all commands." },
+ 		{ "resetloyalty",		&CUser::HandleResetRLoyaltyCommand,				"Reset Loyalty" },
++		{ "statsifirla",		&CUser::HandleStatSifirlaCommand,				"GM: resets own stat points for free (client: /statsifirla)" },
++		{ "skillsifirla",		&CUser::HandleSkillSifirlaCommand,				"GM: resets own skill points for free (client: /skillsifirla)" },
+ 		{ "give",				&CUser::HandleGiveItemCommand,					"Gives a player an item. Arguments: character name | item ID | Count | Time" },
+ 		{ "zone_give_item",		&CUser::HandleOnlineZoneGiveItemCommand,		"Gives an item to the whole player. Arguments: ZoneID | item ID | Count | Time" },
+ 		{ "online_give_item",	&CUser::HandleOnlineGiveItemCommand,			"Gives an item to the whole player. Arguments: Item ID | Count | Time" },
+@@ -817,6 +819,27 @@
+ 	return true;
+ }
+ #pragma endregion
++
++#pragma region CUser::HandleStatSifirlaCommand
++// GM kendi stat puanlarini ucretsiz sifirlar (giyili esya olsa da); puanlar kendisi dagitir.
++COMMAND_HANDLER(CUser::HandleStatSifirlaCommand)
++{
++	if (!isGM()) return false;
++	AllPointChange(true);
++	g_pMain->SendHelpDescription(this, "Stat points were reset.");
++	return true;
++}
++#pragma endregion
++
++#pragma region CUser::HandleSkillSifirlaCommand
++COMMAND_HANDLER(CUser::HandleSkillSifirlaCommand)
++{
++	if (!isGM()) return false;
++	AllSkillPointChange(true);
++	g_pMain->SendHelpDescription(this, "Skill points were reset.");
++	return true;
++}
++#pragma endregion
+ 
+ #pragma region CUser::HandleResetRLoyaltyCommand
+ COMMAND_HANDLER(CUser::HandleResetRLoyaltyCommand)
+--- E:/tmp/UH.orig	2026-11-18 07:30:12.096984800 +0300
++++ User.h	2026-11-18 07:30:12.251541700 +0300
+@@ -1591,6 +1591,8 @@
+ 
+ 	COMMAND_HANDLER(HandleHelpCommand);
+ 	COMMAND_HANDLER(HandleResetRLoyaltyCommand);
++	COMMAND_HANDLER(HandleStatSifirlaCommand);
++	COMMAND_HANDLER(HandleSkillSifirlaCommand);
+ 	COMMAND_HANDLER(HandleGiveItemCommand);
+ 	COMMAND_HANDLER(HandleOnlineZoneGiveItemCommand);
+ 	COMMAND_HANDLER(HandleOnlineGiveItemCommand);
+--- E:/tmp/USS.orig	2026-11-18 07:30:12.142115100 +0300
++++ UserSkillStatPointSystem.cpp	2026-11-18 07:30:12.251541700 +0300
+@@ -126,7 +126,7 @@
+ 	
+ 	for (int i = 0; i < SLOT_MAX; i++)
+ 	{
+-		if (m_sItemArray[i].nNum) {
++		if (m_sItemArray[i].nNum && !isGM()) {
+ 			bResult = 4;
+ 			g_pMain->SendHelpDescription(this, "For stat point reset, take off your clothes.");
+ 			goto fail_return;
+@@ -543,7 +543,7 @@
+ 
+ 	for (int i = 0; i < SLOT_MAX; i++)
+ 	{
+-		if (m_sItemArray[i].nNum) {
++		if (m_sItemArray[i].nNum && !isGM()) {
+ 			bResult = 4;
+ 			goto fail_return;
+ 		}

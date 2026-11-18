@@ -57,6 +57,7 @@ export class GirisEkrani {
     Object.assign(this.katman.style, { position: 'fixed', inset: '0', background: '#000', zIndex: '9000', overflow: 'hidden' });
     Object.assign(this.sahne.style, { position: 'absolute', left: '0', top: '0', width: `${SAHNE_GENISLIK}px`, height: `${SAHNE_YUKSEKLIK}px`, transformOrigin: '0 0' });
     this.katman.appendChild(this.sahne);
+    this.giris.gizleDesen(/^Rose Anim$/); // Myko'nun gül animasyonu kaldırıldı: orijinal (resmî) giriş görseli kullanılır (araclar/arayuz/giris-orijinal.ts)
     this.girisKur(this.giris);
     this.secimKur(this.secim);
     this.durumKur();
