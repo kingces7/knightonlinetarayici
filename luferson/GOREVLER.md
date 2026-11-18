@@ -37,5 +37,13 @@ Luferson haritasının (karus2004) doku paketindeki tüm elemanların haritada d
 **Görev 4 (sonra):** `luferson/doku-denetimi.csv` — `donusturulmus/web/harita/karus2004/` içindeki dosyaları (arazi.json, karolar.bin, nesneler.glb, renk.bin, su.json, gökyüzü) `istemci-dosyalari.csv` ile karşılaştır; eksik/boş/anormal boyutlu olanları yaz.
 **Görev 1 / denge (en son):** `canavarlar.csv`'deki canavarların seviye–can–savunma–hasar–exp–altın eğrisini incele; aykırı değerleri (komşu seviyelere göre) `luferson/denge-onerileri.md` olarak listele. Değer değiştirme, yalnız öner.
 
+### Master yanıtı (2026-11-18, fast'in raporuna)
+1. **Hera/Charon/Lilith/Aurora çelişkisi:** güncel olan sunucu `npc.json`'dur (master Luferson'a Accessory ve Scrolls tüccarlarını ces onayıyla sonradan ekledi, Aurora = GM eşya dükkânı). "Luferson'da yok" notu eskidir. **Görev (fast):** `npc-listesi.csv`'ye Hera (13001), Charon (22301), Lilith/Amon (23400) ve Aurora (29990)'yı ekle ve `npc-magaza-eslesme.csv`'deki "EKSIK" satırlarını "eklendi" olarak güncelle.
+2. **Sid 551/552:** sunucuda hem K_MONSTER (Lycan Lv25 / Loup-garou Lv27) hem K_NPC (Safety Zone Gate1/2) satırı var; aynı numara iki tabloda. Yerleşim satırında `ActType` < 100 ise canavar (551 ve 552'nin Luferson satırları ActType 1 = **canavar**). `npc-listesi.csv`'deki "Safety Zone Gate1" etiketi yanlıştı (master'ın birleştirme hatası); düzelt: 551 ve 552 canavardır.
+3. **Eksik sid'lerin Myko satırı:** 554 Dark eyes Lv31, 955 Stinger Lv34, 956 Antares Lv50, 1055 Hyde Lv45, 1450 attila Lv85, 1689 Orc hunter Lv40, 3151 scouting soldier Lv30 → hepsinin **K_MONSTER** satırı var. 24414 (Nameless warrior) ve 26041 (Adirian[Beginner Helper]) → **K_NPC** satırı var (canavar değil, NPC).
+4. **Client'ta görünürlük:** düzeltildi — client yalnız Moradon canavar türlerini biliyordu (Luferson/El Morad canavarları görünmüyordu). Artık Moradon+Luferson+El Morad (147 tür) dışa aktarılıyor; Luferson'da 26 canavar görünür doğrulandı. Henüz yerleşimi olmayan sid'ler (yukarıdaki 8) sunucuya eklenene kadar görünmez; modelleri (500, 900, 907, 1000, 1400, 1631, 11000) hazır olanlar listelenmiştir (1.mob'da olmaması client'ı etkilemez; client modeli sunucudan gelen sid'e göre yükler).
+5. **Skeleton (sid 1150) Lv31'e dönüş ve diğer DB değişiklikleri:** değer değiştirmek master'ın işidir ve ces'in onayını bekler; fast yalnız önerileri yazar.
+6. **"Harita klasöründe tüm haritaların listesi" isteği (fast, yarım kalan):** `luferson/` içine değil, `docs/`'a yazılacağı için master yapar.
+
 ## Biten görevler
 (henüz yok)

@@ -1,0 +1,2420 @@
+id,ad,tip
+1,"Upgrade",normal
+2,"Upgrade",normal
+3,"Upgrade",normal
+4,"Upgrade",normal
+5,"Upgrade",normal
+6,"Upgrade",normal
+7,"Upgrade",normal
+8,"Upgrade",normal
+9,"Upgrade",normal
+10,"Upgrade",normal
+11,"Agility",normal
+12,"Agility",normal
+13,"Agility",normal
+14,"Agility",normal
+15,"Agility",normal
+16,"Agility",normal
+17,"Agility",normal
+18,"Agility",normal
+19,"Agility",normal
+20,"Agility",normal
+21,"Salamander",normal
+22,"Salamander",normal
+23,"Salamander",normal
+24,"Salamander",normal
+25,"Salamander",normal
+26,"Salamander",normal
+27,"Salamander",normal
+28,"Salamander",normal
+29,"Salamander",normal
+30,"Salamander",normal
+31,"Light",normal
+32,"Light",normal
+33,"Light",normal
+34,"Light",normal
+35,"Light",normal
+36,"Light",normal
+37,"Light",normal
+38,"Light",normal
+39,"Light",normal
+40,"Light",normal
+41,"Vampire",normal
+42,"Vampire",normal
+43,"Vampire",normal
+44,"Vampire",normal
+45,"Vampire",normal
+46,"Vampire",normal
+47,"Vampire",normal
+48,"Vampire",normal
+49,"Vampire",normal
+50,"Vampire",normal
+51,"Strength",normal
+52,"Agility",normal
+53,"Strength",normal
+54,"Agility",normal
+55,"Strength",normal
+56,"Agility",normal
+57,"Strength",normal
+58,"Agility",normal
+59,"Strength",normal
+60,"Unique",normal
+61,"Strong",normal
+62,"Strong",normal
+63,"Strong",normal
+64,"Strong",normal
+65,"Strong",normal
+66,"Strong",normal
+67,"Strong",normal
+68,"Strong",normal
+69,"Strong",normal
+70,"Unique",normal
+71,"Strength",normal
+72,"Strength",normal
+73,"Strength",normal
+74,"Strength",normal
+75,"Strength",normal
+76,"Strength",normal
+77,"Strength",normal
+78,"Strength",normal
+79,"Strength",normal
+80,"Unique",normal
+81,"Stamina",normal
+82,"Stamina",normal
+83,"Stamina",normal
+84,"Stamina",normal
+85,"Stamina",normal
+86,"Stamina",normal
+87,"Stamina",normal
+88,"Stamina",normal
+89,"Stamina",normal
+90,"Unique",normal
+91,"Wisdom",normal
+92,"Wisdom",normal
+93,"Wisdom",normal
+94,"Wisdom",normal
+95,"Wisdom",normal
+96,"Wisdom",normal
+97,"Wisdom",normal
+98,"Wisdom",normal
+99,"Wisdom",normal
+100,"Unique",normal
+101,"Cobalt",normal
+102,"Cobalt",normal
+103,"Cobalt",normal
+104,"Cobalt",normal
+105,"Cobalt",normal
+106,"Cobalt",normal
+107,"Cobalt",normal
+108,"Cobalt",normal
+109,"Cobalt",normal
+110,"Unique",normal
+111,"Discharge",normal
+112,"Discharge",normal
+113,"Discharge",normal
+114,"Discharge",normal
+115,"Discharge",normal
+116,"Discharge",normal
+117,"Discharge",normal
+118,"Discharge",normal
+119,"Discharge",normal
+120,"Unique",normal
+121,"Soul",normal
+122,"Soul",normal
+123,"Soul",normal
+124,"Soul",normal
+125,"Soul",normal
+126,"Soul",normal
+127,"Soul",normal
+128,"Soul",normal
+129,"Soul",normal
+130,"Unique",normal
+131,"Blood",normal
+132,"Blood",normal
+133,"Blood",normal
+134,"Blood",normal
+135,"Blood",normal
+136,"Blood",normal
+137,"Blood",normal
+138,"Blood",normal
+139,"Blood",normal
+140,"Unique",normal
+141,"Holy",normal
+142,"Holy",normal
+143,"Holy",normal
+144,"Holy",normal
+145,"Holy",normal
+146,"Holy",normal
+147,"Holy",normal
+148,"Holy",normal
+149,"Holy",normal
+150,"Unique",normal
+151,"Blast",normal
+152,"Blast",normal
+153,"Blast",normal
+154,"Blast",normal
+155,"Blast",normal
+156,"Blast",normal
+157,"Blast",normal
+158,"Blast",normal
+159,"Blast",normal
+160,"Unique",normal
+161,"Burning",normal
+162,"Burning",normal
+163,"Burning",normal
+164,"Burning",normal
+165,"Burning",normal
+166,"Burning",normal
+167,"Burning",normal
+168,"Burning",normal
+169,"Burning",normal
+170,"Unique",normal
+171,"Frozen",normal
+172,"Frozen",normal
+173,"Frozen",normal
+174,"Frozen",normal
+175,"Frozen",normal
+176,"Frozen",normal
+177,"Frozen",normal
+178,"Frozen",normal
+179,"Frozen",normal
+180,"Unique",normal
+181,"Lightning",normal
+182,"Lightning",normal
+183,"Lightning",normal
+184,"Lightning",normal
+185,"Lightning",normal
+186,"Lightning",normal
+187,"Lightning",normal
+188,"Lightning",normal
+189,"Lightning",normal
+190,"Unique",normal
+191,"Viper",normal
+192,"Viper",normal
+193,"Viper",normal
+194,"Viper",normal
+195,"Viper",normal
+196,"Viper",normal
+197,"Viper",normal
+198,"Viper",normal
+199,"Viper",normal
+200,"Unique",normal
+201,"Panic",normal
+202,"Panic",normal
+203,"Panic",normal
+204,"Panic",normal
+205,"Panic",normal
+206,"Panic",normal
+207,"Panic",normal
+208,"Panic",normal
+209,"Panic",normal
+210,"Unique",normal
+211,"Enchant",normal
+212,"Enchant",normal
+213,"Enchant",normal
+214,"Enchant",normal
+215,"Enchant",normal
+216,"Enchant",normal
+217,"Enchant",normal
+218,"Enchant",normal
+219,"Enchant",normal
+220,"Unique",normal
+221,"Golden Earring(+1)",normal
+222,"Golden Earring(+2)",normal
+223,"Golden Earring(+3)",normal
+224,"Golden Earring(+4)",normal
+225,"Golden Earring(+5)",normal
+226,"Golden Earring(+6)",normal
+227,"Golden Earring(+7)",normal
+228,"Golden Earring(+8)",normal
+229,"Golden Earring(+9)",normal
+230,"Unique",normal
+231,"Lataino Monster Weapon",normal
+232,"Crystal Earring(+2)",normal
+233,"Crystal Earring(+3)",normal
+234,"Crystal Earring(+4)",normal
+235,"Crystal Earring(+5)",normal
+236,"Crystal Earring(+6)",normal
+237,"Crystal Earring(+7)",normal
+238,"Crystal Earring(+8)",normal
+239,"Crystal Earring(+9)",normal
+240,"Unique",normal
+241,"Platinum Earring(+1)",normal
+242,"Platinum Earring(+2)",normal
+243,"Platinum Earring(+3)",normal
+244,"Platinum Earring(+4)",normal
+245,"Platinum Earring(+5)",normal
+246,"Platinum Earring(+6)",normal
+247,"Platinum Earring(+7)",normal
+248,"Platinum Earring(+8)",normal
+249,"Platinum Earring(+9)",normal
+250,"Unique",normal
+251,"Lobo Staff",normal
+252,"Lupus Staff",normal
+253,"Lycaon Staff",normal
+254,"Blast",normal
+255,"Tooth",normal
+256,"Sword of Beast",normal
+257,"Centaur Bow",normal
+258,"Sword of the Dead",normal
+259,"Gigantic Axe",normal
+260,"Taiwan Event",normal
+261,"Javana Axe (+1)",normal
+262,"Javana Axe (+2)",normal
+263,"Javana Axe (+3)",normal
+264,"Javana Axe (+4)",normal
+265,"Javana Axe (+5)",normal
+266,"Javana Axe (+6)",normal
+267,"Javana Axe (+7)",normal
+268,"Javana Axe (+8)",normal
+269,"Javana Axe (+9)",normal
+270,"Javana Axe (+10)",normal
+271,"Sword of the Dead (+1)",normal
+272,"Sword of the Dead (+2)",normal
+273,"Sword of the Dead (+3)",normal
+274,"Sword of the Dead (+4)",normal
+275,"Sword of the Dead (+5)",normal
+276,"Sword of the Dead (+6)",normal
+277,"Sword of the Dead (+7)",normal
+278,"Sword of the Dead (+8)",normal
+279,"Sword of the Dead (+9)",normal
+280,"Sword of the Dead (+10)",normal
+281,"Tooth(+1)",normal
+282,"Tooth(+2)",normal
+283,"Tooth(+3)",normal
+284,"Tooth(+4)",normal
+285,"Tooth(+5)",normal
+286,"Tooth(+6)",normal
+287,"Tooth(+7)",normal
+288,"Tooth(+8)",normal
+289,"Tooth(+9)",normal
+290,"Tooth(+10)",normal
+291,"Dagger of ?Shin?",normal
+292,"??????? ??",normal
+293,"Hero Knife",normal
+294,"Cold-Hearted Dagger",normal
+295,"Sword of Beast(+5)",normal
+296,"Sword of Beast(+6)",normal
+297,"Sword of Beast(+7)",normal
+298,"Sword of Beast(+8)",normal
+299,"Sword of Beast(+9)",normal
+300,"Dagger of <selfname>",normal
+301,"Dagger of <selfname>(+1)",normal
+302,"Dagger of <selfname>(+2)",normal
+303,"Dagger of <selfname>(+3)",normal
+304,"Dagger of <selfname>(+4)",normal
+305,"Dagger of <selfname>(+5)",normal
+306,"Dagger of <selfname>(+6)",normal
+307,"Dagger of <selfname>(+7)",normal
+308,"Dagger of <selfname>(+8)",normal
+309,"Dagger of <selfname>(+9)",normal
+310,"Dagger of <selfname>(+10)",normal
+311,"Spear of Murky Waters",normal
+312,"Undefeatable Nebiros",normal
+313,"Weak Dwarf Nebiros",normal
+314,"Chaos Nebiros",normal
+315,"Sweet Kiss Nebiros",normal
+316,"Halloween Spear",normal
+317,"Aztec Gold Molok",normal
+318,"Undefeatable Faun",normal
+319,"Trainer Kate Faun",normal
+320,"Aztec Gold Faun",normal
+321,"Battle Scythe(+1)",normal
+322,"Battle Scythe(+2)",normal
+323,"Battle Scythe(+3)",normal
+324,"Battle Scythe(+4)",normal
+325,"Battle Scythe(+5)",normal
+326,"Battle Scythe(+6)",normal
+327,"Battle Scythe(+7)",normal
+328,"Battle Scythe(+8)",normal
+329,"Battle Scythe(+9)",normal
+330,"Battle Scythe(+10)",normal
+331,"Assassin Dagger(+1)",normal
+332,"Assassin Dagger(+2)",normal
+333,"Assassin Dagger(+3)",normal
+334,"Assassin Dagger(+4)",normal
+335,"Assassin Dagger(+5)",normal
+336,"Assassin Dagger(+6)",normal
+337,"Assassin Dagger(+7)",normal
+338,"Assassin Dagger(+8)",normal
+339,"Assassin Dagger(+9)",normal
+340,"Assassin Dagger(+10)",normal
+341,"Stiletto(+1)",normal
+342,"Stiletto(+2)",normal
+343,"Stiletto(+3)",normal
+344,"Stiletto(+4)",normal
+345,"Stiletto(+5)",normal
+346,"Stiletto(+6)",normal
+347,"Stiletto(+7)",normal
+348,"Stiletto(+8)",normal
+349,"Stiletto(+9)",normal
+350,"Stiletto(+10)",normal
+351,"Sword breaker(+1)",normal
+352,"Sword breaker(+2)",normal
+353,"Sword breaker(+3)",normal
+354,"Sword breaker(+4)",normal
+355,"Sword breaker(+5)",normal
+356,"Sword breaker(+6)",normal
+357,"Sword breaker(+7)",normal
+358,"Sword breaker(+8)",normal
+359,"Sword breaker(+9)",normal
+360,"Sword breaker(+10)",normal
+361,"Flamberge(+1)",normal
+362,"Flamberge(+2)",normal
+363,"Flamberge(+3)",normal
+364,"Flamberge(+4)",normal
+365,"Flamberge(+5)",normal
+366,"Flamberge(+6)",normal
+367,"Flamberge(+7)",normal
+368,"Flamberge(+8)",normal
+369,"Flamberge(+9)",normal
+370,"Flamberge(+10)",normal
+371,"Horned Staff",normal
+372,"Moradon Valedictorian Mage Staff",normal
+373,"Wolf Tail Staff",normal
+374,"Orc Shaman Staff",normal
+375,"Gift from Great Wizad",normal
+376,"Hidden Secret Staff",normal
+377,"Eerie Skull Cane",normal
+378,"Hepa's Novice Staff",normal
+379,"Horned Staff",normal
+380,"Mace of <selfname>(+10)",normal
+381,"Amulet of Health(+1)",normal
+382,"Amulet of Health(+2)",normal
+383,"Amulet of Health(+3)",normal
+384,"Amulet of Health(+4)",normal
+385,"Amulet of Health(+5)",normal
+386,"Amulet of Health(+6)",normal
+387,"Amulet of Health(+7)",normal
+388,"Amulet of Health(+8)",normal
+389,"Amulet of Health(+9)",normal
+390,"Amulet of Health(+10)",normal
+391,"Hidden Hard Secret Staff(Lightning)",normal
+392,"Hidden Hard Secret Staff(Ice)",normal
+393,"Hidden Hard Secret Staff(Fire)",normal
+394,"Hidden Solid Secret Staff(Lightning)",normal
+395,"Hidden Solid Secret Staff(Ice)",normal
+396,"Hidden Solid Secret Staff(Fire)",normal
+397,"Fire Kerykeion",normal
+398,"Ice Kerykeion",normal
+399,"Lightning Kerykeion",normal
+400,"Hero Mace",normal
+401,"Crystal Necklace(+1)",normal
+402,"Crystal Necklace(+2)",normal
+403,"Crystal Necklace(+3)",normal
+404,"Crystal Necklace(+4)",normal
+405,"Crystal Necklace(+5)",normal
+406,"Crystal Necklace(+6)",normal
+407,"Crystal Necklace(+7)",normal
+408,"Crystal Necklace(+8)",normal
+409,"Crystal Necklace(+9)",normal
+410,"Crystal Necklace(+10)",normal
+411,"Cold-Hearted Dagger(+1)",normal
+412,"Cold-Hearted Dagger(+2)",normal
+413,"Cold-Hearted Dagger(+3)",normal
+414,"Cold-Hearted Dagger(+4)",normal
+415,"Cold-Hearted Dagger(+5)",normal
+416,"Cold-Hearted Dagger(+6)",normal
+417,"Cold-Hearted Dagger(+7)",normal
+418,"Cold-Hearted Dagger(+8)",normal
+419,"Cold-Hearted Dagger(+9)",normal
+420,"Cold-Hearted Dagger(+10)",normal
+421,"Burning",normal
+422,"Burning",normal
+423,"Burning",normal
+424,"Burning",normal
+425,"Burning",normal
+426,"Burning",normal
+427,"Burning",normal
+428,"Burning",normal
+429,"Burning",normal
+430,"Burning",normal
+431,"Burning",normal
+432,"Burning",normal
+433,"Burning",normal
+434,"Burning",normal
+435,"Burning",normal
+436,"Burning",normal
+437,"Burning",normal
+438,"Burning",normal
+439,"Burning",normal
+440,"Burning",normal
+441,"Noah Dark Vane (+8)",normal
+442,"Noah Sherian (+8)",normal
+443,"Bouquet",normal
+444,"Massive Horn Maul",normal
+445,"Moradon Village Watch",normal
+446,"Skull Destroyer",normal
+447,"Bamboo",normal
+448,"Skewer",normal
+449,"Luck Lantern",normal
+450,"Panic",normal
+451,"149121231",normal
+452,"Goblin Pauldron",normal
+453,"Hepa's beginner Blade",normal
+454,"Grypons Pauldron",normal
+455,"Grypons Pauldron",normal
+456,"Grypons Pauldron",normal
+457,"³ë¾Æ 6Â÷Àü»ç ±³º¹",normal
+458,"³ë¾Æ 6Â÷·Î±× ±³º¹",normal
+459,"³ë¾Æ 6Â÷¹ý»ç ±³º¹",normal
+460,"³ë¾Æ 6Â÷»çÁ¦ ±³º¹",normal
+461,"Priest War Hammer(+1)",normal
+462,"Priest War Hammer(+2)",normal
+463,"Priest War Hammer(+3)",normal
+464,"Priest War Hammer(+4)",normal
+465,"Priest War Hammer(+5)",normal
+466,"Priest War Hammer(+6)",normal
+467,"Priest War Hammer(+7)",normal
+468,"Priest War Hammer(+8)",normal
+469,"Priest War Hammer(+9)",normal
+470,"Determined decision",normal
+471,"Determined decision(+1)",normal
+472,"Determined decision(+2)",normal
+473,"Determined decision(+3)",normal
+474,"Determined decision(+4)",normal
+475,"Determined decision(+5)",normal
+476,"Determined decision(+6)",normal
+477,"Determined decision(+7)",normal
+478,"Determined decision(+8)",normal
+479,"Determined decision(+9)",normal
+480,"Determined decision(+10)",normal
+481,"Priest Breaker(+1)",normal
+482,"Priest Breaker(+2)",normal
+483,"Priest Breaker(+3)",normal
+484,"Priest Breaker(+4)",normal
+485,"Priest Breaker(+5)",normal
+486,"Priest Breaker(+6)",normal
+487,"Priest Breaker(+7)",normal
+488,"Priest Breaker(+8)",normal
+489,"Finely-Crafted Vulture Blade",normal
+490,"Novice Shortsword of Hepa",normal
+491,"Captain's Emergency Dirk",normal
+492,"Clarence's Training Dirk",normal
+493,"Skeleton Rib",normal
+494,"Moradon Guards Dirk",normal
+495,"Sharp Fang",normal
+496,"Berserk Orc Devastator",normal
+497,"Clarence's Training Dirk",normal
+498,"Clarence's Training Dirk",normal
+499,"Hrunting",normal
+500,"Necklace of the Lost One(+10)",normal
+501,"Burning",normal
+502,"Burning",normal
+503,"Burning",normal
+504,"Burning",normal
+505,"Burning",normal
+506,"Burning",normal
+507,"Burning",normal
+508,"Burning",normal
+509,"Burning",normal
+510,"Intelligent guardian's ax",normal
+511,"New El Morad Weapon",normal
+512,"Intelligent guardian's ax (+2)",normal
+513,"Intelligent guardian's ax (+3)",normal
+514,"Intelligent guardian's ax (+4)",normal
+515,"Intelligent guardian's ax (+5)",normal
+516,"Intelligent guardian's ax (+6)",normal
+517,"Intelligent guardian's ax (+7)",normal
+518,"Intelligent guardian's ax (+8)",normal
+519,"Intelligent guardian's ax (+9)",normal
+520,"Intelligent guardian's ax (+10)",normal
+521,"Nepilim of dimension failure (+1)",normal
+522,"New Karus Weapon",normal
+523,"Timing flow (Tyon)",normal
+524,"Timing flow (Meganthereon.)",normal
+525,"Timing flow (Hell Hound)",normal
+526,"Nepilim of dimension failure (+6)",normal
+527,"Nepilim of dimension failure (+7)",normal
+528,"Nepilim of dimension failure (+8)",normal
+529,"Nepilim of dimension failure (+9)",normal
+530,"Smart castellan's sword",normal
+531,"Smart castellan's sword(+1)",normal
+532,"Smart castellan's sword(+2)",normal
+533,"Smart castellan's sword(+3)",normal
+534,"Smart castellan's sword(+4)",normal
+535,"Smart castellan's sword(+5)",normal
+536,"Smart castellan's sword(+6)",normal
+537,"Smart castellan's sword(+7)",normal
+538,"Smart castellan's sword(+8)",normal
+539,"Smart castellan's sword(+9)",normal
+540,"Smart castellan's sword(+10)",normal
+541,"Nepilim of great chaos (+1)",normal
+542,"Nepilim of great chaos (+2)",normal
+543,"Nepilim of great chaos (+3)",normal
+544,"Nepilim of great chaos (+4)",normal
+545,"Nepilim of great chaos (+5)",normal
+546,"Nepilim of great chaos (+6)",normal
+547,"Nepilim of great chaos (+7)",normal
+548,"Nepilim of great chaos (+8)",normal
+549,"Nepilim of great chaos (+9)",normal
+550,"Nepilim of great chaos (+10)",normal
+551,"The Spear of Ultima",normal
+552,"Nepilim of sweet kiss (+2)",normal
+553,"Nepilim of sweet kiss (+3)",normal
+554,"Nepilim of sweet kiss (+4)",normal
+555,"Nepilim of sweet kiss (+5)",normal
+556,"Nepilim of sweet kiss (+6)",normal
+557,"Nepilim of sweet kiss (+7)",normal
+558,"Nepilim of sweet kiss (+8)",normal
+559,"Nepilim of sweet kiss (+9)",normal
+560,"Nepilim of sweet kiss (+10)",normal
+561,"Magical defense",normal
+562,"Magical defense",normal
+563,"Magical defense",normal
+564,"Magical defense",normal
+565,"Magical defense",normal
+566,"Magical defense",normal
+567,"Magical defense",normal
+568,"Magical defense",normal
+569,"Magical defense",normal
+570,"Magical defense",normal
+571,"Staff of <selfname>(+1)",normal
+572,"Staff of <selfname>(+2)",normal
+573,"Staff of <selfname>(+3)",normal
+574,"Staff of <selfname>(+4)",normal
+575,"Staff of <selfname>(+5)",normal
+576,"Staff of <selfname>(+6)",normal
+577,"Staff of <selfname>(+7)",normal
+578,"Staff of <selfname>(+8)",normal
+579,"Staff of <selfname>(+9)",normal
+580,"Staff of <selfname>(+10)",normal
+581,"Pole of <selfname>(+1)",normal
+582,"Pole of <selfname>(+2)",normal
+583,"Pole of <selfname>(+3)",normal
+584,"Pole of <selfname>(+4)",normal
+585,"Pole of <selfname>(+5)",normal
+586,"Pole of <selfname>(+6)",normal
+587,"Pole of <selfname>(+7)",normal
+588,"Pole of <selfname>(+8)",normal
+589,"Pole of <selfname>(+9)",normal
+590,"Pole of <selfname>(+10)",normal
+591,"Transparent Minerva Armor: Helmet",normal
+592,"Transparent Minerva Armor: Helmet",normal
+593,"Transparent Minerva Armor: Helmet",normal
+594,"Transparent Minerva Armor: Helmet",normal
+595,"Troll Armor: Upper Garment",normal
+596,"Troll Armor: Upper Garment",normal
+597,"Troll Armor: Upper Garment",normal
+598,"Troll Armor: Upper Garment",normal
+599,"Sturdy Weapon Breaker Upper Garment",normal
+600,"Swift Weapon Breaker Upper Garment",normal
+601,"Shrewd Weapon Breaker Robe",normal
+602,"Sacred Weapon Breaker Upper Garment",normal
+603,"Sturdy Holy knight Upper Garment",normal
+604,"Swift Holy knight Upper Garment",normal
+605,"Shrewd Weapon Breaker Robe",normal
+606,"Sacred Holy knight Upper Garment",normal
+607,"Scoccer Uniform B",normal
+608,"Scoccer Uniform C",normal
+609,"Scoccer Uniform B",normal
+610,"Agility",normal
+611,"Agility",normal
+612,"Agility",normal
+613,"Agility",normal
+614,"Agility",normal
+615,"Agility",normal
+616,"Agility",normal
+617,"Agility",normal
+618,"Agility",normal
+619,"Agility",normal
+620,"Agility",normal
+621,"Agility",normal
+622,"Agility",normal
+623,"Agility",normal
+624,"Agility",normal
+625,"Agility",normal
+626,"Breastplate of the Great King",normal
+627,"Breast Armor of the Cool-Headed King",normal
+628,"Robe of the Intelligent King",normal
+629,"Breastplate of the Wise King",normal
+630,"Breastplate of the Great King",normal
+631,"Scorching Staff(+1)",normal
+632,"Scorching Staff(+2)",normal
+633,"Scorching Staff(+3)",normal
+634,"Scorching Staff(+4)",normal
+635,"Scorching Staff(+5)",normal
+636,"Scorching Staff(+6)",normal
+637,"Scorching Staff(+7)",normal
+638,"Scorching Staff(+8)",normal
+639,"Scorching Staff(+9)",normal
+640,"Scorching Staff(+10)",normal
+641,"Oasis Staff(+1)",normal
+642,"Oasis Staff(+2)",normal
+643,"Oasis Staff(+3)",normal
+644,"Oasis Staff(+4)",normal
+645,"Oasis Staff(+5)",normal
+646,"Oasis Staff(+6)",normal
+647,"Oasis Staff(+7)",normal
+648,"Oasis Staff(+8)",normal
+649,"Oasis Staff(+9)",normal
+650,"Oasis Staff(+10)",normal
+651,"Chaotic Staff(+1)",normal
+652,"Chaotic Staff(+2)",normal
+653,"Chaotic Staff(+3)",normal
+654,"Chaotic Staff(+4)",normal
+655,"Chaotic Staff(+5)",normal
+656,"Chaotic Staff(+6)",normal
+657,"Chaotic Staff(+7)",normal
+658,"Chaotic Staff(+8)",normal
+659,"Chaotic Staff(+9)",normal
+660,"Chaotic Staff(+10)",normal
+661,"Wisdom",normal
+662,"Wisdom",normal
+663,"Wisdom",normal
+664,"Wisdom",normal
+665,"Wisdom",normal
+666,"Wisdom",normal
+667,"Wisdom",normal
+668,"Wisdom",normal
+669,"Wisdom",normal
+670,"Book of wisdom (Fire)",normal
+671,"Book of wisdom (Fire)(+1)",normal
+672,"Book of wisdom (Fire)(+2)",normal
+673,"Book of wisdom (Fire)(+3)",normal
+674,"Book of wisdom (Fire)(+4)",normal
+675,"Book of wisdom (Fire)(+5)",normal
+676,"Book of wisdom (Fire)(+6)",normal
+677,"Book of wisdom (Fire)(+7)",normal
+678,"Book of wisdom (Fire)(+8)",normal
+679,"Book of wisdom (Fire)(+9)",normal
+680,"Book of wisdom (Fire)(+10)",normal
+681,"Wisdom",normal
+682,"Wisdom",normal
+683,"Wisdom",normal
+684,"Wisdom",normal
+685,"Wisdom",normal
+686,"Wisdom",normal
+687,"Wisdom",normal
+688,"Wisdom",normal
+689,"Wisdom",normal
+690,"Book of wisdom (Ice)",normal
+691,"Book of wisdom (Ice)(+1)",normal
+692,"Book of wisdom (Ice)(+2)",normal
+693,"Book of wisdom (Ice)(+3)",normal
+694,"Book of wisdom (Ice)(+4)",normal
+695,"Book of wisdom (Ice)(+5)",normal
+696,"Book of wisdom (Ice)(+6)",normal
+697,"Book of wisdom (Ice)(+7)",normal
+698,"Book of wisdom (Ice)(+8)",normal
+699,"Book of wisdom (Ice)(+9)",normal
+700,"Book of wisdom (Ice)(+10)",normal
+701,"Octagon Shield (+1)",normal
+702,"Kukry(+2)",normal
+703,"Kukry(+3)",normal
+704,"Kukry(+4)",normal
+705,"Kukry(+5)",normal
+706,"Kukry(+6)",normal
+707,"Kukry(+7)",normal
+708,"Kukry(+8)",normal
+709,"Kukry(+9)",normal
+710,"Kukry(+10)",normal
+711,"Large Kite Shield(+1)",normal
+712,"Cleaver(+2)",normal
+713,"Cleaver(+3)",normal
+714,"Cleaver(+4)",normal
+715,"Cleaver(+5)",normal
+716,"Cleaver(+6)",normal
+717,"Cleaver(+7)",normal
+718,"Cleaver(+8)",normal
+719,"Cleaver(+9)",normal
+720,"Cleaver(+10)",normal
+721,"Plate Shield(+1)",normal
+722,"Mirage Dagger(+2)",normal
+723,"Mirage Dagger(+3)",normal
+724,"Mirage Dagger(+4)",normal
+725,"Mirage Dagger(+5)",normal
+726,"Mirage Dagger(+6)",normal
+727,"Mirage Dagger(+7)",normal
+728,"Mirage Dagger(+8)",normal
+729,"Mirage Dagger(+9)",normal
+730,"Mirage Dagger(+10)",normal
+731,"Glave(+6)",normal
+732,"Chitin Armor Pauldron(+5)",normal
+733,"Chitin Armor Pads(+5)",normal
+734,"Chitin Helmet(+5)",normal
+735,"Chitin Gauntlets(+5)",normal
+736,"Chitin Boots(+5)",normal
+737,"Mirage Dagger(+6)",normal
+738,"Chitin Bow",normal
+739,"Rogue Chitin Armor Pauldron(+5)",normal
+740,"Rogue Chitin Armor Pads(+5)",normal
+741,"Rogue Chitin Helmet(+5)",normal
+742,"Rogue Chitin Gauntlets(+5)",normal
+743,"Rogue Chitin Boots(+5)",normal
+744,"Elemental Staff(+5)",normal
+745,"Elemental Staff(+5)",normal
+746,"Elemental Staff(+5)",normal
+747,"Crimson Robe(+5)",normal
+748,"Crimson Pants(+5)",normal
+749,"Crimson Helmet(+5)",normal
+750,"Crimson Gloves(+5)",normal
+751,"Crimson Boots(+5)",normal
+787,"Sweet Kiss Baal(+7)",normal
+788,"Longsword of an Unknown Soldier",normal
+789,"Agent's Guardian Longsword",normal
+790,"Wolf Hunting Blade",normal
+791,"Effective Orc Eradication Sword",normal
+792,"Moradon Honorary Guard Longsword",normal
+793,"Thigh Bone",normal
+794,"Agent's Guardian Longsword",normal
+795,"Agent's Guardian Longsword",normal
+796,"Ascalon",normal
+797,"Lousy Pickpocket Windforce(+7)",normal
+798,"Lousy Pickpocket Windforce(+8)",normal
+799,"Lousy Pickpocket Windforce(+9)",normal
+800,"Lousy Pickpocket Windforce(+10)",normal
+801,"Undefeatable Raum(+1)",normal
+802,"Undefeatable Raum(+2)",normal
+803,"Undefeatable Raum(+3)",normal
+804,"Undefeatable Raum(+4)",normal
+805,"Undefeatable Raum(+5)",normal
+806,"Undefeatable Raum(+6)",normal
+807,"Undefeatable Raum(+7)",normal
+808,"Undefeatable Raum(+8)",normal
+809,"Undefeatable Raum(+9)",normal
+810,"Undefeatable Raum(+10)",normal
+811,"Raum on Severe Diet(+1)",normal
+812,"Raum on Severe Diet(+2)",normal
+813,"Raum on Severe Diet(+3)",normal
+814,"Raum on Severe Diet(+4)",normal
+815,"Raum on Severe Diet(+5)",normal
+816,"Raum on Severe Diet(+6)",normal
+817,"Raum on Severe Diet(+7)",normal
+818,"Raum on Severe Diet(+8)",normal
+819,"Raum on Severe Diet(+9)",normal
+820,"Raum on Severe Diet(+10)",normal
+821,"Weak Dwarf Raum(+1)",normal
+822,"Weak Dwarf Raum(+2)",normal
+823,"Weak Dwarf Raum(+3)",normal
+824,"Weak Dwarf Raum(+4)",normal
+825,"Weak Dwarf Raum(+5)",normal
+826,"Weak Dwarf Raum(+6)",normal
+827,"Weak Dwarf Raum(+7)",normal
+828,"Weak Dwarf Raum(+8)",normal
+829,"Weak Dwarf Raum(+9)",normal
+830,"Weak Dwarf Raum(+10)",normal
+831,"Lousy Pickpocket Raum(+1)",normal
+832,"Lousy Pickpocket Raum(+2)",normal
+833,"Lousy Pickpocket Raum(+3)",normal
+834,"Lousy Pickpocket Raum(+4)",normal
+835,"Lousy Pickpocket Raum(+5)",normal
+836,"Lousy Pickpocket Raum(+6)",normal
+837,"Lousy Pickpocket Raum(+7)",normal
+838,"Lousy Pickpocket Raum(+8)",normal
+839,"Lousy Pickpocket Raum(+9)",normal
+840,"Lousy Pickpocket Raum(+10)",normal
+841,"Stern castellan's sword(+1)",normal
+842,"Stern castellan's sword(+2)",normal
+843,"Stern castellan's sword(+3)",normal
+844,"Stern castellan's sword(+4)",normal
+845,"Stern castellan's sword(+5)",normal
+846,"Stern castellan's sword(+6)",normal
+847,"Stern castellan's sword(+7)",normal
+848,"Stern castellan's sword(+8)",normal
+849,"Stern castellan's sword(+9)",normal
+850,"Stern castellan's sword(+10)",normal
+851,"Undefeatable Faun(+1)",normal
+852,"Undefeatable Faun(+2)",normal
+853,"Undefeatable Faun(+3)",normal
+854,"Undefeatable Faun(+4)",normal
+855,"Undefeatable Faun(+5)",normal
+856,"Undefeatable Faun(+6)",normal
+857,"Undefeatable Faun(+7)",normal
+858,"Undefeatable Faun(+8)",normal
+859,"Undefeatable Faun(+9)",normal
+860,"Undefeatable Faun(+10)",normal
+861,"Trainer Kate Faun(+1)",normal
+862,"Trainer Kate Faun(+2)",normal
+863,"Trainer Kate Faun(+3)",normal
+864,"Trainer Kate Faun(+4)",normal
+865,"Trainer Kate Faun(+5)",normal
+866,"Trainer Kate Faun(+6)",normal
+867,"Trainer Kate Faun(+7)",normal
+868,"Trainer Kate Faun(+8)",normal
+869,"Trainer Kate Faun(+9)",normal
+870,"Trainer Kate Faun(+10)",normal
+871,"Aztec Gold Faun(+1)",normal
+872,"Aztec Gold Faun(+2)",normal
+873,"Aztec Gold Faun(+3)",normal
+874,"Aztec Gold Faun(+4)",normal
+875,"Aztec Gold Faun(+5)",normal
+876,"Aztec Gold Faun(+6)",normal
+877,"Aztec Gold Faun(+7)",normal
+878,"Aztec Gold Faun(+8)",normal
+879,"Aztec Gold Faun(+9)",normal
+880,"Aztec Gold Faun(+10)",normal
+881,"Halloween Cane",normal
+882,"Elemental Staff(+2)",normal
+883,"Elemental Staff(+3)",normal
+884,"Elemental Staff(+4)",normal
+885,"Elemental Staff(+5)",normal
+886,"Elemental Staff(+6)",normal
+887,"Elemental Staff(+7)",normal
+888,"Elemental Staff(+8)",normal
+889,"Elemental Staff(+9)",normal
+890,"Elemental Staff(+10)",normal
+891,"Red Amulet",normal
+892,"Elemental Staff(+2)",normal
+893,"Elemental Staff(+3)",normal
+894,"Elemental Staff(+4)",normal
+895,"Elemental Staff(+5)",normal
+896,"Elemental Staff(+6)",normal
+897,"Elemental Staff(+7)",normal
+898,"Elemental Staff(+8)",normal
+899,"Undefeatable Windforce",normal
+900,"Windforce on Severe Diet",normal
+901,"Undefeatable Raum",normal
+902,"Raum on Severe Diet",normal
+903,"Weak Dwarf Raum",normal
+904,"Lousy Pickpocket Raum",normal
+905,"dagger (+5)",normal
+906,"dagger (+6)",normal
+907,"Noah Enion Bow(+8)",normal
+908,"Noah Eyes of Rough Mountain Eagle(+8)",normal
+909,"Noah Windforce on Severe Diet(+8)",normal
+910,"Noah Warm Downpour Windforce(+8)",normal
+911,"Noah Bombastic Giant Windforce(+8)",normal
+912,"Noah Lousy Pickpocket Windforce(+8)",normal
+913,"Noah Undefeatable Windforce(+8)",normal
+914,"Bow of Noah <selfname>(+8)",normal
+915,"Bow of Noah <selfname>(+8)",normal
+916,"Moradon Elite Bow",normal
+917,"Hepa's Novice Bow",normal
+918,"Vulture Hunting Bow",normal
+919,"Tendon of Grave Reaper",normal
+920,"Clarence's Training Bow",normal
+921,"Cross Bow",normal
+922,"Swift Wolf Hunter",normal
+923,"Persistent Orc Tracker",normal
+924,"Clarence's Training Bow",normal
+925,"Clarence's Training Bow",normal
+926,"Saronga",normal
+927,"Viper Staff(+7)",normal
+928,"Viper Staff(+8)",normal
+929,"Viper Staff(+9)",normal
+930,"Viper Staff(+10)",normal
+931,"Flame Ring(+1)",normal
+932,"Salamander Staff(+2)",normal
+933,"Salamander Staff(+3)",normal
+934,"Salamander Staff(+4)",normal
+935,"Salamander Staff(+5)",normal
+936,"Salamander Staff(+6)",normal
+937,"Salamander Staff(+7)",normal
+938,"Salamander Staff(+8)",normal
+939,"Salamander Staff(+9)",normal
+940,"Salamander Staff(+10)",normal
+941,"Hunter's Bow (+3)",normal
+942,"Salamander Staff(+2)",normal
+943,"Salamander Staff(+3)",normal
+944,"Salamander Staff(+4)",normal
+945,"Salamander Staff(+5)",normal
+946,"Salamander Staff(+6)",normal
+947,"Salamander Staff(+7)",normal
+948,"Salamander Staff(+8)",normal
+949,"Salamander Staff(+9)",normal
+950,"Salamander Staff(+10)",normal
+951,"Imir Ring(+1)",normal
+952,"Imir Ring(+2)",normal
+953,"Imir Ring(+3)",normal
+954,"Imir Ring(+4)",normal
+955,"Imir Ring(+5)",normal
+956,"Noah Chitin Shell Pauldron(+8)",normal
+957,"Chitin Shell Pauldron for Noah Rogue(+8)",normal
+958,"Noah Complete Robe(+8)",normal
+959,"Chitin Shell Pauldron for Noah Priest(+8)",normal
+960,"Noah Dragon Scale Armor Top(+8)",normal
+961,"Noah Mythril Armor Top(+8)",normal
+962,"Noah Ron's Robe(+8)",normal
+963,"Noah Abyss' Armor Top(+8)",normal
+964,"Santa's Hat",normal
+965,"Tree Camouflaged Cover",normal
+968,"Golden Light Star Ring",normal
+969,"Elemental Staff (+3)",normal
+970,"Elemental Staff (+3)",normal
+971,"Elemental Staff (+3)",normal
+972,"Noah Islante Icicle (+8)",normal
+973,"Noah Undefeatable Fulitol (+8)",normal
+974,"Noah Trainer Kate Fulitol (+8)",normal
+975,"Noah Aztec Gold Fulitol (+8)",normal
+976,"Noah Aztec Gold Molok (+8)",normal
+977,"Noah Undefeatable Molok (+8)",normal
+978,"Noah Trainer Kate Molok (+8)",normal
+979,"Noah Undefeatable Faun (+8)",normal
+980,"Noah Trainer Kate Faun (+8)",normal
+981,"Noah Aztec Gold Faun (+8)",normal
+982,"Noah Oasis of Scorched Desert (+8)",normal
+983,"Noah Erenion's Anger (+8)",normal
+984,"Noah Chaos of Scorched Desert (+8)",normal
+985,"Glacier of Noah Erenion (+8)",normal
+986,"Noah Thirst of Scorched Desert (+8)",normal
+987,"Cruelty of Noah Erenion (+8)",normal
+988,"Noah Ron's Intelligence (+8)",normal
+989,"Noah Hell Blood (+8)",normal
+990,"Lataino Monster Weapon",normal
+991,"test1",normal
+992,"Beginner's Weapon",normal
+993,"Practice Dagger",normal
+994,"Practice Dagger",normal
+995,"Mirage Dagger(+3)",normal
+996,"test6",normal
+998,"Roar of Yellow Dragon",normal
+999,"basic",normal
+1001,"Upgrade",normal
+1002,"Upgrade",normal
+1003,"Upgrade",normal
+1004,"Upgrade",normal
+1005,"Upgrade",normal
+1006,"Upgrade",normal
+1007,"Upgrade",normal
+1008,"Upgrade",normal
+1009,"Upgrade",normal
+1010,"Upgrade",normal
+1011,"Agility",normal
+1012,"Agility",normal
+1013,"Agility",normal
+1014,"Agility",normal
+1015,"Agility",normal
+1016,"Agility",normal
+1017,"Agility",normal
+1018,"Agility",normal
+1019,"Agility",normal
+1020,"Agility",normal
+1021,"Salamander",normal
+1022,"Salamander",normal
+1023,"Salamander",normal
+1024,"Salamander",normal
+1025,"Salamander",normal
+1026,"Salamander",normal
+1027,"Salamander",normal
+1028,"Salamander",normal
+1029,"Salamander",normal
+1030,"Salamander",normal
+1031,"Light",normal
+1032,"Light",normal
+1033,"Light",normal
+1034,"Light",normal
+1035,"Light",normal
+1036,"Light",normal
+1037,"Light",normal
+1038,"Light",normal
+1039,"Light",normal
+1040,"Light",normal
+1041,"Vampire",normal
+1042,"Vampire",normal
+1043,"Vampire",normal
+1044,"Vampire",normal
+1045,"Vampire",normal
+1046,"Vampire",normal
+1047,"Vampire",normal
+1048,"Vampire",normal
+1049,"Vampire",normal
+1050,"Vampire",normal
+1051,"Draki's Pendant of Strength A.S.D",normal
+1052,"Draki's Pendant of Strength S.D.D",normal
+1053,"Draki's Pendant of Strength S.C.D",normal
+1054,"Draki's Pendant of Strength S.B.D",normal
+1055,"Draki's Pendant of Strength S.A.D",normal
+1056,"Draki's Pendant of Strength S.S.D",normal
+1057,"Draki's Pendant of Strength D.D.C",normal
+1058,"Draki's Pendant of Strength D.C.C",normal
+1059,"Draki's Pendant of Strength D.B.C",normal
+1060,"Unique",normal
+1061,"Strong",normal
+1062,"Strong",normal
+1063,"Strong",normal
+1064,"Strong",normal
+1065,"Strong",normal
+1066,"Strong",normal
+1067,"Strong",normal
+1068,"Strong",normal
+1069,"Strong",normal
+1070,"Unique",normal
+1071,"Strength",normal
+1072,"Strength",normal
+1073,"Strength",normal
+1074,"Strength",normal
+1075,"Strength",normal
+1076,"Strength",normal
+1077,"Strength",normal
+1078,"Strength",normal
+1079,"Strength",normal
+1080,"Unique",normal
+1081,"Stamina",normal
+1082,"Stamina",normal
+1083,"Stamina",normal
+1084,"Stamina",normal
+1085,"Stamina",normal
+1086,"Stamina",normal
+1087,"Stamina",normal
+1088,"Stamina",normal
+1089,"Stamina",normal
+1090,"Unique",normal
+1091,"Wisdom",normal
+1092,"Wisdom",normal
+1093,"Wisdom",normal
+1094,"Wisdom",normal
+1095,"Wisdom",normal
+1096,"Wisdom",normal
+1097,"Wisdom",normal
+1098,"Wisdom",normal
+1099,"Wisdom",normal
+1100,"Unique",normal
+1101,"Cobalt",normal
+1102,"Cobalt",normal
+1103,"Cobalt",normal
+1104,"Cobalt",normal
+1105,"Cobalt",normal
+1106,"Cobalt",normal
+1107,"Cobalt",normal
+1108,"Cobalt",normal
+1109,"Cobalt",normal
+1110,"Unique",normal
+1111,"Discharge",normal
+1112,"Discharge",normal
+1113,"Discharge",normal
+1114,"Discharge",normal
+1115,"Discharge",normal
+1116,"Discharge",normal
+1117,"Discharge",normal
+1118,"Discharge",normal
+1119,"Discharge",normal
+1120,"Unique",normal
+1121,"Soul",normal
+1122,"Soul",normal
+1123,"Soul",normal
+1124,"Soul",normal
+1125,"Soul",normal
+1126,"Soul",normal
+1127,"Soul",normal
+1128,"Soul",normal
+1129,"Soul",normal
+1130,"Unique",normal
+1131,"Blood",normal
+1132,"Blood",normal
+1133,"Blood",normal
+1134,"Blood",normal
+1135,"Blood",normal
+1136,"Blood",normal
+1137,"Blood",normal
+1138,"Blood",normal
+1139,"Blood",normal
+1140,"Unique",normal
+1141,"Holy",normal
+1142,"Holy",normal
+1143,"Holy",normal
+1144,"Holy",normal
+1145,"Holy",normal
+1146,"Holy",normal
+1147,"Holy",normal
+1148,"Holy",normal
+1149,"Holy",normal
+1150,"Unique",normal
+1151,"Blast",normal
+1152,"Blast",normal
+1153,"Blast",normal
+1154,"Blast",normal
+1155,"Blast",normal
+1156,"Blast",normal
+1157,"Blast",normal
+1158,"Blast",normal
+1159,"Blast",normal
+1160,"Unique",normal
+1161,"Burning",normal
+1162,"Burning",normal
+1163,"Burning",normal
+1164,"Burning",normal
+1165,"Burning",normal
+1166,"Burning",normal
+1167,"Burning",normal
+1168,"Burning",normal
+1169,"Burning",normal
+1170,"Unique",normal
+1171,"Frozen",normal
+1172,"Frozen",normal
+1173,"Frozen",normal
+1174,"Frozen",normal
+1175,"Frozen",normal
+1176,"Frozen",normal
+1177,"Frozen",normal
+1178,"Frozen",normal
+1179,"Frozen",normal
+1180,"Unique",normal
+1181,"Lightning",normal
+1182,"Lightning",normal
+1183,"Lightning",normal
+1184,"Lightning",normal
+1185,"Lightning",normal
+1186,"Lightning",normal
+1187,"Lightning",normal
+1188,"Lightning",normal
+1189,"Lightning",normal
+1190,"Unique",normal
+1191,"Viper",normal
+1192,"Viper",normal
+1193,"Viper",normal
+1194,"Viper",normal
+1195,"Viper",normal
+1196,"Viper",normal
+1197,"Viper",normal
+1198,"Viper",normal
+1199,"Viper",normal
+1200,"Unique",normal
+1201,"Panic",normal
+1202,"Panic",normal
+1203,"Panic",normal
+1204,"Panic",normal
+1205,"Panic",normal
+1206,"Panic",normal
+1207,"Panic",normal
+1208,"Panic",normal
+1209,"Panic",normal
+1210,"Unique",normal
+1211,"Enchant",normal
+1212,"Enchant",normal
+1213,"Enchant",normal
+1214,"Enchant",normal
+1215,"Enchant",normal
+1216,"Enchant",normal
+1217,"Enchant",normal
+1218,"Enchant",normal
+1219,"Enchant",normal
+1220,"Unique",normal
+1221,"Draki's Pendant of Dexterity C.S.C",normal
+1222,"Draki's Pendant of Dexterity B.D.C",normal
+1223,"Draki's Pendant of Dexterity B.C.C",normal
+1224,"Draki's Pendant of Dexterity B.B.C",normal
+1225,"Draki's Pendant of Dexterity B.A.C",normal
+1226,"Draki's Pendant of Dexterity B.S.C",normal
+1227,"Draki's Pendant of Dexterity A.D.C",normal
+1228,"Draki's Pendant of Dexterity A.C.C",normal
+1229,"Draki's Pendant of Dexterity A.B.C",normal
+1230,"Unique",normal
+1231,"Akara's Crystal Earrings(+1)",normal
+1232,"Akara's Crystal Earrings(+2)",normal
+1233,"Akara's Crystal Earrings(+3)",normal
+1234,"Akara's Crystal Earrings(+4)",normal
+1235,"Akara's Crystal Earrings(+5)",normal
+1236,"Akara's Crystal Earrings(+6)",normal
+1237,"Akara's Crystal Earrings(+7)",normal
+1238,"Akara's Crystal Earrings(+8)",normal
+1239,"Akara's Crystal Earrings(+9)",normal
+1240,"Unique",normal
+1241,"Akara's Platinum Earrings(+1)",normal
+1242,"Akara's Platinum Earrings(+2)",normal
+1243,"Akara's Platinum Earrings(+3)",normal
+1244,"Akara's Platinum Earrings(+4)",normal
+1245,"Akara's Platinum Earrings(+5)",normal
+1246,"Akara's Platinum Earrings(+6)",normal
+1247,"Akara's Platinum Earrings(+7)",normal
+1248,"Akara's Platinum Earrings(+8)",normal
+1249,"Akara's Platinum Earrings(+9)",normal
+1250,"Unique",normal
+1251,"Akara's Elf Metal Earrings(+1)",normal
+1252,"Akara's Elf Metal Earrings(+2)",normal
+1253,"Akara's Elf Metal Earrings(+3)",normal
+1254,"Akara's Elf Metal Earrings(+4)",normal
+1255,"Akara's Elf Metal Earrings(+5)",normal
+1256,"Akara's Elf Metal Earrings(+6)",normal
+1257,"Akara's Elf Metal Earrings(+7)",normal
+1258,"Akara's Elf Metal Earrings(+8)",normal
+1259,"Akara's Elf Metal Earrings(+9)",normal
+1260,"Akara's Elf Metal Earrings(+10)",normal
+1261,"Akara's Secret Silver Earrings(+1)",normal
+1262,"Akara's Secret Silver Earrings(+2)",normal
+1263,"Akara's Secret Silver Earrings(+3)",normal
+1264,"Akara's Secret Silver Earrings(+4)",normal
+1265,"Akara's Secret Silver Earrings(+5)",normal
+1266,"Akara's Secret Silver Earrings(+6)",normal
+1267,"Akara's Secret Silver Earrings(+7)",normal
+1268,"Akara's Secret Silver Earrings(+8)",normal
+1269,"Akara's Secret Silver Earrings(+9)",normal
+1270,"Akara's Secret Silver Earrings(+10)",normal
+1271,"Akara's White Silver Earring(+1)",normal
+1272,"Akara's White Silver Earring(+2)",normal
+1273,"Akara's White Silver Earring(+3)",normal
+1274,"Akara's White Silver Earring(+4)",normal
+1275,"Akara's White Silver Earring(+5)",normal
+1276,"Akara's White Silver Earring(+6)",normal
+1277,"Akara's White Silver Earring(+7)",normal
+1278,"Akara's White Silver Earring(+8)",normal
+1279,"Akara's White Silver Earring(+9)",normal
+1280,"Akara's White Silver Earring(+10)",normal
+1281,"Akara's Agate Earrings(+1)",normal
+1282,"Akara's Agate Earrings(+2)",normal
+1283,"Akara's Agate Earrings(+3)",normal
+1284,"Akara's Agate Earrings(+4)",normal
+1285,"Akara's Agate Earrings(+5)",normal
+1286,"Akara's Agate Earrings(+6)",normal
+1287,"Akara's Agate Earrings(+7)",normal
+1288,"Akara's Agate Earrings(+8)",normal
+1289,"Akara's Agate Earrings(+9)",normal
+1290,"Akara's Agate Earrings(+10)",normal
+1291,"Akara's Opal Earrings(+1)",normal
+1292,"Akara's Opal Earrings(+2)",normal
+1293,"Akara's Opal Earrings(+3)",normal
+1294,"Akara's Opal Earrings(+4)",normal
+1295,"Akara's Opal Earrings(+5)",normal
+1296,"Akara's Opal Earrings(+6)",normal
+1297,"Akara's Opal Earrings(+7)",normal
+1298,"Akara's Opal Earrings(+8)",normal
+1299,"Akara's Opal Earrings(+9)",normal
+1300,"Akara's Opal Earrings(+10)",normal
+1301,"Draki's Pendant of Dexterity B.S.S",normal
+1302,"Draki's Pendant of Dexterity A.D.S",normal
+1303,"Draki's Pendant of Dexterity A.C.S",normal
+1304,"Draki's Pendant of Dexterity A.B.S",normal
+1305,"Draki's Pendant of Dexterity A.A.S",normal
+1306,"Draki's Pendant of Dexterity A.S.S",normal
+1307,"Draki's Pendant of Dexterity S.D.S",normal
+1308,"Draki's Pendant of Dexterity S.C.S",normal
+1309,"Draki's Pendant of Dexterity S.B.S",normal
+1310,"Draki's Pendant of Dexterity S.A.S",normal
+1311,"Draki's Pendant of Dexterity S.S.S",normal
+1312,"Draki's Pendant of Intelligence D",normal
+1313,"Draki's Pendant of Intelligence C",normal
+1314,"Draki's Pendant of Intelligence B",normal
+1315,"Draki's Pendant of Intelligence A",normal
+1316,"Draki's Pendant of Intelligence S",normal
+1317,"Draki's Pendant of Intelligence D.D",normal
+1318,"Draki's Pendant of Intelligence D.C",normal
+1319,"Draki's Pendant of Intelligence D.B",normal
+1320,"Draki's Pendant of Intelligence D.A",normal
+1321,"Draki's Pendant of Intelligence D.S",normal
+1322,"Unique",normal
+1323,"Draki's Pendant of Intelligence C.C",normal
+1324,"Draki's Pendant of Intelligence C.B",normal
+1325,"Draki's Pendant of Intelligence C.A",normal
+1326,"Draki's Pendant of Intelligence C.S",normal
+1327,"Draki's Pendant of Intelligence B.D",normal
+1328,"Draki's Pendant of Intelligence B.C",normal
+1329,"Draki's Pendant of Intelligence B.B",normal
+1330,"Draki's Pendant of Intelligence B.A",normal
+1331,"Draki's Pendant of Intelligence B.S",normal
+1332,"Draki's Pendant of Intelligence A.D",normal
+1333,"Draki's Pendant of Intelligence A.C",normal
+1334,"Draki's Pendant of Intelligence A.B",normal
+1335,"Draki's Pendant of Intelligence A.A",normal
+1336,"Draki's Pendant of Intelligence A.S",normal
+1337,"Draki's Pendant of Intelligence S.D",normal
+1338,"Draki's Pendant of Intelligence S.C",normal
+1339,"Draki's Pendant of Intelligence S.B",normal
+1340,"Draki's Pendant of Intelligence S.A",normal
+1341,"Draki's Pendant of Intelligence S.S",normal
+1342,"Draki's Pendant of Intelligence D.D.D",normal
+1343,"Draki's Pendant of Intelligence D.C.D",normal
+1344,"Draki's Pendant of Intelligence D.B.D",normal
+1345,"Draki's Pendant of Intelligence D.A.D",normal
+1346,"Draki's Pendant of Intelligence D.S.D",normal
+1347,"Draki's Pendant of Intelligence C.D.D",normal
+1348,"Draki's Pendant of Intelligence C.C.D",normal
+1349,"Draki's Pendant of Intelligence C.B.D",normal
+1350,"Draki's Pendant of Intelligence C.A.D",normal
+1351,"Draki's Pendant of Intelligence C.S.D",normal
+1352,"Draki's Pendant of Intelligence B.D.D",normal
+1353,"Draki's Pendant of Intelligence B.C.D",normal
+1354,"Draki's Pendant of Intelligence B.B.D",normal
+1355,"Draki's Pendant of Intelligence B.A.D",normal
+1356,"Draki's Pendant of Intelligence B.S.D",normal
+1357,"Draki's Pendant of Intelligence A.D.D",normal
+1358,"Draki's Pendant of Intelligence A.C.D",normal
+1359,"Draki's Pendant of Intelligence A.B.D",normal
+1360,"Draki's Pendant of Intelligence A.A.D",normal
+1361,"Draki's Pendant of Intelligence A.S.D",normal
+1362,"Draki's Pendant of Intelligence S.D.D",normal
+1363,"Draki's Pendant of Intelligence S.C.D",normal
+1364,"Draki's Pendant of Intelligence S.B.D",normal
+1365,"Draki's Pendant of Intelligence S.A.D",normal
+1366,"Draki's Pendant of Intelligence S.S.D",normal
+1367,"Draki's Pendant of Intelligence D.D.C",normal
+1368,"Draki's Pendant of Intelligence D.C.C",normal
+1369,"Draki's Pendant of Intelligence D.B.C",normal
+1370,"Draki's Pendant of Intelligence D.A.C",normal
+1371,"Draki's Pendant of Intelligence D.S.C",normal
+1372,"Draki's Pendant of Intelligence C.D.C",normal
+1373,"Draki's Pendant of Intelligence C.C.C",normal
+1374,"Draki's Pendant of Intelligence C.B.C",normal
+1375,"Draki's Pendant of Intelligence C.A.C",normal
+1376,"Draki's Pendant of Intelligence C.S.C",normal
+1377,"Draki's Pendant of Intelligence B.D.C",normal
+1378,"Draki's Pendant of Intelligence B.C.C",normal
+1379,"Draki's Pendant of Intelligence B.B.C",normal
+1380,"Draki's Pendant of Intelligence B.A.C",normal
+1381,"Burning",normal
+1382,"Burning",normal
+1383,"Burning",normal
+1384,"Burning",normal
+1385,"Burning",normal
+1386,"Burning",normal
+1387,"Burning",normal
+1388,"Burning",normal
+1389,"Burning",normal
+1390,"Unique",normal
+1391,"Frozen",normal
+1392,"Frozen",normal
+1393,"Frozen",normal
+1394,"Frozen",normal
+1395,"Frozen",normal
+1396,"Frozen",normal
+1397,"Frozen",normal
+1398,"Frozen",normal
+1399,"Frozen",normal
+1400,"Unique",normal
+1401,"Lightning",normal
+1402,"Lightning",normal
+1403,"Lightning",normal
+1404,"Lightning",normal
+1405,"Lightning",normal
+1406,"Lightning",normal
+1407,"Lightning",normal
+1408,"Lightning",normal
+1409,"Lightning",normal
+1410,"Unique",normal
+1411,"Draki's Pendant of Intelligence A.S.B",normal
+1412,"Draki's Pendant of Intelligence S.D.B",normal
+1413,"Draki's Pendant of Intelligence S.C.B",normal
+1414,"Draki's Pendant of Intelligence S.B.B",normal
+1415,"<selfname> Fire Codex Gigas[Event](+5)",normal
+1416,"Draki's Pendant of Intelligence S.S.B",normal
+1417,"Draki's Pendant of Intelligence D.D.A",normal
+1418,"Draki's Pendant of Intelligence D.C.A",normal
+1419,"Draki's Pendant of Intelligence D.B.A",normal
+1420,"Draki's Pendant of Intelligence D.A.A",normal
+1421,"Draki's Pendant of Intelligence D.S.A",normal
+1422,"Draki's Pendant of Intelligence C.D.A",normal
+1423,"Draki's Pendant of Intelligence C.C.A",normal
+1424,"Draki's Pendant of Intelligence C.B.A",normal
+1425,"Draki's Pendant of Intelligence C.A.A",normal
+1426,"Draki's Pendant of Intelligence C.S.A",normal
+1427,"Draki's Pendant of Intelligence B.D.A",normal
+1428,"Draki's Pendant of Intelligence B.C.A",normal
+1429,"Draki's Pendant of Intelligence B.B.A",normal
+1430,"Draki's Pendant of Intelligence B.A.A",normal
+1431,"Draki's Pendant of Intelligence B.S.A",normal
+1432,"Draki's Pendant of Intelligence A.D.A",normal
+1433,"Draki's Pendant of Intelligence A.C.A",normal
+1434,"Draki's Pendant of Intelligence A.B.A",normal
+1435,"<selfname> Ice Codex Gigas[Event](+5)",normal
+1436,"Draki's Pendant of Intelligence A.S.A",normal
+1437,"Draki's Pendant of Intelligence S.D.A",normal
+1438,"Draki's Pendant of Intelligence S.C.A",normal
+1439,"Draki's Pendant of Intelligence S.B.A",normal
+1440,"Draki's Pendant of Intelligence S.A.A",normal
+1441,"Draki's Pendant of Intelligence S.S.A",normal
+1442,"Draki's Pendant of Intelligence D.D.S",normal
+1443,"Draki's Pendant of Intelligence D.C.S",normal
+1444,"Draki's Pendant of Intelligence D.B.S",normal
+1445,"Draki's Pendant of Intelligence D.A.S",normal
+1446,"Draki's Pendant of Intelligence D.S.S",normal
+1447,"Draki's Pendant of Intelligence C.D.S",normal
+1448,"Draki's Pendant of Intelligence C.C.S",normal
+1449,"Draki's Pendant of Intelligence C.B.S",normal
+1450,"Draki's Pendant of Intelligence C.A.S",normal
+1451,"Garges Dagger",normal
+1452,"Dark Knight Dagger",normal
+1453,"Bloody dagger",normal
+1454,"Draki's Pendant of Intelligence B.B.S",normal
+1455,"<selfname> Lightning Codex Gigas[Event](+5)",normal
+1456,"Draki's Pendant of Intelligence B.S.S",normal
+1457,"Draki's Pendant of Intelligence A.D.S",normal
+1458,"Draki's Pendant of Intelligence A.C.S",normal
+1459,"Draki's Pendant of Intelligence A.B.S",normal
+1460,"Draki's Pendant of Intelligence A.A.S",normal
+1461,"Draki's Pendant of Intelligence A.S.S",normal
+1462,"Draki's Pendant of Intelligence S.D.S",normal
+1463,"Draki's Pendant of Intelligence S.C.S",normal
+1464,"Draki's Pendant of Intelligence S.B.S",normal
+1465,"Draki's Pendant of Intelligence S.A.S",normal
+1466,"Draki's Pendant of Intelligence S.S.S",normal
+1467,"Draki's Pendant of Magic D",normal
+1468,"Draki's Pendant of Magic C",normal
+1469,"Draki's Pendant of Magic B",normal
+1470,"Draki's Pendant of Magic A",normal
+1471,"Draki's Pendant of Magic S",normal
+1472,"Draki's Pendant of Magic D.D",normal
+1473,"Draki's Pendant of Magic D.C",normal
+1474,"Draki's Pendant of Magic D.B",normal
+1475,"Draki's Pendant of Magic D.A",normal
+1476,"Draki's Pendant of Magic D.S",normal
+1477,"Draki's Pendant of Magic C.D",normal
+1478,"Draki's Pendant of Magic C.C",normal
+1479,"Draki's Pendant of Magic C.B",normal
+1480,"Draki's Pendant of Magic C.A",normal
+1481,"Draki's Pendant of Magic C.S",normal
+1482,"Draki's Pendant of Magic B.D",normal
+1483,"Draki's Pendant of Magic B.C",normal
+1484,"Draki's Pendant of Magic B.B",normal
+1485,"Draki's Pendant of Magic B.A",normal
+1486,"Draki's Pendant of Magic B.S",normal
+1487,"Draki's Pendant of Magic A.D",normal
+1488,"Draki's Pendant of Magic A.C",normal
+1489,"Draki's Pendant of Magic A.B",normal
+1490,"Draki's Pendant of Magic A.A",normal
+1491,"Draki's Pendant of Magic A.S",normal
+1492,"Draki's Pendant of Magic S.D",normal
+1493,"Draki's Pendant of Magic S.C",normal
+1494,"Draki's Pendant of Magic S.B",normal
+1495,"Draki's Pendant of Magic S.A",normal
+1496,"Draki's Pendant of Magic S.S",normal
+1497,"Draki's Pendant of Magic D.D.D",normal
+1498,"Draki's Pendant of Magic D.C.D",normal
+1499,"Draki's Pendant of Magic D.B.D",normal
+1500,"<selfname>'s Khanjar",normal
+1501,"<selfname>'s Khanjar(+1)",normal
+1502,"<selfname>'s Khanjar(+2)",normal
+1503,"<selfname>'s Khanjar(+3)",normal
+1504,"<selfname>'s Khanjar(+4)",normal
+1505,"<selfname>'s Khanjar(+5)",normal
+1506,"<selfname>'s Khanjar(+6)",normal
+1507,"<selfname>'s Khanjar(+7)",normal
+1508,"<selfname>'s Khanjar(+8)",normal
+1509,"<selfname>'s Khanjar(+9)",normal
+1510,"<selfname>'s Khanjar(+10)",normal
+1511,"Frozen",normal
+1512,"Frozen",normal
+1513,"Frozen",normal
+1514,"Frozen",normal
+1515,"Frozen",normal
+1516,"Frozen",normal
+1517,"Frozen",normal
+1518,"Frozen",normal
+1519,"Frozen",normal
+1520,"Frozen",normal
+1521,"Strength",normal
+1522,"Strength",normal
+1523,"Strength",normal
+1524,"Strength",normal
+1525,"Strength",normal
+1526,"Strength",normal
+1527,"Strength",normal
+1528,"Strength",normal
+1529,"Strength",normal
+1530,"Strength",normal
+1531,"Fire Garges Staff(+1)",normal
+1532,"Fire Garges Staff(+2)",normal
+1533,"Fire Garges Staff(+3)",normal
+1534,"Fire Garges Staff(+4)",normal
+1535,"Fire Garges Staff(+5)",normal
+1536,"Fire Garges Staff(+6)",normal
+1537,"Fire Garges Staff(+7)",normal
+1538,"Fire Garges Staff(+8)",normal
+1539,"Fire Garges Staff(+9)",normal
+1540,"Fire Garges Staff(+10)",normal
+1541,"Ice Garges Staff(+1)",normal
+1542,"Ice Garges Staff(+2)",normal
+1543,"Ice Garges Staff(+3)",normal
+1544,"Ice Garges Staff(+4)",normal
+1545,"Ice Garges Staff(+5)",normal
+1546,"Ice Garges Staff(+6)",normal
+1547,"Ice Garges Staff(+7)",normal
+1548,"Ice Garges Staff(+8)",normal
+1549,"Ice Garges Staff(+9)",normal
+1550,"Ice Garges Staff(+10)",normal
+1551,"Lightning Garges Staff(+1)",normal
+1552,"Lightning Garges Staff(+2)",normal
+1553,"Lightning Garges Staff(+3)",normal
+1554,"Lightning Garges Staff(+4)",normal
+1555,"Lightning Garges Staff(+5)",normal
+1556,"Lightning Garges Staff(+6)",normal
+1557,"Lightning Garges Staff(+7)",normal
+1558,"Lightning Garges Staff(+8)",normal
+1559,"Lightning Garges Staff(+9)",normal
+1560,"Lightning Garges Staff(+10)",normal
+1561,"Fire Dark Knight Staff(+1)",normal
+1562,"Fire Dark Knight Staff(+2)",normal
+1563,"Fire Dark Knight Staff(+3)",normal
+1564,"Fire Dark Knight Staff(+4)",normal
+1565,"Fire Dark Knight Staff(+5)",normal
+1566,"Fire Dark Knight Staff(+6)",normal
+1567,"Fire Dark Knight Staff(+7)",normal
+1568,"Fire Dark Knight Staff(+8)",normal
+1569,"Fire Dark Knight Staff(+9)",normal
+1570,"Fire Dark Knight Staff(+10)",normal
+1571,"Ice Dark Knight Staff(+1)",normal
+1572,"Ice Dark Knight Staff(+2)",normal
+1573,"Ice Dark Knight Staff(+3)",normal
+1574,"Ice Dark Knight Staff(+4)",normal
+1575,"Ice Dark Knight Staff(+5)",normal
+1576,"Ice Dark Knight Staff(+6)",normal
+1577,"Ice Dark Knight Staff(+7)",normal
+1578,"Ice Dark Knight Staff(+8)",normal
+1579,"Ice Dark Knight Staff(+9)",normal
+1580,"Ice Dark Knight Staff(+10)",normal
+1581,"Lightning Dark Knight Staff(+1)",normal
+1582,"Lightning Dark Knight Staff(+2)",normal
+1583,"Lightning Dark Knight Staff(+3)",normal
+1584,"Lightning Dark Knight Staff(+4)",normal
+1585,"Lightning Dark Knight Staff(+5)",normal
+1586,"Lightning Dark Knight Staff(+6)",normal
+1587,"Lightning Dark Knight Staff(+7)",normal
+1588,"Lightning Dark Knight Staff(+8)",normal
+1589,"Lightning Dark Knight Staff(+9)",normal
+1590,"Lightning Dark Knight Staff(+10)",normal
+1591,"Draki's Pendant of Magic A.S.A",normal
+1592,"Draki's Pendant of Magic S.D.A",normal
+1593,"Draki's Pendant of Magic S.C.A",normal
+1594,"Draki's Pendant of Magic S.B.A",normal
+1595,"<selfname>'s Kanzar[event](+5)",normal
+1596,"Draki's Pendant of Magic S.S.A",normal
+1597,"Draki's Pendant of Magic D.D.S",normal
+1598,"Draki's Pendant of Magic D.C.S",normal
+1599,"Draki's Pendant of Magic D.B.S",normal
+1600,"Ruler of the Legend - Black Tortoise",normal
+1601,"Ruler of the Legend - Black Tortoise  (+1)",normal
+1602,"Ruler of the Legend - Black Tortoise  (+2)",normal
+1603,"Ruler of the Legend - Black Tortoise  (+3)",normal
+1604,"Ruler of the Legend - Black Tortoise  (+4)",normal
+1605,"Ruler of the Legend - Black Tortoise  (+5)",normal
+1606,"Ruler of the Legend - Black Tortoise  (+6)",normal
+1607,"Ruler of the Legend - Black Tortoise  (+7)",normal
+1608,"Ruler of the Legend - Black Tortoise  (+8)",normal
+1609,"Ruler of the Legend - Black Tortoise  (+9)",normal
+1610,"Ruler of the Legend - Black Tortoise  (+10)",normal
+1611,"Draki's Pendant of Magic B.S.S",normal
+1612,"Draki's Pendant of Magic A.D.S",normal
+1613,"Draki's Pendant of Magic A.C.S",normal
+1614,"Draki's Pendant of Magic A.B.S",normal
+1615,"Draki's Pendant of Magic A.A.S",normal
+1616,"Draki's Pendant of Magic A.S.S",normal
+1617,"Draki's Pendant of Magic S.D.S",normal
+1618,"Draki's Pendant of Magic S.C.S",normal
+1619,"Draki's Pendant of Magic S.B.S",normal
+1620,"Draki's Pendant of Magic S.A.S",normal
+1621,"Viper",normal
+1622,"Viper",normal
+1623,"Viper",normal
+1624,"Viper",normal
+1625,"Viper",normal
+1626,"Viper",normal
+1627,"Viper",normal
+1628,"Viper",normal
+1629,"Viper",normal
+1630,"Viper",normal
+1631,"Draki's Pendant of Philosopher D.S",normal
+1632,"Draki's Pendant of Philosopher C.D",normal
+1633,"Draki's Pendant of Philosopher C.C",normal
+1634,"Draki's Pendant of Philosopher C.B",normal
+1635,"Draki's Pendant of Philosopher C.A",normal
+1636,"Draki's Pendant of Philosopher C.S",normal
+1637,"Draki's Pendant of Philosopher B.D",normal
+1638,"Draki's Pendant of Philosopher B.C",normal
+1639,"Draki's Pendant of Philosopher B.B",normal
+1640,"<selfname> Fire Codex Gigas",normal
+1641,"<selfname> Fire Codex Gigas(+1)",normal
+1642,"<selfname> Fire Codex Gigas(+2)",normal
+1643,"<selfname> Fire Codex Gigas(+3)",normal
+1644,"<selfname> Fire Codex Gigas(+4)",normal
+1645,"<selfname> Fire Codex Gigas(+5)",normal
+1646,"<selfname> Fire Codex Gigas(+6)",normal
+1647,"<selfname> Fire Codex Gigas(+7)",normal
+1648,"<selfname> Fire Codex Gigas(+8)",normal
+1649,"<selfname> Fire Codex Gigas(+9)",normal
+1650,"<selfname> Fire Codex Gigas(+10)",normal
+1651,"Draki's Pendant of Philosopher S.S",normal
+1652,"Draki's Pendant of Philosopher D.D.D",normal
+1653,"Draki's Pendant of Philosopher D.C.D",normal
+1654,"Draki's Pendant of Philosopher D.B.D",normal
+1655,"Draki's Pendant of Philosopher D.A.D",normal
+1656,"Draki's Pendant of Philosopher D.S.D",normal
+1657,"Draki's Pendant of Philosopher C.D.D",normal
+1658,"Draki's Pendant of Philosopher C.C.D",normal
+1659,"Draki's Pendant of Philosopher C.B.D",normal
+1660,"<selfname> Ice Codex Gigas",normal
+1661,"<selfname> Ice Codex Gigas(+1)",normal
+1662,"<selfname> Ice Codex Gigas(+2)",normal
+1663,"<selfname> Ice Codex Gigas(+3)",normal
+1664,"<selfname> Ice Codex Gigas(+4)",normal
+1665,"<selfname> Ice Codex Gigas(+5)",normal
+1666,"<selfname> Ice Codex Gigas(+6)",normal
+1667,"<selfname> Ice Codex Gigas(+7)",normal
+1668,"<selfname> Ice Codex Gigas(+8)",normal
+1669,"<selfname> Ice Codex Gigas(+9)",normal
+1670,"<selfname> Ice Codex Gigas(+10)",normal
+1671,"Draki's Pendant of Philosopher A.S.D",normal
+1672,"Draki's Pendant of Philosopher S.D.D",normal
+1673,"Draki's Pendant of Philosopher S.C.D",normal
+1674,"Draki's Pendant of Philosopher S.B.D",normal
+1675,"Draki's Pendant of Philosopher S.A.D",normal
+1676,"Draki's Pendant of Philosopher S.S.D",normal
+1677,"Draki's Pendant of Philosopher D.D.C",normal
+1678,"Draki's Pendant of Philosopher D.C.C",normal
+1679,"Draki's Pendant of Philosopher D.B.C",normal
+1680,"<selfname> Lightning Codex Gigas",normal
+1681,"<selfname> Lightning Codex Gigas(+1)",normal
+1682,"<selfname> Lightning Codex Gigas(+2)",normal
+1683,"<selfname> Lightning Codex Gigas(+3)",normal
+1684,"<selfname> Lightning Codex Gigas(+4)",normal
+1685,"<selfname> Lightning Codex Gigas(+5)",normal
+1686,"<selfname> Lightning Codex Gigas(+6)",normal
+1687,"<selfname> Lightning Codex Gigas(+7)",normal
+1688,"<selfname> Lightning Codex Gigas(+8)",normal
+1689,"<selfname> Lightning Codex Gigas(+9)",normal
+1690,"<selfname> Lightning Codex Gigas(+10)",normal
+1691,"Fire Dark Knight Staff",normal
+1692,"Ice Dark Knight Staff",normal
+1693,"Lightning Dark Knight Staff",normal
+1694,"Fire Bloody Staff",normal
+1695,"Ice Bloody Staff",normal
+1696,"Lightning Bloody Staff",normal
+1697,"Draki's Pendant of Philosopher S.D.C",normal
+1698,"Draki's Pendant of Philosopher S.C.C",normal
+1699,"Draki's Pendant of Philosopher S.B.C",normal
+1700,"Celestial Dragon Halberd",normal
+1701,"Celestial Dragon Halberd(+1)",normal
+1702,"Celestial Dragon Halberd(+2)",normal
+1703,"Celestial Dragon Halberd(+3)",normal
+1704,"Celestial Dragon Halberd(+4)",normal
+1705,"Celestial Dragon Halberd(+5)",normal
+1706,"Celestial Dragon Halberd(+6)",normal
+1707,"Celestial Dragon Halberd(+7)",normal
+1708,"Celestial Dragon Halberd(+8)",normal
+1709,"Celestial Dragon Halberd(+9)",normal
+1710,"Celestial Dragon Halberd(+10)",normal
+1711,"Bloody dagger (+1)",normal
+1712,"Bloody dagger (+2)",normal
+1713,"Bloody dagger (+3)",normal
+1714,"Bloody dagger (+4)",normal
+1715,"Bloody dagger (+5)",normal
+1716,"Bloody dagger (+6)",normal
+1717,"Bloody dagger (+7)",normal
+1718,"Bloody dagger (+8)",normal
+1719,"Bloody dagger (+9)",normal
+1720,"Bloody dagger (+10)",normal
+1721,"Hrunting (+1)",normal
+1722,"Hrunting (+2)",normal
+1723,"Hrunting (+3)",normal
+1724,"Hrunting (+4)",normal
+1725,"Hrunting (+5)",normal
+1726,"Hrunting (+6)",normal
+1727,"Hrunting (+7)",normal
+1728,"Hrunting (+8)",normal
+1729,"Hrunting (+9)",normal
+1730,"Hrunting (+10)",normal
+1731,"Garges Dagger(+1)",normal
+1732,"Garges Dagger(+2)",normal
+1733,"Garges Dagger(+3)",normal
+1734,"Garges Dagger(+4)",normal
+1735,"Garges Dagger(+5)",normal
+1736,"Garges Dagger(+6)",normal
+1737,"Garges Dagger(+7)",normal
+1738,"Garges Dagger(+8)",normal
+1739,"Garges Dagger(+9)",normal
+1740,"Garges Dagger(+10)",normal
+1741,"Dark Knight Dagger(+1)",normal
+1742,"Dark Knight Dagger(+2)",normal
+1743,"Dark Knight Dagger(+3)",normal
+1744,"Dark Knight Dagger(+4)",normal
+1745,"Dark Knight Dagger(+5)",normal
+1746,"Dark Knight Dagger(+6)",normal
+1747,"Dark Knight Dagger(+7)",normal
+1748,"Dark Knight Dagger(+8)",normal
+1749,"Dark Knight Dagger(+9)",normal
+1750,"Dark Knight Dagger(+10)",normal
+1751,"Draki's Pendant of Philosopher S.S.A",normal
+1752,"Draki's Pendant of Philosopher D.D.S",normal
+1753,"Draki's Pendant of Philosopher D.C.S",normal
+1754,"Draki's Pendant of Philosopher D.B.S",normal
+1755,"Draki's Pendant of Philosopher D.A.S",normal
+1756,"Draki's Pendant of Philosopher D.S.S",normal
+1757,"Draki's Pendant of Philosopher C.D.S",normal
+1758,"Draki's Pendant of Philosopher C.C.S",normal
+1759,"Draki's Pendant of Philosopher C.B.S",normal
+1760,"Draki's Pendant of Philosopher C.A.S",normal
+1761,"Draki's Pendant of Philosopher C.S.S",normal
+1762,"Draki's Pendant of Philosopher B.D.S",normal
+1763,"Draki's Pendant of Philosopher B.C.S",normal
+1764,"Draki's Pendant of Philosopher B.B.S",normal
+1765,"Draki's Pendant of Philosopher B.A.S",normal
+1766,"Draki's Pendant of Philosopher B.S.S",normal
+1767,"Draki's Pendant of Philosopher A.D.S",normal
+1768,"Draki's Pendant of Philosopher A.C.S",normal
+1769,"Draki's Pendant of Philosopher A.B.S",normal
+1770,"Draki's Pendant of Philosopher A.A.S",normal
+1771,"Draki's Pendant of Philosopher A.S.S",normal
+1772,"Draki's Pendant of Philosopher S.D.S",normal
+1773,"Draki's Pendant of Philosopher S.C.S",normal
+1774,"Draki's Pendant of Philosopher S.B.S",normal
+1775,"Draki's Pendant of Philosopher S.A.S",normal
+1776,"Draki's Pendant of Philosopher S.S.S",normal
+1780,"Akara's Elemental Pendant",normal
+1781,"Akara's Elemental Pendant(+1)",normal
+1782,"Akara's Elemental Pendant(+2)",normal
+1783,"Akara's Elemental Pendant(+3)",normal
+1784,"Akara's Elemental Pendant(+4)",normal
+1785,"Akara's Elemental Pendant(+5)",normal
+1790,"Akara's Iron Necklace",normal
+1791,"Akara's Iron Necklace(+1)",normal
+1792,"Akara's Iron Necklace(+2)",normal
+1793,"Akara's Iron Necklace(+3)",normal
+1794,"Akara's Iron Necklace(+4)",normal
+1795,"Akara's Iron Necklace(+5)",normal
+1796,"<selfname>'s Moonlight(+8)",normal
+1797,"<selfname>'s Buju Polearm(+8)",normal
+1798,"<selfname>'s Azagai(+8)",normal
+1799,"<selfname> Fire Codex Gigas(+8)",normal
+1800,"Akara's Black Dragon Necklace",normal
+1801,"Akara's Black Dragon Necklace(+1)",normal
+1802,"Akara's Black Dragon Necklace(+2)",normal
+1803,"Akara's Black Dragon Necklace(+3)",normal
+1804,"Akara's Black Dragon Necklace(+4)",normal
+1805,"Akara's Black Dragon Necklace(+5)",normal
+1810,"Fire Dragon Saddle",normal
+1811,"Fire Dragon Saddle(+1)",normal
+1812,"Fire Dragon Saddle(+2)",normal
+1813,"Fire Dragon Saddle(+3)",normal
+1814,"Fire Dragon Saddle(+4)",normal
+1815,"Fire Dragon Saddle(+5)",normal
+1816,"Fire Dragon Saddle(+6)",normal
+1817,"Fire Dragon Saddle(+7)",normal
+1818,"Fire Dragon Saddle(+8)",normal
+1819,"Fire Dragon Saddle(+9)",normal
+1820,"Fire Dragon Saddle(+10)",normal
+1821,"Akara's Strength Necklace(+1)",normal
+1822,"Akara's Strength Necklace(+2)",normal
+1823,"Akara's Strength Necklace(+3)",normal
+1824,"Akara's Strength Necklace(+4)",normal
+1825,"Akara's Strength Necklace(+5)",normal
+1826,"Bloody dagger (+16)",normal
+1827,"Bloody dagger (+17)",normal
+1828,"Bloody dagger (+18)",normal
+1829,"Bloody dagger (+19)",normal
+1830,"Ice Dragon Saddle",normal
+1831,"Ice Dragon Saddle(+1)",normal
+1832,"Ice Dragon Saddle(+2)",normal
+1833,"Ice Dragon Saddle(+3)",normal
+1834,"Ice Dragon Saddle(+4)",normal
+1835,"Ice Dragon Saddle(+5)",normal
+1836,"Ice Dragon Saddle(+6)",normal
+1837,"Ice Dragon Saddle(+7)",normal
+1838,"Ice Dragon Saddle(+8)",normal
+1839,"Ice Dragon Saddle(+9)",normal
+1840,"Ice Dragon Saddle(+10)",normal
+1841,"Hrunting (+1)",normal
+1842,"Hrunting (+2)",normal
+1843,"Hrunting (+3)",normal
+1844,"Hrunting (+4)",normal
+1845,"Hrunting (+5)",normal
+1846,"Hrunting (+6)",normal
+1847,"Hrunting (+7)",normal
+1848,"Hrunting (+8)",normal
+1849,"Hrunting (+9)",normal
+1850,"Lightning Dragon Saddle",normal
+1851,"Lightning Dragon Saddle(+1)",normal
+1852,"Lightning Dragon Saddle(+2)",normal
+1853,"Lightning Dragon Saddle(+3)",normal
+1854,"Lightning Dragon Saddle(+4)",normal
+1855,"Lightning Dragon Saddle(+5)",normal
+1856,"Lightning Dragon Saddle(+6)",normal
+1857,"Lightning Dragon Saddle(+7)",normal
+1858,"Lightning Dragon Saddle(+8)",normal
+1859,"Lightning Dragon Saddle(+9)",normal
+1860,"Lightning Dragon Saddle(+10)",normal
+1861,"Fire Bloody Staff (+1)",normal
+1862,"Fire Bloody Staff (+2)",normal
+1863,"Fire Bloody Staff (+3)",normal
+1864,"Fire Bloody Staff (+4)",normal
+1865,"Fire Bloody Staff (+5)",normal
+1866,"Fire Bloody Staff (+6)",normal
+1867,"Fire Bloody Staff (+7)",normal
+1868,"Fire Bloody Staff (+8)",normal
+1869,"Fire Bloody Staff (+9)",normal
+1870,"Fire Bloody Staff (+10)",normal
+1871,"Ice Bloody Staff (+1)",normal
+1872,"Ice Bloody Staff (+2)",normal
+1873,"Ice Bloody Staff (+3)",normal
+1874,"Ice Bloody Staff (+4)",normal
+1875,"Ice Bloody Staff (+5)",normal
+1876,"Ice Bloody Staff (+6)",normal
+1877,"Ice Bloody Staff (+7)",normal
+1878,"Ice Bloody Staff (+8)",normal
+1879,"Ice Bloody Staff (+9)",normal
+1880,"Ice Bloody Staff (+10)",normal
+1881,"Lightning Bloody Staff (+1)",normal
+1882,"Lightning Bloody Staff (+2)",normal
+1883,"Lightning Bloody Staff (+3)",normal
+1884,"Lightning Bloody Staff (+4)",normal
+1885,"Lightning Bloody Staff (+5)",normal
+1886,"Lightning Bloody Staff (+6)",normal
+1887,"Lightning Bloody Staff (+7)",normal
+1888,"Lightning Bloody Staff (+8)",normal
+1889,"Lightning Bloody Staff (+9)",normal
+1890,"Lightning Bloody Staff (+10)",normal
+1891,"Fire Kerykeion (+1)",normal
+1892,"Fire Kerykeion (+2)",normal
+1893,"Fire Kerykeion (+3)",normal
+1894,"Fire Kerykeion (+4)",normal
+1895,"Fire Kerykeion (+5)",normal
+1896,"Fire Kerykeion (+6)",normal
+1897,"Fire Kerykeion (+7)",normal
+1898,"Fire Kerykeion (+8)",normal
+1899,"Fire Kerykeion (+9)",normal
+1900,"Fire Kerykeion (+10)",normal
+1901,"Ice Kerykeion (+1)",normal
+1902,"Ice Kerykeion (+2)",normal
+1903,"Ice Kerykeion (+3)",normal
+1904,"Ice Kerykeion (+4)",normal
+1905,"Ice Kerykeion (+5)",normal
+1906,"Ice Kerykeion (+6)",normal
+1907,"Ice Kerykeion (+7)",normal
+1908,"Ice Kerykeion (+8)",normal
+1909,"Ice Kerykeion (+9)",normal
+1910,"Ice Kerykeion (+10)",normal
+1911,"Lightning Kerykeion (+1)",normal
+1912,"Lightning Kerykeion (+2)",normal
+1913,"Lightning Kerykeion (+3)",normal
+1914,"Lightning Kerykeion (+4)",normal
+1915,"Lightning Kerykeion (+5)",normal
+1916,"Lightning Kerykeion (+6)",normal
+1917,"Lightning Kerykeion (+7)",normal
+1918,"Lightning Kerykeion (+8)",normal
+1919,"Lightning Kerykeion (+9)",normal
+1920,"Lightning Kerykeion (+10)",normal
+1921,"Dark Knight Dagger(+21)",normal
+1922,"Dark Knight Dagger(+22)",normal
+1923,"Dark Knight Dagger(+23)",normal
+1924,"Dark Knight Dagger(+24)",normal
+1925,"Dark Knight Dagger(+25)",normal
+1926,"Dark Knight Dagger(+26)",normal
+1927,"Dark Knight Dagger(+27)",normal
+1928,"Dark Knight Dagger(+28)",normal
+1929,"Dark Knight Dagger(+29)",normal
+1930,"Dark Knight Dagger(+30)",normal
+1110018,"* Dragon Set *",set
+1110514,"* Dragon Set *",set
+1110528,"* Dragon Set *",set
+1110530,"* Dragon Set *",set
+1112050,"* Dragon Set *",set
+1112064,"* Dragon Set *",set
+1112066,"* Dragon Set *",set
+1112560,"* Dragon Set *",set
+1112562,"* Dragon Set *",set
+1112576,"* Dragon Set *",set
+1112578,"* Dragon Set *",set
+1114098,"* Dragon Set *",set
+1114112,"* Dragon Set *",set
+1114114,"* Dragon Set *",set
+1114608,"* Dragon Set *",set
+1114610,"* Dragon Set *",set
+1114624,"* Dragon Set *",set
+1114626,"* Dragon Set *",set
+1116144,"* Dragon Set *",set
+1116146,"* Dragon Set *",set
+1116160,"* Dragon Set *",set
+1116162,"* Dragon Set *",set
+1116656,"* Dragon Set *",set
+1116658,"* Dragon Set *",set
+1116672,"* Dragon Set *",set
+1116674,"* Dragon Set *",set
+1120018,"* Mythril Set *",set
+1120514,"* Mythril Set *",set
+1120528,"* Mythril Set *",set
+1120530,"* Mythril Set *",set
+1122050,"* Mythril Set *",set
+1122064,"* Mythril Set *",set
+1122066,"* Mythril Set *",set
+1122560,"* Mythril Set *",set
+1122562,"* Mythril Set *",set
+1122576,"* Mythril Set *",set
+1122578,"* Mythril Set *",set
+1124098,"* Mythril Set *",set
+1124112,"* Mythril Set *",set
+1124114,"* Mythril Set *",set
+1124608,"* Mythril Set *",set
+1124610,"* Mythril Set *",set
+1124624,"* Mythril Set *",set
+1124626,"* Mythril Set *",set
+1126144,"* Mythril Set *",set
+1126146,"* Mythril Set *",set
+1126160,"* Mythril Set *",set
+1126162,"* Mythril Set *",set
+1126656,"* Mythril Set *",set
+1126658,"* Mythril Set *",set
+1126672,"* Mythril Set *",set
+1126674,"* Mythril Set *",set
+1130018,"* Ron's Set *",set
+1130514,"* Ron's Set *",set
+1130528,"* Ron's Set *",set
+1130530,"* Ron's Set *",set
+1132050,"* Ron's Set *",set
+1132064,"* Ron's Set *",set
+1132066,"* Ron's Set *",set
+1132560,"* Ron's Set *",set
+1132562,"* Ron's Set *",set
+1132576,"* Ron's Set *",set
+1132578,"* Ron's Set *",set
+1134098,"* Ron's Set *",set
+1134112,"* Ron's Set *",set
+1134114,"* Ron's Set *",set
+1134608,"* Ron's Set *",set
+1134610,"* Ron's Set *",set
+1134624,"* Ron's Set *",set
+1134626,"* Ron's Set *",set
+1136144,"* Ron's Set *",set
+1136146,"* Ron's Set *",set
+1136160,"* Ron's Set *",set
+1136162,"* Ron's Set *",set
+1136656,"* Ron's Set *",set
+1136658,"* Ron's Set *",set
+1136672,"* Ron's Set *",set
+1136674,"* Ron's Set *",set
+1140018,"* Trial Set *",set
+1140514,"* Trial Set *",set
+1140528,"* Trial Set *",set
+1140530,"* Trial Set *",set
+1142050,"* Trial Set *",set
+1142064,"* Trial Set *",set
+1142066,"* Trial Set *",set
+1142560,"* Trial Set *",set
+1142562,"* Trial Set *",set
+1142576,"* Trial Set *",set
+1142578,"* Trial Set *",set
+1144098,"* Trial Set *",set
+1144112,"* Trial Set *",set
+1144114,"* Trial Set *",set
+1144608,"* Trial Set *",set
+1144610,"* Trial Set *",set
+1144624,"* Trial Set *",set
+1144626,"* Trial Set *",set
+1146144,"* Trial Set *",set
+1146146,"* Trial Set *",set
+1146160,"* Trial Set *",set
+1146162,"* Trial Set *",set
+1146656,"* Trial Set *",set
+1146658,"* Trial Set *",set
+1146672,"* Trial Set *",set
+1146674,"* Trial Set *",set
+1150018,"* ExceptinalDragon Armor Parzin Set *",set
+1150514,"* ExceptinalDragon Armor Nerparm Set *",set
+1150528,"* ExceptinalDragon Armor Trodon Set *",set
+1150530,"* ExceptinalDragon Armor Kaisan Set *",set
+1152050,"* ExceptinalDragon Armor Difron Set *",set
+1152064,"* ExceptinalDragon Armor Shayd Set *",set
+1152066,"* ExceptinalDragon Armor Mefric Set *",set
+1152560,"* ExceptinalDragon Armor Pakra Set *",set
+1152562,"* ExceptinalDragon Armor Nefron Set *",set
+1152576,"* ExceptinalDragon Armor Danver Set *",set
+1152578,"* ExceptinalDragon Armor Bera Set *",set
+1154098,"* ExceptinalDragon Armor Heled Set *",set
+1154112,"* ExceptinalDragon Armor Kindor Set *",set
+1154114,"* ExceptinalDragon Armor Derdic Set *",set
+1154608,"* ExceptinalDragon Armor Seid Set *",set
+1154610,"* ExceptinalDragon Armor Fait Set *",set
+1154624,"* ExceptinalDragon Armor Kazal Set *",set
+1154626,"* ExceptinalDragon Armor Zarfin Set *",set
+1156144,"* ExceptinalDragon Armor Fuz Set *",set
+1156146,"* ExceptinalDragon Armor Daka Set *",set
+1156160,"* ExceptinalDragon Armor Kaisha Set *",set
+1156162,"* ExceptinalDragon Armor Mergin Set *",set
+1156656,"* ExceptinalDragon Armor Delk Set *",set
+1156658,"* ExceptinalDragon Armor Half Set *",set
+1156672,"* ExceptinalDragon Armor Mission Set *",set
+1156674,"* Exceptinal Dragon Armor Set *",set
+1160018,"* ExceptinalMithril Armor Parzin Set *",set
+1160514,"* ExceptinalMithril Armor Nerparm Set *",set
+1160528,"* ExceptinalMithril Armor Trodon Set *",set
+1160530,"* ExceptinalMithril Armor Kaisan Set *",set
+1162050,"* ExceptinalMithril Armor Difron Set *",set
+1162064,"* ExceptinalMithril Armor Shayd Set *",set
+1162066,"* ExceptinalMithril Armor Mefric Set *",set
+1162560,"* ExceptinalMithril Armor Pakra Set *",set
+1162562,"* ExceptinalMithril Armor Nefron Set *",set
+1162576,"* ExceptinalMithril Armor Danver Set *",set
+1162578,"* ExceptinalMithril Armor Bera Set *",set
+1164098,"* ExceptinalMithril Armor Heled Set *",set
+1164112,"* ExceptinalMithril Armor Kindor Set *",set
+1164114,"* ExceptinalMithril Armor Derdic Set *",set
+1164608,"* ExceptinalMithril Armor Seid Set *",set
+1164610,"* ExceptinalMithril Armor Fait Set *",set
+1164624,"* ExceptinalMithril Armor Kazal Set *",set
+1164626,"* ExceptinalMithril Armor Zarfin Set *",set
+1166144,"* ExceptinalMithril Armor Fuz Set *",set
+1166146,"* ExceptinalMithril Armor Daka Set *",set
+1166160,"* ExceptinalMithril Armor Kaisha Set *",set
+1166162,"* ExceptinalMithril Armor Mergin Set *",set
+1166656,"* ExceptinalMithril Armor Delk Set *",set
+1166658,"* ExceptinalMithril Armor Half Set *",set
+1166672,"* ExceptinalMithril Armor Mission Set *",set
+1166674,"* ExceptinalMithril Armor Set *",set
+1170018,"* ExceptinalRon Robe Parzin Set *",set
+1170514,"* ExceptinalRon Robe Nerparm Set *",set
+1170528,"* ExceptinalRon Robe Trodon Set *",set
+1170530,"* ExceptinalRon Robe Kaisan Set *",set
+1172050,"* ExceptinalRon Robe Difron Set *",set
+1172064,"* ExceptinalRon Robe Shayd Set *",set
+1172066,"* ExceptinalRon Robe Mefric Set *",set
+1172560,"* ExceptinalRon Robe Pakra Set *",set
+1172562,"* ExceptinalRon Robe Nefron Set *",set
+1172576,"* ExceptinalRon Robe Danver Set *",set
+1172578,"* ExceptinalRon Robe Bera Set *",set
+1174098,"* ExceptinalRon Robe Heled Set *",set
+1174112,"* ExceptinalRon Robe Kindor Set *",set
+1174114,"* ExceptinalRon Robe Derdic Set *",set
+1174608,"* ExceptinalRon Robe Seid Set *",set
+1174610,"* ExceptinalRon Robe Fait Set *",set
+1174624,"* ExceptinalRon Robe Kazal Set *",set
+1174626,"* ExceptinalRon Robe Zarfin Set *",set
+1176144,"* ExceptinalRon Robe Fuz Set *",set
+1176146,"* ExceptinalRon Robe Daka Set *",set
+1176160,"* ExceptinalRon Robe Kaisha Set *",set
+1176162,"* ExceptinalRon Robe Mergin Set *",set
+1176656,"* ExceptinalRon Robe Delk Set *",set
+1176658,"* ExceptinalRon Robe Half Set *",set
+1176672,"* ExceptinalRon Robe Mission Set *",set
+1176674,"* ExceptinalRon Robe Set *",set
+1180018,"* ExceptinalAbyss Armor Parzin Set *",set
+1180514,"* ExceptinalAbyss Armor Nerparm Set *",set
+1180528,"* ExceptinalAbyss Armor Trodon Set *",set
+1180530,"* ExceptinalAbyss Armor Kaisan Set *",set
+1182050,"* ExceptinalAbyss Armor Difron Set *",set
+1182064,"* ExceptinalAbyss Armor Shayd Set *",set
+1182066,"* ExceptinalAbyss Armor Mefric Set *",set
+1182560,"* ExceptinalAbyss Armor Pakra Set *",set
+1182562,"* ExceptinalAbyss Armor Nefron Set *",set
+1182576,"* ExceptinalAbyss Armor Danver Set *",set
+1182578,"* ExceptinalAbyss Armor Bera Set *",set
+1184098,"* ExceptinalAbyss Armor Heled Set *",set
+1184112,"* ExceptinalAbyss Armor Kindor Set *",set
+1184114,"* ExceptinalAbyss Armor Derdic Set *",set
+1184608,"* ExceptinalAbyss Armor Seid Set *",set
+1184610,"* ExceptinalAbyss Armor Fait Set *",set
+1184624,"* ExceptinalAbyss Armor Kazal Set *",set
+1184626,"* ExceptinalAbyss Armor Zarfin Set *",set
+1186144,"* ExceptinalAbyss Armor Fuz Set *",set
+1186146,"* ExceptinalAbyss Armor Daka Set *",set
+1186160,"* ExceptinalAbyss Armor Kaisha Set *",set
+1186162,"* ExceptinalAbyss Armor Mergin Set *",set
+1186656,"* ExceptinalAbyss Armor Delk Set *",set
+1186658,"* ExceptinalAbyss Armor Half Set *",set
+1186672,"* ExceptinalAbyss Armor Mission Set *",set
+1186674,"* ExceptinalAbyss Armor Set *",set
+1230018,"* Crowass Warrior Parzin Set *",set
+1230514,"* Crowass Warrior Nerparm Set *",set
+1230528,"* Crowass Warrior Trodon Set *",set
+1230530,"* Crowass Warrior Kaisan Set *",set
+1232050,"* Crowass Warrior Difron Set *",set
+1232064,"* Crowass Warrior Shayd Set *",set
+1232066,"* Crowass Warrior Mefric Set *",set
+1232560,"* Crowass Warrior Pakra Set *",set
+1232562,"* Crowass Warrior Nefron Set *",set
+1232576,"* Crowass Warrior Danver Set *",set
+1232578,"* Crowass Warrior Bera Set *",set
+1234098,"* Crowass Warrior Heled Set *",set
+1234112,"* Crowass Warrior Kindor Set *",set
+1234114,"* Crowass Warrior Derdic Set *",set
+1234608,"* Crowass Warrior Seid Set *",set
+1234610,"* Crowass Warrior Fait Set *",set
+1234624,"* Crowass Warrior Kazal Set *",set
+1234626,"* Crowass Warrior Zarfin Set *",set
+1236144,"* Crowass Warrior Fuz Set *",set
+1236146,"* Crowass Warrior Daka Set *",set
+1236160,"* Crowass Warrior Kaisha Set *",set
+1236162,"* Crowass Warrior Mergin Set *",set
+1236656,"* Crowass Warrior Delk Set *",set
+1236658,"* Crowass Warrior Half Set *",set
+1236672,"* Crowass Warrior Mission Set *",set
+1236674,"* Crowass Warrior Set *",set
+1240018,"* Crowass Assassin Parzin Set *",set
+1240514,"* Crowass Assassin Nerparm Set *",set
+1240528,"* Crowass Assassin Trodon Set *",set
+1240530,"* Crowass Assassin Kaisan Set *",set
+1242050,"* Crowass Assassin Difron Set *",set
+1242064,"* Crowass Assassin Shayd Set *",set
+1242066,"* Crowass Assassin Mefric Set *",set
+1242560,"* Crowass Assassin Pakra Set *",set
+1242562,"* Crowass Assassin Nefron Set *",set
+1242576,"* Crowass Assassin Danver Set *",set
+1242578,"* Crowass Assassin Bera Set *",set
+1244098,"* Crowass Assassin Heled Set *",set
+1244112,"* Crowass Assassin Kindor Set *",set
+1244114,"* Crowass Assassin Derdic Set *",set
+1244608,"* Crowass Assassin Seid Set *",set
+1244610,"* Crowass Assassin Fait Set *",set
+1244624,"* Crowass Assassin Kazal Set *",set
+1244626,"* Crowass Assassin Zarfin Set *",set
+1246144,"* Crowass Assassin Fuz Set *",set
+1246146,"* Crowass Assassin Daka Set *",set
+1246160,"* Crowass Assassin Kaisha Set *",set
+1246162,"* Crowass Assassin Mergin Set *",set
+1246656,"* Crowass Assassin Delk Set *",set
+1246658,"* Crowass Assassin Half Set *",set
+1246672,"* Crowass Assassin Mission Set *",set
+1246674,"* Crowass Assassin Set *",set
+1250018,"* Crowass Mage Parzin Set *",set
+1250514,"* Crowass Mage Nerparm Set *",set
+1250528,"* Crowass Mage Trodon Set *",set
+1250530,"* Crowass Mage Kaisan Set *",set
+1252050,"* Crowass Mage Difron Set *",set
+1252064,"* Crowass Mage Shayd Set *",set
+1252066,"* Crowass Mage Mefric Set *",set
+1252560,"* Crowass Mage Pakra Set *",set
+1252562,"* Crowass Mage Nefron Set *",set
+1252576,"* Crowass Mage Danver Set *",set
+1252578,"* Crowass Mage Bera Set *",set
+1254098,"* Crowass Mage Heled Set *",set
+1254112,"* Crowass Mage Kindor Set *",set
+1254114,"* Crowass Mage Derdic Set *",set
+1254608,"* Crowass Mage Seid Set *",set
+1254610,"* Crowass Mage Fait Set *",set
+1254624,"* Crowass Mage Kazal Set *",set
+1254626,"* Crowass Mage Zarfin Set *",set
+1256144,"* Crowass Mage Fuz Set *",set
+1256146,"* Crowass Mage Daka Set *",set
+1256160,"* Crowass Mage Kaisha Set *",set
+1256162,"* Crowass Mage Mergin Set *",set
+1256656,"* Crowass Mage Delk Set *",set
+1256658,"* Crowass Mage Half Set *",set
+1256672,"* Crowass Mage Mission Set *",set
+1256674,"* Crowass Mage Set *",set
+1260018,"* Crowass Priest Parzin Set *",set
+1260514,"* Crowass Priest Nerparm Set *",set
+1260528,"* Crowass Priest Trodon Set *",set
+1260530,"* Crowass Priest Kaisan Set *",set
+1262050,"* Crowass Priest Difron Set *",set
+1262064,"* Crowass Priest Shayd Set *",set
+1262066,"* Crowass Priest Mefric Set *",set
+1262560,"* Crowass Priest Pakra Set *",set
+1262562,"* Crowass Priest Nefron Set *",set
+1262576,"* Crowass Priest Danver Set *",set
+1262578,"* Crowass Priest Bera Set *",set
+1264098,"* Crowass Priest Heled Set *",set
+1264112,"* Crowass Priest Kindor Set *",set
+1264114,"* Crowass Priest Derdic Set *",set
+1264608,"* Crowass Priest Seid Set *",set
+1264610,"* Crowass Priest Fait Set *",set
+1264624,"* Crowass Priest Kazal Set *",set
+1264626,"* Crowass Priest Zarfin Set *",set
+1266144,"* Crowass Priest Fuz Set *",set
+1266146,"* Crowass Priest Daka Set *",set
+1266160,"* Crowass Priest Kaisha Set *",set
+1266162,"* Crowass Priest Mergin Set *",set
+1266656,"* Crowass Priest Delk Set *",set
+1266658,"* Crowass Priest Half Set *",set
+1266672,"* Crowass Priest Mission Set *",set
+1266674,"* Crowass Priest Set *",set
+1270018,"* secret Warrior Parzin Set *",set
+1270514,"* secret Warrior Nerparm Set *",set
+1270528,"* secret Warrior Trodon Set *",set
+1270530,"* secret Warrior Kaisan Set *",set
+1272050,"* secret Warrior Difron Set *",set
+1272064,"* secret Warrior Shayd Set *",set
+1272066,"* secret Warrior Mefric Set *",set
+1272560,"* secret Warrior Pakra Set *",set
+1272562,"* secret Warrior Nefron Set *",set
+1272576,"* secret Warrior Danver Set *",set
+1272578,"* secret Warrior Bera Set *",set
+1274098,"* secret Warrior Heled Set *",set
+1274112,"* secret Warrior Kindor Set *",set
+1274114,"* secret Warrior Derdic Set *",set
+1274608,"* secret Warrior Seid Set *",set
+1274610,"* secret Warrior Fait Set *",set
+1274624,"* secret Warrior Kazal Set *",set
+1274626,"* secret Warrior Zarfin Set *",set
+1276144,"* secret Warrior Fuz Set *",set
+1276146,"* secret Warrior Daka Set *",set
+1276160,"* secret Warrior Kaisha Set *",set
+1276162,"* secret Warrior Mergin Set *",set
+1276656,"* secret Warrior Delk Set *",set
+1276658,"* secret Warrior Half Set *",set
+1276672,"* secret Warrior Mission Set *",set
+1276674,"* secret Warrior Set *",set
+1280018,"* secret Assassin Parzin Set *",set
+1280514,"* secret Assassin Nerparm Set *",set
+1280528,"* secret Assassin Trodon Set *",set
+1280530,"* secret Assassin Kaisan Set *",set
+1282050,"* secret Assassin Difron Set *",set
+1282064,"* secret Assassin Shayd Set *",set
+1282066,"* secret Assassin Mefric Set *",set
+1282560,"* secret Assassin Pakra Set *",set
+1282562,"* secret Assassin Nefron Set *",set
+1282576,"* secret Assassin Danver Set *",set
+1282578,"* secret Assassin Bera Set *",set
+1284098,"* secret Assassin Heled Set *",set
+1284112,"* secret Assassin Kindor Set *",set
+1284114,"* secret Assassin Derdic Set *",set
+1284608,"* secret Assassin Seid Set *",set
+1284610,"* secret Assassin Fait Set *",set
+1284624,"* secret Assassin Kazal Set *",set
+1284626,"* secret Assassin Zarfin Set *",set
+1286144,"* secret Assassin Fuz Set *",set
+1286146,"* secret Assassin Daka Set *",set
+1286160,"* secret Assassin Kaisha Set *",set
+1286162,"* secret Assassin Mergin Set *",set
+1286656,"* secret Assassin Delk Set *",set
+1286658,"* secret Assassin Half Set *",set
+1286672,"* secret Assassin Mission Set *",set
+1286674,"* secret Assassin Set *",set
+1290018,"* secret Mage Parzin Set *",set
+1290514,"* secret Mage Nerparm Set *",set
+1290528,"* secret Mage Trodon Set *",set
+1290530,"* secret Mage Kaisan Set *",set
+1292050,"* secret Mage Difron Set *",set
+1292064,"* secret Mage Shayd Set *",set
+1292066,"* secret Mage Mefric Set *",set
+1292560,"* secret Mage Pakra Set *",set
+1292562,"* secret Mage Nefron Set *",set
+1292576,"* secret Mage Danver Set *",set
+1292578,"* secret Mage Bera Set *",set
+1294098,"* secret Mage Heled Set *",set
+1294112,"* secret Mage Kindor Set *",set
+1294114,"* secret Mage Derdic Set *",set
+1294608,"* secret Mage Seid Set *",set
+1294610,"* secret Mage Fait Set *",set
+1294624,"* secret Mage Kazal Set *",set
+1294626,"* secret Mage Zarfin Set *",set
+1296144,"* secret Mage Fuz Set *",set
+1296146,"* secret Mage Daka Set *",set
+1296160,"* secret Mage Kaisha Set *",set
+1296162,"* secret Mage Mergin Set *",set
+1296656,"* secret Mage Delk Set *",set
+1296658,"* secret Mage Half Set *",set
+1296672,"* secret Mage Mission Set *",set
+1296674,"* secret Mage Set *",set
+1300018,"* secret Priest Parzin Set *",set
+1300514,"* secret Priest Nerparm Set *",set
+1300528,"* secret Priest Trodon Set *",set
+1300530,"* secret Priest Kaisan Set *",set
+1302050,"* secret Priest Difron Set *",set
+1302064,"* secret Priest Shayd Set *",set
+1302066,"* secret Priest Mefric Set *",set
+1302560,"* secret Priest Pakra Set *",set
+1302562,"* secret Priest Nefron Set *",set
+1302576,"* secret Priest Danver Set *",set
+1302578,"* secret Priest Bera Set *",set
+1304098,"* secret Priest Heled Set *",set
+1304112,"* secret Priest Kindor Set *",set
+1304114,"* secret Priest Derdic Set *",set
+1304608,"* secret Priest Seid Set *",set
+1304610,"* secret Priest Fait Set *",set
+1304624,"* secret Priest Kazal Set *",set
+1304626,"* secret Priest Zarfin Set *",set
+1306144,"* secret Priest Fuz Set *",set
+1306146,"* secret Priest Daka Set *",set
+1306160,"* secret Priest Kaisha Set *",set
+1306162,"* secret Priest Mergin Set *",set
+1306656,"* secret Priest Delk Set *",set
+1306658,"* secret Priest Half Set *",set
+1306672,"* secret Priest Mission Set *",set
+1306674,"* secret Priest Set *",set
+330112146,"Lost's Necklace",set
+330112491,"Lost's Necklace (+1)",set
+330112492,"Lost's Necklace (+2)",set
+330112493,"Lost's Necklace (+3)",set
+502573462,"Attack Aurora (Pathos' Glove)",set
+503573463,"Attack Aurora (Pathos' Glove)",set
+504573464,"Attack Aurora (Pathos' Glove)",set
+505573465,"Attack Aurora (Pathos' Glove)",set
+508011441,"Stamina",set
+508011442,"Defense",set
+508011443,"Experience",set
+508011444,"Noah",set
+508013318,"Stamina",set
+508013319,"Defense",set
+508013320,"Experience",set
+508013321,"Noah",set
+508021476,"The angel of death masks",set
+508031477,"Scream masks",set
+508041445,"World Cup on chukgubok (Republic of)",set
+508041478,"Wizards go peomkinui",set
+508042445,"World Cup under chukgubok (Republic of)",set
+508042479,"Go peomkinui",set
+508051466,"Stamina",set
+508051467,"Defense",set
+508051468,"Experience",set
+508051469,"Noah",set
+508053466,"Stamina",set
+508053467,"Defense",set
+508053468,"Experience",set
+508053469,"Noah",set
+508065591,"Stamina",set
+508065592,"Defense",set
+508065593,"Experience",set
+508065594,"Noah",set
+508066591,"Stamina",set
+508066592,"Defense",set
+508066593,"Experience",set
+508066594,"Noah",set
+508220760,"Cupid's Wing",set
+508471453,"Stamina",set
+508471454,"Defense",set
+508471455,"Experience",set
+508471456,"Noah",set
+508473453,"Stamina",set
+508473454,"Defense",set
+508473455,"Experience",set
+508473456,"Noah",set
+511573471,"Defense Aurora (Pathos' Glove)",set
+512573472,"Defense Aurora (Pathos' Glove)",set
+513573473,"Defense Aurora (Pathos' Glove)",set
+514573474,"Defense Aurora (Pathos' Glove)",set
+518001636,"Yeniceri Pauldron",set
+518001637,"Yeniceri Pauldron",set
+518001638,"Yeniceri Pauldron",set
+518001639,"Yeniceri Pauldron",set
+518003636,"Yeniceri Helmet",set
+518003637,"Yeniceri Helmet",set
+518003638,"Yeniceri Helmet",set
+518003639,"Yeniceri Helmet",set
+528005647,"Santa Hat",set
+700038767,"Driads",set
+810178835,"Wing of Golden Dragon",set
+810178836,"Wing of Golden Dragon",set
+810178837,"Wing of Golden Dragon",set
+810178838,"Wing of Golden Dragon",set
+810179839,"Wing of Red Dragon",set
+810179840,"Wing of Red Dragon",set
+810179841,"Wing of Red Dragon",set
+810179842,"Wing of Red Dragon",set
+810213846,"Wing of Red Dragon",set
+810213847,"Wing of Red Dragon",set
+810213848,"Wing of Red Dragon",set
+810213849,"Wing of Red Dragon",set
+900028683,"Wing of Hero",set
+900030684,"Wing of Hero",set
+900058761,"Pirates of the spirits",set
+900177663,"Wing of Gold Eagle",set
+900177664,"Wing of Gold Eagle",set
+900178665,"Wing of Darkness",set
+900178666,"Wing of Darkness",set
+900178667,"Wing of Darkness",set
+900179670,"Wing of Assassin",set
+900180669,"Wing of Pitch Black",set
+900181671,"Wing of Steel",set
+900182674,"Wing of Warrior",set
+900182675,"Wing of Warrior",set
+900183678,"Wing of Eagle",set
+900183679,"Wing of Eagle",set
+900183680,"Wing of Eagle",set
+900183681,"Wing of Eagle",set
+900183682,"Wing of Eagle",set
+900355762,"Shining Tree Fairy",set
+900357640,"Soccer Uniform",set
+900362641,"Soccer Uniform",set
+900396772,"Exclusive wing",set
+900452817,"Wing of Red Dragon",set
+900452818,"Wing of Red Dragon",set
+900452819,"Wing of Red Dragon",set
+900452820,"Wing of Red Dragon",set
+900453821,"Wing of Golden Dragon",set
+900453822,"Wing of Golden Dragon",set
+900453823,"Wing of Golden Dragon",set
+900453824,"Wing of Golden Dragon",set
+900458825,"Wing of Steel",set
+900458826,"Wing of Steel",set
+900459827,"Wing of Pitch Black",set
+900459828,"Wing of Pitch Black",set
+900460829,"Wing of Warrior",set
+900460830,"Wing of Warrior",set
+900461831,"Wing of Assassin",set
+900461832,"Wing of Assassin",set
+900462833,"Wing of Pitch Black",set
+900462834,"Wing of Pitch Black",set
+900595860,"WAR emblem",set
+900597861,"WAR Championship emblem",set
+900701862,"Wing of Red Dragon",set
+900702863,"Wing of Red Dragon",set
+910248763,"wing",set
+927001607,"Soccer Uniform",set
+928001608,"Soccer Uniform",set
+929001609,"Soccer Uniform",set
+933001634,"Soccer Uniform",set
+934001635,"Soccer Uniform",set

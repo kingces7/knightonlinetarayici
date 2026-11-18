@@ -1,0 +1,39 @@
+grup,dosya,beklenen,bulunan,durum,not
+zones-tablosu,Zones/karus2004.gtd,2478284 bayt (CSV),2478284 bayt,tamam,Arazi: 513x513 kose = 2048 m; arazi.bin'e donusturuldu
+zones-tablosu,Zones/karus2004.tct,11188224 bayt (CSV),11188224 bayt,tamam,256 x 43704 bayt parca (16x16 x 128 px) = renk.bin 2048x2048; tam bolunuyor
+zones-tablosu,Zones/karus2004.tlt,10064544 bayt (CSV),10064544 bayt,uyari,Format cozulmemis (docs/formatlar/README.md: tlt belirsiz); donusumde kullanilmiyor; boyutu old_karus.tlt'ye (10133704) yakin = makul; GTD ile eslesmesi dogrulanamadi
+zones-tablosu,Zones/karus2004.opd,4080816 bayt (CSV),4080816 bayt,tamam,nesneler.glb'ye donusturuldu (8326 dugum / 742 mesh)
+zones-tablosu,Zones/karus2004.opdext,600693 bayt (CSV),600693 bayt,bilgi,Format cozulmemis; donusumde kullanilmiyor
+zones-tablosu,Zones/karus2004.opdsub,13440 bayt (CSV),13440 bayt,bilgi,Format cozulmemis; donusumde kullanilmiyor
+zones-tablosu,Zones/karus2004.evtsub,8629 bayt (CSV),8629 bayt,bilgi,Format cozulmemis; donusumde kullanilmiyor (olay verisi sunucu.json'dan geliyor)
+zones-tablosu,Zones/karus2004.dxt,349545 bayt (CSV),349545 bayt,tamam,minimap.png (512x512) olarak donusturuldu
+zones-tablosu,Zones/karus2004.gev,4 bayt (CSV),4 bayt,bilgi,Cok kucuk (bos benzeri) dosya; diger haritalarda da 4 bayt
+zones-tablosu,Zones/karus2004.ens,12 bayt (CSV),12 bayt,bilgi,Cok kucuk dosya; old_karus.ens de 12 bayt
+zones-tablosu,Zones/karus2004.flag,386 bayt (CSV),386 bayt,bilgi,Format cozulmemis
+zones-tablosu,Zones/karus2004.NaviMesh,9646441 bayt (CSV),9646441 bayt,bilgi,Zones.csv'de var; donusumde kullanilmiyor (carpisma.bin sunucu .smd'den uretiliyor)
+zones-tablosu,Zones/1.mob,708 bayt (CSV),708 bayt,tamam,175 numara; mob-listesi.csv'ye ayristirildi
+zones-tablosu,Misc/Sky/Karus.N3Sky,2026 bayt (CSV),2026 bayt,tamam,gokyuzu.json'a donusturuldu (4 zaman anahtari; 10 doku)
+zones-tablosu,Misc/Sky/Karus_hdr.N3Sky,2026 bayt (CSV),2026 bayt,tamam,Karus.N3Sky ile ayni boyut; hdr surumu
+zones-tablosu,Zones/karus_start.glo,2528 bayt (CSV),2528 bayt,uyari,Zones.csv bolge 10 (ve 30/50/60) karus2004.glo yerine karus_start.glo'yu gosteriyor; karus2004.glo (1520 bayt) hicbir Zones.csv satirinda yok. Orijinal ayar olabilir; glo anlami cozulmemis
+yetim,Zones/karus 2004.dxt,349598 bayt,349598 bayt,yetim,Adinda bosluk var; karus2004.dxt'den 53 bayt farkli; Zones.csv'de yok. Eski kopya gibi duruyor
+yetim,Zones/karus2004.gfo + .glo + .gmd,386+1520+84 bayt,mevcut,yetim,Adi karus2004 ama hicbir Zones.csv satirinda basvuru yok
+ilgisiz-harita,Zones/karus_start.DXT + .gev + .gmd + .gtd + .opd + .opdsub + .tct + .tlt,8 dosya,mevcut,ilgisiz,Baska harita (karus_start); karus2004 ile ilgisiz. Yalniz karus_start.glo Zones.csv'de basvuruluyor
+ilgisiz-harita,Zones/old_karus.* (dxt ens evtsub gev glo gmd gtd opd opdext opdsub tct tlt),12 dosya,mevcut,yetim,Eski Karus haritasi; hicbir Zones.csv satirinda basvuru yok
+ilgisiz-harita,Misc/Sky/eslant_karus_11.n3sky + _hdr,2026 bayt x2,mevcut,ilgisiz,Baska bolge satirlarinda (Zones.csv 11/13/14. satir) kullaniliyor; Luferson ile ilgisiz
+bilgi,Snd/1_karus.ogg,1521846 bayt,1521846 bayt,bilgi,Adlandirma bolge no + ad (Moradon: 21_moradon.ogg). Luferson muzigi client'ta bagli mi bakilmadi
+cikti,arazi.json,513 / 275 karo / atlas 16x18,513 / 275 / 16x18,tamam,Atlas kapasitesi 288 >= 275 karo
+cikti,arazi.bin,2631690 bayt (513^2 x 10),2631690 bayt,tamam,Yukseklik -79.7 .. 160.8 (NaN yok); doku indeksleri 0..274 (275 karoyu asan yok); 1025 kosede doku1 bos (1023)
+cikti,karolar.bin,18022400 bayt (275 x 128x128x4),18022400 bayt,tamam,
+cikti,karolar.png,16x18 hucre x 128 px,2048x2304 px,tamam,4684979 bayt
+cikti,renk.bin,16777216 bayt (2048^2 x 4),16777216 bayt,tamam,Ornekleme: tamamen siyah bolge yok; ortalama yesil 134
+cikti,taban.bin,1048576 bayt (512^2 x 4),1048576 bayt,tamam,
+cikti,minimap.png,512x512,512x512,tamam,319515 bayt
+cikti,carpisma.bin,36 bayt x ucgen,693180 bayt = 19255 ucgen,tamam,Kaynak: sunucu.json icinde 1098karus2004.smd
+cikti,sunucu.json,kapi/olay/dogus,42 kapi + 11 nesne olayi + 3 dogus,tamam,
+cikti,su.json + su/,7 nehir + 32 kostik + dalga,7 nehir; su/ icinde 32 caust + dalga.png,tamam,
+cikti,gokyuzu.json,10 doku + zaman anahtarlari,10 doku,tamam,Dokularin 10'u KnightEmpire/Misc/Sky icinde gevsek dosya olarak var (sundisk.bmp sunglow.bmp sunflare.bmp wisps.tga ka_sky.tga tatters.tga streaks.tga dense.tga overcast.tga phases.tga)
+cikti,nesneler.glb,GLB basligi uzunlugu = dosya boyu,32434772 = 32434772,tamam,264 malzeme/264 doku/264 gomulu resim; hepsi kullaniliyor; bos resim yok; kirik indeks yok; toplam doku 27.8 MB. Boyut elmo2004 (32.6 MB) ile ayni olcekte
+cikti,anim/ (61 kare),fire/smoke/lampfire kareleri,61 png (16+15+15+15),tamam,Ad eslesmesi uygun: fire_a_big (12 dugum) obj_el_smoke_a (13) obj_ka_bindpoint (4) obj_ka_01_lamp/innfire/bonfire (7/4/8). Birebir baglanti dogrulanmadi
+cikti,canavar.json,257 yerlesim,257 yerlesim / 62 sid,uyari,Dosya UTF-8 BOM ile basliyor (tarayicida fetch().json() sorun cikarmaz; Node'da JSON.parse fs ile okununca BOM'u soymak gerekir)
+cikti,npc.json,37 NPC,37 NPC,uyari,npc-listesi.csv'de OLMAYAN 4 NPC var: 13001 [Accessory Merchant]Hera (421:1644 satis 203002); 22301 [Scrolls]Charon (428:1651 satis 254000); 23400 Lilith [Scrolls] (435:1644 satis 281000); 29990 [Item Master] Aurora (447:1630 satis 999000). npc-listesi.csv'de olup npc.json'da olmayan: sid 551 x3 (bkz canavar.json)
+cikti,canavar.json sid 551,3 yerlesim,532:1502 578:1602 600:1561 (adet 5),uyari,npc-listesi.csv bu 3 konumu "Safety Zone Gate1" NPC'si diye yaziyor; sunucuda 551 canavar (Lycan). Sid 552 canavar.json'da yok
