@@ -101,7 +101,7 @@ export class Arazi {
       glslVersion: THREE.GLSL3,
       uniforms: {
         karolar: { value: karolar }, bilgi1: { value: veriDokusu(v1) }, bilgi2: { value: veriDokusu(v2) }, taban: { value: taban },
-        birim: { value: bilgi.birim }, karoSayisi: { value: k }, detay: { value: 1.0 },
+        birim: { value: bilgi.birim }, karoSayisi: { value: k }, karoAdedi: { value: bilgi.karoSayisi }, detay: { value: 1.0 }, mod: { value: Number(new URLSearchParams(location.search).get('dokuv') ?? 3) /* bit0: orijinal yön tablosu, bit1: orijinal ADD birleştirme; 0 = eski sezgisel çizim (karşılaştırma) */ },
         gunesYonu: { value: new THREE.Vector3(0.4, 0.8, 0.3).normalize() },
         sisRengi: { value: new THREE.Color(0x9fb4c8) }, sisYakin: { value: 150 }, sisUzak: { value: 600 },
       },
@@ -118,7 +118,7 @@ export class Arazi {
         layout(location = 0) out highp vec4 pc_fragColor;
         #define gl_FragColor pc_fragColor
         uniform sampler2DArray karolar; uniform sampler2D bilgi1; uniform sampler2D bilgi2; uniform sampler2D taban;
-        uniform float birim; uniform float karoSayisi; uniform float detay; uniform vec3 gunesYonu;
+        uniform float birim; uniform float karoSayisi; uniform float karoAdedi; uniform float detay; uniform float mod; uniform vec3 gunesYonu;
         uniform vec3 sisRengi; uniform float sisYakin; uniform float sisUzak;
         in vec3 vDunya; in vec3 vNormal; in float vDerinlik;
         // Orijinal client (N3Terrain.cpp m_fTileDirU/V + N3TerrainPatch.cpp): her karonun 4 köşesine yönden gelen sabit UV dizisi verilir.
@@ -131,6 +131,18 @@ export class Arazi {
           float v = mix(mix(YV[d + 2], YV[d + 3], p.x), mix(YV[d], YV[d + 1], p.x), p.y);
           return vec2(u, 1.0 - v); // D3D'de v aşağı doğru artar; atlas dokuları WebGL'de ters yüklenir
         }
+        vec2 yonUvEski(float yon, vec2 uv) {
+          int d = int(yon + 0.5) & 7;
+          if (d == 1) return vec2(uv.y, 1.0 - uv.x);
+          if (d == 2) return vec2(1.0 - uv.x, 1.0 - uv.y);
+          if (d == 3) return vec2(1.0 - uv.y, uv.x);
+          if (d == 4) return vec2(1.0 - uv.x, uv.y);
+          if (d == 5) return vec2(uv.x, 1.0 - uv.y);
+          if (d == 6) return vec2(uv.y, uv.x);
+          if (d == 7) return vec2(1.0 - uv.y, 1.0 - uv.x);
+          return uv;
+        }
+        vec2 yonSec(float yon, vec2 p) { return (int(mod + 0.5) & 1) != 0 ? yonUv(yon, p) : yonUvEski(yon, p); }
         void main() {
           vec2 ko = vec2(vDunya.x, -vDunya.z) / birim;
           ivec2 karo = clamp(ivec2(floor(ko)), ivec2(0), ivec2(int(karoSayisi) - 1));
@@ -141,11 +153,21 @@ export class Arazi {
           // Orijinal çizim (N3TerrainPatch.cpp Render): iki katman varsa doku1 + doku2 (D3DTOP_ADD), tek katman ise yalnız doku1; geçerli doku yoksa renk haritası.
           float ilk = b1.x + b1.y * 256.0;
           vec3 c;
-          if (ilk >= karoSayisi) {
+          if (ilk >= karoAdedi) {
             c = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
-          } else {
-            c = textureGrad(karolar, vec3(yonUv(b1.z, yerel), ilk), dx, dy).rgb;
-            if (b2.w > 0.5) c += textureGrad(karolar, vec3(yonUv(b2.z, yerel), b2.x + b2.y * 256.0), dx, dy).rgb;
+          } else if ((int(mod + 0.5) & 2) != 0) { // orijinal: doku1 + doku2 (ADD)
+            c = textureGrad(karolar, vec3(yonSec(b1.z, yerel), ilk), dx, dy).rgb;
+            if (b2.w > 0.5) c += textureGrad(karolar, vec3(yonSec(b2.z, yerel), b2.x + b2.y * 256.0), dx, dy).rgb;
+          } else { // eski: koyuluk = saydamlık, renk haritası üstüne bindirme
+            c = texture(taban, (ko - 0.5) / karoSayisi + 0.5 / karoSayisi).rgb;
+            vec3 t1 = textureGrad(karolar, vec3(yonSec(b1.z, yerel), ilk), dx, dy).rgb;
+            float a1 = smoothstep(0.02, 0.22, max(t1.r, max(t1.g, t1.b)));
+            c = mix(c, t1 / max(a1, 0.35), a1 * detay);
+            if (b2.w > 0.5) {
+              vec3 t2 = textureGrad(karolar, vec3(yonSec(b2.z, yerel), b2.x + b2.y * 256.0), dx, dy).rgb;
+              float a2 = smoothstep(0.02, 0.22, max(t2.r, max(t2.g, t2.b)));
+              c = mix(c, t2 / max(a2, 0.35), a2 * 0.85 * detay);
+            }
           }
           c = min(c, vec3(1.0));
           // Yumuşak diz: koyu/orta tonlar korunur (zemin canlı kalır), yalnızca parlak tonlar sıkıştırılır (beyaza/açık griye yanmasın, nesnelerle aynı koyulukta dursun).

@@ -40,7 +40,7 @@ export function gtdOku(dosya: Buffer): Arazi {
   for (let i = 0; i < n * n; i++) {
     yukseklik[i] = dosya.readFloatLE(o);
     const d = dosya.readUInt32LE(o + 4);
-    yon1[i] = (d >> 1) & 31; yon2[i] = (d >> 6) & 31;
+    yon1[i] = ((d >> 1) & 31) | ((d & 1) ? 0 : 0x80); yon2[i] = (d >> 6) & 31; // yon1 bit 7: "tam_karo" biti 0 ise (orijinalde renk haritası × Terrain_Base kullanılır)
     doku1[i] = (d >> 11) & 1023; doku2[i] = (d >> 21) & 1023;
     o += 8;
   }
