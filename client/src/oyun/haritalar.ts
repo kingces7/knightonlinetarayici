@@ -14,8 +14,10 @@ export interface HaritaAyari {
 }
 
 export const HARITALAR: Record<string, HaritaAyari> = {
+  // Yeni Moradon (1024 m, sunucu eşi 1098moradon_0826.smd): sunucuda Kecoon Valley (bölge 18) ve Moradon II-V bu haritayı kullanır.
+  // Oyundaki Moradon (bölge 21) aşağıdaki 14th_oldmoradon'dur; bu harita yalnızca ?harita=moradon ile açılır. Bölge 18'in müziği yok.
   // Şehir meydanı (oval alan) — kuşbakışı önizlemeye ve sunucudaki kapı olaylarına (x≈800-840, z≈526) göre.
-  moradon: { baslangic: [815, 440], canavar: false, bolge: 21, deneyimKaybi: true },
+  moradon: { baslangic: [815, 440], canavar: false, bolge: 18, deneyimKaybi: true },
   // Sunucu NPC dizilimi, başlangıç noktası (START_POSITION1098 bölge 21 = 264, 302) ve kapılar bu haritaya uyuyor.
   '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21, deneyimKaybi: true, sehir: [305, 342] },
   // Luferson Castle (Karus, sunucu bölgesi 1): sunucu eşi 1098karus2004.smd; kapıdan varış noktası (441, 1625).

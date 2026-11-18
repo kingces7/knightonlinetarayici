@@ -9,6 +9,7 @@ import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { YuklemeEkrani, ulusKaydet } from './arayuz/yuklemeEkrani';
 import { BOLGE_HARITASI, HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
+import { KAPI_ADLARI } from './oyun/kapiAdlari';
 import { BOLGE_DEGISIMI, bolgeDegisimiIstegi, bolgeIsinlanmasi, kapiSecimiIstegi, nesneOlayiIstegi } from '../../kopru/protokol/isinlanma.ts';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, solSilahTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
@@ -947,7 +948,6 @@ async function basla(): Promise<void> {
     if (oyuncu.konum.distanceTo(k.konum) <= KAPI_MENZILI) { oyuncu.yuruHedef = null; kapiKullan(k); return; }
     const hedef = k.konum.clone(); oyuncu.yuruHedef = hedef; acilacakKapi = { k, hedef };
   };
-  const KAPI_ADLARI: Record<number, string> = { 2111: 'Luferson Castle', 2121: 'El Morad Castle', 2114: 'Luna Valley Entrance', 2124: 'Luna Valley Entrance', 2116: 'Ardream', 2126: 'Ardream', 2113: 'Ronark Land', 2123: 'Ronark Land', 2115: 'Delos', 2125: 'Delos' };
   const kapiListesiGoster = (kapilarSunucu: { no: number; ad: string; bolge: number; ucret: number }[]) => {
     const indeks = sonKapiIndeksi;
     arayuz?.diyalogDuz('Warp Gate', 'Where would you like to go?', [

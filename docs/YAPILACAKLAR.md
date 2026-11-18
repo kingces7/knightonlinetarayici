@@ -394,3 +394,14 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Klasik Knight Online yükleme ekranı (`ka_loading_us` / `el_loading_us`: sanat + ilerleme çubuğu): harita açılışında ve haritalar arası geçişte; ulus son girişten.
 - [x] Giriş ekranı: Myko'nun Lilith arka planı kaldırıldı; resmî 1298 giriş görseli (KNIGHT ONLINE logolu) — `araclar/arayuz/giris-orijinal.ts` (npm run arayuz sonrası yeniden çalıştırılmalı). Orijinal 3D giriş sahnesi (`Intro/intro.n3chr` orc + ay animasyonu) henüz yok.
 - [x] Eşya nadirliği: `docs/esya-nadirlik/` (low/middle/high/unique; iksir/kâğıt/kutu "nadirliksiz").
+
+## Veri tarayıcı ve bulgular (tarama-2026-11-18)
+- [x] **Veri tarayıcı:** `npm run tara` (araclar klasöründe, `araclar/tarama/`). Eşya/NPC/mob/doğuş/ganimet/mağaza tabloları, harita dosyaları, kapılar ve `haritalar.ts` ayarını kontrol eder; salt okunur. Rapor: `docs/raporlar/tarama-<tarih>.md/.json`. Ajan: `.claude/agents/hata-tarayici.md` (bulur, doğrular, raporlar; düzeltme için onay ister).
+- [x] Kapı adları: `sunucu.json` üretilirken İngilizceye çevrilir (özgün Korece `adKorece`). Tek kaynak `client/src/oyun/kapiAdlari.ts` (client menüsü de bunu kullanır). Yalnız sunucu.json'u yenilemek: `node harita/cli.ts <harita> --sadece-sunucu`.
+- [x] `moradon` haritası (yeni Moradon, 1024 m): sunucuda **bölge 18 (Kecoon Valley)** bu haritayı kullanır; `npc.json` (4 dost NPC) ve `canavar.json` (21 kayıt) bölge 18'den aktarıldı, `haritalar.ts` ayarı bölge 21'den 18'e düzeltildi. `?harita=moradon` artık müziksiz (bölge 18'in müziği yok) ve canavar kapalı (`canavar: false`).
+- [x] **`moradon_xmas` gereksiz olarak işaretlendi:** sunucuda `moradon_xmas.smd` yok, hiçbir `ZONE_INFO1098` bölgesi ona bağlı değil, `haritalar.ts`'te tanımlı değil, NPC/mob verisi üretilemez. Oyunda kullanılamaz; klasör `donusturulmus/` içinde durur (git'e girmez), silinebilir. İstenirse yalnız görsel kış Moradon'u olarak bakılabilir.
+- [ ] **Karar bekleyen (tarama bulguları):**
+  - [ ] ITEM'da aynı `Num` ile **farklı** 12 kayıt: `Wood Staff(+11)` / `(+1)` (hasar 62 / 40, Num 180130061 vb. 4 çift), `Premium Potion MP (5000)` (389400000; fiyat 15.000 / 3.000.000, süre 1000 / 5000); geri kalanı yalnız ad farkı (Felankor yüzükleri, Mage/Messenger Pendant). Hangisi doğru? + 4 birebir aynı fazlalık satır, 3 tamamen boş satır.
+  - [ ] Haritada duran 44 ganimet satırı olmayan `MAKE_ITEM_GROUP` kodlarına bağlı (ör. grup 8888): bu mobların o slotu hiçbir şey düşürmez. Grup içerikleri oyun dengesi kararı. Ayrıca haritada duran 19 mobun ganimet tablosu hiç yok (`DB-DROP-02`).
+  - [ ] 284 eşya adında `?` (kayıp karakter, ör. `Hunter??s Bow`), 43 sunucu eşyasının client tablosunda karşılığı yok (ör. `Cospre Box`, `Mugwort Rice Cake`).
+  - [ ] Düşük öncelik: 940 eşya adında NBSP/sekme, 184 adsız eşya, 25 adda Türkçe harf, 80 ölü doğuş kaydı (tanımsız bölgeler 26, 91…), kullanılmayan 20 mob adı bozuk.

@@ -36,7 +36,8 @@
     "magaza": "node oyun/magaza.ts",
     "tum-esyalar": "node oyun/tumEsyalar.ts",
     "ganimet": "powershell -ExecutionPolicy Bypass -File sunucu/ganimet-disa-aktar.ps1 && node oyun/ganimet.ts",
-    "gokyuzu": "node oyun/gokyuzu.ts"
+    "gokyuzu": "node oyun/gokyuzu.ts",
+    "tara": "node tarama/tarayici.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

@@ -4,7 +4,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CIKTI_DIZINI, SUNUCU_HARITA_DIZINI, oyunDisindaOlmali } from '../ortak/yollar.ts';
-import { smdOku } from './smd.ts';
+import { smdOku, type SmdKapi } from './smd.ts';
+import { KAPI_ADLARI } from '../../client/src/oyun/kapiAdlari.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dxtOku, rgbayaCevir, tctOku } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
@@ -148,6 +149,17 @@ export function renkHaritasi(parcalar: Uint8Array[]): { rgba: Uint8Array; boyut:
 const SUNUCU_HARITASI: Record<string, string> = { karus2004: '1098karus2004.smd', elmo2004: '1098elmo2004.smd', moradon: '1098moradon_0826.smd', '14th_oldmoradon': 'old_moradon.smd' };
 
 /**
+ * Eski .smd dosyalarında kapı adı Korece (CP949). Adı client'ın İngilizce listesinde (KAPI_ADLARI) olan kapılar
+ * İngilizceye çevrilir, özgün Korece metin adKorece/duyuruKorece alanlarında saklanır. Listede olmayan kapı değişmez.
+ */
+function kapiyiIngilizceyeCevir(k: SmdKapi): SmdKapi & { adKorece?: string; duyuruKorece?: string } {
+  const ad = KAPI_ADLARI[k.id];
+  if (!ad || !/[^\x20-\x7e]/.test(k.ad)) return k;
+  const ucret = k.ucret ? `Transport fee is ${k.ucret.toLocaleString('en-US')} Noahs.` : 'There is no transport fee.';
+  return { ...k, ad, duyuru: `You will be transported to ${ad}. ${ucret}`, adKorece: k.ad, duyuruKorece: k.duyuru };
+}
+
+/**
  * Sunucu haritasından çarpışma üçgenlerini (carpisma.bin: ham float32, üçgen başına 9 sayı, x/y/z — istemci
  * arazisiyle aynı dünya koordinatı) ve kapı/olay bilgisini (sunucu.json) yazar. Dosya yoksa atlar.
  */
@@ -158,13 +170,20 @@ function sunucuVerisiniYaz(harita: string, hedef: string): void {
   if (!dosya) { console.log(`  çarpışma: sunucu haritası (${ad}) bulunamadı, atlandı`); return; }
   const s = smdOku(fs.readFileSync(path.join(SUNUCU_HARITA_DIZINI, dosya)));
   fs.writeFileSync(path.join(hedef, 'carpisma.bin'), Buffer.from(s.yuzler.buffer, s.yuzler.byteOffset, s.yuzler.byteLength));
-  fs.writeFileSync(path.join(hedef, 'sunucu.json'), JSON.stringify({ kaynak: dosya, kapilar: s.kapilar, nesneOlaylari: s.nesneOlaylari, dogus: s.dogus }, null, 1));
+  fs.writeFileSync(path.join(hedef, 'sunucu.json'), JSON.stringify({ kaynak: dosya, kapilar: s.kapilar.map(kapiyiIngilizceyeCevir), nesneOlaylari: s.nesneOlaylari, dogus: s.dogus }, null, 1));
   console.log(`  çarpışma: ${s.yuzler.length / 9} üçgen, ${s.kapilar.length} kapı, ${s.nesneOlaylari.length} nesne olayı (${dosya})`);
 }
 
 function main(argv: string[]): number {
   const harita = argv.find((x) => !x.startsWith('--'));
-  if (!harita) { console.log('Kullanım: npm run harita -- <harita_adı> [--onizleme]'); return 1; }
+  if (!harita) { console.log('Kullanım: npm run harita -- <harita_adı> [--onizleme | --sadece-sunucu]'); return 1; }
+  if (argv.includes('--sadece-sunucu')) { // yalnızca sunucu.json + carpisma.bin yenilenir (arazi/doku yeniden üretilmez)
+    const klasor = path.join(CIKTI_DIZINI, 'web', 'harita', harita.toLowerCase());
+    oyunDisindaOlmali(klasor);
+    if (!fs.existsSync(klasor)) { console.log(`Harita klasörü yok: ${klasor} (önce: npm run harita -- ${harita})`); return 1; }
+    sunucuVerisiniYaz(harita, klasor);
+    return 0;
+  }
   const od = new OyunDosyalari();
   const a = gtdOku(od.oku(`Zones/${harita}.gtd`));
   console.log(`${harita}: ${a.boyut}x${a.boyut} ızgara, ${a.karolar.length} karo dokusu`);

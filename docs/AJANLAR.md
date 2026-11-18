@@ -39,6 +39,13 @@ Sürekli tekrarlanan işler için yenisi eklenebilir.
 Dosya: `.claude/agents/format-cozucu.md`. Kullanım örneği: "format-cozucu ajanıyla `.tct` dosyasını çöz."
 İlk görevi: sürüm 7 (şifreli) dokuların çözülmesi.
 
+| Ajan | Ne için | Araçları | Dosya değiştirir mi? |
+|------|---------|----------|----------------------|
+| hata-tarayici | Veritabanı, harita dosyaları ve client ayarındaki eksik/tutarsız/yanlış kodlanmış veriyi bulur, her bulguyu doğrular, müdüre kanıtlı rapor yazar | Read, Write, Glob, Grep, Bash | Yalnız rapor (`docs/raporlar/`) ve `araclar/tarama/` kuralları; düzeltme için onay ister |
+
+Dosya: `.claude/agents/hata-tarayici.md`. Kullanım: "hata-tarayici ajanıyla veri taraması yap." Aracı: `npm run tara` (araclar klasöründe).
+**bugger** bu ajanın yan sekmede (ayrı oturum) çalışan sürümüdür; aynı kurallarla çalışır, raporlarını `docs/raporlar/` altına yazar, müdüre (ana oturum) kullanıcı iletir.
+
 ## Kurallar
 
 - İnternetten ajan indirip yüklemeyiz. Gerekirse önce kodunu inceleyip sonra karar veririz.
