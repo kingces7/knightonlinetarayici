@@ -922,7 +922,7 @@ async function basla(): Promise<void> {
   const KAPI_ADLARI: Record<number, string> = { 2111: 'Luferson Castle', 2121: 'El Morad Castle', 2114: 'Luna Valley Entrance', 2124: 'Luna Valley Entrance', 2116: 'Ardream', 2126: 'Ardream', 2113: 'Ronark Land', 2123: 'Ronark Land', 2115: 'Delos', 2125: 'Delos' };
   const kapiListesiGoster = (kapilarSunucu: { no: number; ad: string; bolge: number; ucret: number }[]) => {
     const indeks = sonKapiIndeksi;
-    arayuz?.diyalogDuz('', 'Where would you like to go?', [
+    arayuz?.diyalogDuz('Warp Gate', 'Where would you like to go?', [
       ...kapilarSunucu.map((g) => ({
         yazi: `${KAPI_ADLARI[g.no] ?? g.ad}${g.ucret ? `  (${g.ucret.toLocaleString('en-US')} Noah)` : ''}`,
         pasif: !BOLGE_HARITASI[g.bolge], // haritası henüz dönüştürülmemiş bölgeler gri

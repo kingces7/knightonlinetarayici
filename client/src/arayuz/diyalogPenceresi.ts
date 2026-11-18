@@ -79,6 +79,8 @@ export class DiyalogPenceresi {
   private yerlestir(): void {
     const ol = Math.max(0.4, Math.min(this.k.olcek(), (innerHeight - 120) / (ILK_GRUP_Y + GRUP_YUKSEKLIK * GRUP_SAYISI + ALT_YUKSEKLIK)));
     this.p.olcekAyarla(ol);
-    if (!this.p.el.dataset.yerli) { this.p.el.style.left = `${Math.round(innerWidth * 0.5 - 190 * ol)}px`; this.p.el.style.top = '48px'; this.p.el.dataset.yerli = '1'; }
+    if (!this.p.el.dataset.yerli) { this.p.el.style.left = `${Math.round(innerWidth * 0.5 - 190 * ol)}px`; this.p.el.dataset.yerli = '1'; }
+    // yatay ve dikey ortala (yükseklik menü uzunluğuna göre değişir)
+    const yuk = this.p.el.offsetHeight * ol; this.p.el.style.top = `${Math.round(Math.max(8, (innerHeight - yuk) / 2))}px`;
   }
 }

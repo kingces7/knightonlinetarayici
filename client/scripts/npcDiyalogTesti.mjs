@@ -15,7 +15,7 @@ const dene = async (ad, x, z, dosya, secenek) => {
   console.log(ad, JSON.stringify(var_), JSON.stringify(yazilar));
   if (secenek) { await s.evaluate((t) => { [...document.querySelectorAll('div')].find((e) => e.children.length === 0 && e.textContent === t)?.click(); }, secenek); await s.waitForTimeout(2000); await s.screenshot({ path: `${klasor}/${dosya}_sec.png` }); console.log('seçenek', secenek, 'mağaza/depo açık:', await s.evaluate(() => { const a = window.ke.arayuz(); return [a.npcPencereAcik(), !!document.querySelector('[class*=ui-]') ]; })); }
 };
-await dene('Neria', 396, 395, 'inn', 'Access Storage.');
+await dene('Neria', 396, 395, 'inn');
 await dene('Zarta', 320, 308, 'sundries', 'I want to trade.');
 console.log('mesajlar', JSON.stringify(await s.evaluate(() => window.__m.slice(-5))), 'hatalar', JSON.stringify(hatalar));
 await t.close();

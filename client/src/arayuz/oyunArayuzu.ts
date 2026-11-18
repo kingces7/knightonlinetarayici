@@ -626,11 +626,11 @@ export class OyunArayuzu {
   }
   /** Düz metinli diyalog (sunucu Lua betiği olmayan NPC'ler: Inn Hostess, Sundries): `pasif` seçenek gri görünür ve tıklanmaz. */
   private duz: DuzDiyalog | null = null;
-  diyalogDuz(_npcAdi: string, konusma: string, dugmeler: DuzSecenek[]): void {
+  diyalogDuz(npcAdi: string, konusma: string, dugmeler: DuzSecenek[]): void {
     this.npcPencereAcilis = performance.now();
     this.diyalog?.sessizKapat();
     this.duz ??= new DuzDiyalog(this.b.kok, () => arayuzOlcegi(), () => this.b.diyalogKapandi?.());
-    this.duz.goster(konusma, dugmeler);
+    this.duz.goster(konusma, dugmeler, npcAdi);
   }
   diyalogKapat(): void { this.diyalog?.sessizKapat(); this.duz?.kapat(false); }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
