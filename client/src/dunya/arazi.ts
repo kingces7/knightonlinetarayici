@@ -152,7 +152,7 @@ export class Arazi {
           c = pow(c, vec3(1.12));
           vec3 asiri = max(c - vec3(0.62), vec3(0.0));
           c = min(c, vec3(0.62)) + asiri * 0.45;
-          float isik = 0.64 + 0.5 * max(dot(normalize(vNormal), gunesYonu), 0.0); // 0,58 (gölge) … 1,08 (güneşe dönük)
+          float isik = 0.84 + 0.24 * max(dot(normalize(vNormal), gunesYonu), 0.0); // orijinal arazi köşe normali sabit (0,1,0): yamaç gölgesi yalnız hafif (4 m ızgarada büyük gölge üçgenleri oluşmasın)
           vec3 r = c * isik;
           float sis = smoothstep(sisYakin, sisUzak, vDerinlik);
           gl_FragColor = vec4(mix(r, sisRengi, sis), 1.0);

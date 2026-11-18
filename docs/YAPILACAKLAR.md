@@ -357,3 +357,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] El Morad merkezine Accessory/Scrolls tüccarları eklendi (1636-1648, 430); Linate/Bellua gibi uzak köylere eklenmeyecek (ces kararı).
 - [ ] **Bosslar:** Kekurikekukaka doğma süresi 5 sn yapıldı (sunucu yeniden başlatınca geçerli). **Tüm boss sürelerini ayarla** (Dragon tooth Mentor 5 sn, Kekurikekukaka 5 sn; diğer bosslar sonra).
 - [ ] **Moradon canavar donması** (kullanıcı bildirdi, 2026-11-18): test makinemde yeniden üretilemedi (54 canavardan 49'u 12 sn'de hareket etti; 3,5×/7× hızda koşup ikinci bir client'la karşılaştırınca canavar konumları aynı). Ayrıntı için kullanıcıdan nerede/ne zaman olduğu istenecek; olası sebepler: bölge değişimi paketleri, sunucu Moradon haritasının old_moradon.smd olması.
+
+## Arazi dokusu ve diğerleri (2026-11-18, üçüncü)
+- [x] Arazi dokusu: orijinal client kaynağından (N3Terrain.cpp m_fTileDirU/V, N3TerrainPatch.cpp Render) alındı: 8 yön için köşe UV tablosu (eskiden 5 yön yanlıştı) ve iki katman D3DTOP_ADD (doku1+doku2). Yamaç gölgesi azaltıldı (orijinalde arazi normali sabit). **Görsel doğrulama yetersiz:** yol kenarları net, ama yamaçlarda koyu şeritler duruyor; `git revert` ile eski hale dönülebilir. Eski sürüm: `E:/tmp/arazi.ts.bak`.
+- [ ] .tlt / .glo (lightmap?) dosyaları ve karo "tam_karo" biti client'ta kullanılmıyor (orijinalde lightmap katmanı ve renk haritası×Terrain_Base.bmp var). Fast'in Görev B belgesine göre yapılacak.
+- [x] Town komutu yalnız Moradon'da çalışır (başka bölgede sunucu bölgesiyle uyuşmuyordu: admin karakter "boyuta" takıldı). Admin karakter (kingces) Moradon town'a (305,342, bölge 21) alındı.
+- [x] Mağazası olan her NPC'ye konuşma menüsü (trade/repair/exchange/walk away); Skeleton orijinal değerler; Luferson'a 5 orijinal canavar eklendi (sunucu yeniden başlatınca).
