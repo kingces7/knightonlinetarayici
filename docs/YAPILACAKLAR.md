@@ -338,3 +338,9 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Çözüm: arazi 32×32 karelik parçalara (`dunya/arazi.ts`), nesneler 256 m'lik hücrelere (`dunya/nesneler.ts`, `?hucre=0` eski davranış) bölündü: El Morad ≈126 bin, Luferson ≈140 bin üçgen. Görüntü piksel piksel aynı. Ölçüm: `client/scripts/fpsOlcum.mjs`.
 - [ ] Test makinesinde (güçlü GPU) kare süresi değişmedi (≈8-9 ms, çizim çağrısı sınırlı: ≈385); asıl kazanç zayıf ekran kartlarında beklenir. Daha fazlası için dokuları atlasa birleştirmek (çizim çağrısını düşürür) gerekir.
 - [ ] Zemin geçiş karolarının (yol kenarındaki turuncu lekeler) birebir karışım kuralı hâlâ bilinmiyor.
+
+## GM esya dukkani, GM kapi yetkisi (2026-11-18)
+- [x] `[Item Master] Aurora` (K_NPC 29990, satis grubu 999000): ITEM tablosundaki 3005 esya (126 sayfa), Moradon (268,308), Luferson (447,1630), El Morad (1601,417). Yalniz GM ucretsiz ve agirliksiz alir (`araclar/sunucu/yamalar/gm-esya-dukkani.patch`; sunucu normalde sayfa<12 sinirini uygular, bu grupta 255). SQL: `araclar/sunucu/gm-dukkani.sql`. Test: `client/scripts/gmDukkanTesti.mjs`.
+- [x] GM kapi yetkisi: irk ayrimi yok (`gm-isinlanma-kapilari.patch`) ve rakip irkin sehrinde yeniden giriste Moradon'a atilmaz (`gm-giriste-rakip-bolge.patch`). El Morad GM test hesabi Karus kapisindan Luferson'a gidip orada kaldi (dogrulandi).
+- [ ] Dukkanda 56 sunucuya ozel esyanin simge/bilgisi yok (Item_Org_us.tbl'de yok): gorunmuyor.
+- [ ] Magaza listesinde esya sirasi yalnizca numaraya gore (silah/zirh/taki ayrimi yok); istenirse kategori sayfalari.

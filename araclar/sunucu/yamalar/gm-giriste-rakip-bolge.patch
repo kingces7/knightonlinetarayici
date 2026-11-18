@@ -1,0 +1,14 @@
+--- E:/tmp/CSH.orig	2026-11-18 03:42:59.645569500 +0300
++++ CharacterSelectionHandler.cpp	2026-11-18 03:42:59.736880200 +0300
+@@ -726,9 +726,9 @@
+ 			return goDisconnect("own level higher than system level.", __FUNCTION__);
+ 
+ 		bool ishome = false; uint8 zoneid = 0;
+-		if (GetZoneID() == ZONE_ELMORAD && !g_pMain->m_byElmoradOpenFlag && GetNation() == (uint8)Nation::KARUS) { ishome = true; zoneid = ZONE_MORADON; }
++		if (!isGM() && GetZoneID() == ZONE_ELMORAD && !g_pMain->m_byElmoradOpenFlag && GetNation() == (uint8)Nation::KARUS) { ishome = true; zoneid = ZONE_MORADON; }
+ 
+-		if (!ishome && GetZoneID() == ZONE_KARUS && !g_pMain->m_byKarusOpenFlag && GetNation() == (uint8)Nation::ELMORAD) { ishome = true; zoneid = ZONE_MORADON; }
++		if (!ishome && !isGM() && GetZoneID() == ZONE_KARUS && !g_pMain->m_byKarusOpenFlag && GetNation() == (uint8)Nation::ELMORAD) { ishome = true; zoneid = ZONE_MORADON; }
+ 		if (!ishome && GetMap()->isWarZone() && !g_pMain->isWarOpen()) { ishome = true; zoneid = ZONE_MORADON; }
+ 		if (!ishome && GetMap()->isWarZone() && g_pMain->isWarOpen() && g_pMain->m_bVictory != 0 && g_pMain->m_bVictory != GetNation()) { ishome = true; zoneid = ZONE_MORADON; }
+ 		if (!ishome && (g_pMain->pCindWar.isON() || isInTotalTempleEventZone() || (isOpenWarZoneKickOutOtherZone() && g_pMain->isWarOpen()))) { ishome = true; zoneid = ZONE_MORADON; }
