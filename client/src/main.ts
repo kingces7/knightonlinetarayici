@@ -244,6 +244,18 @@ async function basla(): Promise<void> {
     const aile = SILAH_AILESI_ANIM[oyuncu.silah?.tip ?? 0];
     return aile !== undefined ? aile + 1 : 131; // B animasyonu; silah tanınmazsa Hoodwink'in tablodaki animasyonu
   };
+  /** Yakın dövüş skill animasyonu: çok vuruşlu skill'lerde orijinaldeki gibi iAct[0..2] art arda oynar (eskiden yalnız ilki oynuyordu). Toplam süreyi döndürür. */
+  const beceriAnimiOynat = (no: number, animNo: number | undefined): number => {
+    const kombo = arayuz?.beceriKombo(no);
+    if (!kombo || kombo.length < 2 || animNo !== arayuz?.beceriAnimNo(no)) return oyuncu.model?.beceriOynat(animNo) || 0.8; // silaha göre değişen (Hoodwink…) ya da tek vuruş
+    let toplam = oyuncu.model?.beceriOynat(kombo[0]) || 0.8;
+    for (let i = 1; i < kombo.length; i++) {
+      const an = kombo[i], baslangic = toplam;
+      setTimeout(() => { if (!oyuncu.olu && oyuncu.model) oyuncu.model.beceriOynat(an); }, baslangic * 1000);
+      toplam += oyuncu.model?.numaraSure(an) || 0.8;
+    }
+    return toplam;
+  };
   const efektNo = (no: number) => ({ ...arayuz?.beceriEfekt(no) ?? { kendi: null, hedef: null, ucan: null }, ...(sprintMi(no) ? { kendi: null } : {}) });
   /** Sunucu modunda skill: isteği yollar; MP/hasar/buff sonucunu sunucu bildirir (0x18, 0x22, 0x31). Burada yalnız animasyon, ses ve istek vardır. */
   /** Süreli büyü (hazırlık > 0): hazırlanırken hedef/skill; yürümek iptal eder. */
@@ -294,7 +306,7 @@ async function basla(): Promise<void> {
       }, sure * 1000);
     } else {
       gonder(BECERI_KOMUTU.ETKI);
-      if ((v.tip === 1 || v.tip === 7) && (hedef || animNo)) oyuncu.animKilidi = oyuncu.model?.beceriOynat(animNo) || 0.8; // duruyorken de koşarken/yürürken de AYNI (tam gövde) skill animasyonu; bitince hareket animasyonuna döner
+      if ((v.tip === 1 || v.tip === 7) && (hedef || animNo)) oyuncu.animKilidi = beceriAnimiOynat(no, animNo); // duruyorken de koşarken/yürürken de AYNI (tam gövde) skill animasyonu; bitince hareket animasyonuna döner
     }
     if ((v.tip === 1 || v.tip === 7) && (hedef || animNo)) ses.modelSesi(OYUNCU_SES_MODELI, 'saldir');
   };

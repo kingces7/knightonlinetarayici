@@ -363,3 +363,12 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [ ] .tlt / .glo (lightmap?) dosyaları ve karo "tam_karo" biti client'ta kullanılmıyor (orijinalde lightmap katmanı ve renk haritası×Terrain_Base.bmp var). Fast'in Görev B belgesine göre yapılacak.
 - [x] Town komutu yalnız Moradon'da çalışır (başka bölgede sunucu bölgesiyle uyuşmuyordu: admin karakter "boyuta" takıldı). Admin karakter (kingces) Moradon town'a (305,342, bölge 21) alındı.
 - [x] Mağazası olan her NPC'ye konuşma menüsü (trade/repair/exchange/walk away); Skeleton orijinal değerler; Luferson'a 5 orijinal canavar eklendi (sunucu yeniden başlatınca).
+
+## Güncelleme (2026-11-18, dördüncü)
+- [x] **Arazi dokusu bulanıklığı (kullanıcının UI.png'si):** kök neden benim hatamdı: yeni shader'da "geçerli karo" denetiminde ızgara boyutunu (128) karo sayısı (226/275/181) yerine kullanmıştım; 128'den büyük numaralı karolar renk haritasına düşüp bulanık görünüyordu. Düzeltildi (`karoAdedi`). Orijinal yön tablosu + iki katman ADD artık varsayılan; `?dokuv=0` eski çizimi gösterir (karşılaştırma). `tam_karo` biti `yon1` bit 7'ye yazılıyor (henüz kullanılmıyor).
+- [x] NPC diyalogları ve ışınlanma menüsü: oyunun UI dokusundan süslü çerçeve, NPC adı başlıkta, ekranın ortasında; sunucu Lua konuşma penceresi de dikey ortalanır.
+- [x] Eşya listesi sınıfa göre: `docs/esya-siniflar/` (herkes, savasci, rogue, buyucu, rahip, ozel).
+- [x] El Morad (982,664) attila (Lv85), 5 sn doğma (`araclar/sunucu/elmorad-attila.sql`) — sunucu yeniden başlayınca.
+- [x] Buff şeridi: solda süslü tutaç, sol tıkla sürüklenir, konum hatırlanır (`ke.buffKonum`).
+- [ ] **Warrior skill vuruş animasyonları:** animasyon numaraları orijinal kaynakla (GameDef.h ANI_SKILL_*) tutarlı (iAct[0], NumCombo hepsinde 1); hangi skill'in neresinin yanlış göründüğü kullanıcıdan istenecek (vuruş anı, hedefin tepkisi, efekt?).
+- [ ] Orijinalde yakın dövüş skill'inde `iSelfAnimID1` (başlangıç) ve `iSelfAnimID2` (bitiş) ayrı oynar; büyülerde uygulanıyor, melee için kombo yoksa tek animasyon.

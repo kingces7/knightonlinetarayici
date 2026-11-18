@@ -216,6 +216,8 @@ export class KarakterModeli {
     this.oynatRastgele('darbe', 3, false, 0.05);
   }
   /** Numaralı animasyonu (ör. 104 selamlama) bir kez oynatır; süresini (sn) döndürür, yoksa 0. */
+  /** Numaralı animasyonun süresi (sn); yoksa 0. */
+  numaraSure(no: number): number { const ad = this.klipNo(no); return ad ? (this.klipler.get(ad)?.duration ?? 0) : 0; }
   numaraOynat(no: number): number { const ad = this.klipNo(no); return ad ? this.oynat(ad, false, 0.1) : 0; }
   /** Eldeki silahın türüne göre bekleme/saldırı/skill animasyonlarını seçer (0 = silahsız). Silah değişince bekleme yenilenir. */
   silahAyarla(tip: number, solTip = 0): void {

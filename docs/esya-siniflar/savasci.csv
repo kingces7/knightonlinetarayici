@@ -1,0 +1,282 @@
+esya_no,ad,tur,sinif_kodu,irk,gereken_seviye,fiyat,aciklama
+136700000,Hepa's Sacred Defender,kalkan,1,0,55,106500,A shield empowered by the divine Spirits of the Piana Knights.
+136720000,Hepa's Tentora Defender,kalkan,1,0,65,156500,A shield enchanted with the magic of the Great Wizard Tentora.
+136740000,Hepa's Blessing Aegis,kalkan,1,0,75,186500,"Legend tells of an aegis that will survive a lightning strike, summon storms and cause fear in the hearts of the people."
+137720000,Hepa's Tentora Defender,kalkan,1,0,65,156500,A shield empowered by the divine Spirits of the Piana Knights.
+137740000,Hepa's Blessing Aegis,kalkan,1,0,75,186500,A shield enchanted with the magic of the Great Wizard Tentora.
+171570000,Sacred Defender,kalkan,1,0,55,106500,A shield empowered by the divine Spirits of the Piana Knights.
+171590000,Tentora Defender,kalkan,1,0,65,156500,A shield enchanted with the magic of the Great Wizard Tentora.
+171610000,Blessing Aegis,kalkan,1,0,75,186500,"Legend tells of an aegis that will survive a lightning strike, summon storms and cause fear in the hearts of the people."
+171690000,Tentora Defender,kalkan,1,0,65,156500,A shield enchanted with the magic of the Great Wizard Tentora.
+171710000,Blessing Aegis,kalkan,1,0,75,186500,"Legend tells of an aegis that will survive a lightning strike, summon storms and cause fear in the hearts of the people."
+310511000,Minotaur's Earring,sarf,6,0,0,640,Earrings once worn by Minotaur Gives the owner tremendous strength.
+389038000,Flame Resistance Potion,sarf,1,0,0,2500,Increase resistance to flame attacks
+389039000,Glacier Resistance Potion,sarf,1,0,0,2500,Increase resistance to Glacier attacks
+389040000,Lightning Resistance Potion,sarf,1,0,0,2500,Increase resistance to Lightning attacks
+390511000,Noah Minotaur's Earrings,sarf,6,20,0,640,Earrings once worn by Minotaur Gives the owner tremendous strength.
+1310511000,Akara Minotaur Earring,sarf,6,0,0,640,Earrings once worn by Minotaur Gives the owner tremendous strength.
+121420000,Novice Sword 2,silah,1,0,0,0,Novice Warrior's Sword
+121430000,Training Warrior's Sword 1,silah,1,0,0,0,Training Warrior's Sword
+121440000,Training Warrior's Sword 2,silah,1,0,0,0,Training Warrior's Sword
+121450000,Skilled Warrior's Sword 1,silah,1,0,0,0,Skilled Warrior's Sword
+121460000,Skilled Warrior's Sword 2,silah,1,0,0,0,Skilled Warrior's Sword
+121470000,Novice Sword 1,silah,1,0,0,0,Novice Warrior's Sword
+125010000,Novice Two-Handed Sword 1,silah,1,0,0,0,Novice Warrior's Two-Handed Sword
+125020000,Novice Two-Handed Sword 2,silah,1,0,0,0,Novice Warrior's Two-Handed Sword
+125030000,Training Warrior's Two-Handed Sword 1,silah,1,0,0,0,Training Warrior's Two-Handed Sword
+125040000,Training Warrior's Two-Handed Sword 2,silah,1,0,0,0,Training Warrior's Two-Handed Sword
+125050000,Skilled Warrior's Two-Handed Sword 1,silah,1,0,0,0,Skilled Warrior's Two-Handed Sword
+125060000,Skilled Warrior's Two-Handed Sword 2,silah,1,0,0,0,Skilled Warrior's Two-Handed Sword
+125070000,Two-Handed Training Sword,silah,1,0,0,50,Two-handed sword for training warriors
+201001000,Quilted Pauldron,zirh,1,0,0,560,The pauldron worn by novice warriors.
+201002000,Leather Pads,zirh,1,0,0,336,The pads worn by novice warriors.
+201003000,Leather Cap,zirh,1,0,0,224,The hat worn by novice warriors.
+201004000,Leather Gloves,zirh,1,0,0,112,The gloves worn by novice warriors.
+201005000,Leather Shoes,zirh,1,0,0,112,The shoes worn by novice warriors.
+201011000,Novice Warrior's Pauldron,zirh,1,0,0,0,Novice Warrior's Armor
+201012000,Novice Warrior's Pants,zirh,1,0,0,0,Novice Warrior's Armor
+201013000,Novice Warrior's Helmet,zirh,1,0,0,0,Novice Warrior's Armor
+201014000,Novice Warrior's Gauntlets,zirh,1,0,0,0,Novice Warrior's Armor
+201015000,Novice Warrior's Boots,zirh,1,0,0,0,Novice Warrior's Armor
+202001000,Half Plate Pauldron,zirh,1,0,0,4500,A piece of armor that protects the vital points to improve mobility.
+202002000,Half Plate Pads,zirh,1,0,0,2700,A piece of armor that protects the vital points to improve mobility.
+202003000,Half Plate Helmet,zirh,1,0,0,1800,A piece of armor that protects the vital points to improve mobility.
+202004000,Half Plate Gauntlet,zirh,1,0,0,900,A piece of armor that protects the vital points to improve mobility.
+202005000,Half Plate Boots,zirh,1,0,0,900,A piece of armor that protects the vital points to improve mobility.
+202013000,Helmet of Destruction,zirh,1,0,0,288000,Armor of Destruction (Warriors) - Cannot be repaired.
+202021000,Training warriors' Pauldron,zirh,1,0,0,0,Training Warrior's Armor
+202022000,Training warriors' Pants,zirh,1,0,0,0,Training Warrior's Armor
+202023000,Training warriors' Helmet,zirh,1,0,0,0,Training Warrior's Armor
+202024000,Training warriors' Gauntlets,zirh,1,0,0,0,Training Warrior's Armor
+202025000,Training warriors' Boots,zirh,1,0,0,0,Training Warrior's Armor
+203001000,Plate Armor Pauldron,zirh,1,0,0,64000,A piece of plate armor that is vulnerable in joints.
+203002000,Plate Armor Pads,zirh,1,0,0,38400,A piece of plate armor that is vulnerable in joints.
+203003000,Plate Armor Helmet,zirh,1,0,0,25600,A piece of plate armor that is vulnerable in joints.
+203004000,Plate Armor Gauntlet,zirh,1,0,0,12800,A piece of plate armor that is vulnerable in joints.
+203005000,Plate Armor Boots,zirh,1,0,0,12800,A piece of plate armor that is vulnerable in joints.
+203011000,Armor of Destruction,zirh,1,0,0,720000,Armor of Destruction (Warriors) - Cannot be repaired.
+203012000,Pads of Destruction,zirh,1,0,0,432000,Armor of Destruction (Warriors) - Cannot be repaired.
+203014000,Gauntlet of Destruction,zirh,1,0,0,144000,Armor of Destruction (Warriors) - Cannot be repaired.
+203015000,Boots of Destruction,zirh,1,0,0,144000,Armor of Destruction (Warriors) - Cannot be repaired.
+203021000,Talia skin,zirh,1,0,0,100000,Talia Skin (Warriors) - Cannot be repaired.
+203031000,Skilled Warrior's Pauldron,zirh,1,0,0,0,Skilled Warrior's Armor
+203032000,Skilled Warrior's Pants,zirh,1,0,0,0,Skilled Warrior's Armor
+203033000,Skilled Warrior's Helmet,zirh,1,0,0,0,Skilled Warrior's Armor
+203034000,Skilled Warrior's Gauntlets,zirh,1,0,0,0,Skilled Warrior's Armor
+203035000,Skilled Warrior's Boots,zirh,1,0,0,0,Skilled Warrior's Armor
+204001000,Full Plate Armor Pauldron,zirh,1,0,0,96000,Strong plate armor made in the middle ages with reinforced joints.
+204002000,Full Plate Armor Pads,zirh,1,0,0,57600,Strong plate armor made in the middle ages with reinforced joints.
+204003000,Full Plate Armor Helmet,zirh,1,0,0,38400,Strong plate armor made in the middle ages with reinforced joints.
+204004000,Full Plate Armor Gauntlet,zirh,1,0,0,19200,Strong plate armor made in the middle ages with reinforced joints.
+204005000,Full Plate Armor Boots,zirh,1,0,0,19200,Strong plate armor made in the middle ages with reinforced joints.
+205001000,Chitin Armor Pauldron,zirh,1,0,0,144000,A sophisticated piece of plate armor.
+205002000,Chitin Armor Pads,zirh,1,0,0,86400,A sophisticated piece of plate armor.
+205003000,Chitin Helmet,zirh,1,0,0,57600,A sophisticated piece of plate armor.
+205004000,Chitin Gauntlets,zirh,1,0,0,28800,A sophisticated piece of plate armor.
+205005000,Chitin Boots,zirh,1,0,0,28800,A sophisticated piece of plate armor.
+206001000,Chitin Shell Pauldron,zirh,6,0,0,216000,Chitin Shell Pauldron
+206002000,Chitin Shell Pads,zirh,6,0,0,129600,Chitin Shell Pads
+206003000,Chitin Shell Helmet,zirh,6,0,0,86400,Chitin Shell Helmet
+206004000,Chitin Shell Gauntlets,zirh,6,0,0,43200,Chitin Shell Gauntlets
+206005000,Chitin Shell Boots,zirh,6,0,0,43200,Chitin Shell Boots
+207001000,Sturdy Weapon Breaker Upper Garment,zirh,6,20,0,216000,Chitin Shell Armor Upper Garment.
+207002000,Sturdy Weapon Breaker Lower Garment,zirh,6,20,0,129600,Chitin Shell Armor Lower Garment.
+207003000,Sturdy Weapon Breaker Helmet,zirh,6,20,0,86400,Chitin Shell Armor Helmet.
+207004000,Sturdy Weapon Breaker Gauntlets,zirh,6,20,0,43200,Chitin Shell Gauntlets.
+207005000,Sturdy Weapon Breaker Boots,zirh,6,20,0,43200,Chitin Shell Boots.
+208001000,Krowaz Warrior Upper Garment,zirh,6,0,75,345600,A legendary armor made by casting Illusion Armor.
+208002000,Krowaz Warrior Lower Garment,zirh,6,0,75,207360,A legendary armor made by casting Illusion Lower Gaiters.
+208003000,Krowaz Warrior Helmet,zirh,6,0,75,138240,A legendary armor made by casting Illusion Helmet.
+208004000,Krowaz Warrior Gauntlets,zirh,6,0,75,69120,A legendary armor made by casting Illusion Gauntlets.
+208005000,Krowaz Warrior Boots,zirh,6,0,75,69120,A legendary armor made by casting Illusion Boots.
+209001000,Legendary king's steel corset,zirh,6,20,70,216000,Legacy from legendary king.  There is a trace as passage.
+209002000,Legendary king's strong armor,zirh,6,20,70,129600,Will Seal evils with under name of [Re..Don] 
+209003000,Legendary king's helmet,zirh,6,20,70,86400,Since Seal 72 Magical spirtis in the book?
+209004000,Legendary king's gauntlet,zirh,6,20,70,43200,Abyss pond with the name of god  will be Sealed deep inside.
+209005000,Legendary king's boots,zirh,6,20,70,43200,.. Devils will never be prosperous.
+210001000,Secret warrior top,zirh,6,127,70,216000,Secret Armor
+210002000,Secret warrior bottom,zirh,6,127,70,129600,Secret Armor
+210003000,Secret warrior helmet,zirh,6,127,70,86400,Secret Armor
+210004000,Secret warrior gauntlet,zirh,6,127,70,43200,Secret Armor
+210005000,Secret warrior boot,zirh,6,127,70,43200,Secret Armor
+214005000,Full Plate Armor Boots,zirh,1,0,0,852,Strong plate armor made in the middle ages with reinforced joints. (Quest Item)
+215001000,Chitin Armor Pauldron,zirh,1,0,0,216000,A sophisticated piece of plate armor.
+215002000,Chitin Armor Pads,zirh,1,0,0,129600,A sophisticated piece of plate armor.
+215003000,Chitin Helmet,zirh,1,0,0,86400,A sophisticated piece of plate armor.
+215004000,Chitin Gauntlets,zirh,1,0,0,43200,A sophisticated piece of plate armor.
+215005000,Chitin Boots,zirh,1,0,0,43200,A sophisticated piece of plate armor.
+216001000,Chitin Shell Pauldron,zirh,6,0,0,216000,Chitin Shell Pauldron
+216002000,Chitin Shell Pads,zirh,6,0,0,129600,Chitin Shell Pads
+216003000,Chitin Shell Helmet,zirh,6,0,0,86400,Chitin Shell Helmet
+216004000,Chitin Shell Gauntlets,zirh,6,0,0,43200,Chitin Shell Gauntlets
+216005000,Chitin Shell Boots,zirh,6,0,0,43200,Chitin Shell Boots
+218001000,Krowaz Warrior Upper Garment,zirh,6,0,75,345600,A legendary armor made by casting Illusion Armor.
+218002000,Krowaz Warrior Lower Garment,zirh,6,0,75,207360,A legendary armor made by casting Illusion Lower Gaiters.
+218003000,Krowaz Warrior Helmet,zirh,6,0,75,138240,A legendary armor made by casting Illusion Helmet.
+218004000,Krowaz Warrior Gauntlets,zirh,6,0,75,69120,A legendary armor made by casting Illusion Gauntlets.
+218005000,Krowaz Warrior Boots,zirh,6,0,75,69120,A legendary armor made by casting Illusion Boots.
+220001000,Secret warrior top,zirh,6,127,70,216000,Secret Armor
+220002000,Secret warrior bottom,zirh,6,127,70,129600,Secret Armor
+220003000,Secret warrior helmet,zirh,6,127,70,86400,Secret Armor
+220004000,Secret warrior gauntlet,zirh,6,127,70,43200,Secret Armor
+220005000,Secret warrior boot,zirh,6,127,70,43200,Secret Armor
+224001000,Full Plate Armor Pauldron,zirh,1,0,0,96000,Strong plate armor made in the middle ages with reinforced joints.
+224002000,Full Plate Armor Pads,zirh,1,0,0,57600,Strong plate armor made in the middle ages with reinforced joints.
+224003000,Full Plate Armor Helmet,zirh,1,0,0,38400,Strong plate armor made in the middle ages with reinforced joints.
+224004000,Full Plate Armor Gauntlet,zirh,1,0,0,19200,Strong plate armor made in the middle ages with reinforced joints.
+224005000,Full Plate Armor Boots,zirh,1,0,0,19200,Strong plate armor made in the middle ages with reinforced joints.
+231511000,Holy Knight Warrior Pauldron,zirh,6,167,75,345600,
+231512000,Holy Knight Warrior Pads,zirh,6,167,75,207360,
+231513000,Holy Knight Warrior Helmet,zirh,6,167,75,138240,
+231514000,Holy Knight Warrior Gauntlets,zirh,6,167,75,69120,
+231515000,Holy Knight Warrior Boots,zirh,6,167,75,69120,
+235511000,Holy Knight Warrior Pauldron,zirh,6,167,75,345600,
+235512000,Holy Knight Warrior Pads,zirh,6,167,75,207360,
+235513000,Holy Knight Warrior Helmet,zirh,6,167,75,138240,
+235514000,Holy Knight Warrior Gauntlets,zirh,6,167,75,69120,
+235515000,Holy Knight Warrior Boots,zirh,6,167,75,69120,
+236001000,Chitin Shell Pauldron,zirh,6,20,0,1,Chitin Shell Pauldron
+236002000,Chitin Shell Pads,zirh,6,20,0,1,Chitin Shell Pads
+236003000,Chitin Shell Helmet,zirh,6,20,0,1,Chitin Shell Helmet
+236004000,Chitin Shell Gauntlets,zirh,6,20,0,1,Chitin Shell Gauntlets
+236005000,Chitin Shell Boots,zirh,6,20,0,1,Chitin Shell Boots
+306001000,Noah Chitin Shell Pauldron,zirh,6,20,0,216000,Chitin Shell Pauldron
+306002000,Noah Chitin Shell Pads,zirh,6,20,0,129600,Chitin Shell Pads
+306003000,Noah Chitin Shell Helmet,zirh,6,20,0,86400,Chitin Shell Helmet
+306004000,Noah Chitin Shell Gauntlets,zirh,6,20,0,43200,Chitin Shell Gauntlets
+306005000,Noah Chitin Shell Boots,zirh,6,20,0,43200,Chitin Shell Boots
+314511000,Holy Knight Warrior Pauldron,zirh,6,167,75,345600,
+314512000,Holy Knight Warrior Pads,zirh,6,167,75,207360,
+314513000,Holy Knight Warrior Helmet,zirh,6,167,75,138240,
+314514000,Holy Knight Warrior Gauntlets,zirh,6,167,75,69120,
+314515000,Holy Knight Warrior Boots,zirh,6,167,75,69120,
+505001000,Black Chitin Armor Pauldron,zirh,1,111,0,14400,A sophisticated piece of plate armor.
+505002000,Black Chitin Armor Pads,zirh,1,111,0,8640,A sophisticated piece of plate armor.
+505003000,Black Chitin Helmet,zirh,1,111,0,5760,A sophisticated piece of plate armor.
+505004000,Black Chitin Gauntlets,zirh,1,111,0,2880,A sophisticated piece of plate armor.
+505005000,Black Chitin Boots,zirh,1,111,0,2880,A sophisticated piece of plate armor.
+507001000,Dragon Scale Armor Top,zirh,6,0,0,216000,
+507002000,Dragon Scale Armor Pants,zirh,6,0,0,129600,
+507003000,Dragon Scale Helmet,zirh,6,0,0,86400,
+507004000,Dragon Scale Gauntlet,zirh,6,0,0,43200,
+507005000,Dragon Scale Boots,zirh,6,0,0,43200,
+508771000,Subjugation Force's Pauldron,zirh,6,119,0,0,Skilled warriors wear the Subjgation Force's armor to take the final warrior examination. The armor are only rented from special places.
+508772000,Subjugation Force's Pants,zirh,6,119,0,0,Skilled warriors wear the Subjgation Force's armor to take the final warrior examination. The armor are only rented from special places.
+508773000,Subjugation Force's Hat,zirh,6,119,0,0,Skilled warriors wear the Subjgation Force's armor to take the final warrior examination. The armor are only rented from special places.
+508774000,Subjugation Force's Gloves,zirh,6,119,0,0,Skilled warriors wear the Subjgation Force's armor to take the final warrior examination. The armor are only rented from special places.
+508775000,Subjugation Force's Shoes,zirh,6,119,0,0,Skilled warriors wear the Subjgation Force's armor to take the final warrior examination. The armor are only rented from special places.
+509001000,Exceptional Dragon Flight Pauldron,zirh,6,115,70,216000,Exceptional Dragon Set
+509002000,Exceptional Dragon Flight Pad,zirh,6,115,70,129600,Exceptional Dragon Set
+509003000,Exceptional Dragon Flight Helmet,zirh,6,115,70,86400,Exceptional Dragon Set
+509004000,Exceptional Dragon Flight Gauntlet,zirh,6,115,70,43200,Exceptional Dragon Set
+509005000,Exceptional Dragon Flight Boots,zirh,6,115,70,43200,Exceptional Dragon Set
+511003000,Exceptional Dragon Flight Pauldron,zirh,6,115,70,216000,Exceptional Dragon Flight Pauldron
+511004000,Exceptional Dragon Flight Pad,zirh,6,115,70,129600,Exceptional Dragon Flight Pad
+511005000,Exceptional Dragon Flight Helmet,zirh,6,115,70,86400,Exceptional Dragon Flight Helmet
+511006000,Exceptional Dragon Flight Gauntlet,zirh,6,115,70,43200,Exceptional Dragon Flight Gauntlet
+511007000,Exceptional Dragon Flight Boots,zirh,6,115,70,43200,Exceptional Dragon Flight Boots
+514001000,Hepa's Chitin Armor Pauldron,zirh,1,0,0,144000,A sophisticated piece of plate armor.
+514002000,Hepa's Chitin Armor Pads,zirh,1,0,0,86400,A sophisticated piece of plate armor.
+514003000,Hepa's Chitin Helmet,zirh,1,0,0,57600,A sophisticated piece of plate armor.
+514004000,Hepa's Chitin Gauntlets,zirh,1,0,0,28800,A sophisticated piece of plate armor.
+514005000,Hepa's Chitin Boots,zirh,1,0,0,28800,A sophisticated piece of plate armor.
+515001000,Hepa's Chitin Shell Pauldron,zirh,6,0,0,216000,Chitin Shell Pauldron
+515002000,Hepa's Chitin Shell Pads,zirh,6,0,0,129600,Chitin Shell Pads
+515003000,Hepa's Chitin Shell Helmet,zirh,6,0,0,86400,Chitin Shell Helmet
+515004000,Hepa's Chitin Shell Gauntlets,zirh,6,0,0,43200,Chitin Shell Gauntlets
+515005000,Hepa's Chitin Shell Boots,zirh,6,0,0,43200,Chitin Shell Boots
+517001000,Dragon Scale Armor Top,zirh,6,0,0,216000,
+517002000,Dragon Scale Armor Pants,zirh,6,0,0,129600,
+517003000,Dragon Scale Helmet,zirh,6,0,0,86400,
+517004000,Dragon Scale Gauntlet,zirh,6,0,0,43200,
+517005000,Dragon Scale Boots,zirh,6,0,0,43200,
+521511000,Rosetta Warrior Top,zirh,6,150,75,345600,
+521512000,Rosetta Warrior Bottom,zirh,6,150,75,207360,
+521513000,Rosetta Warrior Helmet,zirh,6,150,75,138240,
+521514000,Rosetta Warrior Guntlet,zirh,6,150,75,69120,
+521515000,Rosetta Warrior Boots,zirh,6,150,75,69120,
+524001000,Hepa's Chitin Armor Pauldron,zirh,1,0,0,216000,A sophisticated piece of plate armor.
+524002000,Hepa's Chitin Armor Pads,zirh,1,0,0,129600,A sophisticated piece of plate armor.
+524003000,Hepa's Chitin Helmet,zirh,1,0,0,86400,A sophisticated piece of plate armor.
+524004000,Hepa's Chitin Gauntlets,zirh,1,0,0,43200,A sophisticated piece of plate armor.
+524005000,Hepa's Chitin Boots,zirh,1,0,0,43200,A sophisticated piece of plate armor.
+525001000,Hepa's Chitin Shell Pauldron,zirh,6,0,0,216000,Chitin Shell Pauldron
+525002000,Hepa's Chitin Shell Pads,zirh,6,0,0,129600,Chitin Shell Pads
+525003000,Hepa's Chitin Shell Helmet,zirh,6,0,0,86400,Chitin Shell Helmet
+525004000,Hepa's Chitin Shell Gauntlets,zirh,6,0,0,43200,Chitin Shell Gauntlets
+525005000,Hepa's Chitin Shell Boots,zirh,6,0,0,43200,Chitin Shell Boots
+525511000,Rosetta Warrior Top,zirh,6,150,75,345600,Secret Armor
+525512000,Rosetta Warrior Bottom,zirh,6,150,75,207360,Secret Armor
+525513000,Rosetta Warrior Helmet,zirh,6,150,75,138240,Secret Armor
+525514000,Rosetta Warrior Guntlet,zirh,6,150,75,69120,Secret Armor
+525515000,Rosetta Warrior Boots,zirh,6,150,75,69120,Secret Armor
+605001000,Red Chitin Armor Pauldron,zirh,1,123,0,2000,A sophisticated piece of plate armor.
+605002000,Red Chitin Armor Pads,zirh,1,123,0,2000,A sophisticated piece of plate armor.
+605003000,Red Chitin Armor Helmet,zirh,1,123,0,2000,A sophisticated piece of plate armor.
+605004000,Red Chitin Armor Gauntlets,zirh,1,123,0,2000,A sophisticated piece of plate armor.
+605005000,Red Chitin Armor Boots,zirh,1,123,0,2000,A sophisticated piece of plate armor.
+605201000,Red Chitin Armor Pauldron,zirh,6,0,0,2000,A sophisticated piece of plate armor.
+605202000,Red Chitin Armor Pads,zirh,6,0,0,2000,A sophisticated piece of plate armor.
+605203000,Red Chitin Armor Helmet,zirh,6,0,0,2000,A sophisticated piece of plate armor.
+605204000,Red Chitin Armor Gauntlets,zirh,6,0,0,2000,A sophisticated piece of plate armor.
+605205000,Red Chitin Armor Boots,zirh,6,0,0,2000,A sophisticated piece of plate armor.
+615001000,Black Chitin Armor Pauldron,zirh,1,111,0,216000,A sophisticated piece of plate armor.
+615002000,Black Chitin Armor Pads,zirh,1,111,0,129600,A sophisticated piece of plate armor.
+615003000,Black Chitin Helmet,zirh,1,111,0,86400,A sophisticated piece of plate armor.
+615004000,Black Chitin Gauntlets,zirh,1,111,0,43200,A sophisticated piece of plate armor.
+615005000,Black Chitin Boots,zirh,1,111,0,43200,A sophisticated piece of plate armor.
+715001000,Red Chitin Armor Pauldron,zirh,1,123,0,216000,A sophisticated piece of plate armor.
+715002000,Red Chitin Armor Pads,zirh,1,123,0,129600,A sophisticated piece of plate armor.
+715003000,Red Chitin Armor Helmet,zirh,1,123,0,86400,A sophisticated piece of plate armor.
+715004000,Red Chitin Armor Gauntlets,zirh,1,123,0,43200,A sophisticated piece of plate armor.
+715005000,Red Chitin Armor Boots,zirh,1,123,0,43200,A sophisticated piece of plate armor.
+900715000,[Test] Krowaz Warrior,zirh,6,160,75,100,Deleted when finish the Test
+900716000,[Test] Krowaz Warrior Bottom,zirh,6,160,75,100,Deleted when finish the Test
+900717000,[Test] Krowaz Warrior Helmet,zirh,6,160,75,100,Deleted when finish the Test
+900718000,[Test] Krowaz Warrior Guntlet,zirh,6,160,75,100,Deleted when finish the Test
+900719000,[Test] Krowaz Warrior Boots,zirh,6,160,75,100,Deleted when finish the Test
+905001000,Chitin Armor Pauldron,zirh,1,0,0,144000,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+905002000,Chitin Armor Pads,zirh,1,0,0,86400,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+905003000,Chitin Helmet,zirh,1,0,0,57600,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+905004000,Chitin Gauntlets,zirh,1,0,0,28800,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+905005000,Chitin Boots,zirh,1,0,0,28800,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+906001000,Chitin Shell Pauldron,zirh,6,0,0,216000,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+906002000,Chitin Shell Pads,zirh,6,0,0,129600,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+906003000,Chitin Shell Helmet,zirh,6,0,0,86400,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+906004000,Chitin Shell Gauntlets,zirh,6,0,0,43200,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+906005000,Chitin Shell Boots,zirh,6,0,0,43200,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+907001000,Noah Dragon Scale Armor Top,zirh,6,0,0,216000,Dragon Scale Armor Top
+907002000,Noah Dragon Scale Armor Pants,zirh,6,0,0,129600,Dragon Scale Armor Pants
+907003000,Noah Dragon Scale Helmet,zirh,6,0,0,86400,Dragon Scale Helmet
+907004000,Noah Dragon Scale Gauntlet,zirh,6,0,0,43200,Dragon Scale Gauntlet
+907005000,Noah Dragon Scale Boots,zirh,6,0,0,43200,Dragon Scale Boots
+917001000,Dragon Scale Armor Top,zirh,6,0,0,216000,
+917002000,Dragon Scale Armor Pants,zirh,6,0,0,129600,
+917003000,Dragon Scale Helmet,zirh,6,0,0,86400,
+917004000,Dragon Scale Gauntlet,zirh,6,0,0,43200,
+917005000,Dragon Scale Boots,zirh,6,0,0,43200,
+922001000,Dragon Scale Armor Top,zirh,6,0,0,216000,
+922002000,Dragon Scale Armor Pants,zirh,6,0,0,129600,
+922003000,Dragon Scale Helmet,zirh,6,0,0,86400,
+922004000,Dragon Scale Gauntlet,zirh,6,0,0,43200,
+922005000,Dragon Scale Boots,zirh,6,0,0,43200,
+925000000,Troll Armor: Upper Garment,zirh,1,0,0,144000,Armor consisting of 7 layers of Troll leather.
+925001000,Troll Armor: Lower Garment,zirh,1,0,0,86400,Armor consisting of 7 layers of Troll leather.
+925002000,Troll Armor: Helmet,zirh,1,0,0,57600,Armor consisting of 7 layers of Troll leather.
+925003000,Troll Armor: Gauntlets,zirh,1,0,0,28800,Armor consisting of 7 layers of Troll leather.
+925004000,Troll Armor: Boots,zirh,1,0,0,28800,Armor consisting of 7 layers of Troll leather.
+930001000,Pauldron of Novice Mercenary,zirh,1,0,30,216000,2006 Christmas Anniversary Pendant
+930002000,Pads of Novice Mercenary,zirh,1,0,30,129600,2006 Christmas Anniversary Pendant
+930003000,Helmet of Novice Mercenary,zirh,1,0,30,86400,2006 Christmas Anniversary Pendant
+930004000,Gauntlets of Novice Mercenary,zirh,1,0,30,43200,2006 Christmas Anniversary Pendant
+930005000,Boots of Novice Mercenary,zirh,1,0,30,43200,2006 Christmas Anniversary Pendant
+940611000,Draki Legion Warrior Pauldrons,zirh,6,173,0,216000,
+940612000,Draki Legion Warrior Pads,zirh,6,173,0,129600,
+940613000,Draki Legion Warrior Helm,zirh,6,173,0,86400,
+940614000,Draki Legion Warrior Gauntlets,zirh,6,173,0,43200,
+940615000,Draki Legion Warrior Boots,zirh,6,173,0,43200,
+941611000,Draki Legion Warrior Pauldrons,zirh,6,173,0,216000,
+941612000,Draki Legion Warrior Pads,zirh,6,173,0,129600,
+941613000,Draki Legion Warrior Helm,zirh,6,173,0,86400,
+941614000,Draki Legion Warrior Gauntlets,zirh,6,173,0,43200,
+941615000,Draki Legion Warrior Boots,zirh,6,173,0,43200,

@@ -20,7 +20,7 @@ import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
-export interface Beceri { /** yakın dövüş skill'inin silah hasarı yüzdesi (skill_magic_1) */ hasarYuzde?: number; /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
+export interface Beceri { /** yakın dövüş kombo animasyonları (orijinal iAct[0..2]); yalnız birden çok vuruşlu skill'lerde */ kombo?: number[]; /** yakın dövüş skill'inin silah hasarı yüzdesi (skill_magic_1) */ hasarYuzde?: number; /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
 
 export interface ArayuzBaglami {
   kok: HTMLElement;
@@ -876,6 +876,7 @@ export class OyunArayuzu {
   /** Skill'in client tablosundaki adı (sunucu tablosunda adı boş olan skill'ler için). */
   beceriAdi(no: number): string | undefined { return this.beceriBul(no)?.ad; }
   beceriAnimNo(no: number): number | undefined { return this.beceriBul(no)?.anim; }
+  beceriKombo(no: number): number[] | undefined { return this.beceriBul(no)?.kombo; }
   /** Skill'in efekt numaraları (fx.tbl): kendinde ve hedefte oynayan. */
   beceriEfekt(no: number): { kendi: number | null; hedef: number | null; ucan: number | null } { const b = this.beceriBul(no); return { kendi: b?.efektKendi ?? null, hedef: b?.efektHedef ?? null, ucan: b?.efektUcan ?? null }; }
   /** Çubuktaki 16 yuva: yatay 10..17, dikey 0..7 (orijinal arayüzde iki ayrı grup). */
@@ -1038,15 +1039,36 @@ export class OyunArayuzu {
    * geçen süre kadar koyu bir dilim 12 yönünden başlayıp sola doğru büyür; süre bitince simge kaybolur.
    */
   private buffSeridi: HTMLElement | null = null;
-  private buffImza = '';
+  private buffImza = ''; private buffKap: HTMLElement | null = null;
   private buffleriCiz(): void {
     if (!this.buffSeridi) {
+      // Dış kap: solda süslü sürükleme tutacağı (sol tıkla tutup istenen yere bırakılır, konum hatırlanır) + simge şeridi.
+      const kap = this.buffKap = document.createElement('div');
+      let konum = { x: 6, y: 108 };
+      try { const k = JSON.parse(localStorage.getItem('ke.buffKonum') ?? 'null') as { x: number; y: number } | null; if (k && Number.isFinite(k.x) && Number.isFinite(k.y)) konum = k; } catch { /* kayıt yok */ }
+      Object.assign(kap.style, { position: 'fixed', left: konum.x + 'px', top: konum.y + 'px', display: 'none', gap: '3px', alignItems: 'stretch', zIndex: '9', pointerEvents: 'none' });
+      const tutac = document.createElement('div'); tutac.title = 'Drag to move';
+      Object.assign(tutac.style, { width: '16px', minHeight: '28px', cursor: 'grab', pointerEvents: 'auto', borderRadius: '3px', border: '1px solid #c9a24a', background: 'linear-gradient(90deg,#3b2f18,#6b5628 50%,#3b2f18)', boxShadow: 'inset 0 0 3px #000, 0 1px 3px #000a', position: 'relative' });
+      const im = new Image(); im.onload = () => { // oyunun UI dokusundan süslü şerit başı: dikey olarak yinelenir
+        const c = document.createElement('canvas'); c.width = 14; c.height = 32; c.getContext('2d')!.drawImage(im, 4, 429, 14, 32, 0, 0, 14, 32);
+        Object.assign(tutac.style, { backgroundImage: 'url(' + c.toDataURL('image/png') + ')', backgroundRepeat: 'repeat-y', backgroundPosition: 'center top' });
+      }; im.src = '/arayuz/doku/ui_quest.png';
+      tutac.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); tutac.setPointerCapture(e.pointerId); tutac.style.cursor = 'grabbing';
+        const dx = e.clientX - kap.offsetLeft, dy = e.clientY - kap.offsetTop;
+        const tasi = (ev: PointerEvent) => { kap.style.left = Math.max(0, Math.min(innerWidth - 40, ev.clientX - dx)) + 'px'; kap.style.top = Math.max(0, Math.min(innerHeight - 40, ev.clientY - dy)) + 'px'; };
+        const birak = () => { tutac.style.cursor = 'grab'; tutac.removeEventListener('pointermove', tasi); tutac.removeEventListener('pointerup', birak);
+          try { localStorage.setItem('ke.buffKonum', JSON.stringify({ x: kap.offsetLeft, y: kap.offsetTop })); } catch { /* depolama kapalı */ } };
+        tutac.addEventListener('pointermove', tasi); tutac.addEventListener('pointerup', birak);
+      });
+      tutac.addEventListener('pointerdown', (e) => e.stopPropagation()); // oyun alanına tıklama geçmesin
       this.buffSeridi = document.createElement('div');
-      Object.assign(this.buffSeridi.style, { position: 'fixed', left: '6px', top: '108px', display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '300px', zIndex: '9', pointerEvents: 'none' });
-      this.b.kok.appendChild(this.buffSeridi);
+      Object.assign(this.buffSeridi.style, { display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '300px', pointerEvents: 'none' });
+      kap.appendChild(tutac); kap.appendChild(this.buffSeridi); this.b.kok.appendChild(kap);
     }
     const o = this.b.oyuncu, simdi = performance.now() / 1000, liste = o.buflar.filter((x) => x.bitis > simdi && x.sure);
     const imza = liste.map((x) => x.no).join(',');
+    if (this.buffKap) this.buffKap.style.display = liste.length ? 'flex' : 'none';
     if (imza !== this.buffImza) {
       this.buffImza = imza; this.buffSeridi.replaceChildren();
       for (const x of liste) {

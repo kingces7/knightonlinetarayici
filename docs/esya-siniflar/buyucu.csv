@@ -1,0 +1,283 @@
+esya_no,ad,tur,sinif_kodu,irk,gereken_seviye,fiyat,aciklama
+310513000,Lich King's Earring,sarf,10,0,0,640,Ring once pierced on  Lich King's skinny finger. Not a ring normally worn on the finger.
+379069000,Spell of thorn,sarf,3,0,0,10000000,Scroll for Level 54 Magician
+379070000,Spell of impact,sarf,3,0,0,10000000,Scroll for Level 57 Magician
+389021000,Spell of flame,sarf,3,0,0,60,Close-range attack
+389023000,Spell of life,sarf,3,0,0,3600,480HP
+389050000,Calling Friend Scroll,sarf,3,0,0,12000,Scroll for retrieving party members
+389055000,Scroll of shell,sarf,3,0,0,4200,Scroll of shell
+390513000,Noah Lich King's Earrings,sarf,10,20,0,640,Ring once pierced on Lich King's skinny finger. Not a ring normally worn on the finger.
+1310513000,Akara Lich King Earring,sarf,10,0,0,640,Ring once pierced on  Lich King's skinny finger. Not a ring normally worn on the finger.
+181420000,Novice Staff 2,silah,3,0,0,0,Novice Magician's Staff
+181430000,Training Magician's Staff 1,silah,3,0,0,0,Training Magician's Staff
+181440000,Training Magician's Staff 2,silah,3,0,0,0,Training Magician's Staff
+181450000,Skilled Magician's Staff 1,silah,3,0,0,0,Skilled Magician's Staff
+181460000,Skilled Magician's Staff 2,silah,3,0,0,0,Skilled Magician's Staff
+181470000,Novice Staff 1,silah,3,0,0,0,Novice Magician's Staff
+181480000,Training Staff ,silah,3,0,0,50,Training Magician's Staff
+212001000,Secret mage robe,zirh,10,129,70,194400,Secret Armor
+212002000,Secret mage pants,zirh,10,129,70,116640,Secret Armor
+212003000,Secret mage helmet,zirh,10,129,70,77760,Secret Armor
+212004000,Secret mage grove,zirh,10,129,70,38880,Secret Armor
+212005000,Secret mage boot,zirh,10,129,70,38880,Secret Armor
+222001000,Secret mage robe,zirh,10,129,70,194400,Secret Armor
+222002000,Secret mage pants,zirh,10,129,70,116640,Secret Armor
+222003000,Secret mage helmet,zirh,10,129,70,77760,Secret Armor
+222004000,Secret mage grove,zirh,10,129,70,38880,Secret Armor
+222005000,Secret mage boot,zirh,10,129,70,38880,Secret Armor
+233511000,Holy Knight Mage Robe,zirh,10,169,75,311040,
+233512000,Holy Knight Mage Pants,zirh,10,169,75,186624,
+233513000,Holy Knight Mage Helmet,zirh,10,169,75,124416,
+233514000,Holy Knight Mage Gloves,zirh,10,169,75,62208,
+233515000,Holy Knight Mage Boots,zirh,10,169,75,62208,
+237511000,Holy Knight Mage Robe,zirh,10,169,75,311040,
+237512000,Holy Knight Mage Pants,zirh,10,169,75,186624,
+237513000,Holy Knight Mage Helmet,zirh,10,169,75,124416,
+237514000,Holy Knight Mage Gloves,zirh,10,169,75,62208,
+237515000,Holy Knight Mage Boots,zirh,10,169,75,62208,
+238001000,Complete Robe,zirh,10,20,0,1,Complete Robe
+238002000,Complete Pants,zirh,10,20,0,1,Complete Pants
+238003000,Complete Helmet,zirh,10,20,0,1,Complete Helmet
+238004000,Complete Glove,zirh,10,20,0,1,Complete Glove
+238005000,Complete Boots,zirh,10,20,0,1,Complete Boots
+261001000,Mage Cotton Robe,zirh,3,0,0,504,The pauldron worn by novice mages.
+261001000,Mage Cotton Robe,zirh,3,0,0,504,The pauldron worn by novice mages.
+261002000,Mage Cloth Pants,zirh,3,0,0,302,The pants worn by novice mages.
+261002000,Mage Cloth Pants,zirh,3,0,0,302,The pants worn by novice mages.
+261003000,Mage Hat,zirh,3,0,0,201,The hat worn by novice mages.
+261003000,Mage Hat,zirh,3,0,0,201,The hat worn by novice mages.
+261004000,Mage Gloves,zirh,3,0,0,100,The gloves worn by novice mages.
+261004000,Mage Gloves,zirh,3,0,0,100,The gloves worn by novice mages.
+261005000,Mage Shoes,zirh,3,0,0,100,The shoes worn by novice mages.
+261005000,Mage Shoes,zirh,3,0,0,100,The shoes worn by novice mages.
+261011000,Novice Magician's Robe,zirh,3,0,0,0,Novice Magician's Armor
+261012000,Novice Magician's Pants,zirh,3,0,0,0,Novice Magician's Armor
+261013000,Novice Magician's Helmet,zirh,3,0,0,0,Novice Magician's Armor
+261014000,Novice Magician's Gauntlets,zirh,3,0,0,0,Novice Magician's Armor
+261015000,Novice Magician's Boots,zirh,3,0,0,0,Novice Magician's Armor
+262001000,Mage Linen Robe,zirh,3,0,0,4050,A robe that would look good on a mage.
+262002000,Mage Linen Pants,zirh,3,0,0,2430,A pair of pants that would look good on a mage.
+262003000,Mage Linen Cap,zirh,3,0,0,1620,A hat that would look good on a mage.
+262004000,Mage Leather Gloves,zirh,3,0,0,810,A pair of globes that would look good on a mage.
+262005000,Mage Leather Boots,zirh,3,0,0,810,A pair of shoes that would look good on a mage.
+262013000,Helmet of Destruction,zirh,3,0,0,288000,Armor of Destruction (Magicians) - Cannot be repaired.
+262021000,Training Magician's Robe,zirh,3,0,0,0,Training Magician's Armor
+262022000,Training Magician's Pants,zirh,3,0,0,0,Training Magician's Armor
+262023000,Training Magician's Helmet,zirh,3,0,0,0,Training Magician's Armor
+262024000,Training Magician's Gauntlets,zirh,3,0,0,0,Training Magician's Armor
+262025000,Training Magician's Boots,zirh,3,0,0,0,Training Magician's Armor
+263001000,Mage Silk Robe,zirh,3,0,0,57600,A silk robe that feels great to wear.
+263002000,Mage Silk Pants,zirh,3,0,0,34560,A pair of silk pants that feels great to wear.
+263003000,Mage Helmet,zirh,3,0,0,23040,A silk hat that feels great to wear.
+263004000,Mage Hard Leather Gloves,zirh,3,0,0,11520,A pair of silk gloves that feels great to wear.
+263005000,Mage Hard Leather Boots,zirh,3,0,0,11520,A pair of silk shoes  that feels great to wear.
+263011000,Armor of Destruction,zirh,3,0,0,720000,Armor of Destruction (Magicians) - Cannot be repaired.
+263012000,Pads of Destruction,zirh,3,0,0,432000,Armor of Destruction (Magicians) - Cannot be repaired.
+263014000,Gauntlet of Destruction,zirh,3,0,0,144000,Armor of Destruction (Magicians) - Cannot be repaired.
+263015000,Boots of Destruction,zirh,3,0,0,144000,Armor of Destruction (Magicians) - Cannot be repaired.
+263021000,Talia skin,zirh,3,0,0,100000,Talia Skin (Magicians) - Cannot be repaired.
+263031000,Skilled Magician's Robe,zirh,3,0,0,0,Skilled Magician's Armor
+263032000,Skilled Magician's Pants,zirh,3,0,0,0,Skilled Magician's Armor
+263033000,Skilled Magician's Helmet,zirh,3,0,0,0,Skilled Magician's Armor
+263034000,Skilled Magician's Gauntlets,zirh,3,0,0,0,Skilled Magician's Armor
+263035000,Skilled Magician's Boots,zirh,3,0,0,0,Skilled Magician's Armor
+264001000,Crystal Robe,zirh,3,0,0,86400,A robe that boosts the Spirit.
+264002000,Crystal Pants,zirh,3,0,0,51840,A pair of pants that boosts the Spirit.
+264003000,Crystal Helmet,zirh,3,0,0,34560,A helmet that boosts the Spirit.
+264004000,Crystal Gloves,zirh,3,0,0,17280,A pair of gloves that boosts the Spirit.
+264005000,Crystal Boots,zirh,3,0,0,17280,A pair of boots that boosts the Spirit.
+265001000,Crimson Robe,zirh,3,0,0,129600,A robe exuding the crimson dignity.
+265002000,Crimson Pants,zirh,3,0,0,77760,A pair of pants exuding the crimson dignity.
+265003000,Crimson Helmet,zirh,3,0,0,51840,A helmet exuding the crimson dignity.
+265004000,Crimson Gloves,zirh,3,0,0,25920,A pair of gloves exuding the crimson dignity.
+265005000,Crimson Boots,zirh,3,0,0,25920,A pair of boots exuding the crimson dignity.
+266001000,Complete Robe,zirh,10,0,0,194400,Complete Robe
+266002000,Complete Pants,zirh,10,0,0,116640,Complete Pants
+266003000,Complete Helmet,zirh,10,0,0,77760,Complete Helmet
+266004000,Complete Glove,zirh,10,0,0,38880,Complete Glove
+266005000,Complete Boots,zirh,10,0,0,38880,Complete Boots
+267001000,Shrewd Weapon Breaker Robe,zirh,10,20,0,194400,Complete Robe
+267002000,Shrewd Weapon Breaker Lower Garment,zirh,10,20,0,116640,Complete Pants
+267003000,Shrewd Weapon Breaker Helmet,zirh,10,20,0,77760,Complete Helmet
+267004000,Shrewd Weapon Breaker Gauntlets,zirh,10,20,0,38880,Complete Gloves
+267005000,Shrewd Weapon Breaker Boots,zirh,10,20,0,38880,Complete Boots
+268001000,Krowaz Mage Robe,zirh,10,0,75,311040,A legendary armor made by casting Illusion Armor.
+268002000,Krowaz Mage Pants,zirh,10,0,75,186624,A legendary armor made by casting Illusion Lower Gaiters.
+268003000,Krowaz Mage Helmet,zirh,10,0,75,124416,A legendary armor made by casting Illusion Helmet.
+268004000,Krowaz Mage Gauntlets,zirh,10,0,75,62208,A legendary armor made by casting Illusion Gauntlets.
+268005000,Krowaz Mage Boots,zirh,10,0,75,62208,A legendary armor made by casting Illusion Boots.
+269001000,Intelligent king's robe,zirh,10,20,70,194400,Intelligent king's legacy in old time.  There is a trace as passage.
+269002000,Intelligent king's kilt,zirh,10,20,70,116640,Seal 72 all Magical Spirits under God's name  are locked but still got a thing to do. That is?
+269003000,Intelligent king's head armor,zirh,10,20,70,77760,? With their power started to build an empire?
+269004000,Intelligent king's hands armor,zirh,10,20,70,38880,"Many wizards and  me, the leader of them ruled , and borrowed power.."
+269005000,Intelligent king's boots,zirh,10,20,70,38880,..It will grow their prides and finally destroy themselves.  [This sentence is written dimly.]
+271001000,Black Mage Cotton Robe,zirh,3,162,0,504,The pants worn by novice mages.
+271002000,Black Mage Cloth Pants,zirh,3,162,0,302,The pants worn by novice mages.
+271003000,Black Mage Hat,zirh,3,162,0,201,The hat worn by novice mages.
+271004000,Black Mage Gloves,zirh,3,162,0,100,The gloves worn by novice mages.
+271005000,Black Mage Shoes,zirh,3,162,0,100,The shoes worn by novice mages.
+273001000,Mage Cotton Robe,zirh,3,0,0,504,The pauldron worn by novice mages.
+273002000,Mage Cloth Pants,zirh,3,0,0,302,The pants worn by novice mages.
+273003000,Mage Hat,zirh,3,0,0,201,The hat worn by novice mages.
+273004000,Mage Gloves,zirh,3,0,0,100,The gloves worn by novice mages.
+273005000,Mage Shoes,zirh,3,0,0,100,The shoes worn by novice mages.
+274001000,Mage Linen Robe,zirh,3,0,0,4050,A robe that would look good on a mage.
+274002000,Mage Linen Pants,zirh,3,0,0,2430,A pair of pants that would look good on a mage.
+274003000,Mage Linen Cap,zirh,3,0,0,1620,A hat that would look good on a mage.
+274004000,Mage Leather Gloves,zirh,3,0,0,810,A pair of globes that would look good on a mage.
+274005000,Mage Leather Boots,zirh,3,0,0,810,A pair of shoes that would look good on a mage.
+275001000,Crimson Robe,zirh,3,0,0,129600,A robe exuding the crimson dignity.
+275002000,Crimson Pants,zirh,3,0,0,77760,A pair of pants exuding the crimson dignity.
+275003000,Crimson Helmet,zirh,3,0,0,51840,A helmet exuding the crimson dignity.
+275004000,Crimson Gloves,zirh,3,0,0,25920,A pair of gloves exuding the crimson dignity.
+275005000,Crimson Boots,zirh,3,0,0,25920,A pair of boots exuding the crimson dignity.
+276001000,Complete Robe,zirh,10,0,0,194400,Complete Robe
+276002000,Complete Pants,zirh,10,0,0,116640,Complete Pants
+276003000,Complete Helmet,zirh,10,0,0,77760,Complete Helmet
+276004000,Complete Glove,zirh,10,0,0,38880,Complete Glove
+276005000,Complete Boots,zirh,10,0,0,38880,Complete Boots
+278001000,Krowaz Mage Robe,zirh,10,0,75,311040,A legendary armor made by casting Illusion Armor.
+278002000,Krowaz Mage Pants,zirh,10,0,75,186624,A legendary armor made by casting Illusion Lower Gaiters.
+278003000,Krowaz Mage Helmet,zirh,10,0,75,124416,A legendary armor made by casting Illusion Helmet.
+278004000,Krowaz Mage Gauntlets,zirh,10,0,75,62208,A legendary armor made by casting Illusion Gauntlets.
+278005000,Krowaz Mage Boots,zirh,10,0,75,62208,A legendary armor made by casting Illusion Boots.
+292001000,Black Mage Cotton Robe,zirh,3,162,0,504,The pants worn by novice mages.
+292002000,Black Mage Cloth Pants,zirh,3,162,0,302,The pants worn by novice mages.
+292003000,Black Mage Hat,zirh,3,162,0,201,The hat worn by novice mages.
+292004000,Black Mage Gloves,zirh,3,162,0,100,The gloves worn by novice mages.
+292005000,Black Mage Shoes,zirh,3,162,0,100,The shoes worn by novice mages.
+297001000,Crystal Robe,zirh,3,0,0,86400,A robe that boosts the Spirit.
+297002000,Crystal Pants,zirh,3,0,0,51840,A pair of pants that boosts the Spirit.
+297003000,Crystal Helmet,zirh,3,0,0,34560,A helmet that boosts the Spirit.
+297004000,Crystal Gloves,zirh,3,0,0,17280,A pair of gloves that boosts the Spirit.
+297005000,Crystal Boots,zirh,3,0,0,17280,A pair of boots that boosts the Spirit.
+314531000,Holy Knight Mage Robe,zirh,10,169,75,311040,
+314532000,Holy Knight Mage Pants,zirh,10,169,75,186624,
+314533000,Holy Knight Mage Helmet,zirh,10,169,75,124416,
+314534000,Holy Knight Mage Gloves,zirh,10,169,75,62208,
+314535000,Holy Knight Mage Boots,zirh,10,169,75,62208,
+366001000,Noah Complete Robe,zirh,10,20,0,194400,Complete Robe
+366002000,Noah Complete Pants,zirh,10,20,0,116640,Complete Pants
+366003000,Noah Complete Helmet,zirh,10,20,0,77760,Complete Helmet
+366004000,Noah Complete Gloves,zirh,10,20,0,38880,Complete Glove
+366005000,Noah Complete Boots,zirh,10,20,0,38880,Complete Boots
+510002000,Exceptional Ron's Robe,zirh,10,117,70,194400,Exceptional Ron Set
+510003000,Exceptional Ron's Pants,zirh,10,117,70,116640,Exceptional Ron Set
+510004000,Exceptional Ron's Helmet,zirh,10,117,70,77760,Exceptional Ron Set
+510005000,Exceptional Ron's Gloves,zirh,10,117,70,38880,Exceptional Ron Set
+510006000,Exceptional Ron's Boots,zirh,10,117,70,38880,Exceptional Ron Set
+512004000,Exceptional Ron's Robe,zirh,10,117,70,194400,Exceptional Ron's Robe
+512005000,Exceptional Ron's Pants,zirh,10,117,70,116640,Exceptional Ron's Pants
+512006000,Exceptional Ron's Helmet,zirh,10,117,70,77760,Exceptional Ron's Helmet
+512007000,Exceptional Ron's Gloves,zirh,10,117,70,38880,Exceptional Ron's Gloves
+512008000,Exceptional Ron's Boots,zirh,10,117,70,38880,Exceptional Ron's Boots
+520001000,Hepa's Crimson Robe,zirh,3,0,0,129600,A robe exuding the crimson dignity.
+520002000,Hepa's Crimson Pants,zirh,3,0,0,77760,A pair of pants exuding the crimson dignity.
+520003000,Hepa's Crimson Helmet,zirh,3,0,0,51840,A helmet exuding the crimson dignity.
+520004000,Hepa's Crimson Gloves,zirh,3,0,0,25920,A pair of gloves exuding the crimson dignity.
+520005000,Hepa's Crimson Boots,zirh,3,0,0,25920,A pair of boots exuding the crimson dignity.
+521001000,Hepa's Complete Robe,zirh,10,0,0,194400,Complete Robe
+521002000,Hepa's Complete Pants,zirh,10,0,0,116640,Complete Pants
+521003000,Hepa's Complete Helmet,zirh,10,0,0,77760,Complete Helmet
+521004000,Hepa's Complete Glove,zirh,10,0,0,38880,Complete Glove
+521005000,Hepa's Complete Boots,zirh,10,0,0,38880,Complete Boots
+523511000,Rosetta Mage Robe,zirh,10,152,75,311040,
+523512000,Rosetta Mage Pants,zirh,10,152,75,186624,
+523513000,Rosetta Mage Helmet,zirh,10,152,75,124416,
+523514000,Rosetta Mage Gloves,zirh,10,152,75,62208,
+523515000,Rosetta Mage Boots,zirh,10,152,75,62208,
+527511000,Rosetta Mage Robe,zirh,10,152,75,311040,Secret Armor
+527512000,Rosetta Mage Pants,zirh,10,152,75,186624,Secret Armor
+527513000,Rosetta Mage Helmet,zirh,10,152,75,124416,Secret Armor
+527514000,Rosetta Mage Gloves,zirh,10,152,75,62208,Secret Armor
+527515000,Rosetta Mage Boots,zirh,10,152,75,62208,Secret Armor
+530001000,Hepa's Crimson Robe,zirh,3,0,0,129600,A robe exuding the crimson dignity.
+530002000,Hepa's Crimson Pants,zirh,3,0,0,77760,A pair of pants exuding the crimson dignity.
+530003000,Hepa's Crimson Helmet,zirh,3,0,0,51840,A helmet exuding the crimson dignity.
+530004000,Hepa's Crimson Gloves,zirh,3,0,0,25920,A pair of gloves exuding the crimson dignity.
+530005000,Hepa's Crimson Boots,zirh,3,0,0,25920,A pair of boots exuding the crimson dignity.
+531001000,Hepa's Complete Robe,zirh,10,0,0,194400,Complete Robe
+531002000,Hepa's Complete Pants,zirh,10,0,0,116640,Complete Pants
+531003000,Hepa's Complete Helmet,zirh,10,0,0,77760,Complete Helmet
+531004000,Hepa's Complete Glove,zirh,10,0,0,38880,Complete Glove
+531005000,Hepa's Complete Boots,zirh,10,0,0,38880,Complete Boots
+565001000,Black Crimson Robe,zirh,3,113,0,10080,A sophisticated piece of plate armor.
+565002000,Black Crimson Pants,zirh,3,113,0,6048,A sophisticated piece of plate armor.
+565003000,Black Crimson Helmet,zirh,3,113,0,4032,A sophisticated piece of plate armor.
+565004000,Black Crimson Gloves,zirh,3,113,0,2016,A sophisticated piece of plate armor.
+565005000,Black Crimson Boots,zirh,3,113,0,2016,A sophisticated piece of plate armor.
+567001000,Ron's Robe,zirh,10,0,0,194400,
+567002000,Ron's Pants,zirh,10,0,0,116640,
+567003000,Ron's Helmet,zirh,10,0,0,77760,
+567004000,Ron's Gloves,zirh,10,0,0,38880,
+567005000,Ron's Boots,zirh,10,0,0,38880,
+568771000,Wisdom's Robe,zirh,10,121,0,0,Skilled magicians wear the Armor of Wisdom to get their insights tested as a magician. The armor are only rented from special places.
+568772000,Wisdom's Cloth Pants,zirh,10,121,0,0,Skilled magicians wear the Armor of Wisdom to get their insights tested as a magician. The armor are only rented from special places.
+568773000,Wisdom's Hat,zirh,10,121,0,0,Skilled magicians wear the Armor of Wisdom to get their insights tested as a magician. The armor are only rented from special places.
+568774000,Wisdom's Gloves,zirh,10,121,0,0,Skilled magicians wear the Armor of Wisdom to get their insights tested as a magician. The armor are only rented from special places.
+568775000,Wisdom's Shoes,zirh,10,121,0,0,Skilled magicians wear the Armor of Wisdom to get their insights tested as a magician. The armor are only rented from special places.
+575001000,Black Crimson Robe,zirh,3,113,0,129600,A sophisticated piece of plate armor.
+575002000,Black Crimson Pants,zirh,3,113,0,77760,A sophisticated piece of plate armor.
+575003000,Black Crimson Helmet,zirh,3,113,0,51840,A sophisticated piece of plate armor.
+575004000,Black Crimson Gloves,zirh,3,113,0,25920,A sophisticated piece of plate armor.
+575005000,Black Crimson Boots,zirh,3,113,0,25920,A sophisticated piece of plate armor.
+577001000,Ron's Robe,zirh,10,0,0,194400,
+577002000,Ron's Pants,zirh,10,0,0,116640,
+577003000,Ron's Helmet,zirh,10,0,0,77760,
+577004000,Ron's Gloves,zirh,10,0,0,38880,
+577005000,Ron's Boots,zirh,10,0,0,38880,
+675001000,Red Crimson Robe,zirh,3,125,0,194400,A sophisticated piece of plate armor.
+675002000,Red Crimson Pants,zirh,3,125,0,116640,A sophisticated piece of plate armor.
+675003000,Red Crimson Helmet,zirh,3,125,0,77760,A sophisticated piece of plate armor.
+675004000,Red Crimson Glove,zirh,3,125,0,38880,A sophisticated piece of plate armor.
+675005000,Red Crimson Boots,zirh,3,125,0,38880,A sophisticated piece of plate armor.
+685001000,Red Crimson Robe,zirh,3,125,0,18255,A sophisticated piece of plate armor.
+685002000,Red Crimson Pants,zirh,3,125,0,16521,A sophisticated piece of plate armor.
+685003000,Red Crimson Helmet,zirh,3,125,0,77760,A sophisticated piece of plate armor.
+685004000,Red Crimson Glove,zirh,3,125,0,4860,A sophisticated piece of plate armor.
+685005000,Red Crimson Boots,zirh,3,125,0,4860,A sophisticated piece of plate armor.
+920001000,Ron's Robe,zirh,10,0,0,194400,
+920002000,Ron's Pants,zirh,10,0,0,116640,
+920003000,Ron's Helmet,zirh,10,0,0,77760,
+920004000,Ron's Gloves,zirh,10,0,0,38880,
+920005000,Ron's Boots,zirh,10,0,0,38880,
+924001000,Ron's Robe,zirh,10,0,0,194400,
+924002000,Ron's Pants,zirh,10,0,0,116640,
+924003000,Ron's Helmet,zirh,10,0,0,77760,
+924004000,Ron's Gloves,zirh,10,0,0,38880,
+924005000,Ron's Boots,zirh,10,0,0,38880,
+926000000,Troll Armor: Upper Garment,zirh,3,0,0,129600,Armor consisting of 7 layers of Troll leather.
+926001000,Troll Armor: Lower Garment,zirh,3,0,0,77760,Armor consisting of 7 layers of Troll leather.
+926002000,Troll Armor: Helmet,zirh,3,0,0,51840,Armor consisting of 7 layers of Troll leather.
+926003000,Troll Armor: Gauntlets,zirh,3,0,0,25920,Armor consisting of 7 layers of Troll leather.
+926004000,Troll Armor: Boots,zirh,3,0,0,25920,Armor consisting of 7 layers of Troll leather.
+931002000,Robe of Novice Rudimentary Magic Scholar,zirh,3,0,30,194400,2006 Christmas Anniversary Pendant
+931003000,Pants of of Novice Rudimentary Magic Scholar,zirh,3,0,30,116640,2006 Christmas Anniversary Pendant
+931004000,Helmet of Novice Rudimentary Magic Scholar,zirh,3,0,30,77760,2006 Christmas Anniversary Pendant
+931005000,Gauntlets of Novice Rudimentary Magic Scholar,zirh,3,0,30,38880,2006 Christmas Anniversary Pendant
+931006000,Boots of Novice Rudimentary Magic Scholar,zirh,3,0,30,38880,2006 Christmas Anniversary Pendant
+960611000,Draki Legion Mage Coat,zirh,10,175,0,194400,
+960612000,Draki Legion Mage Leggings,zirh,10,175,0,116640,
+960613000,Draki Legion Mage Crown,zirh,10,175,0,77760,
+960614000,Draki Legion Mage Gloves,zirh,10,175,0,38880,
+960615000,Draki Legion Mage Shoes,zirh,10,175,0,38880,
+961611000,Draki Legion Mage Coat,zirh,10,175,0,194400,
+961612000,Draki Legion Mage Leggings,zirh,10,175,0,116640,
+961613000,Draki Legion Mage Crown,zirh,10,175,0,77760,
+961614000,Draki Legion Mage Gloves,zirh,10,175,0,38880,
+961615000,Draki Legion Mage Shoes,zirh,10,175,0,38880,
+965001000,Crimson Robe,zirh,3,0,0,129600,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+965002000,Crimson Pants,zirh,3,0,0,77760,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+965003000,Crimson Helmet,zirh,3,0,0,51840,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+965004000,Crimson Gloves,zirh,3,0,0,25920,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+965005000,Crimson Boots,zirh,3,0,0,25920,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+966001000,Complete Robe,zirh,10,0,0,194400,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+966002000,Complete Pants,zirh,10,0,0,116640,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+966003000,Complete Helmet,zirh,10,0,0,77760,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+966004000,Complete Glove,zirh,10,0,0,38880,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+966005000,Complete Boots,zirh,10,0,0,38880,Open the Arsenal Event Item Cannot be upgraded  or reversed.
+967001000,Noah Ron's Robe,zirh,10,0,0,194400,Ron's Robe
+967002000,Noah Ron's Pants,zirh,10,0,0,116640,Ron's Pants
+967003000,Noah Ron's Helmet,zirh,10,0,0,77760,Ron's Helmet
+967004000,Noah Ron's Gloves,zirh,10,0,0,38880,Ron's Gloves
+967005000,Noah Ron's Boots,zirh,10,0,0,38880,Ron's Boots
