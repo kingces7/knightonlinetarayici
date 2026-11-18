@@ -121,15 +121,14 @@ export class Arazi {
         uniform float birim; uniform float karoSayisi; uniform float karoAdedi; uniform float detay; uniform float mod; uniform vec3 gunesYonu;
         uniform vec3 sisRengi; uniform float sisYakin; uniform float sisUzak;
         in vec3 vDunya; in vec3 vNormal; in float vDerinlik;
-        // Orijinal client (N3Terrain.cpp m_fTileDirU/V + N3TerrainPatch.cpp): her karonun 4 köşesine yönden gelen sabit UV dizisi verilir.
-        // Köşe sırası [LT, RT, LB, RB]; karo köşeleri: (x,z)=LB, (x,z+1)=LT, (x+1,z+1)=RT, (x+1,z)=RB. Yön 0-3 döndürme, 4-7 aynalı döndürme.
-        const float YU[32] = float[32](0.,1.,0.,1.,  0.,0.,1.,1.,  1.,0.,1.,0.,  1.,1.,0.,0.,  1.,0.,1.,0.,  0.,0.,1.,1.,  0.,1.,0.,1.,  1.,1.,0.,0.);
-        const float YV[32] = float[32](0.,0.,1.,1.,  1.,0.,1.,0.,  1.,1.,0.,0.,  0.,1.,0.,1.,  0.,0.,1.,1.,  0.,1.,0.,1.,  1.,1.,0.,0.,  1.,0.,1.,0.);
+        // Karo yön kodu 0-7 → dönüşüm (4 döndürme × ayna). Orijinal N3Terrain.cpp tablosu (m_fTileDirU/V) D3D'de (v aşağı) yazılmıştır; döndürme yönü bu yüzden ters çevrilmiş halde
+        // burada "yön numarası = dönüşüm numarası"na denk gelir. Doğrulama: araclar/harita/karo-yon-arastirma.ts (komşu karo dikişleri; Moradon/Luferson/El Morad'da eski tablodan %5-12 daha süreklidir).
         vec2 yonUv(float yon, vec2 p) {
-          int d = (int(yon + 0.5) & 7) * 4;
-          float u = mix(mix(YU[d + 2], YU[d + 3], p.x), mix(YU[d], YU[d + 1], p.x), p.y);
-          float v = mix(mix(YV[d + 2], YV[d + 3], p.x), mix(YV[d], YV[d + 1], p.x), p.y);
-          return vec2(u, 1.0 - v); // D3D'de v aşağı doğru artar; atlas dokuları WebGL'de ters yüklenir
+          int t = int(yon + 0.5) & 7; float a = p.x, b = p.y;
+          if ((t & 4) != 0) a = 1.0 - a;
+          int r = t & 3; vec2 uv = vec2(a, b);
+          if (r == 1) uv = vec2(b, 1.0 - a); else if (r == 2) uv = vec2(1.0 - a, 1.0 - b); else if (r == 3) uv = vec2(1.0 - b, a);
+          return vec2(uv.x, 1.0 - uv.y); // orijinalde yön 0 = (a, 1-b): ortak v çevirmesi dikişleri değiştirmez
         }
         vec2 yonUvEski(float yon, vec2 uv) {
           int d = int(yon + 0.5) & 7;
