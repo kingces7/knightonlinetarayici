@@ -14,8 +14,8 @@ sid,ad,tur,x,z,x2,z2,adet,dogus_sn,durum,mob_listesinde
 552,Safety Zone Gate2,canavar,578,1473,605,1448,5,30,Myko'da yok,hayır
 552,Safety Zone Gate2,canavar,629,1660,667,1634,5,30,Myko'da yok,hayır
 552,Safety Zone Gate2,canavar,666,1617,697,1590,5,30,Myko'da yok,hayır
-554,Dark eyes,canavar,685,1687,726,1662,5,30,Myko'da yok,hayır
-554,Dark eyes,canavar,718,1627,750,1601,5,30,Myko'da yok,hayır
+554,Dark eyes,canavar,685,1687,726,1662,5,30,aynı,hayır
+554,Dark eyes,canavar,718,1627,750,1601,5,30,aynı,hayır
 555,Dire wolf,canavar,744,1698,777,1660,5,30,koordinat farklı,evet
 650,Smilodon,canavar,413,918,439,894,5,30,aynı,evet
 650,Smilodon,canavar,417,952,448,931,5,30,aynı,evet
@@ -48,16 +48,16 @@ sid,ad,tur,x,z,x2,z2,adet,dogus_sn,durum,mob_listesinde
 953,Pincers scorpion,canavar,812,1442,828,1425,5,30,aynı,hayır
 953,Pincers scorpion,canavar,846,1426,862,1409,5,30,aynı,hayır
 953,Pincers scorpion,canavar,875,1406,893,1387,5,30,aynı,hayır
-955,Stinger,canavar,712,1511,728,1499,5,30,Myko'da yok,hayır
-955,Stinger,canavar,750,1519,766,1509,5,30,Myko'da yok,hayır
-955,Stinger,canavar,764,1557,780,1545,5,30,Myko'da yok,hayır
-955,Stinger,canavar,787,1497,809,1482,5,30,Myko'da yok,hayır
-955,Stinger,canavar,794,1533,813,1520,5,30,Myko'da yok,hayır
-956,Antares,canavar,259,1388,356,1317,1,32000,Myko'da yok,evet
-956,Antares,canavar,653,1192,733,1098,1,32000,Myko'da yok,evet
-956,Antares,canavar,724,1545,815,1467,1,32000,Myko'da yok,evet
-956,Antares,canavar,840,1873,894,1806,1,32000,Myko'da yok,evet
-956,Antares,canavar,1541,1741,1599,1676,1,32000,Myko'da yok,evet
+955,Stinger,canavar,712,1511,728,1499,5,30,aynı,hayır
+955,Stinger,canavar,750,1519,766,1509,5,30,aynı,hayır
+955,Stinger,canavar,764,1557,780,1545,5,30,aynı,hayır
+955,Stinger,canavar,787,1497,809,1482,5,30,aynı,hayır
+955,Stinger,canavar,794,1533,813,1520,5,30,aynı,hayır
+956,Antares,canavar,259,1388,356,1317,1,32000,aynı,evet
+956,Antares,canavar,653,1192,733,1098,1,32000,aynı,evet
+956,Antares,canavar,724,1545,815,1467,1,32000,aynı,evet
+956,Antares,canavar,840,1873,894,1806,1,32000,aynı,evet
+956,Antares,canavar,1541,1741,1599,1676,1,32000,aynı,evet
 1051,Decayed Zombie,canavar,987,1391,998,1381,5,30,aynı,evet
 1051,Decayed Zombie,canavar,990,1356,1005,1347,5,30,aynı,evet
 1051,Decayed Zombie,canavar,990,1430,1005,1416,5,30,aynı,evet
@@ -70,11 +70,11 @@ sid,ad,tur,x,z,x2,z2,adet,dogus_sn,durum,mob_listesinde
 1054,undying,canavar,1032,1445,1045,1432,5,30,aynı,evet
 1054,undying,canavar,1033,1413,1046,1403,5,30,aynı,evet
 1054,undying,canavar,1048,1354,1061,1342,5,30,aynı,evet
-1055,Hyde,canavar,626,331,694,219,1,32000,Myko'da yok,evet
-1055,Hyde,canavar,910,1134,1010,1032,1,32000,Myko'da yok,evet
-1055,Hyde,canavar,1002,1355,1064,1323,1,32000,Myko'da yok,evet
-1055,Hyde,canavar,1197,583,1238,422,1,32000,Myko'da yok,evet
-1055,Hyde,canavar,1782,1394,1834,1273,1,32000,Myko'da yok,evet
+1055,Hyde,canavar,626,331,694,219,1,32000,aynı,evet
+1055,Hyde,canavar,910,1134,1010,1032,1,32000,aynı,evet
+1055,Hyde,canavar,1002,1355,1064,1323,1,32000,aynı,evet
+1055,Hyde,canavar,1197,583,1238,422,1,32000,aynı,evet
+1055,Hyde,canavar,1782,1394,1834,1273,1,32000,aynı,evet
 1150,Skeleton,canavar,872,1083,901,1060,7,30,aynı,evet
 1150,Skeleton,canavar,875,1128,903,1104,7,30,aynı,evet
 1150,Skeleton,canavar,918,1203,936,1188,7,30,aynı,evet
@@ -139,8 +139,8 @@ sid,ad,tur,x,z,x2,z2,adet,dogus_sn,durum,mob_listesinde
 1673,Lard Orc,canavar,1401,1012,1426,996,5,30,aynı,evet
 1673,Lard Orc,canavar,1404,923,1418,903,5,30,aynı,evet
 1673,Lard Orc,canavar,1491,1297,1510,1276,5,30,aynı,evet
-1689,Orc hunter,canavar,1196,371,1219,346,1,60,Myko'da yok,hayır
-1689,Orc hunter,canavar,1404,999,1424,980,1,60,Myko'da yok,hayır
+1689,Orc hunter,canavar,1196,371,1219,346,1,60,aynı,hayır
+1689,Orc hunter,canavar,1404,999,1424,980,1,60,aynı,hayır
 1692,Uruk Hai,canavar,1397,853,1411,839,5,30,aynı,evet
 1692,Uruk Hai,canavar,1609,604,1632,593,3,25,aynı,evet
 1692,Uruk Hai,canavar,1745,691,1764,673,5,30,aynı,evet
