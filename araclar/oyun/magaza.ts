@@ -9,6 +9,7 @@ import { tbldenOku } from '../tbl/tablo.ts';
 import { dxtOku, rgbayaCevir } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
 import { simgeYolu } from './esyalar.ts';
+const SIMGE_DUZELTME = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'simge-duzeltme.json'), 'utf8')) as Record<string, number>; // yanlış client simgeleri
 
 const SILAH = new Set([11, 21, 22, 31, 32, 41, 42, 51, 52, 61, 62, 70, 71, 110, 140, 181]);
 const ZIRH = new Set([60, 210, 220, 230, 240]); // 60 = kalkan
@@ -22,10 +23,17 @@ function main(): number {
   fs.mkdirSync(ikonKlasor, { recursive: true });
   const esyalar: Record<string, unknown> = {};
   let eksik = 0;
+  const tumYolu = path.join(CIKTI_DIZINI, 'web', 'esya', 'tum.json');
+  const tum = new Map<number, { no: number; ad: string; aciklama: string; simge: string; tur: string; tip: number; yuva: number; hasar: number; gecikme: number; savunma: number; fiyat: number; sayilabilir: boolean }>(fs.existsSync(tumYolu) ? (JSON.parse(fs.readFileSync(tumYolu, 'utf8')) as { no: number }[]).map((e) => [e.no, e as never] as const) : []);
   for (const no of new Set(Object.values(gruplar).flat(2).filter(Boolean))) {
     const s = tablo.find((x) => Number(x[0]) === no) ?? tablo.find((x) => Number(x[0]) === no - (no % 1000));
-    if (!s) { eksik++; continue; }
-    const simge = Number(s[7]), tur = Number(s[10]);
+    if (!s) { // Item_Org_us.tbl'de yok (sunucuya özel): tum-esyalar çıktısındaki kayıt kullanılır
+      const t = tum.get(no);
+      if (!t) { eksik++; continue; }
+      esyalar[String(no)] = { no, ad: t.ad, aciklama: t.aciklama, simge: t.simge, tur: t.tur, tip: t.tip, yuva: t.yuva, hasar: t.hasar, gecikme: t.gecikme, savunma: t.savunma, fiyat: t.fiyat, sayilabilir: t.sayilabilir };
+      continue;
+    }
+    const simge = SIMGE_DUZELTME[String(no)] ?? Number(s[7]), tur = Number(s[10]);
     let simgeAd = '';
     const yol = simgeYolu(simge);
     if (od.var(yol)) {

@@ -9,6 +9,7 @@ import { tbldenOku } from '../tbl/tablo.ts';
 import { dxtOku, rgbayaCevir } from '../doku/dxt.ts';
 import { pngKodla } from '../ortak/png.ts';
 import { simgeYolu } from './esyalar.ts';
+const SIMGE_DUZELTME = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'simge-duzeltme.json'), 'utf8')) as Record<string, number>; // yanlış client simgeleri
 
 const SILAH = new Set([11, 21, 22, 31, 32, 41, 42, 51, 52, 61, 62, 70, 71, 110, 140, 181]);
 const ZIRH = new Set([60, 210, 220, 230, 240]);
@@ -30,7 +31,7 @@ export function ganimetYaz(): { esya: number; eksik: number } {
   for (const no of numaralar) {
     const s = tablo.find((x) => Number(x[0]) === no) ?? tablo.find((x) => Number(x[0]) === no - (no % 1000));
     if (!s) { eksik++; continue; }
-    const simge = Number(s[7]), tur = Number(s[10]);
+    const simge = SIMGE_DUZELTME[String(s[0])] ?? Number(s[7]), tur = Number(s[10]);
     let simgeAd = '';
     const yol = simgeYolu(simge);
     if (od.var(yol)) {

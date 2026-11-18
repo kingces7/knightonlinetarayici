@@ -349,3 +349,11 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Luferson ana şehrine Accessory Merchant Hera (13001, grup 203002) ve Scrolls Charon (22301, 254000) / Amon (23400, 281000) eklendi: (421,1644), (428,1651), (435,1644). `araclar/sunucu/luferson-tuccarlar.sql`; sunucuda doğrulandı (alım çalışıyor).
 - [ ] Luferson'un diğer iki yerleşiminde (Linate ~ (361,673), Bellua ~ (1752,816)) ve El Morad'da bu üç tüccar yok.
 - [ ] Test notu: sunucu bölgesi ile client haritası eşleşmeli; testte `?harita=karus2004` için karakterin bölgesi de 1 olmalı (aksi halde NPC/canavar gelmez).
+
+## Güncelleme (2026-11-18, ikinci)
+- [x] Blessed Item Upgrade Scroll (379152000) simgesi: Myko/client tablosunda 37907900 (mavi parşömen) idi; oyunun Blessed Upgrade Scroll ailesi simgesi 37902100 → veritabanı (`araclar/sunucu/blessed-ikon.sql`) ve tarayıcı client'ı (`araclar/oyun/simge-duzeltme.json`) düzeltildi.
+- [x] Simgesi olmayan sunucuya özel eşyalar: 57 eşyadan madalyalar (ItemIconID2 kullanılmalıydı) bulundu; 17'sinin simgesi **hiçbir** kaynakta yok (KnightEmpire UI/Item arşivleri, 9 Myko yama zip'i, resmî 1298 client, Homeko client arşivi — ikisi aynı boyutta/aynı, Item arşivi birebir aynı): Certificate ×3, Bronze Box, Gold Box, UTC Chest, Team Hazir Paket, VIP Package, AryaOnlineWorld ×2, 6 adet [Box] (Dark Knight/Holy Knight/Rosetta/Secret/Krowaz/Dragon). Geçici simge: Red Treasure Chest. İstenirse bu 17 için yeni simge çizilebilir/seçilebilir.
+- [x] Mağaza çıktısı artık tabloda olmayan sunucu eşyalarını da içerir (GM dükkânında 3178 eşya görünür).
+- [x] El Morad merkezine Accessory/Scrolls tüccarları eklendi (1636-1648, 430); Linate/Bellua gibi uzak köylere eklenmeyecek (ces kararı).
+- [ ] **Bosslar:** Kekurikekukaka doğma süresi 5 sn yapıldı (sunucu yeniden başlatınca geçerli). **Tüm boss sürelerini ayarla** (Dragon tooth Mentor 5 sn, Kekurikekukaka 5 sn; diğer bosslar sonra).
+- [ ] **Moradon canavar donması** (kullanıcı bildirdi, 2026-11-18): test makinemde yeniden üretilemedi (54 canavardan 49'u 12 sn'de hareket etti; 3,5×/7× hızda koşup ikinci bir client'la karşılaştırınca canavar konumları aynı). Ayrıntı için kullanıcıdan nerede/ne zaman olduğu istenecek; olası sebepler: bölge değişimi paketleri, sunucu Moradon haritasının old_moradon.smd olması.
