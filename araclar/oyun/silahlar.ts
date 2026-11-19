@@ -47,34 +47,54 @@ function main(): number {
   // Tüm eşya tablosu varsa (npm run tum-esyalar) bütün silahlar (yay, asa, hançer…), yoksa küçük liste
   const tumYolu = path.join(CIKTI_DIZINI, 'web', 'esya', 'tum.json');
   const esyalarYolu = fs.existsSync(tumYolu) ? tumYolu : path.join(CIKTI_DIZINI, 'web', 'esya', 'esyalar.json');
-  const esyalar = JSON.parse(fs.readFileSync(esyalarYolu, 'utf8')) as { no: number; tur: string }[];
+  const esyalar = JSON.parse(fs.readFileSync(esyalarYolu, 'utf8')) as { no: number; tur: string; yuva?: number; tip?: number; ad?: string; gerekSeviye?: number }[];
   const tablo = tbldenOku(od.oku('Data/Item_Org_us.tbl'), 'windows-1252').satirlar;
   const hedef = path.join(CIKTI_DIZINI, 'web', 'silah');
   fs.mkdirSync(hedef, { recursive: true });
-  const bilgi: Record<string, { eklem: number; kalkan?: number }> = {};
+  const bilgi: Record<string, { eklem: number; kalkan?: number; glb?: number }> = {};
+  const atlananlar: (typeof esyalar)[number][] = [];
   let tamam = 0, yok = 0;
-  for (const e of esyalar.filter((x) => x.tur === 'silah' || x.tur === 'kalkan')) {
+  const neden: Record<string, string[]> = {}; // atlanma nedeni → eşyalar
+  const atla = (n: string, e: (typeof esyalar)[number]) => { (neden[n] ??= []).push(`${e.no} ${e.ad ?? ''}`); atlananlar.push(e); yok++; };
+  // El slotuna (yuva 0–4) giyilen HER eşya: tablo türü silah/kalkan olmasa da (ör. Hero Mace "sarf" görünür) elde model gerekir.
+  for (const e of esyalar.filter((x) => x.tur === 'silah' || x.tur === 'kalkan' || (x.yuva !== undefined && x.yuva >= 0 && x.yuva <= 4))) {
     const satir = tablo.find((x) => Number(x[0]) === e.no) ?? tablo.find((x) => Number(x[0]) === e.no - (e.no % 1000));
-    if (!satir) { yok++; continue; }
+    if (!satir) { atla('eşya tablosunda satır yok', e); continue; }
     const s = String(Number(satir[6]) > 0 ? satir[6] : satir[7]).padStart(8, '0');
     const yol = `item/${s[0]}_${s.slice(1, 5)}_${s.slice(5, 7)}_${s[7]}.n3cplug`;
-    if (!od.var(yol)) { yok++; continue; }
+    if (!od.var(yol)) { atla(`plug dosyası yok (${yol})`, e); continue; }
     try {
       const p = plugOku(od.oku(yol));
       const mesh = pmeshOku(od.oku(p.mesh.split('\\').join('/')));
-      if (!mesh.indeks.length) { yok++; continue; }
+      if (!mesh.indeks.length) { atla('mesh boş', e); continue; }
       const g = new GlbYazici();
       const d = p.doku ? dokuPng(od, p.doku) : null;
       const mz = g.malzeme(p.doku || 'silah', d?.png ?? null, d?.alfa ?? 'OPAQUE', d ? d.alfa !== 'OPAQUE' : false);
       const mi = g.mesh(`silah_${e.no}`, [{ konum: mesh.konum, normal: mesh.normal, uv: mesh.uv, indeks: mesh.indeks, malzeme: mz }]);
       g.dugum({ ad: `silah_${e.no}`, mesh: mi, konum: p.konum, donus: matrisDordey(p.matris) }, true);
       fs.writeFileSync(path.join(hedef, `${e.no}.glb`), g.glb());
-      bilgi[String(e.no)] = e.tur === 'kalkan' ? { eklem: p.eklem, kalkan: 1 } : { eklem: p.eklem };
+      bilgi[String(e.no)] = e.tur === 'kalkan' || e.tip === 60 ? { eklem: p.eklem, kalkan: 1 } : { eklem: p.eklem };
       tamam++;
-    } catch (err) { yok++; console.log(`  uyarı ${e.no}: ${(err as Error).message}`); }
+    } catch (err) { atla(`okunamadı: ${(err as Error).message}`, e); }
   }
+  // Modeli oyun dosyalarında hiç bulunmayan eşyalar (sonraki sürümlerin eşyaları): elde görünmesi için aynı türden (Kind) ve en yakın seviyeli gerçek modelin yedek olarak gösterilmesi.
+  const modelliler = esyalar.filter((x) => bilgi[String(x.no)] && !bilgi[String(x.no)].glb);
+  let yedekli = 0; const yedeksiz: string[] = [];
+  for (const e of atlananlar) {
+    if (bilgi[String(e.no)]) continue;
+    const yedekTur = e.tip === 140 ? 11 : e.tip; // Jamadar (140) bu client'ta hiç yok: hançer (11) görünür
+    const adaylar = modelliler.filter((m) => m.tip === yedekTur && m.tip !== undefined);
+    if (!adaylar.length) { yedeksiz.push(`${e.no} ${e.ad ?? ''} (tür ${e.tip})`); continue; }
+    adaylar.sort((a, b) => Math.abs((a.gerekSeviye ?? 0) - (e.gerekSeviye ?? 0)) * 1e10 + Math.abs(a.no - e.no) - (Math.abs((b.gerekSeviye ?? 0) - (e.gerekSeviye ?? 0)) * 1e10 + Math.abs(b.no - e.no)));
+    const a = adaylar[0], b = bilgi[String(a.no)];
+    bilgi[String(e.no)] = { eklem: b.eklem, ...(b.kalkan ? { kalkan: 1 } : {}), glb: a.no };
+    yedekli++;
+  }
+  if (yedeksiz.length) console.log(`  yedek model bulunamadı ${yedeksiz.length}: ${yedeksiz.slice(0, 5).join('; ')}`);
+  console.log(`  yedek (aynı türden en yakın seviyeli) model atanan: ${yedekli}`);
   fs.writeFileSync(path.join(hedef, 'silah.json'), JSON.stringify(bilgi));
   od.kapat();
+  for (const [n, l] of Object.entries(neden)) console.log(`  atlanan ${l.length}: ${n.replace(/(item.*)/, '(…)')} — ${l.slice(0, 3).join('; ')}`);
   console.log(`${tamam} silah modeli, ${yok} atlandı -> ${hedef}`);
   return 0;
 }

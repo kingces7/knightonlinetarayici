@@ -155,7 +155,7 @@ const SUNUCU_HARITASI: Record<string, string> = { karus2004: '1098karus2004.smd'
 function kapiyiIngilizceyeCevir(k: SmdKapi): SmdKapi & { adKorece?: string; duyuruKorece?: string } {
   const ad = KAPI_ADLARI[k.id];
   if (!ad || !/[^\x20-\x7e]/.test(k.ad)) return k;
-  const ucret = k.ucret ? `Transport fee is ${k.ucret.toLocaleString('en-US')} Noahs.` : 'There is no transport fee.';
+  const ucret = k.ucret ? `Transport fee is ${k.ucret.toLocaleString('en-US')} Coins.` : 'There is no transport fee.';
   return { ...k, ad, duyuru: `You will be transported to ${ad}. ${ucret}`, adKorece: k.ad, duyuruKorece: k.duyuru };
 }
 

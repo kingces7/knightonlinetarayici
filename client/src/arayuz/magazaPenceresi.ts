@@ -1,5 +1,5 @@
 // NPC alış-satış penceresi: oyunun kendi "Transaction" penceresi (LilithACS\re_el_Transaction.lilith → re_el_transaction.json).
-// Üstte mağaza (6×4, sayfalı, fiyat yuvaların altında), altta envanter (7×4) + ağırlık + Noah. Pencerenin ortadaki alış/satış sepeti bu sürümde olmadığı için gizlenir ve alttaki bölüm yukarı çekilir.
+// Üstte mağaza (6×4, sayfalı, fiyat yuvaların altında), altta envanter (7×4) + ağırlık + Coin. Pencerenin ortadaki alış/satış sepeti bu sürümde olmadığı için gizlenir ve alttaki bölüm yukarı çekilir.
 // Kullanım: mağaza eşyasına SAĞ tık, ÇİFT tık ya da envantere SÜRÜKLEME = kaç tane alınacağı sorulur; envanter eşyasına SAĞ tık (ya da mağazaya sürükleme) = sat. Tamirci NPC'de "Repair" modu.
 import { UiPencere } from './orijinal';
 import { yuvaSurukle } from './yuvaSurukle';
@@ -22,6 +22,10 @@ export const UV_KUTU: [number, number, number, number] = [0.5078125, 0.861328125
 
 export interface MagazaKancalari {
   envanter: () => (EsyaTanimi | null)[]; altin: () => number;
+  /** GM eşya dükkanında (GM Market) GM ücretsiz alır: coin sınırı uygulanmaz. */
+  ucretsiz?: () => boolean;
+  /** GM dükkanı sekmeleri: "u" = unique, "1".."9" = +N yükseltilmiş eşyalar (24'lük sayfalar). */
+  sekmeSayfalari?: (sekme: string) => EsyaTanimi[][];
   satinAl: (e: EsyaTanimi) => void; sat: (yuva: number, adet?: number) => void; tamirEt: (k: YuvaKonumu) => void;
   ipucu: (e: EsyaTanimi, ev: MouseEvent, satin: boolean, tamir: number) => void; ipucuGizle: () => void;
   mesaj: (m: string) => void; altBos: () => number; olcek: () => number; kapandi: () => void;
@@ -35,6 +39,7 @@ export class MagazaPenceresi {
   private sayfalar: EsyaTanimi[][] = []; private sayfa = 0;
   private tamirModu = false; private imza = '';
   private tamirDugme = document.createElement('div');
+  private sekmeDugme = document.createElement('div'); private sekme = 0; private normalSayfalar: EsyaTanimi[][] = [];
   private soru: HTMLElement | null = null;
 
   static async olustur(k: MagazaKancalari, ust: HTMLElement): Promise<MagazaPenceresi> {
@@ -63,7 +68,7 @@ export class MagazaPenceresi {
     const kap = this.canta[0].parentElement!;
     for (const c of Array.from(kap.children) as HTMLElement[]) if (c.style.display !== 'none' && y(c) >= 300) c.style.top = `${y(c) - KAYMA}px`;
     p.boyut[1] -= KAYMA; (p as unknown as { sinirOnbellek: unknown }).sinirOnbellek = null;
-    // Ağırlık ve Noah satırı (sepet bölümünün alt çubuğunun yerine)
+    // Ağırlık ve Coin satırı (sepet bölümünün alt çubuğunun yerine)
     const stil = { position: 'absolute', top: `${476 - KAYMA}px`, height: '20px', lineHeight: '20px', font: '700 12px Verdana, "Segoe UI", sans-serif', color: '#ffff80', textShadow: '0 1px 2px #000', whiteSpace: 'nowrap' };
     Object.assign(this.agirlikYazi.style, stil, { left: '18px' }); Object.assign(this.altinYazi.style, stil, { right: '18px', textAlign: 'right' });
     kap.appendChild(this.agirlikYazi); kap.appendChild(this.altinYazi);
@@ -73,6 +78,9 @@ export class MagazaPenceresi {
     // Tamirci düğmesi
     Object.assign(this.tamirDugme.style, { position: 'absolute', left: '8px', top: '36px', width: '50px', height: '22px', lineHeight: '20px', textAlign: 'center', font: '700 12px Segoe UI, sans-serif', color: '#ffe9a8', border: '1px solid #8f6128', background: 'rgba(40,30,18,.9)', cursor: 'pointer', display: 'none', zIndex: '2', borderRadius: '3px' });
     this.tamirDugme.textContent = 'Repair'; this.tamirDugme.addEventListener('click', () => this.tamirModuDegistir(!this.tamirModu)); p.el.appendChild(this.tamirDugme);
+    // GM dükkanı (GM Market) sekmesi: Normal → Upgrade +1…+9 → Unique (tıkla = sonraki, sağ tık = önceki); +N ve unique eşyalar orijinal renkleriyle (mor / sarı) görünür
+    Object.assign(this.sekmeDugme.style, { position: 'absolute', left: '8px', top: '36px', width: '112px', height: '22px', lineHeight: '20px', textAlign: 'center', font: '700 12px Segoe UI, sans-serif', color: '#ffe9a8', border: '1px solid #8f6128', background: 'rgba(40,30,18,.9)', cursor: 'pointer', display: 'none', zIndex: '2', borderRadius: '3px', userSelect: 'none' });
+    this.sekmeDugme.addEventListener('click', () => this.sekmeDegistir(1)); this.sekmeDugme.addEventListener('contextmenu', (ev) => { ev.preventDefault(); this.sekmeDegistir(-1); }); p.el.appendChild(this.sekmeDugme);
     // Fare tekerleği (Mouse3 topu): aşağı çevirince sonraki sayfa, yukarı çevirince önceki sayfa
     p.el.addEventListener('wheel', (ev) => { ev.preventDefault(); ev.stopPropagation(); const n = this.sayfalar.length || 1, yeni = Math.max(0, Math.min(n - 1, this.sayfa + (ev.deltaY > 0 ? 1 : ev.deltaY < 0 ? -1 : 0))); if (yeni !== this.sayfa) { this.sayfa = yeni; this.imza = ''; this.ciz(); } }, { passive: false });
     this.baglantilar();
@@ -118,9 +126,9 @@ export class MagazaPenceresi {
   /** Alış: kaç tane alınacağı sorulur (para ve boş yuvaya göre üst sınır). */
   private adetSor(e: EsyaTanimi): void {
     const bosYuva = this.k.envanter().filter((x) => !x).length;
-    const parayla = Math.floor(this.k.altin() / Math.max(1, e.fiyat));
+    const parayla = this.k.ucretsiz?.() ? 9999 : Math.floor(this.k.altin() / Math.max(1, e.fiyat));
     const maks = Math.max(0, e.sayilabilir ? Math.min(parayla, 9999) : Math.min(parayla, bosYuva));
-    if (maks < 1) { this.k.mesaj(parayla < 1 ? 'You do not have enough Noah.' : 'Your inventory is full.'); return; }
+    if (maks < 1) { this.k.mesaj(parayla < 1 ? 'You do not have enough Coin.' : 'Your inventory is full.'); return; }
     this.soruKutusu(e, 'How many do you want to buy?', maks, 'Buy', (n) => { if (e.sayilabilir) this.k.satinAl({ ...e, adet: n }); else for (let i = 0; i < n; i++) this.k.satinAl(e); }, e.fiyat);
   }
   /** Adet sorusu: oyunun kendi doku parçalarıyla (koyu zemin, altın çerçeve, oyun düğmeleri, altın çubuğu biçiminde sayı kutusu). Enter onaylar, Esc iptal eder. */
@@ -142,7 +150,7 @@ export class MagazaPenceresi {
     Object.assign(giris.style, { position: 'absolute', left: '96px', top: '54px', width: '88px', height: '26px', boxSizing: 'border-box', textAlign: 'center', background: 'transparent', color: '#ffff80', border: '0', font: '700 14px Verdana, sans-serif', outline: 'none' });
     const cerceve = document.createElement('div'); Object.assign(cerceve.style, { position: 'absolute', left: '96px', top: '54px', width: '88px', height: '26px' }); sprite(cerceve, 'ui_marketing', UV_KUTU, 88, 26);
     const sayi = () => Math.max(1, Math.min(maks, Math.floor(Number(giris.value.replace(/\D/g, '')) || 1)));
-    const yenile = () => { toplam.textContent = `Total: ${(sayi() * birimFiyat).toLocaleString('en-US')} Noah`; };
+    const yenile = () => { toplam.textContent = `Total: ${(sayi() * birimFiyat).toLocaleString('en-US')} Coin`; };
     giris.addEventListener('input', () => { giris.value = giris.value.replace(/\D/g, ''); yenile(); });
     giris.addEventListener('blur', () => { giris.value = String(sayi()); yenile(); });
     const tamam = () => { const n = sayi(); this.soruKapat(); onay(n); };
@@ -163,9 +171,17 @@ export class MagazaPenceresi {
     if (this.acik) this.ciz();
   }
 
+  private static readonly SEKMELER = ['n', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'u'];
+  private sekmeDegistir(d: number): void {
+    const n = MagazaPenceresi.SEKMELER.length; this.sekme = (this.sekme + d + n) % n; this.soruKapat(); this.k.ipucuGizle();
+    const s = MagazaPenceresi.SEKMELER[this.sekme];
+    this.sayfalar = s === 'n' ? this.normalSayfalar : (this.k.sekmeSayfalari?.(s) ?? []); this.sayfa = 0; this.imza = ''; this.sekmeYazisi(); this.ciz();
+  }
+  private sekmeYazisi(): void { const s = MagazaPenceresi.SEKMELER[this.sekme]; this.sekmeDugme.textContent = s === 'n' ? 'Normal' : s === 'u' ? 'Unique' : `Upgrade +${s}`; this.sekmeDugme.style.color = s === 'u' ? '#ffe03a' : s === 'n' ? '#ffe9a8' : '#c98be0'; }
   /** Mağazayı açar. `tamirci`: NPC aynı zamanda tamir ediyor mu. */
   ac(npcAdi: string, sayfalar: EsyaTanimi[][], tamirci: boolean): void {
-    this.soruKapat(); this.sayfalar = sayfalar; this.sayfa = 0; this.tamirModu = false; this.imza = '';
+    this.soruKapat(); this.normalSayfalar = sayfalar; this.sekme = 0; this.sayfalar = sayfalar; this.sayfa = 0;
+    const gm = !!this.k.ucretsiz?.() && !!this.k.sekmeSayfalari; this.sekmeDugme.style.display = gm ? '' : 'none'; if (gm) this.sekmeYazisi(); this.tamirModu = false; this.imza = '';
     this.p.metin('text_title', 'Store'); // NPC adı yerine yalnız "Store" this.tamirDugme.style.display = tamirci ? '' : 'none';
     this.acik = true; this.p.el.style.display = ''; this.yerlestir(); this.ciz();
   }
@@ -188,7 +204,7 @@ export class MagazaPenceresi {
     if (imza === this.imza) return; this.imza = imza;
     const p = this.p, sayfa = this.sayfalar[this.sayfa] ?? [];
     p.metin('string_page', this.sayfa + 1); p.metin('string_max_page', `/${this.sayfalar.length || 1}`);
-    this.agirlikYazi.textContent = `Weight: ${env.filter(Boolean).length} / 28`; this.altinYazi.textContent = `${altin.toLocaleString('en-US')} Noah`;
+    this.agirlikYazi.textContent = `Weight: ${env.filter(Boolean).length} / 28`; this.altinYazi.textContent = `${altin.toLocaleString('en-US')} Coin`;
     this.magaza.forEach((el, i) => { const e = sayfa[i] ?? null; this.simge(el, e, true, 0); const f = this.fiyat[i]?.querySelector('span'); if (f) f.textContent = ''; el.style.opacity = '1'; }); // paran yetmeyen eşyalar soluklaştırılmaz; yetmeyen fiyat bilgi kutusunda kırmızı görünür
     this.canta.forEach((el, i) => {
       const e = env[i] ?? null, tamir = e && this.tamirModu ? tamirUcreti(e.fiyat, e.dayanim ?? 0, e.suru ?? (e.dayanim ?? 0)) : 0;

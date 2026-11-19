@@ -237,7 +237,7 @@ export class SunucuDunyasi {
       const e = k.esyalar, kaynak = (no: number) => (no ? esyaKaynagi(no) : 0);
       o.model?.giyimUygula(k.irk, { bas: kaynak(e.kask.no), govde: kaynak(e.govde.no), bacak: kaynak(e.bacak.no), el: kaynak(e.eldiven.no), ayak: kaynak(e.ayak.no) });
       const sag = esyaTablo(e.sagEl.no), sol = esyaTablo(e.solEl.no);
-      o.model?.silahAyarla(sag?.tip ?? (sol && YAY_TURLERI.includes(sol.tip) ? sol.tip : 0), sol?.tip ?? 0); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0);
+      o.model?.silahAyarla(sag?.tip ?? (sol && YAY_TURLERI.includes(sol.tip) ? sol.tip : 0), sol?.tip ?? 0); void o.model?.plugTak('sag', sag?.no ?? 0); void o.model?.plugTak('sol', sol?.no ?? 0); void o.model?.pelerinTak(k.irk, k.pelerinNo);
       this.sahne.add(o.grup); this.oyuncuListesi.push(o);
     }).catch((e) => { console.warn('Oyuncu modeli yüklenemedi', k.ad, e); this.oyuncular.delete(k.id); });
   }

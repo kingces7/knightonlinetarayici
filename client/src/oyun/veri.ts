@@ -111,10 +111,45 @@ export const YENI_KARAKTER = '110201';
 /** Sunucu modu: Item_Org_us.tbl'deki TÜM eşyalar (araclar: npm run tum-esyalar); sunucu her eşyayı verebilir/düşürebilir. */
 const tumEsya = new Map<number, EsyaTanimi>();
 export async function tumEsyalariYukle(): Promise<void> {
+  void esyaEkYukle();
   if (tumEsya.size) return;
   try {
     for (const e of await (await fetch('/esya/tum.json')).json() as EsyaTanimi[]) tumEsya.set(e.no, { ...e, simge: e.simge ? `/esya/${e.simge}` : '' });
   } catch { /* tüm liste yoksa yalnız küçük liste kullanılır */ }
+}
+/** Eşya ipucu ek bilgisi (araclar: npm run esya-ek): unique eşya numaraları ve sıfırdan farklı bonus/direnç/element alanları ([alanSırası, değer, ...]). */
+let ekAlanlar: string[] = [];
+const ekUnique = new Set<number>();
+const ekBilgi = new Map<number, number[]>();
+const ekYukselt = new Map<number, number[]>(); // +N (1-9) → yükseltilmiş eşya numaraları
+export async function esyaEkYukle(): Promise<void> {
+  if (ekAlanlar.length) return;
+  try {
+    const j = await (await fetch('/esya/ek.json')).json() as { alanlar: string[]; unique: number[]; yukselt?: Record<string, number[]>; ek: Record<string, number[]> };
+    for (const n of j.unique) ekUnique.add(n);
+    for (const [n, d] of Object.entries(j.ek)) ekBilgi.set(Number(n), d);
+    for (const [n, d] of Object.entries(j.yukselt ?? {})) ekYukselt.set(Number(n), d);
+    ekAlanlar = j.alanlar;
+  } catch { /* ek bilgi yoksa ipucu yalnız temel satırları gösterir */ }
+}
+/** Sunucu eşya numarası (sunucuNo, yoksa no) unique eşya mı (ITEM.ItemType = 4)? */
+export const esyaUniqueMi = (e: { no: number; sunucuNo?: number }): boolean => ekUnique.has(e.sunucuNo ?? e.no);
+/** Eşyanın sıfırdan farklı ek alanları: [{ alan: 'StrB', deger: 5 }, ...] (veritabanı sırasıyla). */
+export function esyaEkAlanlari(e: { no: number; sunucuNo?: number }): { alan: string; deger: number }[] {
+  const d = ekBilgi.get(e.sunucuNo ?? e.no); const s: { alan: string; deger: number }[] = [];
+  if (d) for (let i = 0; i < d.length; i += 2) s.push({ alan: ekAlanlar[d[i]], deger: d[i + 1] });
+  return s;
+}
+/** GM dükkanı (GM Market) sekmesi: "u" = unique eşyalar, "1".."9" = +N yükseltilmiş eşyalar. Sayfa başına 24 yuva; satın alınca sunucuya TAM numara (sunucuNo) gider. */
+export function gmDukkaniSayfalari(sekme: string): EsyaTanimi[][] {
+  const liste = sekme === "u" ? [...ekUnique] : (ekYukselt.get(Number(sekme)) ?? []);
+  const sayfalar: EsyaTanimi[][] = []; let sayfa: EsyaTanimi[] = [];
+  for (const no of liste) {
+    const t = esyaBul(no - (no % 1000)); if (!t || !t.ad) continue;
+    sayfa.push({ ...t, sunucuNo: no }); if (sayfa.length === 24) { sayfalar.push(sayfa); sayfa = []; }
+  }
+  if (sayfa.length) sayfalar.push(sayfa);
+  return sayfalar;
 }
 export const esyaBul = (no: number): EsyaTanimi | undefined => esyalar.find((e) => e.no === no) ?? tumEsya.get(no);
 /** Sunucu eşya numarası (son 3 hane yükseltme/ek kodu) → tanım; tabloda yoksa eşya yuvada kalsın diye yer tutucu döner (yuva asla kaybolmaz). */

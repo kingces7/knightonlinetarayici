@@ -3,13 +3,14 @@ import * as THREE from 'three';
 import { Arazi } from './dunya/arazi';
 import { nesneleriYukle, nesneAnimasyonunuIlerlet, type DokuAnimasyonu } from './dunya/nesneler';
 import { TakipKamerasi } from './dunya/kamera';
-import { animBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
+import { animBilgisiYukle, pelerinBilgisiYukle, silahBilgisiYukle } from './dunya/karakter';
 import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { YuklemeEkrani, ulusKaydet } from './arayuz/yuklemeEkrani';
 import { BOLGE_HARITASI, HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
 import { KAPI_ADLARI } from './oyun/kapiAdlari';
+import { paraBirimiKur } from './arayuz/paraBirimi';
 import { BOLGE_DEGISIMI, bolgeDegisimiIstegi, bolgeIsinlanmasi, kapiSecimiIstegi, nesneOlayiIstegi } from '../../kopru/protokol/isinlanma.ts';
 import { type BeceriKurali, canavarTurleri, kurallar, OYUNCU_MODELI, IRK_MODELLERI, modeldenIrk, giyimEkipmani, elSilahiTipi, solSilahTipi, OK_NO, YAY_TURLERI, OYUNCU_SES_MODELI, irkModeli, kurallariYukle, tumEsyalariYukle, esyaBulSunucu, esyalariYukle, ganimetUret, ganimetYukle, gerekenDeneyim, magazaSayfalari, magazaKonum, magazaYukle, rastgele, type EsyaTanimi } from './oyun/veri';
 import * as savas from './oyun/savas';
@@ -19,7 +20,7 @@ import { Su } from './dunya/su';
 import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
 import { EfektYoneticisi } from './dunya/efekt';
 import { sunucuyaBaglan, type SunucuOturumu } from './ag/sunucu';
-import { GirisEkrani } from './arayuz/girisEkrani';
+import { GirisEkrani, SWAP_ANAHTARI } from './arayuz/girisEkrani';
 import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
@@ -42,6 +43,7 @@ import { hedefCanIstegi, saldiriIstegi, yenidenDogusIstegi } from '../../kopru/p
 import { CanavarYoneticisi, type YerlesimKaydi } from './oyun/yerlesim';
 import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/savas';
 
+paraBirimiKur(); // "Noah" yok: ekrandaki her yazı Coin olur
 const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? '14th_oldmoradon';
 const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
@@ -109,7 +111,7 @@ async function basla(): Promise<void> {
   let dokuAnimlari: DokuAnimasyonu[] = [];
   try { const n = await nesneleriYukle(`/harita/${HARITA}/nesneler.glb`); dokuAnimlari = n.animlar ?? []; sahne.add(n); } catch (e) { console.warn('Nesneler yüklenemedi', e); }
   durum('Loading characters…');
-  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle(), ganimetYukle()]);
+  await Promise.all([animBilgisiYukle(), silahBilgisiYukle(), pelerinBilgisiYukle(), esyalariYukle(), kurallariYukle(), magazaYukle(), ganimetYukle()]);
 
   const hud = new Hud();
   hud.oyuncuOzeti = () => ({ altin: oyuncu.altin, seviye: oyuncu.seviye, sinif: oyuncu.sinif, irk: oyuncu.modelNo ? modeldenIrk(oyuncu.modelNo) : 12, stat: oyuncu.stat });
@@ -433,7 +435,7 @@ async function basla(): Promise<void> {
       }, sohbetGonder: (mod, m) => sohbetGonder(mod, m),
       esyaTasi: (k, h) => {
         const e = k.tur === 'c' ? oyuncu.envanter[k.i] : oyuncu.ekipman[k.i];
-        if (e && k.tur === 'c' && h.tur === 'e' && Oyuncu.uygunYuvalar(e).includes(h.i) && !eliHazirla(e, h.i)) return; // iki elli silah: öbür el önce boşaltılır
+        if (e && k.tur === 'c' && h.tur === 'e' && oyuncu.uygunYuvalarBen(e).includes(h.i) && !eliHazirla(e, h.i)) return; // iki elli silah: öbür el önce boşaltılır
         if (sunucuOturumu) { // sunucu modu: mesaj sunucu onayından sonra
           const ms = e && h.tur === 'e' ? `You equipped ${e.ad}.` : e && k.tur === 'e' ? `You unequipped ${e.ad}.` : undefined;
           if (!sunucuTasi(k, h, ms) && e) hud.mesaj('You cannot move the item there.', 'sistem'); else envanterYenile();
@@ -443,7 +445,7 @@ async function basla(): Promise<void> {
         if (e && h.tur === 'e') hud.mesaj(`You equipped ${e.ad}.`, 'sistem'); else if (e && k.tur === 'e') hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
         envanterYenile();
       },
-      ipucuGoster: (e, ev, satin, tamir) => hud.ipucuGoster(e, ev, satin, tamir), tamirEt: (k) => tamirEt(k), tamirmi: () => !!aktifMagaza && aktifMagaza.npc.tanim.tur === 22, ipucuGizle: () => hud.ipucuGizle(),
+      ipucuGoster: (e, ev, satin, tamir) => hud.ipucuGoster(e, ev, satin, tamir), tamirEt: (k) => tamirEt(k), tamirmi: () => !!aktifMagaza && aktifMagaza.npc.tanim.tur === 22, gmDukkani: () => aktifMagaza?.grup === 999000, ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
       partiDavet: () => partiDavetEt(),
       // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
@@ -508,7 +510,15 @@ async function basla(): Promise<void> {
   let ozelBekleyen: { ad: string; mesaj: string } | null = null;
   const sohbetGonder = (mod: string, mesaj: string): boolean => {
     if (!sunucuOturumu) return false;
-    const kmt = /^\/(stats[ıi]f[ıi]rla|skills[ıi]f[ıi]rla)\s*$/i.exec(mesaj.trim()); // GM: kendi stat/skill puanlarını ücretsiz sıfırlar (sunucu +statsifirla / +skillsifirla); sonra karakter yeniden yüklenir
+    const swap = /^\/swap\s+(\S+)\s*$/i.exec(mesaj.trim()); // "/swap <karakter>": aynı hesabın başka karakterine geçer (çıkış → yeniden otomatik giriş); "/swap admin" yönetici karakteridir
+    if (swap) {
+      if (swap[1].toLowerCase() === oyuncu.ad.toLowerCase()) { hud.mesaj(`You are already playing ${oyuncu.ad}.`, 'sistem'); return true; }
+      try { sessionStorage.setItem(SWAP_ANAHTARI, swap[1]); } catch { hud.mesaj('Cannot switch characters: browser storage is blocked.', 'sistem'); return true; }
+      hud.mesaj(`Switching to ${swap[1]}… the game will reload.`, 'sistem');
+      setTimeout(() => haritayaGec(HARITA.toLowerCase(), 3500), 800);
+      return true;
+    }
+    const kmt = /^\/(stats[ıiİI]f[ıiİI]rla|skills[ıiİI]f[ıiİI]rla)\s*$/i.exec(mesaj.trim()); // GM: kendi stat/skill puanlarını ücretsiz sıfırlar (sunucu +statsifirla / +skillsifirla); sonra karakter yeniden yüklenir
     if (kmt) {
       const stat = /^stat/i.test(kmt[1]);
       sunucuOturumu.gonder(WIZ.SOHBET, sohbetIstegi(SOHBET_TURU.GENEL, stat ? '+statsifirla' : '+skillsifirla'));
@@ -516,13 +526,18 @@ async function basla(): Promise<void> {
       setTimeout(() => haritayaGec(HARITA.toLowerCase(), 3500), 1200);
       return true;
     }
+    const esyaKmt = /^\/item\s+(\d{6,9})(?:\s+(\d{1,4}))?\s*$/i.exec(mesaj.trim()); // GM: "/item <eşya numarası> [adet]" → sunucu "+item" (her eşya: +N'liler ve unique'ler dahil; unique listesi docs/unique-esyalar.csv)
+    if (esyaKmt) { sunucuOturumu.gonder(WIZ.SOHBET, sohbetIstegi(SOHBET_TURU.GENEL, `+item ${esyaKmt[1]}${esyaKmt[2] ? ' ' + esyaKmt[2] : ''}`)); return true; }
     const ozel = /^\/(\S+)\s+(.+)$/.exec(mesaj);
     if (ozel) { ozelBekleyen = { ad: ozel[1], mesaj: ozel[2] }; sunucuOturumu.gonder(WIZ.SOHBET_HEDEFI, ozelHedefIstegi(ozel[1])); return true; }
     const tur = mod === 'shout' ? SOHBET_TURU.BAGIRMA : mod === 'party' ? SOHBET_TURU.PARTI : mod === 'clan' ? SOHBET_TURU.KLAN : SOHBET_TURU.GENEL;
     if (tur === SOHBET_TURU.PARTI && !partidayiz) { hud.mesaj('You are not in a party.', 'sistem'); return true; }
     sunucuOturumu.gonder(WIZ.SOHBET, sohbetIstegi(tur, mesaj)); return true;
   };
+  const DUYURU_TURLERI = new Set([7, 8, 11, 17, 24, 25, 26, 27, 28, 29]); // PUBLIC, WAR_SYSTEM, MONUMENT, ANNOUNCEMENT, CLAN/KROWAZ/DEATH/CHAOS duyuruları, ANNOUNCEMENT_WHITE
   const sohbetSunucudan = (s: SohbetPaketi) => {
+    if (s.tur === SOHBET_TURU.TICARET) { arayuz?.tuccarSohbetiYaz(s.gonderen ? `${s.gonderen}: ${s.mesaj}` : s.mesaj); return; } // Bilgi penceresi → Merchant Chat sekmesi
+    if (DUYURU_TURLERI.has(s.tur)) arayuz?.duyuruYaz(s.gonderen ? `${s.gonderen}: ${s.mesaj}` : s.mesaj); // Recent Notices sekmesine de yazılır (sohbette görünmeye devam eder)
     const ad = { [SOHBET_TURU.GENEL]: 'Normal', [SOHBET_TURU.OZEL]: 'Private', [SOHBET_TURU.PARTI]: 'Party', [SOHBET_TURU.BAGIRMA]: 'Shout', [SOHBET_TURU.KLAN]: 'Clan' }[s.tur as number];
     const renk = { [SOHBET_TURU.OZEL]: '#8cff8c', [SOHBET_TURU.PARTI]: '#6bb8ff', [SOHBET_TURU.BAGIRMA]: '#ffa545', [SOHBET_TURU.KLAN]: '#ffe066' }[s.tur as number] ?? '#ffffff';
     arayuz?.sohbetYaz(s.gonderen ? `[${ad ?? s.tur}] ${s.gonderen}: ${s.mesaj}` : s.mesaj, renk);
@@ -559,12 +574,12 @@ async function basla(): Promise<void> {
   hud.esyaKusan = (i) => {
     if (sunucuOturumu) { // sunucu modu
       const e = oyuncu.envanter[i]; if (!e) return;
-      const p = Oyuncu.ekipmanYuvasi(e); if (p < 0) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
+      const p = oyuncu.ekipmanYuvasiBen(e); if (p < 0) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
       if (!eliHazirla(e, p)) return;
       if (sunucuTasi({ tur: 'c', i }, { tur: 'e', i: p }, `You equipped ${e.ad}.`)) envanterYenile();
       return;
     }
-    { const a = oyuncu.envanter[i]; if (a) { const p = Oyuncu.ekipmanYuvasi(a); if (p >= 0 && !eliHazirla(a, a.yuva === 0 ? 6 : p)) return; } }
+    { const a = oyuncu.envanter[i]; if (a) { const p = oyuncu.ekipmanYuvasiBen(a); if (p >= 0 && !eliHazirla(a, a.yuva === 0 && !oyuncu.yonetici ? 6 : p)) return; } }
     const e = oyuncu.esyaKusan(i);
     if (!e) { hud.mesaj('You cannot equip this item.', 'sistem'); return; }
     hud.mesaj(`You equipped ${e.ad}.`, 'sistem');
@@ -582,7 +597,7 @@ async function basla(): Promise<void> {
     hud.mesaj(`You unequipped ${e.ad}.`, 'sistem');
     envanterYenile();
   };
-  /** Sunucu kutusundan al: istek yollanır; envanter/Noah/kutu ancak sunucunun 0x26 cevabıyla değişir. */
+  /** Sunucu kutusundan al: istek yollanır; envanter/Coin/kutu ancak sunucunun 0x26 cevabıyla değişir. */
   const sunucuGanimetAl = (k: GanimetKutusu, secim: 'altin' | 'hepsi' | number) => {
     const gonder = (no: number, yuva: number) => sunucuOturumu?.gonder(WIZ.ESYA_AL, esyaAlmaIstegi(k.agTorba, no, yuva));
     if ((secim === 'altin' || secim === 'hepsi') && k.altin > 0 && k.agAltinYuva >= 0) gonder(ALTIN_NO, k.agAltinYuva);
@@ -617,7 +632,7 @@ async function basla(): Promise<void> {
     if (a.torbaNo === undefined) { const m = GANIMET_HATALARI[a.kod]; if (m) hud.mesaj(m, 'sistem'); return; } // 3/4: parti bildirimleri (parti sonraki adım)
     const k = kutuBul(a.torbaNo);
     if (a.altin !== undefined) oyuncu.altin = a.altin;
-    if (a.no === ALTIN_NO) { hud.mesaj(`You obtained ${a.adet ?? ''} Noah.`.replace('  ', ' '), 'odul'); if (k) k.altin = 0; }
+    if (a.no === ALTIN_NO) { hud.mesaj(`You obtained ${a.adet ?? ''} Coin.`.replace('  ', ' '), 'odul'); if (k) k.altin = 0; }
     else if (a.no !== undefined) {
       const t = esyaBulSunucu(a.no);
       if (a.cantaYuvasi !== undefined && a.cantaYuvasi >= 0) oyuncu.envanter[a.cantaYuvasi] = t.sayilabilir ? { ...t, adet: a.adet } : { ...t }; // sunucunun yuvası ve (yığınlıysa) toplam adedi
@@ -635,7 +650,7 @@ async function basla(): Promise<void> {
       hud.mesaj(`You obtained ${e.ad}.`, 'odul'); k.esyalar.splice(i, 1); k.yerler.splice(i, 1); return true;
     };
     if (secim === 'altin' || secim === 'hepsi') {
-      if (k.altin > 0) { oyuncu.altin += k.altin; hud.mesaj(`You obtained ${k.altin} Noah.`, 'odul'); k.altin = 0; }
+      if (k.altin > 0) { oyuncu.altin += k.altin; hud.mesaj(`You obtained ${k.altin} Coin.`, 'odul'); k.altin = 0; }
     }
     if (secim === 'hepsi') { while (k.esyalar.length && al(0)) { /* hepsini al */ } }
     else if (typeof secim === 'number') al(secim);
@@ -745,7 +760,7 @@ async function basla(): Promise<void> {
   };
   const tamirCevabiSunucudan = (c: { basarili: boolean; altin: number }) => {
     const b = tamirBekleyen.shift(); oyuncu.altin = c.altin;
-    if (!c.basarili) { hud.mesaj('The item could not be repaired (not enough Noah?).', 'sistem'); envanterYenile(); return; }
+    if (!c.basarili) { hud.mesaj('The item could not be repaired (not enough Coin?).', 'sistem'); envanterYenile(); return; }
     if (b) { b.e.suru = b.e.dayanim ?? b.e.suru; hud.mesaj(`${b.e.ad} has been repaired.`, 'sistem'); }
     envanterYenile();
   };
@@ -755,12 +770,12 @@ async function basla(): Promise<void> {
     if (c.altin !== undefined) oyuncu.altin = c.altin;
     if (b?.tur === 'al') {
       const var_ = b.e.sayilabilir ? oyuncu.envanter[b.yuva] : null;
-      if (var_) var_.adet = (var_.adet ?? 1) + (b.e.adet ?? 1); else oyuncu.envanter[b.yuva] = { ...b.e, sunucuNo: b.e.no };
-      hud.mesaj(`You bought ${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
+      if (var_) var_.adet = (var_.adet ?? 1) + (b.e.adet ?? 1); else oyuncu.envanter[b.yuva] = { ...b.e, sunucuNo: b.e.sunucuNo ?? b.e.no };
+      hud.mesaj(`You bought ${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Coin.`, 'odul');
     } else if (b?.tur === 'sat') {
       const kalan = (b.e.adet ?? 1) - (b.adet ?? b.e.adet ?? 1); const yuvadaki = oyuncu.envanter[b.yuva];
       if (kalan > 0 && yuvadaki) yuvadaki.adet = kalan; else oyuncu.envanter[b.yuva] = null; // kısmi satışta kalan yığın yuvada durur
-      hud.mesaj(`You sold ${(b.adet ?? 1) > 1 ? `${b.adet} × ` : ''}${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Noah.`, 'odul');
+      hud.mesaj(`You sold ${(b.adet ?? 1) > 1 ? `${b.adet} × ` : ''}${b.e.ad} for ${(c.fiyat ?? 0).toLocaleString('en-US')} Coin.`, 'odul');
     }
     envanterYenile();
   };
@@ -782,7 +797,7 @@ async function basla(): Promise<void> {
     if (i.tur === 'altin-yatir' || i.tur === 'altin-cek') {
       const mevcutAltin = i.tur === 'altin-yatir' ? o.altin : o.depoAltin, miktar = Math.max(0, Math.min(i.miktar ?? mevcutAltin, mevcutAltin)); if (miktar <= 0) return true;
       sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(i.tur === 'altin-yatir' ? BANKA_ISLEMI.YATIR : BANKA_ISLEMI.CEK, id, BANKA_ALTIN, 0, 0, 0, miktar));
-      bankaBekleyen.push(() => { if (i.tur === 'altin-yatir') { o.depoAltin += miktar; o.altin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah deposited.`, 'sistem'); } else { o.altin += miktar; o.depoAltin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Noah withdrawn.`, 'sistem'); } });
+      bankaBekleyen.push(() => { if (i.tur === 'altin-yatir') { o.depoAltin += miktar; o.altin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Coin deposited.`, 'sistem'); } else { o.altin += miktar; o.depoAltin -= miktar; hud.mesaj(`${miktar.toLocaleString('en-US')} Coin withdrawn.`, 'sistem'); } });
     } else if (i.tur === 'banka-ici') { // aynı sayfada banka yuvasından yuvasına (sunucu WAREHOUSE_MOVE: hedef boş olmalı)
       const e = o.depo[i.kaynak]; if (!e || o.depo[i.hedef]) return true;
       sunucuOturumu.gonder(WIZ.BANKA, bankaIslemIstegi(BANKA_ISLEMI.BANKA_ICI_TASI, id, e.sunucuNo ?? e.no, Math.floor(i.kaynak / SAYFA_YUVASI), i.kaynak % SAYFA_YUVASI, i.hedef % SAYFA_YUVASI, e.adet ?? 1));
@@ -885,24 +900,24 @@ async function basla(): Promise<void> {
     if (fiyat <= 0) { hud.mesaj('This item cannot be sold.', 'sistem'); return; }
     if (n < toplam) e.adet = toplam - n; else oyuncu.envanter[yuva] = null; // yığının kalanı yuvada durur
     oyuncu.altin += fiyat;
-    hud.mesaj(`You sold ${n > 1 ? `${n} × ` : ''}${e.ad} for ${fiyat.toLocaleString('en-US')} Noah.`, 'odul');
+    hud.mesaj(`You sold ${n > 1 ? `${n} × ` : ''}${e.ad} for ${fiyat.toLocaleString('en-US')} Coin.`, 'odul');
   };
-  /** Mağazadan satın alma: sunucu mantığı gibi Noah yetmiyorsa ya da çanta doluysa olmaz. */
+  /** Mağazadan satın alma: sunucu mantığı gibi Coin yetmiyorsa ya da çanta doluysa olmaz. */
   const magazaSatinAl = (e: EsyaTanimi) => {
-    if (sunucuOturumu) { // sunucu modu: Noah, ağırlık ve yer kontrolü sunucuda
+    if (sunucuOturumu) { // sunucu modu: Coin, ağırlık ve yer kontrolü sunucuda
       const h = magazaHazir(); if (!h) return;
-      const yuva = e.sayilabilir ? oyuncu.envanter.findIndex((x) => x && x.no === e.no) : -1;
+      const yuva = e.sayilabilir ? oyuncu.envanter.findIndex((x) => x && x.no === e.no && x.sunucuNo === (e.sunucuNo ?? x.sunucuNo)) : -1;
       const hedef = yuva >= 0 ? yuva : oyuncu.envanter.indexOf(null);
       if (hedef < 0) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
-      const k = magazaKonum(h.grup, e.no); if (!k) return;
+      const k = e.sunucuNo && h.grup === 999000 ? { sayfa: 0, sira: 0 } : magazaKonum(h.grup, e.no); if (!k) return; // GM dükkanı (GM Market) +N/unique çeşitleri tabloda yok: sunucu GM için tam numarayı kabul eder (yama gm-dukkani-tum-esya)
       magazaBekleyen.push({ tur: 'al', e, yuva: hedef });
-      sunucuOturumu.gonder(WIZ.ESYA_ALIM_SATIM, satinAlmaIstegi(h.grup, h.id, [{ no: e.no, yuva: hedef, adet: e.adet ?? 1, sayfa: k.sayfa, sira: k.sira }]));
+      sunucuOturumu.gonder(WIZ.ESYA_ALIM_SATIM, satinAlmaIstegi(h.grup, h.id, [{ no: e.sunucuNo ?? e.no, yuva: hedef, adet: e.adet ?? 1, sayfa: k.sayfa, sira: k.sira }]));
       return;
     }
-    if (oyuncu.altin < e.fiyat) { hud.mesaj('You do not have enough Noah.', 'sistem'); return; }
+    if (oyuncu.altin < e.fiyat) { hud.mesaj('You do not have enough Coin.', 'sistem'); return; }
     if (!oyuncu.esyaEkle(e)) { hud.mesaj('Your inventory is full.', 'sistem'); return; }
     oyuncu.altin -= e.fiyat;
-    hud.mesaj(`You bought ${e.ad} for ${e.fiyat.toLocaleString('en-US')} Noah.`, 'odul');
+    hud.mesaj(`You bought ${e.ad} for ${e.fiyat.toLocaleString('en-US')} Coin.`, 'odul');
   };
   // Oyun imleci: tıklayınca ikinci resim, canavarın üstünde kılıç resmi (stil.css .imlec-*)
   addEventListener('pointerdown', (e) => { if (e.button === 2) document.body.classList.add('kamera-donuyor'); });
@@ -952,7 +967,7 @@ async function basla(): Promise<void> {
     const indeks = sonKapiIndeksi;
     arayuz?.diyalogDuz('Warp Gate', 'Where would you like to go?', [
       ...kapilarSunucu.map((g) => ({
-        yazi: `${KAPI_ADLARI[g.no] ?? g.ad}${g.ucret ? `  (${g.ucret.toLocaleString('en-US')} Noah)` : ''}`,
+        yazi: `${KAPI_ADLARI[g.no] ?? g.ad}${g.ucret ? `  (${g.ucret.toLocaleString('en-US')} Coin)` : ''}`,
         pasif: !BOLGE_HARITASI[g.bolge], // haritası henüz dönüştürülmemiş bölgeler gri
         sec: () => { arayuz?.diyalogKapat(); sunucuOturumu?.gonder(WIZ.ISINLANMA_LISTESI, kapiSecimiIstegi(indeks, g.no)); },
       })),
@@ -1367,6 +1382,7 @@ async function basla(): Promise<void> {
       oyuncu.ad = s.benim.ad; hud.adAyarla(s.benim.ad);
       arayuz?.sinifAyarla(oyuncu.sinif); // sınıfa göre skill listesi ve çubuğu
       await oyuncu.modelDegistir(irkModeli(s.benim.irk)).catch((e) => console.warn('Irk modeli yüklenemedi', s.benim.irk, e)); // kadın/barbar/Karus görünümü
+      void oyuncu.model?.pelerinTak(s.benim.irk, s.benim.pelerinNo); // sunucu kral pelerini (ör. 99 = beyaz kral pelerini, admin) gönderdiyse giydirilir
       hud.mesaj(`Connected to ${s.sunucuAdi} as ${s.benim.ad} (Lv ${s.benim.seviye}).`, 'sistem');
       if (s.karsilama) hud.mesaj(s.karsilama, 'sistem');
       // Canlı dünya: yerel (tek oyunculu) canavarlar kaldırılır; canavarlar artık sunucudan gelir.

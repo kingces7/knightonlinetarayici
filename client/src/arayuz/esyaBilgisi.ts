@@ -1,13 +1,13 @@
 // Orijinal eşya bilgisi penceresi (client UIImageTooltipDlg::CalcTooltipStringNumAndWrite): satır sırası ve metinler orijinalden (Texts_us.tbl 2501-2530, 4501-4564).
 // Sıra (kullanıcının oyun ekran görüntülerine göre): ad (ortalı; yükseltilmişse mor) → tür → ırk → meslek (uymuyorsa kırmızı) → saldırı gücü/hızı/menzil → dayanıklılık → savunma →
 //       gereken seviye/güç/dayanıklılık/çeviklik/zekâ/büyü gücü (yetmeyen kırmızı) → Item Grade (yeşil) → fiyat. Ağırlık ve zırh/silah açıklaması gösterilmez.
-import type { EsyaTanimi } from '../oyun/veri';
+import { esyaEkAlanlari, esyaUniqueMi, type EsyaTanimi } from '../oyun/veri';
 
 export interface OyuncuOzeti { altin?: number; seviye: number; sinif: number; irk: number; stat: { str: number; sta: number; dex: number; int: number; cha: number } }
 
 /** Eşya türü (Item.Kind) → orijinal tür yazısı (IDS_ITEM_CLASS_*). */
 const TUR_YAZISI: Record<number, string> = {
-  11: 'Dagger', 21: 'One-handed Sword', 22: 'Two-handed Sword', 31: 'Axe', 32: 'Two-handed Axe', 41: 'Club', 42: 'Two-handed Club', 51: 'Spear', 52: 'Long Spear',
+  91: 'Earring', 92: 'Necklace', 93: 'Ring', 94: 'Belt', 11: 'Dagger', 21: 'One-handed Sword', 22: 'Two-handed Sword', 31: 'Axe', 32: 'Two-handed Axe', 41: 'Club', 42: 'Two-handed Club', 51: 'Spear', 52: 'Long Spear',
   60: 'Shield', 70: 'Bow', 71: 'Crossbow', 110: 'Staff', 210: 'Warrior Armor', 220: 'Rogue Armor', 230: 'Magician Armor', 240: 'Priest Armor',
 };
 /** IDS_CLASS_KINDOF_* (1304-1315): eşyanın istediği meslek yazısı; oyuncu sınıfının taban kodları sunucu ItemClassAvailable'dan. */
@@ -15,9 +15,15 @@ const MESLEK_YAZISI = ['Warrior', 'Rogue', 'Magician', 'Priest', 'Offensive Warr
 const MESLEK_TABAN: Record<number, number[]> = { 1: [1, 5, 6], 2: [2, 7, 8], 3: [3, 9, 10], 4: [4, 11, 12], 5: [5, 6], 6: [6], 7: [7, 8], 8: [8], 9: [9, 10], 10: [10], 11: [11, 12], 12: [12] };
 const IRK_YAZISI: Record<number, string> = { 1: 'Arch Tuarek', 2: 'Tuarek', 3: 'Wrinkle Tuarek', 4: 'Puri Tuarek', 11: 'Barbarian', 12: 'Male El Moradian', 13: 'Female El Moradian' };
 /** Eşya sınıfı (Item_Org sütun 36): 1 düşük, 2 orta, 3 yüksek (5: yüksek sınıfın yükseltme çeşidi). IDS_TOOLTIP_LOW/MIDDLE/HIGH_CLASS (4562-4564). */
-export const ESYA_SINIFI_YAZISI: Record<number, string> = { 1: 'low Class', 2: 'middle Class', 3: 'high Class', 5: 'high Class' }; // Texts.tbl 4562-4564 (küçük harfle)
-
-const AKSA = '#ffffff', KIRMIZI = '#ff4545', YESIL = '#7fff00', MOR = '#c98be0';
+export const ESYA_SINIFI_YAZISI: Record<number, string> = { 1: 'low Class', 2: 'middle Class', 3: 'high Class', 5: 'high Class' }; // Texts.tbl 4562-4564 (küçük harfle); 5 = yüksek sınıfın yükseltme/unique çeşidi
+const AKSA = '#ffffff', KIRMIZI = '#ff4545', YESIL = '#7fff00', MOR = '#c98be0', ALTIN = '#ffe03a';
+/** Orijinal bonus satırı yazıları (Texts_us): veritabanı alanı → satır başlığı. */
+const EK_YAZISI: Record<string, string> = {
+  FireDamage: 'Flame Damage', IceDamage: 'Glacier Damage', LightningDamage: 'Lightning Damage', PoisonDamage: 'Poison Damage', HPDrain: 'HP Recovery', MPDamage: 'MP Damage', MPDrain: 'MP Recovery',
+  DaggerAc: 'Defense Ability (Dagger)', SwordAc: 'Defense Ability (Sword)', ClubAc: 'Defense Ability (Club)', AxeAc: 'Defense Ability (Ax)', SpearAc: 'Defense Ability (Spear)', BowAc: 'Defense Ability (Arrow)',
+  StrB: 'Strength Bonus', StaB: 'Health Bonus', DexB: 'Dexterity Bonus', IntelB: 'Intelligence Bonus', ChaB: 'Magic Power Bonus', MaxHpB: 'HP Bonus', MaxMpB: 'MP Bonus',
+  FireR: 'Resistance to Flame', ColdR: 'Resistance to Glacier', LightningR: 'Resistance to Lightning', MagicR: 'Resistance to Magic', PoisonR: 'Resistance to Poison', CurseR: 'Resistance to Curse',
+};
 
 function satir(metin: string, renk = AKSA, ortali = false): HTMLElement {
   const d = document.createElement('div'); d.textContent = metin; d.style.color = renk;
@@ -28,10 +34,14 @@ function satir(metin: string, renk = AKSA, ortali = false): HTMLElement {
 /** Eşya bilgisi gövdesini üretir. `satin`: mağaza penceresindeki eşya (alış fiyatı), değilse satış fiyatı. */
 export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: boolean, tamir = 0): HTMLElement {
   const kok = document.createElement('div'); kok.className = 'esya-bilgi';
-  // Yükseltme: orijinal ad sonuna (+N) ekler (N = eşya numarasının son hanesi); yükseltilmiş eşyanın adı mor görünür.
-  const arti = (e.sunucuNo ?? e.no) % 10, adMetni = arti > 0 && !/\(\+\d+\)/.test(e.ad) ? `${e.ad}(+${arti})` : e.ad;
-  const ad = satir(e.adet && e.adet > 1 ? `${adMetni} (${e.adet})` : adMetni, arti > 0 || /\(\+[1-9]\d*\)/.test(e.ad) ? MOR : AKSA, true);
+  // Orijinal renkler (sınıfı ne olursa olsun): yükseltilmiş eşya (+N) → mor ad + "(Upgrade Item)"; unique eşya (ITEM.ItemType = 4) → sarı ad + "(Unique Item)"; unique önceliklidir.
+  const unique = esyaUniqueMi(e), arti = unique ? 0 : (e.sunucuNo ?? e.no) % 10; // unique eşyada son haneler özel koddur, yükseltme değildir
+  const adMetni = arti > 0 && !/\(\+\d+\)/.test(e.ad) ? `${e.ad}(+${arti})` : e.ad;
+  const yukseltme = !unique && /\(\+\d+\)\s*$/.test(adMetni);
+  const ad = satir(adMetni + (e.adet && e.adet > 1 ? ` (${e.adet})` : ''), unique ? ALTIN : yukseltme ? MOR : AKSA, true);
   ad.classList.add('baslik'); kok.appendChild(ad);
+  if (unique) kok.appendChild(satir('(Unique Item)', ALTIN, true));
+  else if (yukseltme) kok.appendChild(satir('(Upgrade Item)', MOR, true));
   if (!e.sayilabilir && TUR_YAZISI[e.tip]) kok.appendChild(satir(TUR_YAZISI[e.tip], AKSA, true));
   if (e.irk) kok.appendChild(satir(IRK_YAZISI[e.irk] ?? 'Unconfirmed race', o && o.irk !== e.irk ? KIRMIZI : AKSA, true));
   if (e.sinif) {
@@ -49,6 +59,7 @@ export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: 
   const gerek = (yazi: string, deger: number | undefined, sahip: number | undefined) => {
     if (deger && deger > 0) kok.appendChild(satir(`${yazi} : ${deger}`, o && (sahip ?? 0) < deger ? KIRMIZI : AKSA));
   };
+  if (unique || yukseltme) for (const { alan, deger } of esyaEkAlanlari(e)) if (EK_YAZISI[alan]) kok.appendChild(satir(`${EK_YAZISI[alan]} : ${deger}`, YESIL)); // bonus satırları yeşil
   gerek('Required Level', e.gerekSeviye, o?.seviye);
   gerek('Required Strength', e.gerekGuc, o?.stat.str);
   gerek('Required Health', e.gerekSta, o?.stat.sta);
@@ -57,7 +68,8 @@ export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: 
   gerek('Required Magic Power', e.gerekBuyu, o?.stat.cha);
   const donanim = e.tur === 'silah' || e.tur === 'zirh' || e.tur === 'kalkan';
   const derece = ESYA_SINIFI_YAZISI[e.sinifDerece ?? 0];
-  if (derece && donanim) kok.appendChild(satir(`Item Grade : ${derece}`, YESIL)); // oyundaki sıra: şartlardan sonra, fiyattan önce; parlak yeşil
+  if (derece && donanim) kok.appendChild(satir(`Item Grade : ${derece}`, YESIL));
+  if (unique) kok.appendChild(satir('Unique', YESIL)); // oyundaki sıra: şartlardan sonra, fiyattan önce; parlak yeşil
   if (e.aciklama && !donanim) { const a = satir(e.aciklama, '#d0d0d0'); a.classList.add('aciklama'); kok.appendChild(a); } // silah/zırhta açıklama gösterilmez
   if (e.fiyat > 0 || satin) {
     const fiyat = satin ? e.fiyat : Math.max(1, Math.floor(e.fiyat / 6));

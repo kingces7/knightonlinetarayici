@@ -5,6 +5,7 @@ import * as THREE from 'three';
 // Pencere düzenleri ve dokular araclar/arayuz ile oyunun kendi dosyalarından çıkarılır (docs/formatlar/uif.md).
 import { GenelPencereler } from './genelPencereler';
 import { SerbestPencere } from './serbestPencere';
+import { MesajListesi } from './mesajListesi';
 import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
@@ -17,7 +18,7 @@ import { DuzDiyalog, type DuzSecenek } from './duzDiyalog';
 import { diyalogVerisi } from '../oyun/diyalogVeri';
 import { baskinStatlar, sinifMesleki, statRengiUygula, statRengiUygulaRenk, SEKME_SECILI_RENK } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
-import { gerekenDeneyim, giyimEkipmani, kurallar } from '../oyun/veri';
+import { gerekenDeneyim, giyimEkipmani, gmDukkaniSayfalari, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
 
 export interface Beceri { /** yakın dövüş skill'inin VURUŞ animasyonu (skill_magic_1 iAct[0]); hazırlık süresi olan skill'lerde hazırlık animasyonu ayrı, vuruş bunla oynar */ vurusAnim?: number; /** yakın dövüş kombo animasyonları (orijinal iAct[0..2]); yalnız birden çok vuruşlu skill'lerde */ kombo?: number[]; /** yakın dövüş skill'inin silah hasarı yüzdesi (skill_magic_1) */ hasarYuzde?: number; /** skill sayfası: ulus × 1000 + meslek × 10 (2010 El Morad Warrior, 2020 Rogue, 2030 Mage, 2040 Priest; Karus 1010–1040) */ sayfa?: number; no: number; ad: string; aciklama: string; seviye: number; msp: number; simge: string | null; /** oyuncu iskeletindeki animasyon numarası (tablo iSelfAnimID1) */ anim?: number; /** fx.tbl numaraları: kendinde / hedefte / uçan efekt */ efektKendi?: number | null; efektHedef?: number | null; efektUcan?: number | null }
@@ -40,7 +41,7 @@ export interface ArayuzBaglami {
   esyaTasi: (kaynak: YuvaKonumu, hedef: YuvaKonumu) => void;
   ipucuGoster: (e: EsyaTanimi, ev: MouseEvent, satin?: boolean, tamir?: number) => void;
   /** Tamir modunda tıklanan eşyayı tamir ettirir; açık mağaza tamirci NPC'ye mi ait? */
-  tamirEt?: (k: YuvaKonumu) => void; tamirmi?: () => boolean;
+  tamirEt?: (k: YuvaKonumu) => void; tamirmi?: () => boolean; gmDukkani?: () => boolean;
   ipucuGizle: () => void;
   mesaj: (m: string) => void;
   /** Yüklü haritanın adı ve kenar uzunluğu (m): mini harita için. */
@@ -106,6 +107,7 @@ export class OyunArayuzu {
   private b: ArayuzBaglami;
   private hpbar!: UiPencere; private gorev!: UiPencere;
   private sohbet!: UiPencere; private bilgi!: UiPencere;
+  private sohbetListe: MesajListesi | null = null; private bilgiListe: MesajListesi | null = null;
   /** Skill çubuğu (re_el_hotkey, yatay): 8 yuva, 1-8 tuşları; yuvalara skill penceresinden sürükleyip bırakılır. */
   private cubuk!: UiPencere;
   /** Skill çubuğu: 8 sayfa × 8 yuva (sunucu en çok 64 kısayol kaydeder). */
@@ -124,7 +126,7 @@ export class OyunArayuzu {
   private onizleme: KarakterOnizleme | null = null;
   /** Hedef çerçevesi (re_target_framebar): seçili canavarın adı ve canı; renk çubuğu seviye farkına göre. */
   private hedefCubugu!: UiPencere;
-  /** Ganimet penceresi (re_droppeditem): 12 yuva; ilk yuva Noah varsa Noah. */
+  /** Ganimet penceresi (re_droppeditem): 12 yuva; ilk yuva Coin varsa Coin. */
   private ganimetPencere!: UiPencere;
   private ganimetKutusu: GanimetKutusu | null = null;
   private ganimetImza = '';
@@ -412,10 +414,11 @@ export class OyunArayuzu {
       const alan = g.alan(String(i)); if (!alan) continue;
       const j = k.yerler.indexOf(i), e = i === k.altinSatiri || j < 0 ? null : k.esyalar[j];
       const noah = i === k.altinSatiri && altinKaldi;
-      alan.style.backgroundImage = noah ? 'url(/esya/noah.png)' : e?.simge ? `url(${e.simge})` : ''; // Noah simgesi oyunun eşya tablosundan (Coin, 90001000) alan.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
+      alan.style.backgroundImage = noah ? 'url(/esya/noah.png)' : e?.simge ? `url(${e.simge})` : ''; // Coin simgesi oyunun eşya tablosundan (Coin, 90001000) alan.dataset.adet = (e?.adet ?? 1) > 1 ? String(e!.adet) : '';
       alan.style.backgroundSize = ESYA_SIMGE; alan.style.backgroundPosition = '0 0';
       alan.style.cursor = noah || e ? 'pointer' : 'default';
-      alan.onmouseenter = e ? (ev) => this.b.ipucuGoster(e, ev) : null; alan.onmouseleave = () => this.b.ipucuGizle();
+      const coin = { no: 0, kaynak: 0, ad: 'Coin', aciklama: `${k.altin.toLocaleString('en-US')} Coin`, simge: '', tur: 'sarf', tip: 0, yuva: -1, hasar: 0, gecikme: 0, savunma: 0, fiyat: 0 } as unknown as EsyaTanimi; // ganimet penceresinde coin adı ipucuyla görünür
+      alan.onmouseenter = noah ? (ev) => this.b.ipucuGoster(coin, ev) : e ? (ev) => this.b.ipucuGoster(e, ev) : null; alan.onmouseleave = () => this.b.ipucuGizle();
       g.metin(String(i), noah ? k.altin.toLocaleString('en-US') : '');
     }
   }
@@ -493,16 +496,16 @@ export class OyunArayuzu {
       const yeni = Math.max(0, Math.min(7, this.depoSayfa + (ev.deltaY > 0 ? 1 : ev.deltaY < 0 ? -1 : 0)));
       if (yeni !== this.depoSayfa) { this.depoSayfa = yeni; this.depoImza = ''; }
     }, { passive: false });
-    // Noah: çantadaki tüm Noah'yı yatır / depodakinin tamamını çek
-    // Noah: kaç tane yatırılacağı / çekileceği sorulur (hepsini tek tıkla aktarmaz)
+    // Coin: çantadaki tüm Coin'yı yatır / depodakinin tamamını çek
+    // Coin: kaç tane yatırılacağı / çekileceği sorulur (hepsini tek tıkla aktarmaz)
     const noahSor = (yatir: boolean) => {
-      const toplam = yatir ? o.altin : o.depoAltin; if (toplam <= 0) { this.b.mesaj(yatir ? 'You have no Noah to deposit.' : 'There is no Noah in the warehouse.'); return; }
+      const toplam = yatir ? o.altin : o.depoAltin; if (toplam <= 0) { this.b.mesaj(yatir ? 'You have no Coin to deposit.' : 'There is no Coin in the warehouse.'); return; }
       adetKutusu(p.el, {
-        ad: 'Noah', soru: yatir ? 'How much Noah do you want to deposit?' : 'How much Noah do you want to withdraw?', maks: toplam, onayYazisi: yatir ? 'Deposit' : 'Withdraw', birimFiyat: 0,
+        ad: 'Coin', soru: yatir ? 'How much Coin do you want to deposit?' : 'How much Coin do you want to withdraw?', maks: toplam, onayYazisi: yatir ? 'Deposit' : 'Withdraw', birimFiyat: 0,
         onay: (miktar) => {
           if (this.b.bankaIslem?.({ tur: yatir ? 'altin-yatir' : 'altin-cek', miktar })) return;
           if (yatir) { o.depoAltin += miktar; o.altin -= miktar; } else { o.altin += miktar; o.depoAltin -= miktar; }
-          this.b.mesaj(`${miktar.toLocaleString('en-US')} Noah ${yatir ? 'deposited' : 'withdrawn'}.`); this.depoImza = ''; this.sonEnvanterImza = '';
+          this.b.mesaj(`${miktar.toLocaleString('en-US')} Coin ${yatir ? 'deposited' : 'withdrawn'}.`); this.depoImza = ''; this.sonEnvanterImza = '';
         },
       });
     };
@@ -722,7 +725,7 @@ export class OyunArayuzu {
     const tamirci = !!this.b.tamirmi?.();
     if (!this.magazaYeni) {
       void MagazaPenceresi.olustur({
-        envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, satinAl: (e) => this.b.magazaSatinAl(e), sat: (y, adet) => this.b.magazaSat(y, adet), tamirEt: (k) => this.b.tamirEt?.(k),
+        envanter: () => this.b.oyuncu.envanter, altin: () => this.b.oyuncu.altin, ucretsiz: () => this.b.oyuncu.gm && !!this.b.gmDukkani?.(), sekmeSayfalari: (s) => gmDukkaniSayfalari(s), satinAl: (e) => this.b.magazaSatinAl(e), sat: (y, adet) => this.b.magazaSat(y, adet), tamirEt: (k) => this.b.tamirEt?.(k),
         ipucu: (e, ev, s, t) => this.b.ipucuGoster(e, ev, s, t), ipucuGizle: () => this.b.ipucuGizle(), mesaj: (m) => this.b.mesaj(m),
         altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, olcek: () => arayuzOlcegi(), kapandi: () => {},
       }, this.b.kok).then((m) => { this.magazaYeni = m; m.ac(npcAdi, sayfalar, tamirci); });
@@ -1111,32 +1114,14 @@ export class OyunArayuzu {
   }
 
   // ---------------------------------------------------------------- sohbet ve bilgi (hasar) pencereleri
-  private satirKabi(el: HTMLElement | undefined, boyut: number): HTMLElement {
-    if (!el) throw new Error('metin alanı yok');
-    el.classList.remove('ui-yazi'); el.replaceChildren();
-    Object.assign(el.style, { display: 'block', overflowY: 'auto', overflowX: 'hidden', pointerEvents: 'auto', fontSize: `${boyut}px`, lineHeight: '1.25', color: '#fff', textShadow: '0 1px 2px #000', overflowWrap: 'anywhere', boxSizing: 'border-box', paddingRight: '4px' });
-    // Üst kenarda yarım kalan satır sert kesilmesin: yazı çerçevenin içinde yumuşakça sönsün.
-    el.style.maskImage = el.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0, #000 0.9em)';
-    el.classList.add('ui-gunluk');
-    return el;
-  }
-
-  private satirEkle(kap: HTMLElement, metin: string, renk: string): void {
-    const sat = document.createElement('div');
-    sat.textContent = metin; sat.style.color = renk;
-    const alttaydi = kap.scrollHeight - kap.scrollTop - kap.clientHeight < 24;
-    kap.appendChild(sat);
-    while (kap.childElementCount > 120) kap.firstElementChild!.remove();
-    if (alttaydi) kap.scrollTop = kap.scrollHeight;
-  }
-
   /** Sohbet sekmesi (Normal/Private/Shout/Party/Clan düğmeleri): yazılan mesajın türünü belirler. */
   private sohbetModu = 'normal';
   private sohbetKur(): void {
     const p = this.sohbet;
     for (const [kimlik, mod] of [['btn_normal', 'normal'], ['btn_private', 'normal'], ['btn_shout', 'shout'], ['btn_party_force', 'party'], ['btn_clan', 'clan']] as const) p.tikla.set(kimlik, () => { this.sohbetModu = mod; if (mod === 'normal' && kimlik === 'btn_private') this.b.mesaj('Private chat: type /name message.'); });
     p.gizleDesen(/^(btn_check_|btn_off|text_notice_title)/);
-    this.satirKabi(p.alan('text0'), 14);
+    const sohbetAlani = p.alan('text0');
+    if (sohbetAlani) { this.sohbetListe = new MesajListesi(sohbetAlani, p.alan('scroll'), { yaziPx: 14, satirPx: 18 }); this.sohbetListe.kanalAc('sohbet'); }
     for (const el of p.el.querySelectorAll<HTMLElement>('.ui-yazi span')) if (el.textContent === 'Knights') el.textContent = 'Clan'; // oyundaki sekme adı
     const e = p.alan('edit0');
     if (e) {
@@ -1160,22 +1145,48 @@ export class OyunArayuzu {
 
   private bilgiKur(): void {
     const p = this.bilgi;
-    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option|scroll|btn_Merchant|btn_notice)/); // Merchant Chat / Recent Notices sekmeleri işe yaramıyor (yalnız Information kalır)
-    // Boş iki sekmenin (Merchant Chat / Recent Notices) çerçeve resimleri de kalkar; yalnız Information sekmesi ve sağdaki küre kalır.
-    for (const e of Array.from(p.el.children) as HTMLElement[]) { if (Math.abs((parseFloat(e.style.top) || 0) - 117) < 1.5 && (parseFloat(e.style.left) || 0) < 190 && e.dataset.id === undefined) e.style.display = 'none'; }
+    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option)/);
     for (const e of p.bul('img_sizechange')) e.style.pointerEvents = 'none'; // köşe tutamağı: büyütme SerbestPencere'de
     for (const id of ['img_background', 'img_background2']) for (const e of p.bul(id)) e.style.opacity = String(ARKA_PLAN_SAYDAMLIK);
-    this.satirKabi(p.alan('text_message'), 12);
+    const alan = p.alan('text_message');
+    if (alan) {
+      const l = this.bilgiListe = new MesajListesi(alan, p.alan('scroll'), { yaziPx: 12, satirPx: 15 });
+      for (const k of ['bilgi', 'tuccar', 'duyuru']) l.kanalAc(k);
+      this.bilgiSekmeleriKur(p, l);
+    }
     p.el.style.zIndex = '1'; this.sohbet.el.style.zIndex = '1'; // pencerelerin (z ≥ 11) altında kalsın
   }
 
+  /**
+   * Bilgi penceresinin alt sekmeleri (orijinal UIF düğmeleri): Merchant Chat (tüccar sohbeti), Recent Notices (son duyurular) ve Information (hasar/ganimet/sistem; varsayılan).
+   * Seçili sekme "basılı" resimle kalır. Information yazısına ya da seçili sekmeye yeniden basmak Information'a döner.
+   */
+  private bilgiSekmeleriKur(p: UiPencere, l: MesajListesi): void {
+    const sekmeler: [string, string][] = [['btn_Merchant', 'tuccar'], ['btn_notice', 'duyuru']];
+    let simdiki = 'bilgi';
+    const sec = (k: string) => { simdiki = k; l.sec(k); for (const [id, ad] of sekmeler) p.dugmeBasili(id, ad === k); };
+    for (const [id, k] of sekmeler) p.tikla.set(id, () => sec(simdiki === k ? 'bilgi' : k));
+    // Information etiketi bir resim olduğu için üstüne saydam bir tıklama alanı konur (ölçek/yeniden boyutlandırmada resimle birlikte kayar).
+    const etiket = Array.from(p.el.querySelectorAll<HTMLElement>('.ui-yazi')).find((e) => e.textContent === 'Information')?.parentElement;
+    if (etiket) {
+      const alan = document.createElement('div'); alan.className = 'ui-dugum';
+      Object.assign(alan.style, { left: etiket.style.left, top: etiket.style.top, width: etiket.style.width, height: etiket.style.height, cursor: 'pointer', zIndex: '2' });
+      alan.addEventListener('click', () => sec('bilgi'));
+      p.el.appendChild(alan);
+    }
+  }
+
   /** Sohbet penceresine satır ekler. */
-  sohbetYaz(metin: string, renk = '#ffffff'): void { const k = this.sohbet.alan('text0'); if (k) this.satirEkle(k, metin, renk); }
-  /** Bilgi (hasar, ganimet, sistem) penceresine satır ekler. */
+  sohbetYaz(metin: string, renk = '#ffffff'): void { this.sohbetListe?.ekle('sohbet', metin, renk); }
+  /** Bilgi (hasar, ganimet, sistem) penceresine satır ekler (Information sekmesi). */
   bilgiMesaji(metin: string, tur: 'bilgi' | 'hasar' | 'odul' | 'sistem' = 'bilgi'): void {
     const renk = { hasar: '#ff8a7a', odul: '#ffd76b', sistem: '#8fd0ff', bilgi: '#dddddd' }[tur];
-    const k = this.bilgi.alan('text_message'); if (k) this.satirEkle(k, metin, renk);
+    this.bilgiListe?.ekle('bilgi', metin, renk);
   }
+  /** Bilgi penceresinin Merchant Chat sekmesine tüccar (özel dükkân) sohbeti ekler. */
+  tuccarSohbetiYaz(metin: string, renk = '#ffe9a8'): void { this.bilgiListe?.ekle('tuccar', metin, renk); }
+  /** Bilgi penceresinin Recent Notices sekmesine sunucu duyurusu ekler. */
+  duyuruYaz(metin: string, renk = '#ffe066'): void { this.bilgiListe?.ekle('duyuru', metin, renk); }
 
   // ---------------------------------------------------------------- HP çubuğu
   private hpbarKur(): void {

@@ -1,0 +1,163 @@
+# GM "admin": ekipman kisitlari kalkar (seviye/stat/sinif), iki el slotuna her el esyasi takilabilir, beyaz kral pelerini (cape 99).
+--- ItemHandler.cpp.orig
++++ ItemHandler.cpp
+@@ -475,6 +475,7 @@
+ */
+ bool CUser::ItemClassAvailable(_ITEM_TABLE pTable)
+ {
++	if (isGM()) return !pTable.isnull(); // GM: sinif kisiti yok
+ 	if (pTable.isnull())
+ 		return false;
+ 
+@@ -539,6 +540,7 @@
+ 
+ bool CUser::ItemEquipAvailable(_ITEM_TABLE pTable)
+ {
++	if (isGM()) return !pTable.isnull(); // GM: seviye / stat / sinif kisiti yok
+ 	return (!pTable.isnull()
+ 		&& GetLevel() >= pTable.m_bReqLevel
+ 		&& GetLevel() <= pTable.m_bReqLevelMax
+@@ -2052,6 +2054,22 @@
+ 	if (pTable.isnull())
+ 		return false;
+ 
++	// GM: her el esyasi (tek/cift el, sag/sol/herhangi) iki el slotuna da takilabilir; diger el icin takas/cikarma yapilmaz.
++	if (isGM() && (destpos == RIGHTHAND || destpos == LEFTHAND))
++	{
++		switch (pTable.m_bSlot)
++		{
++		case ItemSlot1HEitherHand:
++		case ItemSlot1HRightHand:
++		case ItemSlot1HLeftHand:
++		case ItemSlot2HRightHand:
++		case ItemSlot2HLeftHand:
++			return true;
++		default:
++			break;
++		}
++	}
++
+ 	bool bOneHandedItem = false;
+ 	switch (pTable.m_bSlot)
+ 	{
+--- UserInfoSystem.cpp.orig
++++ UserInfoSystem.cpp
+@@ -70,12 +70,9 @@
+ 
+ 	if (pKnights == nullptr)
+ 	{
+-		if (isKing())
++		if (isKing() || hasWhiteKingCape())
+ 		{
+-			if (GetNation() == (uint8)Nation::ELMORAD)
+-				result << uint64(0) << uint16(KingCapeType::KNIGHTS_HUMAN_KING_CAPE) << uint32(0);
+-			else
+-				result << uint64(0) << uint16(KingCapeType::KNIGHTS_KARUS_KING_CAPE) << uint32(0);
++			result << uint64(0) << KingCapeId() << uint32(0);
+ 		}
+ 		else
+ 			result << uint64(0) << uint16(-1) << uint32(0);
+@@ -92,12 +89,9 @@
+ 
+ 		if (pKnights->isInAlliance() && pMainClan != nullptr && pAlliance != nullptr)
+ 		{
+-			if (isKing())
++			if (isKing() || hasWhiteKingCape())
+ 			{
+-				if (GetNation() == (uint8)Nation::ELMORAD)
+-					result << uint16(KingCapeType::KNIGHTS_HUMAN_KING_CAPE) << uint32(0);
+-				else
+-					result << uint16(KingCapeType::KNIGHTS_KARUS_KING_CAPE) << uint32(0);
++				result << KingCapeId() << uint32(0);
+ 			}
+ 			else
+ 			{
+@@ -121,9 +115,8 @@
+ 		}
+ 		else
+ 		{
+-			if (isKing()) {
+-				if (GetNation() == (uint8)Nation::ELMORAD) result << uint16(KingCapeType::KNIGHTS_HUMAN_KING_CAPE) << uint32(0);
+-				else result << uint16(KingCapeType::KNIGHTS_KARUS_KING_CAPE) << uint32(0);
++			if (isKing() || hasWhiteKingCape()) {
++				result << KingCapeId() << uint32(0);
+ 			}
+ 			else {
+ 				if (pKnights->isCastellanCape())
+@@ -267,9 +260,9 @@
+ 	CKnights * pKnights = g_pMain->GetClanPtr(GetClanID());
+ 	if (pKnights == nullptr)
+ 	{
+-		if (isKing())
++		if (isKing() || hasWhiteKingCape())
+ 			//pkt << uint32(0) << uint16(0) << uint8(0) << uint16(KNIGHTS_KNIG_CAPE) << uint32(0) << uint8(0);//King White Cape 20.05.2020	
+-			pkt << uint32(0) << uint16(0) << uint8(0) << uint16(GetNation() == (uint8)Nation::KARUS ? 97 : 98) << uint32(0) << uint8(0); //King New Cape 20.05.2020	
++			pkt << uint32(0) << uint16(0) << uint8(0) << KingCapeId() << uint32(0) << uint8(0); //King New Cape 20.05.2020	
+ 		else
+ 			//pkt << uint32(0) << uint16(0) << uint8(0) << uint16(GetNation() == KARUS ? 97 : 98) << uint32(0) << uint8(0); //Userlerin ýrk pelerini göstermesi kaldýrýldý
+ 			pkt << uint32(0) << uint16(0) << uint8(0) << uint16(-1) << uint32(0) << uint8(0);
+@@ -283,7 +276,7 @@
+ 
+ 		if (pKnights->isInAlliance() && pMainClan != nullptr && pAlliance != nullptr)
+ 		{
+-			if (!isKing())
++			if (!isKing() && !hasWhiteKingCape())
+ 			{
+ 				if (pMainClan->isCastellanCape()) {
+ 					if (pAlliance->sMainAllianceKnights == pKnights->GetID())
+@@ -310,7 +303,7 @@
+ 			}
+ 			else
+ 				//pkt << uint16(KNIGHTS_KNIG_CAPE) << uint32(0); // cape ID //King White Cape 20.05.2020	
+-				pkt << uint16(GetNation() == (uint8)Nation::KARUS ? 97 : 98) << uint32(0); //King New Cape	20.05.2020	
++				pkt << KingCapeId() << uint32(0); //King New Cape	20.05.2020	
+ 
+ 			// not sure what this is, but it (just?) enables the clan symbol on the cape 
+ 			// value in dump was 9, but everything tested seems to behave as equally well...
+@@ -320,7 +313,7 @@
+ 		}
+ 		else
+ 		{
+-			if (!isKing()) {
++			if (!isKing() && !hasWhiteKingCape()) {
+ 				if (pKnights->isCastellanCape())
+ 					pkt << pKnights->m_castCapeID << pKnights->m_bCastCapeR << pKnights->m_bCastCapeG << pKnights->m_bCastCapeB;
+ 				else
+@@ -328,8 +321,7 @@
+ 				pkt << uint8(0);
+ 			}
+ 			else {
+-				if (GetNation() == (uint8)Nation::ELMORAD) pkt << uint16(KingCapeType::KNIGHTS_HUMAN_KING_CAPE) << uint32(0); // cape ID
+-				else pkt << uint16(KingCapeType::KNIGHTS_KARUS_KING_CAPE) << uint32(0); // cape ID
++				pkt << KingCapeId() << uint32(0); // cape ID
+ 			}
+ 			pkt << pKnights->m_byFlag;
+ 		}
+@@ -516,4 +508,15 @@
+ 		notice2 << uint8(4) << uint8(2) << msg->strTitle << msg->strMessage;
+ 		Send(&notice2);
+ 	}
++}
++
++bool CUser::hasWhiteKingCape()
++{
++	return isGM() && STRCASECMP(GetName().c_str(), "admin") == 0;
++}
++
++uint16 CUser::KingCapeId()
++{
++	if (hasWhiteKingCape()) return uint16(KingCapeType::KNIGHTS_KNIG_CAPE);
++	return GetNation() == (uint8)Nation::ELMORAD ? uint16(KingCapeType::KNIGHTS_HUMAN_KING_CAPE) : uint16(KingCapeType::KNIGHTS_KARUS_KING_CAPE);
+ }
+\ No newline at end of file
+--- User.h.orig
++++ User.h
+@@ -871,6 +871,8 @@
+ 
+ 	INLINE bool isInClan() { return GetClanID() > 0; }
+ 	INLINE bool isKing() { return m_bRank == 1; }
++	bool hasWhiteKingCape(); // GM "admin" karakteri: beyaz kral pelerini (cape 99), gercek kral degil
++	uint16 KingCapeId();
+ 	INLINE bool isClanLeader() { return GetFame() == CHIEF; }
+ 	INLINE bool isClanAssistant() { return GetFame() == VICECHIEF; }
+ 

@@ -13,10 +13,18 @@ export async function animBilgisiYukle(): Promise<void> {
 }
 
 /** silah.json: eşya numarası → takılacak eklem (iskelet ön-sıra numarası; 12 sağ el, 7 sol el). araclar: npm run silahlar */
-let silahBilgisi: Record<string, { eklem: number; kalkan?: number }> = {};
+let silahBilgisi: Record<string, { eklem: number; kalkan?: number; glb?: number }> = {}; // glb: modeli olmayan eşya için yedek model (aynı türden en yakın eşya)
 export async function silahBilgisiYukle(): Promise<void> {
   try { silahBilgisi = await (await fetch('/silah/silah.json')).json(); } catch { silahBilgisi = {}; }
 }
+
+/** pelerin.json: ırk → pelerinin takılacağı eklem. araclar: npm run pelerin */
+let pelerinBilgisi: Record<string, { eklem: number }> = {};
+export async function pelerinBilgisiYukle(): Promise<void> {
+  try { pelerinBilgisi = await (await fetch('/pelerin/pelerin.json')).json(); } catch { pelerinBilgisi = {}; }
+}
+/** Çizilebilen pelerin kimlikleri: kral pelerinleri (97 Karus kralı, 98 El Morad kralı, 99 beyaz kral). Klan pelerinleri henüz çizilmez. */
+const KRAL_PELERINLERI = [97, 98, 99];
 
 function yukle(url: string): Promise<GLTF> {
   let p = onbellek.get(url);
@@ -122,12 +130,29 @@ export class KarakterModeli {
     const eklem = yuva === 'sag' ? KarakterModeli.EKLEM_SAG : bilgi.kalkan ? KarakterModeli.EKLEM_KALKAN : KarakterModeli.EKLEM_SOL;
     const kemik = this.kemikBul(eklem); if (!kemik) return;
     try {
-      const g = await yukle(`/silah/${no}.glb`);
+      const g = await yukle(`/silah/${bilgi.glb ?? no}.glb`);
       if (this.plugler.get(yuva)) return; // bu arada başka bir istek takmış
       const nesne = g.scene.clone(true);
       kemik.add(nesne);
       this.plugler.set(yuva, { no, nesne, kemik });
     } catch { /* model yoksa elde bir şey görünmez */ }
+  }
+
+  private pelerin: { anahtar: string; nesne: THREE.Object3D; kemik: THREE.Object3D } | null = null;
+  /** Irka uygun pelerin modelini sırttaki eklemine takar (kimlik 97/98/99); başka kimlikte ya da -1 ise kaldırır. */
+  async pelerinTak(irk: number, kimlik: number): Promise<void> {
+    const anahtar = KRAL_PELERINLERI.includes(kimlik) && pelerinBilgisi[String(irk)] ? `${irk}_${kimlik}` : '';
+    if ((this.pelerin?.anahtar ?? '') === anahtar) return;
+    if (this.pelerin) { this.pelerin.kemik.remove(this.pelerin.nesne); this.pelerin = null; }
+    if (!anahtar) return;
+    const kemik = this.kemikBul(pelerinBilgisi[String(irk)].eklem); if (!kemik) return;
+    try {
+      const g = await yukle(`/pelerin/${anahtar}.glb`);
+      if (this.pelerin) return; // bu arada başka bir istek takmış
+      const nesne = g.scene.clone(true);
+      kemik.add(nesne);
+      this.pelerin = { anahtar, nesne, kemik };
+    } catch { /* model yoksa pelerin görünmez */ }
   }
 
   /**

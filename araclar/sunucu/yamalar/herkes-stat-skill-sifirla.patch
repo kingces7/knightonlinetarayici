@@ -1,0 +1,28 @@
+# /statsifirla ve /skillsifirla: her karakter icin, sohbet yayinlanmadan once islenir; ucretsiz stat sifirlamada giyili esya sarti yok.
+--- ChatHandler.cpp.orig
++++ ChatHandler.cpp
+@@ -275,6 +275,13 @@
+ 	CKnights * pKnights = nullptr;
+ 	DateTime time;
+ 
++	// "/statsifirla" ve "/skillsifirla" (client): her karakter kendi puanlarini ucretsiz sifirlar; yazi hicbir oyuncuya (kendisi disinda) yayilmaz.
++	{
++		size_t okuma = pkt.rpos(); std::string komut; pkt >> komut; pkt.rpos(okuma);
++		if (komut == "+statsifirla") { AllPointChange(true); g_pMain->SendHelpDescription(this, "Stat points were reset."); return; }
++		if (komut == "+skillsifirla") { AllSkillPointChange(true); g_pMain->SendHelpDescription(this, "Skill points were reset."); return; }
++	}
++
+ 	bool isAnnouncement = false;
+ 	if (isMuted() || (GetZoneID() == ZONE_PRISON && !isGM())) 
+ 		return;
+--- UserSkillStatPointSystem.cpp.orig
++++ UserSkillStatPointSystem.cpp
+@@ -126,7 +126,7 @@
+ 	
+ 	for (int i = 0; i < SLOT_MAX; i++)
+ 	{
+-		if (m_sItemArray[i].nNum && !isGM()) {
++		if (m_sItemArray[i].nNum && !isGM() && !bIsFree) { // ucretsiz sifirlamada (/statsifirla) giyili esya sarti yok
+ 			bResult = 4;
+ 			g_pMain->SendHelpDescription(this, "For stat point reset, take off your clothes.");
+ 			goto fail_return;

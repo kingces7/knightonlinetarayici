@@ -1,0 +1,19 @@
+--- NPCHandler.cpp.orig
++++ NPCHandler.cpp
+@@ -1015,6 +1015,8 @@
+ 				}
+ 				g_pMain->m_ItemSellTableArray.m_lock.unlock();
+ 
++				if (!(pNpc->m_iSellingGroup == 999000 && isGM())) // 999000 = GM esya dukkani: GM tablodaki esyanin +N / unique cesitlerini de alabilir (tabloda listelenmeyen numaralar)
++				{
+ 				if (pSellTable == nullptr)
+ 				{
+ 					errorCode = 2;
+@@ -1027,6 +1029,7 @@
+ 					errorCode = 2;
+ 					goto fail_return;
+ 				}
++				}
+ 
+ 				switch (pItems[i].ITEMID)
+ 				{

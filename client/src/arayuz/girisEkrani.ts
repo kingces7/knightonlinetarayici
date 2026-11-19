@@ -4,6 +4,12 @@ import { UiPencere } from './orijinal';
 import { KarakterOlustur } from './karakterOlustur';
 import type { OlusturmaAraclari } from '../ag/sunucu';
 import { kurallar } from '../oyun/veri';
+import { IRK_MESLEKLERI, YENI_KARAKTER_MESAJLARI, sinifKodu } from '../../../kopru/protokol/olustur.ts';
+
+/** `/swap <karakter>` komutunun sessionStorage'a bıraktığı hedef: yeniden girişte bu karakter seçilir. */
+export const SWAP_ANAHTARI = 'ke_swap_karakter';
+/** Yönetici karakterin adı: hesapta yoksa `/swap admin` onu hesabın ulusunda oluşturur; GM yetkilerini veritabanı (USERDATA tetikleyicisi) verir. */
+const YONETICI_ADI = 'admin';
 
 /** Karakter seçim ekranında gösterilecek özet (sunucu karakter listesinden). */
 export interface SecimKarakteri { ad: string; seviye: number; sinif: number; }
@@ -167,6 +173,34 @@ export class GirisEkrani {
     finally { this.sahne.style.visibility = ''; this.secim!.el.style.display = ''; }
   }
 
+  /** `/swap` ile bırakılan hedef karakter adı (bir kez okunur ve silinir); yoksa boş. */
+  private swapHedefi(): string {
+    try { const a = sessionStorage.getItem(SWAP_ANAHTARI) ?? ''; sessionStorage.removeItem(SWAP_ANAHTARI); return a; } catch { return ''; }
+  }
+
+  /** Hedef karakter hesapta varsa seçer; "admin" ise ve yoksa hesabın ulusunda oluşturup seçer. Olmazsa iletiyi gösterir, seçim ekranı kullanıcıda kalır. */
+  private async swapYap(hedef: string, araclar: OlusturmaAraclari, coz: (ad: string) => void): Promise<void> {
+    try {
+      let yuvalar = await araclar.yenile();
+      let bulunan = yuvalar.find((y) => y.ad && y.ad.toLowerCase() === hedef.toLowerCase())?.ad;
+      if (!bulunan && hedef.toLowerCase() === YONETICI_ADI) {
+        const ilk = yuvalar.find((y) => y.ad), yuva = yuvalar.findIndex((y) => !y.ad);
+        if (!ilk || yuva < 0) { this.durum(ilk ? 'There is no free character slot for the admin character.' : 'Create a character first.'); return; }
+        const izinli = IRK_MESLEKLERI[ilk.irk] ?? [1], meslek = (izinli.includes(1) ? 1 : izinli[0]) as 1 | 2 | 3 | 4, sinif = sinifKodu(ilk.irk, meslek);
+        const t = kurallar?.yeniKarakter?.[String(ilk.irk * 10000 + sinif)];
+        const stat = t ? { str: t.str, sta: t.sta, dex: t.dex, int: t.int, cha: t.cha } : { str: 60, sta: 60, dex: 60, int: 60, cha: 60 };
+        stat.str += 300 - (stat.str + stat.sta + stat.dex + stat.int + stat.cha); // kalan bonus puan güce
+        this.durum('Creating the admin character…');
+        const kod = await araclar.olustur({ yuva, ad: YONETICI_ADI, irk: ilk.irk, sinif, yuz: ilk.yuz, sac: ilk.sac, ...stat });
+        if (kod !== 0) { this.durum(YENI_KARAKTER_MESAJLARI[kod] ?? `The admin character could not be created (code ${kod}).`); return; }
+        yuvalar = await araclar.yenile();
+        bulunan = yuvalar.find((y) => y.ad && y.ad.toLowerCase() === YONETICI_ADI)?.ad;
+      }
+      if (bulunan) { this.durum('Entering the game…'); coz(bulunan); return; }
+      this.durum(`Character "${hedef}" was not found on this account.`);
+    } catch (e) { this.durum((e as Error).message || 'Switching characters failed.'); }
+  }
+
   private karakterSec(ilk: SecimKarakteri[], araclar: OlusturmaAraclari): Promise<string> {
     const p = this.secim!;
     return new Promise<string>((coz, hata) => {
@@ -194,6 +228,8 @@ export class GirisEkrani {
       this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright'); if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = 'none';
       this.durum(''); goster();
       p.el.style.display = '';
+      const swap = this.swapHedefi();
+      if (swap) { void this.swapYap(swap, araclar, coz); return; } // /swap: seçim ekranı atlanır; olmazsa normal seçim ekranı kalır
       if (this.otomatik && dolu.length === 1) { this.durum('Entering the game…'); coz(dolu[0].ad); return; } // F5 otomatik giriş: tek karakter doğrudan oyuna girer
       if (!dolu.length) void olustur(); // boş hesap: doğrudan karakter oluşturma ekranı
     });

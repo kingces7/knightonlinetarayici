@@ -37,7 +37,7 @@ export class UiPencere {
   readonly boyut: [number, number];
   private idler = new Map<string, HTMLElement[]>();
   private ilerlemeler = new Map<string, HTMLElement[]>();
-  private dugmeler = new Map<string, { el: HTMLElement; durumlar: Map<number, HTMLElement>; pasif: boolean }>();
+  private dugmeler = new Map<string, { el: HTMLElement; durumlar: Map<number, HTMLElement>; pasif: boolean; basili: boolean; goster: (no: number) => void }>();
   private veri: PencereVeri;
   private alanlar: HTMLElement[] = [];
   /** Pencere ölçeği (küçük ekranlarda sığdırmak için; CSS `scale`, sol üst köşeden). */
@@ -189,14 +189,17 @@ export class UiPencere {
         this.konumla(d, c, kendi); this.resimCiz(d, c); d.style.display = 'none';
         el.appendChild(d); durumlar.set(c.r ?? 0, d);
         for (const cc of c.c ?? []) this.kur(cc, d, [c.k[0], c.k[1]]);
-      } else this.kur(c, el, kendi);
+      }
     }
-    const kayit = { el, durumlar, pasif: false };
+    // Yazı vb. diğer çocuklar durum resimlerinin ÜSTÜNE çizilir (orijinal motor yazıyı resimden sonra çizer; dosyada yazı resimden önce gelse de).
+    for (const c of n.c ?? []) if (c.t !== 4) this.kur(c, el, kendi);
+    const kayit = { el, durumlar, pasif: false, basili: false, goster: (_no: number) => { /* aşağıda atanır */ } };
     if (n.id) this.dugmeler.set(n.id, kayit);
     const goster = (no: number) => {
-      const secili = durumlar.get(kayit.pasif ? 3 : no) ?? durumlar.get(0);
+      const secili = durumlar.get(kayit.pasif ? 3 : kayit.basili ? 1 : no) ?? durumlar.get(0);
       for (const d of durumlar.values()) d.style.display = d === secili ? '' : 'none';
     };
+    kayit.goster = goster;
     goster(0);
     el.addEventListener('pointerenter', () => goster(2));
     el.addEventListener('pointerleave', () => goster(0));
@@ -243,6 +246,8 @@ export class UiPencere {
     const secili = d.durumlar.get(pasif ? 3 : 0) ?? d.durumlar.get(0);
     for (const x of d.durumlar.values()) x.style.display = x === secili ? '' : 'none';
   }
+  /** Sekme düğmesi: seçiliyken orijinalin "basılı" resmi (durum 1) kalıcı gösterilir. */
+  dugmeBasili(id: string, basili: boolean): void { const d = this.dugmeler.get(id); if (d) { d.basili = basili; d.goster(0); } }
   /** Pencerenin bütün düğme (tür 1) düğümleri. */
   tumDugmeler(): HTMLElement[] { return [...this.dugmeler.values()].map((d) => d.el); }
   /** Tüm yuvalar (area düğümleri), belge sırasıyla. */

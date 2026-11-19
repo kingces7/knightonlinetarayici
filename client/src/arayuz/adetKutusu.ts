@@ -32,7 +32,7 @@ export function adetKutusu(ust: HTMLElement, secenek: AdetKutusuSecenek, kapandi
     Object.assign(giris.style, { position: 'absolute', left: '96px', top: '54px', width: '88px', height: '26px', boxSizing: 'border-box', textAlign: 'center', background: 'transparent', color: '#ffff80', border: '0', font: '700 14px Verdana, sans-serif', outline: 'none' });
     const cerceve = document.createElement('div'); Object.assign(cerceve.style, { position: 'absolute', left: '96px', top: '54px', width: '88px', height: '26px' }); sprite(cerceve, 'ui_marketing', UV_KUTU, 88, 26);
     const sayi = () => Math.max(1, Math.min(maks, Math.floor(Number(giris.value.replace(/\D/g, '')) || 1)));
-    const yenile = () => { toplam.textContent = birimFiyat > 0 ? `Total: ${(sayi() * birimFiyat).toLocaleString('en-US')} Noah` : ''; };
+    const yenile = () => { toplam.textContent = birimFiyat > 0 ? `Total: ${(sayi() * birimFiyat).toLocaleString('en-US')} Coin` : ''; };
     giris.addEventListener('input', () => { giris.value = giris.value.replace(/\D/g, ''); yenile(); });
     giris.addEventListener('blur', () => { giris.value = String(sayi()); yenile(); });
     const tamam = () => { const n = sayi(); kapat(); onay(n); };

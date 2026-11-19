@@ -65,6 +65,8 @@ export interface BenimBilgim {
   klanNo: number; fame: number;
   /** Klan üyesiyse klan bilgisi (kaynak: UserInfoSystem.cpp SendMyInfo). */
   klan: { ittifakNo: number; bayrak: number; ad: string; derece: number; sira: number; isaretSurumu: number; pelerinNo: number } | null;
+  /** Sunucunun gönderdiği pelerin kimliği (klan pelerini ya da kral pelerini 97 Karus, 98 El Morad, 99 beyaz kral); yoksa -1. */
+  pelerinNo: number;
   azamiCan: number; can: number; azamiMana: number; mana: number; azamiAgirlik: number; agirlik: number;
   /** STR, STA, DEX, INT, CHA: temel değer + eşya bonusu. */
   statlar: Record<'str' | 'sta' | 'dex' | 'int' | 'cha', { deger: number; bonus: number }>;
@@ -92,11 +94,13 @@ export function benimBilgim(govde: Uint8Array): BenimBilgim {
   const seviye = o.u8(), bosPuan = o.i16(), azamiDeneyim = o.u64(), deneyim = o.u64(), ulusPuani = o.u32(), aylikUlusPuani = o.u32();
   const klanNo = o.u16(), fame = o.u8();
   let klan: BenimBilgim['klan'] = null;
+  let pelerinNo = -1;
   if (klanNo > 0 && klanNo !== 0xffff) {
-    const ittifakNo = o.u16(), bayrak = o.u8(), ad = o.yazi(false), derece = o.u8(), sira = o.u8(), isaretSurumu = o.u16(), pelerinNo = o.u16();
+    const ittifakNo = o.u16(), bayrak = o.u8(), ad = o.yazi(false), derece = o.u8(), sira = o.u8(), isaretSurumu = o.u16(), kimlik = o.u16();
     o.ham(4); // pelerin rengi R,G,B + bayrak (ya da u32 0): kaynakta hangi dalda olursa olsun 6 bayt
-    klan = { ittifakNo, bayrak, ad, derece, sira, isaretSurumu, pelerinNo };
-  } else { o.u64(); o.u16(); o.u32(); } // klan yoksa: 8 sıfır + kral pelerini (-1) + 4 sıfır
+    klan = { ittifakNo, bayrak, ad, derece, sira, isaretSurumu, pelerinNo: kimlik };
+    pelerinNo = kimlik === 0xffff ? -1 : kimlik;
+  } else { o.u64(); const kral = o.u16(); o.u32(); pelerinNo = kral === 0xffff ? -1 : kral; } // klan yoksa: 8 sıfır + kral pelerini (-1) + 4 sıfır
   o.ham(4); // 2,3,4,5 (kaynakta "unknown")
   const azamiCan = o.i16(), can = o.i16(), azamiMana = o.i16(), mana = o.i16(), azamiAgirlik = o.u32(), agirlik = o.u32();
   const st = () => ({ deger: o.u8(), bonus: o.u8() });
@@ -118,7 +122,7 @@ export function benimBilgim(govde: Uint8Array): BenimBilgim {
   const muhurluDeneyim = o.u64(), kapakUnvan = o.u16(), skillUnvan = o.u16();
   o.u32(); o.u32(); o.u8(); // ReturnSymbolisOK(u32) + uint32(0) + uint8(0)
   return {
-    soketNo, ad, x, z, y, ulus, irk, sinif, yuz, sac, rutbe, unvan, seviye, bosPuan, azamiDeneyim, deneyim, ulusPuani, aylikUlusPuani, klanNo, fame, klan,
+    soketNo, ad, x, z, y, ulus, irk, sinif, yuz, sac, rutbe, unvan, seviye, bosPuan, azamiDeneyim, deneyim, ulusPuani, aylikUlusPuani, klanNo, fame, klan, pelerinNo,
     azamiCan, can, azamiMana, mana, azamiAgirlik, agirlik, statlar, toplamVurus, toplamSavunma, direnc, altin, yetki, klanSirasi, kisiselSira, skillPuanlari,
     envanter, hesapDurumu, premium, kullanilanPremium, yeniBaslayan, adabPuani, askeriKamp, cinSaati, yenidenDogus, yenidenDogusStat, muhurluDeneyim, kapakUnvan, skillUnvan,
     kalan: o.kalan,
@@ -207,6 +211,8 @@ export interface KullaniciBilgisi {
   /** Sunucudaki soket numarası (diğer paketler bununla anar). */
   id: number; ad: string; ulus: number; klanNo: number; fame: number;
   klan: { ittifakNo: number; ad: string; derece: number; sira: number; isaretSurumu: number; pelerinNo: number; bayrak: number } | null;
+  /** Görünen pelerin kimliği (klan pelerini ya da kral pelerini 97/98/99); yoksa -1. */
+  pelerinNo: number;
   seviye: number; irk: number; sinif: number; x: number; z: number; y: number; yuz: number; sac: number;
   /** Can durumu (0 canlı…), anormal durum bayrakları, yetki (0 = GM), yön (derece), rütbe. */
   canDurumu: number; anormalDurum: number; yetki: number; yon: number; rutbe: number;
@@ -221,13 +227,15 @@ function kullaniciBilgisiOku(o: PaketOkuyucu, id: number): KullaniciBilgisi {
   const ulus = o.u8(); o.u8(); o.u8();
   const klanNo = o.u16(), fame = o.u8();
   let klan: KullaniciBilgisi['klan'] = null;
+  let pelerinNo = -1;
   if (klanNo > 0 && klanNo !== 0xffff) {
     const ittifakNo = o.u16(), klanAdi = o.yazi(false), derece = o.u8(), sira = o.u8(), isaretSurumu = o.u16();
     if (ittifakNo !== 0) throw new Error('İttifaklı klan üyesinin görünümü henüz desteklenmiyor');
-    const pelerinNo = o.u16(); o.ham(3); o.u8(); // pelerin rengi R,G,B + 0
+    const kimlik = o.u16(); o.ham(3); o.u8(); // pelerin rengi R,G,B + 0
     const bayrak = o.u8();
-    klan = { ittifakNo, ad: klanAdi, derece, sira, isaretSurumu, pelerinNo, bayrak };
-  } else { o.u32(); o.u16(); o.u8(); o.u16(); o.u32(); o.u8(); } // klansız: 14 bayt (… pelerin -1 …)
+    klan = { ittifakNo, ad: klanAdi, derece, sira, isaretSurumu, pelerinNo: kimlik, bayrak };
+    pelerinNo = kimlik === 0xffff ? -1 : kimlik;
+  } else { o.u32(); o.u16(); o.u8(); const kral = o.u16(); o.u32(); o.u8(); pelerinNo = kral === 0xffff ? -1 : kral; } // klansız: 14 bayt (… pelerin -1 …)
   const seviye = o.u8(), irk = o.u8(), sinif = o.u16();
   const x = konumCoz(o.u16()), z = konumCoz(o.u16()), y = konumCoz(o.u16());
   const yuz = o.u8(), sac = o.u32(), canDurumu = o.u8(), anormalDurum = o.u32();
@@ -239,7 +247,7 @@ function kullaniciBilgisiOku(o: PaketOkuyucu, id: number): KullaniciBilgisi {
   for (const yuva of GORUNEN_YUVALAR) esyalar[yuva] = { no: o.u32(), dayaniklilik: o.u16(), bayrak: o.u8() };
   const bolge = o.u8();
   o.u8(); o.u8(); o.u32(); o.u8(); o.u8(); o.u8(); o.u8(); o.u8(); o.u16(); o.u32(); o.u32(); o.u16(); // -1,-1, 0, gizli×3, peri, yeniden doğuş, unvan, dönüş sembolü, yüz süresi, yeni alan
-  return { id, ad, ulus, klanNo, fame, klan, seviye, irk, sinif, x, z, y, yuz, sac, canDurumu, anormalDurum, yetki, yon, rutbe, esyalar, bolge };
+  return { id, ad, ulus, klanNo, fame, klan, pelerinNo, seviye, irk, sinif, x, z, y, yuz, sac, canDurumu, anormalDurum, yetki, yon, rutbe, esyalar, bolge };
 }
 
 /** `WIZ_REQ_USERIN (0x16)`: `u16 adet`, her oyuncu için `u8 0, u16 id` + kayıt. Bölgeye girince sunucu bölgedeki herkesi bu paketle yollar. */

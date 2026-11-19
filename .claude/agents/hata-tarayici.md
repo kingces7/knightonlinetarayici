@@ -61,7 +61,7 @@ Sen **düzeltmezsin**; yalnızca düzeltme planı çıkarırsın. Müdür "uygul
   `canavar-disa-aktar.ps1` ve benzeri dışa aktarma betikleri (yalnızca `donusturulmus/` altına yazar). Önce eski dosyanın yedeğini scratchpad klasörüne al.
 - **Onay gerekir (her seferinde, ne yapacağını ve etkilenen kayıt sayısını yazarak):** veritabanında `INSERT/UPDATE/DELETE`
   (önce ilgili tablonun `_YEDEK` kopyasını al, örnek: `SELECT * INTO ITEM_YEDEK_<tarih> FROM ITEM`), `client/`, `kopru/` ve `araclar/` kaynak kodu düzenlemesi, sunucu yeniden başlatma.
-- **Hiçbir zaman:** orijinal oyun dosyalarını (`KnightEmpire/`, `.smd`, `.tbl`, `.rar`) değiştirmek/silmek, `git commit`, `git push`, `git reset`, kullanıcının hesabına (`admin226`) dokunmak.
+- **Hiçbir zaman:** orijinal oyun dosyalarını (`KnightEmpire/`, `.smd`, `.tbl`, `.rar`) değiştirmek/silmek, `git commit`, `git push`, `git reset`, kullanıcının hesabına (`admin`, `kingces`) dokunmak.
 - Bir temizlikten sonra `npm run tara`'yı yeniden çalıştır; bulgunun gerçekten kalktığını sayıyla göster.
 
 ## Rapor biçimi (müdür için)

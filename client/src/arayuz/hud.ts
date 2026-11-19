@@ -112,7 +112,7 @@ export class Hud {
     this.yuvaCiz(this.envanter.querySelector('.kusanilan .silah')!, o.silah);
     this.yuvaCiz(this.envanter.querySelector('.kusanilan .zirh')!, o.zirh);
     this.envanter.querySelector('.istat')!.textContent = `Attack ${o.toplamVurus()} · Defense ${o.savunma()}`;
-    this.envanter.querySelector('.altin')!.textContent = `${o.altin.toLocaleString('en-US')} Noah`;
+    this.envanter.querySelector('.altin')!.textContent = `${o.altin.toLocaleString('en-US')} Coin`;
   }
 
   private yuvaCiz(y: HTMLDivElement, e: EsyaTanimi | null): void {
@@ -151,7 +151,7 @@ export class Hud {
     liste.innerHTML = '';
     if (k.altin > 0) {
       const s = $<HTMLDivElement>(`<div class="satir"><div class="yuva noah"></div><span></span></div>`);
-      s.querySelector('span')!.textContent = `${k.altin} Noah`;
+      s.querySelector('span')!.textContent = `${k.altin} Coin`;
       s.addEventListener('click', () => this.ganimetAl(k, 'altin'));
       liste.appendChild(s);
     }

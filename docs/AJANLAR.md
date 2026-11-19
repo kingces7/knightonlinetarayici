@@ -46,6 +46,10 @@ Dosya: `.claude/agents/format-cozucu.md`. Kullanım örneği: "format-cozucu aja
 Dosya: `.claude/agents/hata-tarayici.md`. Kullanım: "hata-tarayici ajanıyla veri taraması yap." Aracı: `npm run tara` (araclar klasöründe).
 **bugger** bu ajanın yan sekmede (ayrı oturum) çalışan sürümüdür; aynı kurallarla çalışır, raporlarını `docs/raporlar/` altına yazar, müdüre (ana oturum) kullanıcı iletir.
 
+## Oturum talimatları
+
+Ayrı oturumların (müdür, ross, bugger) talimatları `docs/ajanlar/` klasöründedir; her oturum işe başlarken kendi dosyasını okur. Liste ve iş bölümü: `docs/ajanlar/README.md`.
+
 ## Kurallar
 
 - İnternetten ajan indirip yüklemeyiz. Gerekirse önce kodunu inceleyip sonra karar veririz.

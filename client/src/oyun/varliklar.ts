@@ -398,6 +398,11 @@ export class Oyuncu extends Varlik {
     const ek: Record<number, number[]> = { 0: [6, 8], 10: [0, 2], 12: [9, 11] };
     return ek[e.yuva] ?? (ana >= 0 ? [ana] : []);
   }
+  /** GM (yönetici, "admin") karakteri: seviye/ırk/sınıf ve el kısıtları yok; her el eşyası (tek/çift elli, sağ/sol) iki el yuvasına da takılabilir. Sunucu da GM için aynısını yapar. */
+  get yonetici(): boolean { return this.gm; }
+  uygunYuvalarBen(e: EsyaTanimi): number[] { return this.yonetici && e.yuva <= 4 ? [6, 8] : Oyuncu.uygunYuvalar(e); }
+  /** Çift tıkla giyerken yuva: yönetici için boş olan el (önce sağ), ikisi de doluysa sağ el. */
+  ekipmanYuvasiBen(e: EsyaTanimi): number { return this.yonetici && e.yuva <= 4 ? (!this.ekipman[6] ? 6 : !this.ekipman[8] ? 8 : 6) : Oyuncu.ekipmanYuvasi(e); }
   /**
    * Envanterde sürükle-bırak: `k` (kaynak) yuvasındaki eşyayı `h` (hedef) yuvasına taşır; hedefte eşya varsa yer değiştirirler.
    * Ekipman yuvasına yalnızca uygun eşya girer; ekipmandan çantaya yer değiştirirken karşıdaki eşya da o yuvaya uymalıdır.
@@ -411,8 +416,8 @@ export class Oyuncu extends Varlik {
     const koy = (x: YuvaKonumu, e: EsyaTanimi | null) => { if (x.tur === 'c') this.envanter[x.i] = e; else this.ekipman[x.i] = e; };
     const a = al(k); if (!a) return false;
     const b = al(h);
-    if (h.tur === 'e' && !Oyuncu.uygunYuvalar(a).includes(h.i)) return false;
-    if (k.tur === 'e' && b && !Oyuncu.uygunYuvalar(b).includes(k.i)) return false;
+    if (h.tur === 'e' && !this.uygunYuvalarBen(a).includes(h.i)) return false;
+    if (k.tur === 'e' && b && !this.uygunYuvalarBen(b).includes(k.i)) return false;
     if (h.tur === 'e' && this.elCakismasi(a, h.i, k.tur === 'e' ? k.i : -1)) return false;
     if (k.tur === 'e' && b && this.elCakismasi(b, k.i, h.tur === 'e' ? h.i : -1)) return false;
     koy(h, a); koy(k, b);
@@ -423,7 +428,7 @@ export class Oyuncu extends Varlik {
    * `yok`: bu hamlede boşalacak yuva (eşya o yuvadan geliyorsa öbür elde saymaz). true = çatışma var, giyilemez.
    */
   elCakismasi(e: EsyaTanimi, hedef: number, yok = -1): boolean {
-    if (hedef !== 6 && hedef !== 8) return false;
+    if (this.yonetici || (hedef !== 6 && hedef !== 8)) return false;
     const diger = hedef === 6 ? 8 : 6;
     const o = diger === yok ? null : this.ekipman[diger];
     if (e.yuva === 3 || e.yuva === 4) return !!o;
@@ -433,7 +438,7 @@ export class Oyuncu extends Varlik {
   /** Çantadaki i. eşyayı giyer (eski eşya çantaya döner). Giyilemezse null. */
   esyaKusan(i: number): EsyaTanimi | null {
     const e = this.envanter[i]; if (!e) return null;
-    let p = Oyuncu.ekipmanYuvasi(e); if (p < 0) return null;
+    let p = this.ekipmanYuvasiBen(e); if (p < 0) return null;
     if (e.yuva === 0) { // iki ele de uygun silah: sağ el boşsa ya da sol elde çatışma varsa sağa, sağ el doluysa ve çifte silah mümkünse sola
       const sag = this.ekipman[6]; p = !sag || this.elCakismasi(e, 8) ? 6 : 8;
     }
@@ -517,7 +522,7 @@ export class Oyuncu extends Varlik {
     this.can = doldur ? this.enCok : Math.min(this.can, this.enCok);
     this.mana = doldur ? this.enCokMana : Math.min(this.mana, this.enCokMana);
   }
-  /** Banka (depo): 8 sayfa × 24 yuva ve depodaki Noah. Şimdilik yalnızca bu oturumda tutulur. */
+  /** Banka (depo): 8 sayfa × 24 yuva ve depodaki Coin. Şimdilik yalnızca bu oturumda tutulur. */
   depo: (EsyaTanimi | null)[] = new Array(24 * 8).fill(null);
   depoAltin = 0;
   /** Skill tekrar kullanım bitişleri (skill no → performans saati, sn) ve aktif buff'lar (sunucu Type4). */
@@ -580,13 +585,13 @@ export class GanimetKutusu {
   altin: number;
   esyalar: EsyaTanimi[];
   omur = 60;
-  /** Sunucu modu: sunucudaki torba numarası (0 = yerel kutu), eşyaların kutudaki sunucu yuvaları (esyalar ile aynı sırada) ve Noah'ın yuvası. İçerik 0x24 cevabıyla dolar. */
+  /** Sunucu modu: sunucudaki torba numarası (0 = yerel kutu), eşyaların kutudaki sunucu yuvaları (esyalar ile aynı sırada) ve Coin'ın yuvası. İçerik 0x24 cevabıyla dolar. */
   /** Kutuyu bırakan (ölü) canavar: ölü canavarın üstüne tıklamak da kutuyu açar. */
   sahip: Canavar | null = null;
   agTorba = 0; agYuvalar: { yuva: number; no: number }[] = []; agAltinYuva = -1; icerikGeldi = true;
-  /** Kutuda başlangıçta Noah vardıysa ilk yuva Noah'a ayrılır; Noah alınınca öbür eşyalar yukarı kaymaz. */
+  /** Kutuda başlangıçta Coin vardıysa ilk yuva Coin'a ayrılır; Coin alınınca öbür eşyalar yukarı kaymaz. */
   altinYuvasi: boolean;
-  /** Pencere satırları SABİTTİR: her eşyanın satırı (esyalar ile aynı sırada) ve Noah'ın satırı (-1 = yok). Biri alınınca diğerleri yerinde kalır. */
+  /** Pencere satırları SABİTTİR: her eşyanın satırı (esyalar ile aynı sırada) ve Coin'ın satırı (-1 = yok). Biri alınınca diğerleri yerinde kalır. */
   yerler: number[] = []; altinSatiri = -1;
   readonly secimKutusu: THREE.Mesh;
   private zaman = 0;
