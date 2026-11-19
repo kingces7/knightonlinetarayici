@@ -18,6 +18,8 @@ export interface SerbestAyar {
   seritY?: number; seritSag?: boolean;
   /** Kilit topunu sol alta koy (varsayılan sağ alt). */
   topSol?: boolean;
+  /** Kilit topunun kenardan uzaklığı (piksel, varsayılan 1); katlama düğmesine yer açmak için. */
+  topBosluk?: number;
   /** Taşıma tutamağı: alt sekme şeridindeki yazının üstü (sol ya da sağ kenardan uzaklık, ölçeksiz piksel). */
   tasi: { sol?: number; sag?: number; genislik: number; yukseklik: number };
   top: { doku: string; w: number; h: number; uv: [number, number, number, number] };
@@ -85,6 +87,7 @@ export class SerbestPencere {
     gez(this.kok, 0, 0, 0, 0);
     this.kok.style.width = `${this.w0 + dw}px`; this.kok.style.height = `${this.h0 + dh}px`;
     this.k.dw = dw; this.k.dh = dh;
+    this.p.sinirTemizle(); // görünen sınır değişti
   }
 
   private kaydetDisk(): void { try { localStorage.setItem(this.ayar.anahtar, JSON.stringify(this.k)); } catch { /* depolama kapalı */ } }
@@ -96,8 +99,8 @@ export class SerbestPencere {
   sifirla(): void { this.k.x = NaN; this.k.y = NaN; this.kaydetDisk(); }
   konumuUygula(): boolean {
     if (!this.konumluMu) return false;
-    const w = (this.w0 + this.k.dw) * this.ol, h = (this.h0 + this.k.dh) * this.ol;
-    this.kok.style.left = `${Math.max(0, Math.min(innerWidth - w, this.k.x))}px`; this.kok.style.top = `${Math.max(0, Math.min(innerHeight - h, this.k.y))}px`;
+    const [x, y] = this.p.ekranIcinde(this.k.x, this.k.y); // görünen resim dört kenara tam oturabilir, dışına taşmaz
+    this.kok.style.left = `${x}px`; this.kok.style.top = `${y}px`;
     return true;
   }
 
@@ -106,7 +109,7 @@ export class SerbestPencere {
     const sw = (u[2] - u[0]) * t.w, sh = (u[3] - u[1]) * t.h;
     this.top = document.createElement('div');
     Object.assign(this.top.style, {
-      position: 'absolute', [this.ayar.topSol ? 'left' : 'right']: '1px', bottom: '1px', width: `${sw}px`, height: `${sh}px`, zIndex: '9', cursor: 'pointer',
+      position: 'absolute', [this.ayar.topSol ? 'left' : 'right']: `${this.ayar.topBosluk ?? 1}px`, bottom: '1px', width: `${sw}px`, height: `${sh}px`, zIndex: '9', cursor: 'pointer',
       backgroundImage: `url(/arayuz/doku/${t.doku}.png)`, backgroundSize: `${t.w}px ${t.h}px`, backgroundPosition: `${-u[0] * t.w}px ${-u[1] * t.h}px`, backgroundRepeat: 'no-repeat', pointerEvents: 'auto',
     });
     this.top.addEventListener('click', () => { this.k.kilit = !this.k.kilit; this.kilitGoster(); this.kaydetDisk(); });
@@ -149,8 +152,8 @@ export class SerbestPencere {
     // Taşıma: sekme yazısının (Chat / Information) üstünden tutulur
     const ts = this.ayar.tasi;
     mk({ ...(ts.sol !== undefined ? { left: `${ts.sol}px` } : { right: `${ts.sag ?? 0}px` }), bottom: '0', width: `${ts.genislik}px`, height: `${ts.yukseklik}px` }, 'move', (dx, dy, b) => {
-      const w = (this.w0 + this.k.dw) * this.ol, h = (this.h0 + this.k.dh) * this.ol;
-      this.kok.style.left = `${Math.max(0, Math.min(innerWidth - w, b.l + dx))}px`; this.kok.style.top = `${Math.max(0, Math.min(innerHeight - h, b.t + dy))}px`;
+      const [x, y] = this.p.ekranIcinde(b.l + dx, b.t + dy);
+      this.kok.style.left = `${x}px`; this.kok.style.top = `${y}px`;
     });
   }
 }

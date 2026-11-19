@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { GenelPencereler } from './genelPencereler';
 import { SerbestPencere } from './serbestPencere';
 import { MesajListesi } from './mesajListesi';
+import { SOHBET_ON_EKLERI, shoutManaBedeli } from './sohbetKurallari';
+import { ustCerceveEkle } from './pencereCercevesi';
 import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
@@ -14,7 +16,10 @@ import { MagazaPenceresi } from './magazaPenceresi';
 import { adetKutusu } from './adetKutusu';
 import { yuvaSurukle } from './yuvaSurukle';
 import { DiyalogPenceresi } from './diyalogPenceresi';
-import { DuzDiyalog, type DuzSecenek } from './duzDiyalog';
+import { IsinlanmaPenceresi, type KapiSatiri } from './isinlanmaPenceresi';
+
+/** Hazır metinli NPC seçeneği (sunucu Lua betiği olmayan NPC'ler). `pasif` seçenek gri görünür ve tıklanmaz. */
+export interface DuzSecenek { yazi: string; sec: () => void; pasif?: boolean }
 import { diyalogVerisi } from '../oyun/diyalogVeri';
 import { baskinStatlar, sinifMesleki, statRengiUygula, statRengiUygulaRenk, SEKME_SECILI_RENK } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
@@ -163,18 +168,26 @@ export class OyunArayuzu {
   constructor(b: ArayuzBaglami) { this.b = b; }
 
   async baslat(): Promise<void> {
-    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, hedefCubugu, ganimetPencere, bec] = await Promise.all([
+    const [hp, gorev, durum, beceri, env, sohbet, bilgi, cubuk, magaza, depo, hedefCubugu, ganimetPencere, bec, sohbetKucuk, bilgiKucuk] = await Promise.all([
       UiPencere.yukle('re_el_hpbar'), UiPencere.yukle('re_el_taskbar_main'), UiPencere.yukle('re_el_page_state'),
       UiPencere.yukle('re_el_skill'), UiPencere.yukle('re_el_inventory'),
       UiPencere.yukle('el_chat_us'), UiPencere.yukle('re_el_information_box'), UiPencere.yukle('re_el_hotkey'), UiPencere.yukle('re_tradeinventory'), UiPencere.yukle('re_el_warehouse'), UiPencere.yukle('re_target_framebar'), UiPencere.yukle('re_droppeditem'),
       fetch('/beceri/beceriler.json').then((r) => r.json() as Promise<Beceri[]>).catch(() => [] as Beceri[]),
+      UiPencere.yukle('el_chat_small_us'), UiPencere.yukle('el_msgoutput_small_us'),
     ]);
+    this.sohbetKucuk = sohbetKucuk; this.bilgiKucuk = bilgiKucuk;
     this.hpbar = hp; this.gorev = gorev; this.sohbet = sohbet; this.bilgi = bilgi; this.cubuk = cubuk; this.hedefCubugu = hedefCubugu; this.ganimetPencere = ganimetPencere; this.tumBeceriler = Array.isArray(bec) ? bec.filter((b: Beceri) => b.seviye <= BECERI_EN_YUKSEK && b.ad !== 'Dribble' && b.ad !== 'Shoot') : []; // oyunda skill'ler en çok 70'e kadar; üstündekiler kullanım dışı (veritabanında durur, gösterilmez) this.beceriler = this.tumBeceriler.filter((b) => b.sayfa === 2010);
     this.pencereler = { durum, beceri, envanter: env, magaza, depo };
     this.b.kok.classList.add('orijinal-arayuz');
 
     this.hpbarKur(); this.gorevKur(); this.durumKur(); this.beceriKur(); this.envanterKur(); this.sohbetKur(); this.bilgiKur(); this.cubukKur(); this.magazaKur(); this.depoKur(); this.hedefKur(); this.ganimetKur();
     this.b.kok.append(this.hpbar.el, this.sohbet.el, this.bilgi.el, this.cubuk.el, this.hedefCubugu.el, this.ganimetPencere.el, this.gorev.el, durum.el, beceri.el, env.el, magaza.el, depo.el);
+    // Katlanmış (küçük) sohbet ve bilgi pencereleri: başlangıçta gizli; katlama düğmesine basılınca görünür.
+    for (const [k, ad] of [[this.sohbetKucuk, 'sohbet'], [this.bilgiKucuk, 'bilgi']] as const) {
+      k.el.style.display = 'none'; k.el.style.zIndex = '1';
+      k.tikla.set('btn_on', () => this.katla(ad, false));
+      this.b.kok.appendChild(k.el);
+    }
     this.hpbar.el.style.left = '0px'; this.hpbar.el.style.top = '0px';
     // Skill ve envanter sağdan, aynı yerden açılır; durum penceresi soldan. Konum ve ölçek pencereYerlestir()'de.
     const yerles: [Ad, number][] = [['durum', -150], ['beceri', 150], ['envanter', 150], ['magaza', -150], ['depo', 150]]; // banka sağdan açılır
@@ -186,9 +199,9 @@ export class OyunArayuzu {
       p.surukle();
       p.el.addEventListener('pointerdown', () => { p.el.style.zIndex = String(++this.z); });
     }
-    this.genel = new GenelPencereler({ kok: this.b.kok, altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, mesaj: (m) => this.b.mesaj(m), acilirken: (ad) => { if (ad === 're_el_cmdlist') for (const o of ['envanter', 'beceri'] as Ad[]) if (this.acik.has(o)) this.ac(o, false); } });
+    this.genel = new GenelPencereler({ sagUst: () => { const e = this.pencereler.envanter; return (parseFloat(e.el.style.top) || 0) + e.sinir()[1] * e.olcek; }, kok: this.b.kok, altBos: () => this.gorev.boyut[1] * this.gorevOlcegi() + 14, mesaj: (m) => this.b.mesaj(m), acilirken: (ad) => { if (ad === 're_el_cmdlist') for (const o of ['envanter', 'beceri'] as Ad[]) if (this.acik.has(o)) this.ac(o, false); } });
     this.genel.davranis.set('re_el_clan_window', (p) => {
-      this.sekmeSeridi(p, 'klan');
+      this.sekmeDugmeleriBagla(p, 'klan');
       // Pencere tasarım örnek verisiyle (Msoft_1098…) geliyor: örnek satırlar ve açılır kutular gizlenir; klan yok (sunucu yok)
       p.gizleDesen(/^(group_notice|group_memo|group_purge|grp_member_list_[0-4])$/);
       p.metin('text_clan_name', 'No Clan'); p.metin('text_clan_grade', '-'); p.metin('text_clan_duty', '-');
@@ -227,20 +240,20 @@ export class OyunArayuzu {
     });
     this.genel.davranis.set('re_el_cmdlist', (p) => this.komutListesi(p));
     this.genel.acilista.set('re_el_cmdlist', (p) => this.komutListesi(p)); // her açılışta yeşil çerçeve Private ve PM üzerinde başlar
-    this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik'));
-    this.genel.davranis.set('re_el_page_quest', (p) => { this.sekmeSeridi(p, 'gorev'); this.gorevSayfasiKur(p); });
+    this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik', -37)); // bu pencerenin kendi sekmeleri farklı (Character/Clan/Friend/Achievements resimde); dört sekme üstüne dizilir
+    this.genel.davranis.set('re_el_page_quest', (p) => { this.sekmeDugmeleriBagla(p, 'gorev'); this.gorevSayfasiKur(p); });
     this.genel.davranis.set('re_el_party', (p) => this.partiKur(p));
     this.genel.acilista.set('re_el_party', (p) => this.partiCiz(p));
     this.genel.acilista.set('re_el_page_quest', (p) => void this.gorevSayfasiDoldur(p));
-    this.genel.davranis.set('re_el_page_friend', (p) => { this.sekmeSeridi(p, 'dost'); this.dostBagla(p); });
+    this.genel.davranis.set('re_el_page_friend', (p) => { ustCerceveEkle(p, () => this.genel.kapat('re_el_page_friend')); this.sekmeSeridi(p, 'dost', 44); this.dostBagla(p); });
     this.genel.davranis.set('re_exitmenu', (p, kapat) => {
       p.tikla.set('btn_exit', () => { this.b.mesaj('Close this browser tab to leave the game.'); kapat(); });
       p.tikla.set('btn_option', () => { kapat(); void this.genel.ac('re_new_looting_option'); });
       p.tikla.set('btn_cancel', kapat);
     });
     const topAyari = { doku: 'co_show_icon', w: 512, h: 512, uv: [0.678, 0.178, 0.711, 0.213] as [number, number, number, number] };
-    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari, topSol: true, seritY: 122, tasi: { sol: 20, genislik: 76, yukseklik: 24 } }, () => this.gorevYerlestir());
-    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, seritY: 116, seritSag: true, tasi: { sag: 20, genislik: 85, yukseklik: 22 } }, () => this.gorevYerlestir());
+    this.sohbetSerbest = new SerbestPencere(this.sohbet, { anahtar: 'ke_pencere_sohbet', xBolme: 300, yBolme: 60, enCokDw: 700, enCokDh: 400, top: topAyari, topSol: true, seritY: 122, tasi: { sol: 20, genislik: 62, yukseklik: 24 } }, () => this.gorevYerlestir());
+    this.bilgiSerbest = new SerbestPencere(this.bilgi, { anahtar: 'ke_pencere_bilgi', xBolme: 150, yBolme: 60, enCokDw: 600, enCokDh: 400, top: topAyari, seritY: 116, seritSag: true, topBosluk: 18, tasi: { sag: 20, genislik: 85, yukseklik: 22 } }, () => this.gorevYerlestir());
     this.pencereYerlestir(true); this.gorevYerlestir();
     // Skill çubuğunun resim dosyasındaki saydam sol boşluk piksel taramasıyla atılır; sonra yeniden yerleştirilir (çubuk ekranın sol kenarına tam yapışır).
     void this.cubuk.sinirKesinles().then((tamam) => { if (tamam) this.gorevYerlestir(); });
@@ -261,7 +274,8 @@ export class OyunArayuzu {
       p.olcekAyarla(ol);
       const [l2, t2, r2, b2] = p.sinir();
       let x = ilk ? (ad === 'durum' || ad === 'magaza' ? -l2 * ol : innerWidth - r2 * ol) : parseFloat(p.el.style.left) || 0;
-      let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : ad === 'depo' ? 20 : 70) : parseFloat(p.el.style.top) || 0;
+      // Envanter ve Skill aynı yerden açılır: ikisinin GÖRÜNEN üst kenarı 70 pikselde (pencere kutuları saydam boşluklarla farklı başladığı için kutu değil resim hizalanır).
+      let y = ilk ? (ad === 'durum' ? 110 : ad === 'magaza' ? 40 : ad === 'depo' ? 20 : 70 - t2 * ol) : parseFloat(p.el.style.top) || 0;
       x = Math.max(-l2 * ol, Math.min(x, innerWidth - r2 * ol)); y = Math.max(-t2 * ol, Math.min(y, innerHeight - altBos - b2 * ol));
       p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
     }
@@ -276,6 +290,7 @@ export class OyunArayuzu {
       if (ad === 'envanter' || ad === 'beceri') {
         this.genel?.kapat('re_el_cmdlist');
         for (const o of ['envanter', 'beceri'] as Ad[]) if (o !== ad && this.acik.has(o)) this.ac(o, false);
+        this.sagYerineOturt(ad);
       }
       this.acik.add(ad); p.el.style.display = ''; p.el.style.zIndex = String(++this.z);
       void p.el.offsetWidth; // başlangıç konumu işlensin, sonra kayarak gelsin
@@ -285,6 +300,17 @@ export class OyunArayuzu {
       setTimeout(() => { if (!this.acik.has(ad)) p.el.style.display = 'none'; }, 300);
     }
     this.sonEnvanterImza = '';
+  }
+  /**
+   * Envanter ile Skill birbirinin yerine aynı yerden açılır: açılan pencerenin görünen sağ ve üst kenarı, ötekinin en son durduğu yerle birebir aynı olur
+   * (kullanıcı birini sürüklediyse öbürü de oraya gelir).
+   */
+  private sagYerineOturt(ad: Ad): void {
+    const p = this.pencereler[ad], d = this.pencereler[ad === 'envanter' ? 'beceri' : 'envanter'];
+    const [, dt, dr] = d.sinir(), [, t2, r2] = p.sinir();
+    const sag = (parseFloat(d.el.style.left) || 0) + dr * d.olcek, ust = (parseFloat(d.el.style.top) || 0) + dt * d.olcek;
+    const [x, y] = p.ekranIcinde(sag - r2 * p.olcek, ust - t2 * p.olcek);
+    p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
   }
   degistir(ad: Ad): void { this.ac(ad, !this.acik.has(ad)); }
 
@@ -299,14 +325,15 @@ export class OyunArayuzu {
     if (kod === 'F10') { void this.genel.degistir('re_seed_helper'); return true; }
     if (kod === 'PageUp') { if (this.cubukSayfa > 0) this.cubukSayfaDegistir(-1); return true; }
     if (kod === 'PageDown') { if (this.cubukSayfa < 7) this.cubukSayfaDegistir(1); return true; }
-    if (kod === 'Enter') { this.sohbetGiris?.focus(); return true; }
+    if (kod === 'Enter' && this.isinlanma?.acik) { this.isinlanma.onayla(); return true; } // orijinal: Enter = Confirm
+    if (kod === 'Enter') { if (this.katli.sohbet) this.katla('sohbet', false); this.sohbetGiris?.focus(); return true; }
     const fSayfa = /^F([1-8])$/.exec(kod);
     if (fSayfa) { this.cubukSayfa = Number(fSayfa[1]) - 1; this.cubukSayfaDegistir(0); return true; }
     const rakam = /^Digit([1-8])$/.exec(kod);
     if (rakam) { this.cubukKullan(Number(rakam[1]) - 1); return true; }
     const genelTus = GENEL_TUSLAR[kod]; if (genelTus) { void this.genel.degistir(genelTus); return true; }
     if (kod === 'Escape' && this.magazaYeni?.acik) { this.magazaYeni.kapat(); return true; }
-    if (kod === 'Escape' && this.duz?.acik) { this.duz.kapat(); return true; }
+    if (kod === 'Escape' && this.isinlanma?.acik) { this.isinlanma.kapat(); return true; }
     if (kod === 'Escape' && this.diyalog?.acik) { this.diyalog.kapat(); return true; }
     if (kod === 'Escape' && this.genel.enUsttekiniKapat()) return true;
     if (kod === 'Escape' && this.acik.size) {
@@ -343,22 +370,14 @@ export class OyunArayuzu {
       p.el.style.top = `${ust - b * hol}px`;
     };
     yerles(this.sohbet, this.sohbetSerbest, false); yerles(this.bilgi, this.bilgiSerbest, true);
-    // Kayıtlı (kullanıcının taşıdığı) konumlar başka çözünürlükte çakışabilir: sohbet/bilgi birbirine ya da görev çubuğuna değiyorsa varsayılana dönerler.
-    const kutu = (p: UiPencere) => { const [l, t, r, b] = p.sinir(), x = parseFloat(p.el.style.left) || 0, y = parseFloat(p.el.style.top) || 0; return { l: x + l * hol, t: y + t * hol, r: x + r * hol, b: y + b * hol }; };
-    const kesisir = (x: { l: number; t: number; r: number; b: number }, y: { l: number; t: number; r: number; b: number }) => x.l < y.r - 1 && x.r > y.l + 1 && x.t < y.b - 1 && x.b > y.t + 1;
-    const gk = { l: (innerWidth - (gsr - gsl) * ol) / 2, t: gorevUst, r: (innerWidth + (gsr - gsl) * ol) / 2, b: innerHeight };
-    const sk = kutu(this.sohbet), bk = kutu(this.bilgi);
-    if (kesisir(sk, gk) || kesisir(bk, gk) || kesisir(sk, bk)) {
-      this.sohbetSerbest?.sifirla(); this.bilgiSerbest?.sifirla();
-      for (const [p, sag] of [[this.sohbet, false], [this.bilgi, true]] as [UiPencere, boolean][]) { const [l, , r, b] = p.sinir(); p.el.style.left = `${sag ? innerWidth - r * hol : -l * hol}px`; p.el.style.top = `${ust - b * hol}px`; }
-    }
+    // Sohbet ve bilgi pencereleri kullanıcının bıraktığı yerde kalır: birbirine ya da görev çubuğuna değseler de köşelerine geri atılmazlar (yalnızca ekran içinde tutulurlar).
     // Skill çubuğu: sohbet ile bilgi penceresinin ortasında (pencere kutusu -10,-9'dan başlar; yalnızca yatay çubuk görünür)
     const orta = (sw * hol + innerWidth - bw * hol) / 2;
     let kayit: number[] | null = null;
     try { kayit = JSON.parse(localStorage.getItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay') ?? 'null'); } catch { /* kayıt yok */ }
     if (kayit && kayit.length === 2) { // kullanıcının taşıdığı konum (ekran içinde tutulur)
-      const w = this.cubukKutu();
-      this.cubuk.el.style.left = `${Math.max(0, Math.min(innerWidth - w[0], kayit[0]))}px`; this.cubuk.el.style.top = `${Math.max(0, Math.min(innerHeight - w[1], kayit[1]))}px`;
+      const [kx, ky] = this.cubuk.ekranIcinde(kayit[0], kayit[1]);
+      this.cubuk.el.style.left = `${kx}px`; this.cubuk.el.style.top = `${ky}px`;
     } else if (this.cubukDikey) { // ekranın solunda, dikey ortada (dikey grup pencere kutusunda +10,+9 kayık)
       this.cubuk.el.style.left = `${-this.cubuk.sinir()[0] * hol}px`; // görünen çubuk ekranın sol kenarına yaslanır
       this.cubuk.el.style.top = `${Math.max(40, (innerHeight - 390 * hol) / 2 - 40 * hol) + 9 * hol}px`;
@@ -369,6 +388,7 @@ export class OyunArayuzu {
     // Hedef çerçevesi: üstte ortada
     this.hedefCubugu.olcekAyarla(hol);
     this.hedefCubugu.el.style.left = `${Math.max(350 * hol, (innerWidth - 353 * hol) / 2)}px`; this.hedefCubugu.el.style.top = `${4 * hol}px`;
+    this.katliKonumlariniYenile();
   }
 
   // ---------------------------------------------------------------- ganimet penceresi (re_droppeditem)
@@ -612,7 +632,7 @@ export class OyunArayuzu {
   private magazaYeni: MagazaPenceresi | null = null;
   private npcPencereAcilis = 0;
   /** Mağaza ya da banka (NPC penceresi) açık mı? */
-  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo') || !!this.diyalog?.acik || !!this.duz?.acik; }
+  npcPencereAcik(): boolean { return !!this.magazaYeni?.acik || this.acik.has('depo') || !!this.diyalog?.acik || !!this.isinlanma?.acik; }
   private diyalog: DiyalogPenceresi | null = null;
   /** NPC diyalog menüsü (sunucudan gelen SelectMsg): pencere ilk kullanımda yüklenir. */
   diyalogGoster(npcAdi: string, konusmaNo: number, dugmeler: number[]): void {
@@ -630,15 +650,29 @@ export class OyunArayuzu {
     if (this.diyalog) { ac(this.diyalog); return; }
     void DiyalogPenceresi.olustur({ sec: (i) => this.b.diyalogSec?.(i), kapandi: () => this.b.diyalogKapandi?.(), olcek: () => arayuzOlcegi(), oyuncuAdi: () => this.b.oyuncu.ad }, this.b.kok).then((d) => { this.diyalog = d; ac(d); });
   }
-  /** Düz metinli diyalog (sunucu Lua betiği olmayan NPC'ler: Inn Hostess, Sundries): `pasif` seçenek gri görünür ve tıklanmaz. */
-  private duz: DuzDiyalog | null = null;
+  /**
+   * Hazır metinli diyalog (sunucu Lua betiği olmayan NPC'ler: mağaza tüccarları, Inn Hostess): Lua NPC'lerle AYNI orijinal pencere (re_Quest_Npc_Menu).
+   * `pasif` seçenek gri görünür ve tıklanmaz.
+   */
   diyalogDuz(npcAdi: string, konusma: string, dugmeler: DuzSecenek[]): void {
     this.npcPencereAcilis = performance.now();
-    this.diyalog?.sessizKapat();
-    this.duz ??= new DuzDiyalog(this.b.kok, () => arayuzOlcegi(), () => this.b.diyalogKapandi?.());
-    this.duz.goster(konusma, dugmeler, npcAdi);
+    this.isinlanma?.kapat();
+    const ac = (d: DiyalogPenceresi) => d.gosterMetin(npcAdi, konusma, dugmeler);
+    if (this.diyalog) { ac(this.diyalog); return; }
+    void DiyalogPenceresi.olustur({ sec: (i) => this.b.diyalogSec?.(i), kapandi: () => this.b.diyalogKapandi?.(), olcek: () => arayuzOlcegi(), oyuncuAdi: () => this.b.oyuncu.ad }, this.b.kok).then((d) => { this.diyalog = d; ac(d); });
   }
-  diyalogKapat(): void { this.diyalog?.sessizKapat(); this.duz?.kapat(false); }
+  diyalogKapat(): void { this.diyalog?.sessizKapat(); this.isinlanma?.kapat(); }
+
+  /** Işınlanma kapısı listesi: oyunun kendi Zone List penceresi (El Morad için re_el_warp, Karus için re_ka_warp). */
+  private isinlanma: IsinlanmaPenceresi | null = null; private isinlanmaUlus = 0;
+  isinlanmaListesi(satirlar: KapiSatiri[]): void {
+    this.npcPencereAcilis = performance.now();
+    this.diyalog?.sessizKapat();
+    const ulus = Math.floor(this.b.oyuncu.sinif / 100) === 1 ? 1 : 2;
+    if (this.isinlanma && this.isinlanmaUlus === ulus) { this.isinlanma.goster(satirlar); return; }
+    this.isinlanmaUlus = ulus;
+    void IsinlanmaPenceresi.olustur(ulus === 1 ? 're_ka_warp' : 're_el_warp', this.b.kok, () => arayuzOlcegi(), (m) => this.b.mesaj(m)).then((w) => { this.isinlanma?.kapat(); this.isinlanma = w; w.goster(satirlar); });
+  }
   /** Oyuncu hareket edince NPC pencereleri (mağaza, banka) kapanır; açılışın hemen ardından 0,4 sn tolerans vardır. */
   // ---------------------------------------------------------------- parti penceresi (re_el_party: 8 üye satırı, can/mana çubukları, lider menüsü)
   private partiPenceresi: UiPencere | null = null; private partiSecili = -1;
@@ -701,7 +735,7 @@ export class OyunArayuzu {
     for (const a of [...this.acik]) this.ac(a, false);
     if (this.magazaYeni?.acik) this.magazaYeni.kapat();
     if (this.diyalog?.acik) this.diyalog.kapat();
-    if (this.duz?.acik) this.duz.kapat(false);
+    this.isinlanma?.kapat();
     this.genel.hepsiniKapat();
   }
   npcPencereleriniKapat(): void {
@@ -709,7 +743,7 @@ export class OyunArayuzu {
     if (this.magazaYeni?.acik) this.magazaYeni.kapat();
     if (this.acik.has('depo')) this.ac('depo', false);
     if (this.diyalog?.acik) this.diyalog.kapat();
-    if (this.duz?.acik) this.duz.kapat(false);
+    this.isinlanma?.kapat();
   }
   private tamirModuDegistir(ac: boolean): void {
     this.tamirModu = ac; this.sonEnvanterImza = ''; this.b.ipucuGizle();
@@ -812,8 +846,9 @@ export class OyunArayuzu {
         if (this.cubukKilitli || ev.button !== 0) return;
         const r = c.el.getBoundingClientRect(); const dx = ev.clientX - r.left, dy = ev.clientY - r.top;
         top.setPointerCapture(ev.pointerId);
-        const tasi = (e2: PointerEvent) => { const w = this.cubukKutu(); c.el.style.left = `${Math.max(0, Math.min(innerWidth - w[0], e2.clientX - dx))}px`; c.el.style.top = `${Math.max(0, Math.min(innerHeight - w[1], e2.clientY - dy))}px`; };
-        const bitir = () => { top.removeEventListener('pointermove', tasi); top.removeEventListener('pointerup', bitir); if (this.cubukSolaYakin()) { this.cubukSifirla(); return; } try { localStorage.setItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay', JSON.stringify([parseFloat(c.el.style.left), parseFloat(c.el.style.top)])); } catch { /* depolama kapalı */ } };
+        void c.sinirKesinlestir();
+        const tasi = (e2: PointerEvent) => { const [nx, ny] = c.ekranIcinde(e2.clientX - dx, e2.clientY - dy); c.el.style.left = `${nx}px`; c.el.style.top = `${ny}px`; }; // görünen çubuk dört kenara tam oturabilir; bırakılan yerde kalır (kenara geri sıçramaz)
+        const bitir = () => { top.removeEventListener('pointermove', tasi); top.removeEventListener('pointerup', bitir); try { localStorage.setItem(this.cubukDikey ? 'ke_skillcubugu_konum_dikey' : 'ke_skillcubugu_konum_yatay', JSON.stringify([parseFloat(c.el.style.left), parseFloat(c.el.style.top)])); } catch { /* depolama kapalı */ } };
         top.addEventListener('pointermove', tasi); top.addEventListener('pointerup', bitir);
       });
     }
@@ -892,12 +927,6 @@ export class OyunArayuzu {
     return [0, 1, 2, 3, 4, 5, 6, 7].flatMap((i) => [...yuva(String(10 + i)), ...yuva(String(i))]);
   }
   private cubukSira(alan: HTMLElement): number { const n = Number(alan.dataset.id); return n >= 10 ? n - 10 : n; }
-  /** Çubuk ekranın sol kenarına (dikey) ya da varsayılan yerine (yatay) 60 px'ten yakın bırakıldı mı? Öyleyse varsayılana yapışır. */
-  private cubukSolaYakin(): boolean {
-    const x = parseFloat(this.cubuk.el.style.left) || 0, y = parseFloat(this.cubuk.el.style.top) || 0;
-    if (this.cubukDikey) return x + this.cubuk.sinir()[0] * this.cubuk.olcek < 60;
-    return y > innerHeight - 160 * this.cubuk.olcek && Math.abs(x + 178 * this.cubuk.olcek - innerWidth / 2) < 120; // yatay: görev çubuğunun üstünde, ortada
-  }
   /** Kayıtlı konumu siler, çubuğu varsayılan yerine (dikey: ekranın soluna yapışık) koyar. */
   private cubukSifirla(): void {
     for (const k of ['ke_skillcubugu_konum_dikey', 'ke_skillcubugu_konum_yatay']) { try { localStorage.removeItem(k); } catch { /* depolama kapalı */ } }
@@ -905,10 +934,9 @@ export class OyunArayuzu {
   }
   private cubukYonUygula(): void {
     this.cubuk.goster('Hotkey_vertical', this.cubukDikey); this.cubuk.goster('Hotkey_Horizontal', !this.cubukDikey);
+    this.cubuk.sinirTemizle(); // görünen grup değişti
     this.cubuk.el.style.height = this.cubukDikey ? '402px' : '70px';
   }
-  /** Çubuğun ekrandaki (ölçekli) boyutu. */
-  private cubukKutu(): [number, number] { const o = this.cubuk.olcek; return this.cubukDikey ? [74 * o, 393 * o] : [356 * o, 60 * o]; }
   private cubukSayfaDegistir(d: number): void { this.cubukSayfa = (this.cubukSayfa + d + 8) % 8; this.cubuk.metin('strpage0', this.cubukSayfa + 1); this.cubuk.metin('strpage1', this.cubukSayfa + 1); }
   private cubukKilitDugmeleri: HTMLElement[] = [];
   /** Kilit ve yön (dikey/yatay) düğmeleri: oyunun kendi simge sayfasından (knight1.dxt) çizilir; iki çubuk yönünde de görünür. */
@@ -1051,36 +1079,45 @@ export class OyunArayuzu {
     if (!this.buffSeridi) {
       // Dış kap: solda süslü sürükleme tutacağı (sol tıkla tutup istenen yere bırakılır, konum hatırlanır) + simge şeridi.
       const kap = this.buffKap = document.createElement('div');
-      let konum = { x: 6, y: 108 };
-      try { const k = JSON.parse(localStorage.getItem('ke.buffKonum') ?? 'null') as { x: number; y: number } | null; if (k && Number.isFinite(k.x) && Number.isFinite(k.y)) konum = k; } catch { /* kayıt yok */ }
-      Object.assign(kap.style, { position: 'fixed', left: konum.x + 'px', top: konum.y + 'px', display: 'none', gap: '3px', alignItems: 'stretch', zIndex: '9', pointerEvents: 'none' });
+      // Varsayılan yer: ekranın SAĞ ÜST köşesi. Sürüklenip bırakılırsa konum (sol-üst) hatırlanır; sağ tık varsayılana döndürür.
+      let konum: { x: number; y: number } | null = null;
+      try { const k = JSON.parse(localStorage.getItem('ke.buffKonum2') ?? 'null') as { x: number; y: number } | null; if (k && Number.isFinite(k.x) && Number.isFinite(k.y)) konum = k; } catch { /* kayıt yok */ }
+      Object.assign(kap.style, { position: 'fixed', display: 'none', gap: '3px', alignItems: 'stretch', zIndex: '9', pointerEvents: 'none' });
+      if (konum) { kap.style.left = konum.x + 'px'; kap.style.top = konum.y + 'px'; kap.style.right = 'auto'; } else { kap.style.right = '10px'; kap.style.top = '10px'; }
       const tutac = document.createElement('div'); tutac.title = 'Drag to move';
-      Object.assign(tutac.style, { width: '16px', minHeight: '28px', cursor: 'grab', pointerEvents: 'auto', borderRadius: '3px', border: '1px solid #c9a24a', background: 'linear-gradient(90deg,#3b2f18,#6b5628 50%,#3b2f18)', boxShadow: 'inset 0 0 3px #000, 0 1px 3px #000a', position: 'relative' });
+      Object.assign(tutac.style, { width: '16px', minHeight: '34px', cursor: 'grab', pointerEvents: 'auto', borderRadius: '3px', border: '1px solid #c9a24a', background: 'linear-gradient(90deg,#3b2f18,#6b5628 50%,#3b2f18)', boxShadow: 'inset 0 0 3px #000, 0 1px 3px #000a', position: 'relative' });
       const im = new Image(); im.onload = () => { // oyunun UI dokusundan süslü şerit başı: dikey olarak yinelenir
         const c = document.createElement('canvas'); c.width = 14; c.height = 32; c.getContext('2d')!.drawImage(im, 4, 429, 14, 32, 0, 0, 14, 32);
         Object.assign(tutac.style, { backgroundImage: 'url(' + c.toDataURL('image/png') + ')', backgroundRepeat: 'repeat-y', backgroundPosition: 'center top' });
       }; im.src = '/arayuz/doku/ui_quest.png';
       tutac.addEventListener('pointerdown', (e) => {
         if (e.button !== 0) return; e.preventDefault(); e.stopPropagation(); tutac.setPointerCapture(e.pointerId); tutac.style.cursor = 'grabbing';
+        kap.style.left = kap.offsetLeft + 'px'; kap.style.right = 'auto'; // sağa yaslı varsayılan konumdan sol-üst konuma geç
         const dx = e.clientX - kap.offsetLeft, dy = e.clientY - kap.offsetTop;
-        const tasi = (ev: PointerEvent) => { kap.style.left = Math.max(0, Math.min(innerWidth - 40, ev.clientX - dx)) + 'px'; kap.style.top = Math.max(0, Math.min(innerHeight - 40, ev.clientY - dy)) + 'px'; };
+        const tasi = (ev: PointerEvent) => { kap.style.left = Math.max(0, Math.min(innerWidth - kap.offsetWidth, ev.clientX - dx)) + 'px'; kap.style.top = Math.max(0, Math.min(innerHeight - kap.offsetHeight, ev.clientY - dy)) + 'px'; };
         const birak = () => { tutac.style.cursor = 'grab'; tutac.removeEventListener('pointermove', tasi); tutac.removeEventListener('pointerup', birak);
-          try { localStorage.setItem('ke.buffKonum', JSON.stringify({ x: kap.offsetLeft, y: kap.offsetTop })); } catch { /* depolama kapalı */ } };
+          try { localStorage.setItem('ke.buffKonum2', JSON.stringify({ x: kap.offsetLeft, y: kap.offsetTop })); } catch { /* depolama kapalı */ } };
         tutac.addEventListener('pointermove', tasi); tutac.addEventListener('pointerup', birak);
       });
       tutac.addEventListener('pointerdown', (e) => e.stopPropagation()); // oyun alanına tıklama geçmesin
+      tutac.addEventListener('contextmenu', (e) => { e.preventDefault(); try { localStorage.removeItem('ke.buffKonum2'); } catch { /* depolama kapalı */ } kap.style.left = 'auto'; kap.style.right = '10px'; kap.style.top = '10px'; });
       this.buffSeridi = document.createElement('div');
-      Object.assign(this.buffSeridi.style, { display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: '300px', pointerEvents: 'none' });
+      Object.assign(this.buffSeridi.style, { display: 'flex', gap: '4px', flexWrap: 'wrap', maxWidth: `${Math.round(360 * arayuzOlcegi())}px`, pointerEvents: 'none' });
       kap.appendChild(tutac); kap.appendChild(this.buffSeridi); this.b.kok.appendChild(kap);
     }
     const o = this.b.oyuncu, simdi = performance.now() / 1000, liste = o.buflar.filter((x) => x.bitis > simdi && x.sure);
     const imza = liste.map((x) => x.no).join(',');
     if (this.buffKap) this.buffKap.style.display = liste.length ? 'flex' : 'none';
+    if (this.buffKap && liste.length && this.buffKap.style.right === 'auto') { // sürüklenmiş konum: ekran küçülünce ya da şerit genişleyince dışarı taşmasın
+      this.buffKap.style.left = Math.max(0, Math.min(innerWidth - this.buffKap.offsetWidth, this.buffKap.offsetLeft)) + 'px';
+      this.buffKap.style.top = Math.max(0, Math.min(innerHeight - this.buffKap.offsetHeight, this.buffKap.offsetTop)) + 'px';
+    }
+    const boyut = Math.round(34 * arayuzOlcegi()); // simge boyutu: arayüz ölçeğiyle büyür
     if (imza !== this.buffImza) {
       this.buffImza = imza; this.buffSeridi.replaceChildren();
       for (const x of liste) {
         const b = this.beceriBul(x.no), kutu = document.createElement('div'); kutu.dataset.no = String(x.no);
-        Object.assign(kutu.style, { position: 'relative', width: '28px', height: '28px', opacity: '0.82', borderRadius: '4px', overflow: 'hidden', backgroundImage: b?.simge ? `url(/beceri/${b.simge})` : '', backgroundSize: '100% 100%', backgroundColor: b?.simge ? '' : 'rgba(143,214,230,.35)' });
+        Object.assign(kutu.style, { position: 'relative', width: `${boyut}px`, height: `${boyut}px`, opacity: '0.9', borderRadius: '4px', overflow: 'hidden', backgroundImage: b?.simge ? `url(/beceri/${b.simge})` : '', backgroundSize: '100% 100%', backgroundColor: b?.simge ? '' : 'rgba(143,214,230,.35)' });
         const kaplama = document.createElement('div'); kaplama.className = 'buff-kaplama';
         Object.assign(kaplama.style, { position: 'absolute', inset: '0', transform: 'scaleX(-1)' }); // aynalı: saat yönünün tersine açılır
         kutu.appendChild(kaplama); this.buffSeridi.appendChild(kutu);
@@ -1118,8 +1155,15 @@ export class OyunArayuzu {
   private sohbetModu = 'normal';
   private sohbetKur(): void {
     const p = this.sohbet;
-    for (const [kimlik, mod] of [['btn_normal', 'normal'], ['btn_private', 'normal'], ['btn_shout', 'shout'], ['btn_party_force', 'party'], ['btn_clan', 'clan']] as const) p.tikla.set(kimlik, () => { this.sohbetModu = mod; if (mod === 'normal' && kimlik === 'btn_private') this.b.mesaj('Private chat: type /name message.'); });
-    p.gizleDesen(/^(btn_check_|btn_off|text_notice_title)/);
+    for (const [kimlik, mod] of [['btn_normal', 'normal'], ['btn_private', 'normal'], ['btn_shout', 'shout'], ['btn_party_force', 'party'], ['btn_clan', 'clan']] as const) p.tikla.set(kimlik, () => {
+      if (kimlik === 'btn_private') { this.b.mesaj('Private chat: type /name message.'); return; } // özel mesaj sekmesi yok: "/ad mesaj" yazılır, seçili sekme değişmez
+      this.sohbetModu = mod; this.sohbetSekmeleriGoster();
+    });
+    this.sohbetSekmeleriGoster();
+    // Shout: mana harcar; ipucu güncel bedeli gösterir (orijinal: sunucu azami mana'nın bir bölümünü düşer, mesaj geniş bir alana yayılır)
+    for (const e of p.bul('btn_shout')) e.addEventListener('pointerenter', () => { e.title = `Shout (or start a message with !): costs ${shoutManaBedeli(this.b.oyuncu.enCokMana)} MP. Heard over a wide area.`; });
+    p.tikla.set('btn_off', () => this.katla('sohbet', true)); // katlama düğmesi: pencere küçük sekmeye iner (orijinal el_chat_small)
+    p.gizleDesen(/^(btn_check_|text_notice_title)/);
     const sohbetAlani = p.alan('text0');
     if (sohbetAlani) { this.sohbetListe = new MesajListesi(sohbetAlani, p.alan('scroll'), { yaziPx: 14, satirPx: 18 }); this.sohbetListe.kanalAc('sohbet'); }
     for (const el of p.el.querySelectorAll<HTMLElement>('.ui-yazi span')) if (el.textContent === 'Knights') el.textContent = 'Clan'; // oyundaki sekme adı
@@ -1131,7 +1175,7 @@ export class OyunArayuzu {
       g.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter') {
           const m = g.value.trim(); g.value = '';
-          if (m && !this.b.sohbetGonder?.(this.sohbetModu, m)) this.sohbetYaz(`[Normal] ${this.b.oyuncu.ad}: ${m}`, '#ffffff');
+          if (m) this.sohbetGonderYazi(m);
           g.blur();
         } else if (ev.key === 'Escape') { g.value = ''; g.blur(); }
         ev.stopPropagation();
@@ -1143,9 +1187,56 @@ export class OyunArayuzu {
     this.sohbetYaz('### Welcome to KnightEmpire! Press Enter to chat. ###', SISTEM_SARI);
   }
 
+  private static readonly SOHBET_SEKME_KIMLIGI = { normal: 'btn_normal', shout: 'btn_shout', party: 'btn_party_force', clan: 'btn_clan' } as const;
+  /** Seçili sohbet sekmesi orijinaldeki gibi "basılı" görünür (UIChat::ChangeChattingMode). */
+  private sohbetSekmeleriGoster(): void {
+    for (const [mod, id] of Object.entries(OyunArayuzu.SOHBET_SEKME_KIMLIGI)) this.sohbet.dugmeBasili(id, mod === this.sohbetModu);
+  }
+  /**
+   * Yazılan sohbet satırını gönderir. Orijinal ön ekler seçili sekmeyi geçersiz kılar: `!` Shout, `#` parti, `$` klan.
+   * Shout mana harcar: yeterli mana yoksa (azami mana / SHOUT_MANA_BOLEN) mesaj gönderilmez ve oyuncuya söylenir.
+   */
+  private sohbetGonderYazi(ham: string): void {
+    let mod = this.sohbetModu, m = ham;
+    const onEk = ham.length > 1 ? SOHBET_ON_EKLERI[ham[0]] : undefined;
+    if (onEk) { mod = onEk; m = ham.slice(1).trim(); }
+    if (!m) return;
+    if (mod === 'shout' && m[0] !== '/') {
+      const o = this.b.oyuncu;
+      if (o.mana < shoutManaBedeli(o.enCokMana)) { this.b.mesaj(`Not enough MP to shout (needs ${shoutManaBedeli(o.enCokMana)} MP).`); return; }
+    }
+    if (!this.b.sohbetGonder?.(mod, m)) this.sohbetYaz(`[${{ normal: 'Normal', shout: 'Shout', party: 'Party', clan: 'Clan' }[mod] ?? 'Normal'}] ${this.b.oyuncu.ad}: ${m}`, '#ffffff');
+  }
+
+  // ---------------------------------------------------------------- katlama (orijinal CUIMessageWnd / CUIChat + *Wnd2)
+  /**
+   * Katlama düğmesi pencereyi küçük sürümüne (el_chat_small / el_msgoutput_small: yalnız başlık sekmesi) indirir; küçüğün açma düğmesi geri açar.
+   * Orijinal (CommandToggleUIChat / ToggleUIMsgWnd): ikisi birbirinin yerine görünür; küçük pencere açık pencerenin sol-alt köşesine oturur.
+   */
+  private sohbetKucuk!: UiPencere; private bilgiKucuk!: UiPencere;
+  private katli = { sohbet: false, bilgi: false };
+  private katla(ad: 'sohbet' | 'bilgi', katli: boolean): void {
+    const tam = ad === 'sohbet' ? this.sohbet : this.bilgi, kucuk = ad === 'sohbet' ? this.sohbetKucuk : this.bilgiKucuk;
+    this.katli[ad] = katli;
+    if (katli) this.katliKonumla(tam, kucuk);
+    tam.el.style.display = katli ? 'none' : ''; kucuk.el.style.display = katli ? '' : 'none';
+    if (katli && document.activeElement instanceof HTMLInputElement) document.activeElement.blur();
+  }
+  private katliKonumla(tam: UiPencere, kucuk: UiPencere): void {
+    const o = tam.olcek || 1; kucuk.olcekAyarla(o); kucuk.sinirTemizle();
+    const [l, , , b] = tam.sinir(), [kl, , , kb] = kucuk.sinir();
+    kucuk.el.style.left = `${(parseFloat(tam.el.style.left) || 0) + l * o - kl * o}px`;
+    kucuk.el.style.top = `${(parseFloat(tam.el.style.top) || 0) + b * o - kb * o}px`;
+  }
+  private katliKonumlariniYenile(): void {
+    if (this.katli.sohbet) this.katliKonumla(this.sohbet, this.sohbetKucuk);
+    if (this.katli.bilgi) this.katliKonumla(this.bilgi, this.bilgiKucuk);
+  }
+
   private bilgiKur(): void {
     const p = this.bilgi;
-    p.gizleDesen(/^(btn_msgwnd_lock|btn_minimizeui|btn_option)/);
+    p.gizleDesen(/^(btn_msgwnd_lock|btn_option)/);
+    p.tikla.set('btn_minimizeui', () => this.katla('bilgi', true)); // katlama düğmesi: pencere küçük "Information" sekmesine iner
     for (const e of p.bul('img_sizechange')) e.style.pointerEvents = 'none'; // köşe tutamağı: büyütme SerbestPencere'de
     for (const id of ['img_background', 'img_background2']) for (const e of p.bul(id)) e.style.opacity = String(ARKA_PLAN_SAYDAMLIK);
     const alan = p.alan('text_message');
@@ -1167,10 +1258,13 @@ export class OyunArayuzu {
     const sec = (k: string) => { simdiki = k; l.sec(k); for (const [id, ad] of sekmeler) p.dugmeBasili(id, ad === k); };
     for (const [id, k] of sekmeler) p.tikla.set(id, () => sec(simdiki === k ? 'bilgi' : k));
     // Information etiketi bir resim olduğu için üstüne saydam bir tıklama alanı konur (ölçek/yeniden boyutlandırmada resimle birlikte kayar).
-    const etiket = Array.from(p.el.querySelectorAll<HTMLElement>('.ui-yazi')).find((e) => e.textContent === 'Information')?.parentElement;
-    if (etiket) {
+    const yazi = Array.from(p.el.querySelectorAll<HTMLElement>('.ui-yazi')).find((e) => e.textContent === 'Information');
+    const etiket = yazi?.parentElement;
+    if (etiket && yazi) {
+      yazi.style.width = '68px'; // yazı biraz sola kayar: sağdaki kilit topu (SerbestPencere) son harfe binmesin
       const alan = document.createElement('div'); alan.className = 'ui-dugum';
-      Object.assign(alan.style, { left: etiket.style.left, top: etiket.style.top, width: etiket.style.width, height: etiket.style.height, cursor: 'pointer', zIndex: '2' });
+      // Yalnız yazının kapladığı yer (sağdaki küre katlama düğmesine ait)
+      Object.assign(alan.style, { left: etiket.style.left, top: etiket.style.top, width: yazi.style.width, height: etiket.style.height, cursor: 'pointer', zIndex: '2' });
       alan.addEventListener('click', () => sec('bilgi'));
       p.el.appendChild(alan);
     }
@@ -1265,22 +1359,42 @@ export class OyunArayuzu {
   /** Komut listesinden sohbet girişine ön ek yazar ve odaklar. */
   private sohbetKomutu(onEk: string): void { const g = this.sohbetGiris; if (!g) return; g.value = onEk; g.focus(); }
 
-  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', ust = -31): void {
-    const sirit = document.createElement('div');
-    const w = p.boyut[0] - 6;
-    Object.assign(sirit.style, { position: 'absolute', left: '3px', top: `${ust}px`, width: `${w}px`, display: 'flex', gap: '2px', zIndex: '3' });
-    const adlar: [typeof aktif, string][] = [['durum', 'Character Report'], ['gorev', 'Quest'], ['klan', 'Clan'], ['dost', 'Friend']];
-    for (const [kod, yazi] of adlar) {
-      const b = document.createElement('div'); b.textContent = yazi;
-      Object.assign(b.style, {
-        flex: '1', height: '31px', lineHeight: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', font: '600 12px Segoe UI, Tahoma, sans-serif', color: '#fff', cursor: 'pointer', boxSizing: 'border-box',
-        border: kod === aktif ? '2px solid #e9d9a4' : '2px solid #b9955a', borderRadius: '7px', textShadow: '0 1px 2px #000',
-        background: kod === aktif ? 'linear-gradient(#5b6478,#2b3144 55%,#1c2030)' : 'linear-gradient(#3d4457,#1b1f2c 55%,#10131c)', boxShadow: 'inset 0 0 0 1px #0008, 0 1px 3px #000a',
-      });
-      b.addEventListener('click', () => { if (kod !== aktif) void this.sekmeGit(kod, p); });
-      sirit.appendChild(b);
+  /**
+   * Character Report / Quest / Clan / Friends sekme düğmeleri: oyunun kendi düğme resimleri (ui_el_myinfo.dxt; normal, basılı, üzerinde) ve sarı yazıyla,
+   * orijinal konumda (pencerenin 44. pikselinden başlar, 67×37). Quest ve Clan pencerelerinin dosyasında bu düğmeler hazır gelir (sekmeDugmeleriBagla);
+   * Character Report ve Friend dosyalarında yoktur, bu yüzden aynı resimlerle buradan çizilir. `y`: şeridin pencerenin üstüne göre konumu.
+   */
+  private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', y = 44): void {
+    const [kokSol] = p.kokKutu;
+    const UV = { normal: [301, 43], basili: [441, 121], uzerinde: [301, 121] } as const; // sol-üst köşe; parça 67×36, düğme kutusu 67×37
+    const adlar: [typeof aktif, string, number][] = [['durum', 'Character<br>Report', 4], ['gorev', 'Quest', 75], ['klan', 'Clan', 145], ['dost', 'Friends', 215]];
+    for (const [kod, yazi, x] of adlar) {
+      const b = document.createElement('div'); b.innerHTML = yazi; b.dataset.sekme = kod;
+      Object.assign(b.style, { position: 'absolute', left: `${x - kokSol}px`, top: `${y}px`, width: '67px', height: '37px', zIndex: '3', cursor: 'pointer', boxSizing: 'border-box',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: '12px', font: "bold 10.4px Verdana, 'Segoe UI', sans-serif", color: '#ffff80', textShadow: '0 1px 1px #0008',
+        backgroundImage: 'url(/arayuz/doku/ui_el_myinfo.png)', backgroundRepeat: 'no-repeat', backgroundSize: `512px ${512 * 37 / 36}px` });
+      const goster = (uv: readonly [number, number]) => { b.style.backgroundPosition = `${-uv[0]}px ${-uv[1] * 37 / 36}px`; };
+      const buAktif = kod === aktif;
+      goster(buAktif ? UV.basili : UV.normal);
+      if (!buAktif) {
+        b.addEventListener('pointerenter', () => goster(UV.uzerinde)); b.addEventListener('pointerleave', () => goster(UV.normal));
+        b.addEventListener('pointerdown', () => goster(UV.basili)); b.addEventListener('pointerup', () => goster(UV.uzerinde));
+        b.addEventListener('click', () => { void this.sekmeGit(kod, p); });
+      } else b.style.cursor = 'default';
+      p.el.appendChild(b);
     }
-    p.el.appendChild(sirit);
+  }
+  /** Quest ve Clan pencerelerinin kendi (orijinal) sekme düğmelerini bağlar: hangi pencerede isek o sekme basılı görünür, ötekiler pencereyi değiştirir. */
+  private sekmeDugmeleriBagla(p: UiPencere, aktif: 'gorev' | 'klan'): void {
+    const hedefler = { btn_state: 'durum', btn_title: 'gorev', btn_clan: 'klan', btn_friends: 'dost' } as const;
+    const SOL = { btn_state: 4, btn_title: 75, btn_clan: 145, btn_friends: 215 } as const; // Quest penceresindeki orijinal konumlar; Clan dosyasında 1-2 piksel farklıdır, sekmeler arası geçişte oynamasın diye eşitlenir
+    const [kokSol] = p.kokKutu;
+    for (const [id, x] of Object.entries(SOL)) for (const e of p.bul(id)) { e.style.left = `${x - kokSol}px`; e.style.top = '44px'; }
+    for (const e of p.bul('btn_close')) if (e.parentElement === p.el && e.style.top === '18px') e.style.left = `${9 - kokSol}px`; // X: Quest'teki yerde (9,18)
+    for (const [id, hedef] of Object.entries(hedefler)) {
+      if (hedef === aktif) { p.tikla.set(id, () => { /* zaten bu sekmedeyiz */ }); p.dugmeBasili(id, true); }
+      else p.tikla.set(id, () => { void this.sekmeGit(hedef, p); });
+    }
   }
   private static readonly SEKME_PENCERE = { gorev: 're_el_page_quest', klan: 're_el_clan_window', dost: 're_el_page_friend', baslik: 're_title_window' } as const;
   /** Sekme değiştirir: yeni pencere aynı yerde açılır, eskisi kapanır. */
@@ -1289,7 +1403,12 @@ export class OyunArayuzu {
     let yeni: UiPencere | undefined;
     if (hedef === 'durum') { this.ac('durum', true); yeni = this.pencereler.durum; }
     else { const ad = OyunArayuzu.SEKME_PENCERE[hedef]; if (!(await this.genel.ac(ad))) return; yeni = this.genel.pencere(ad); }
-    if (yeni) { yeni.olcekAyarla(ol); yeni.el.style.left = sol; yeni.el.style.top = ust; }
+    if (yeni) {
+      // Pencere dosyalarının koordinat başlangıcı farklıdır (kök sol kenarı -3, -1, 0): fark kadar kaydırılır; böylece X ve sekmeler ekranda oynamaz.
+      yeni.olcekAyarla(ol);
+      const [nx, ny] = yeni.ekranIcinde((parseFloat(sol) || 0) + (yeni.kokKutu[0] - kaynak.kokKutu[0]) * ol, parseFloat(ust) || 0);
+      yeni.el.style.left = `${nx}px`; yeni.el.style.top = `${ny}px`;
+    }
     if (kaynak === this.pencereler.durum) this.ac('durum', false); else this.genel.kapat(kaynak.ad);
   }
 
@@ -1331,17 +1450,9 @@ export class OyunArayuzu {
 
   private durumKur(): void {
     const p = this.pencereler.durum;
-    this.sekmeSeridi(p, 'durum', 52); // pencere resmi 83. pikselden başlar: sekmeler hemen üstüne oturur
-    // Karakter (stat) penceresinin özgün tasarımında kapatma düğmesi yok: envanterdeki özgün çarpı kopyalanıp sol üste konur.
-    const kaynakX = this.pencereler.envanter.el.querySelector<HTMLElement>('[data-id="btn_close"]');
-    if (kaynakX) {
-      const x = kaynakX.cloneNode(true) as HTMLElement;
-      Object.assign(x.style, { left: '2px', top: '14px', zIndex: '5', display: '' });
-      x.title = 'Close';
-      x.addEventListener('pointerdown', (e) => e.stopPropagation());
-      x.addEventListener('click', () => this.ac('durum', false));
-      p.el.appendChild(x);
-    }
+    this.sekmeSeridi(p, 'durum', 44); // orijinal konum: pencere resmi 83. pikselden başlar, düğmeler 44-81 arası
+    // Karakter (stat) penceresinin dosyasında üst çerçeve (el süsü, şerit, kapatma düğmesi) yok: Quest/Clan ile aynı resimlerle eklenir (X her sekmede aynı yerde).
+    ustCerceveEkle(p, () => this.ac('durum', false));
     this.durumDuzeniReferans(p);
     p.gizleDesen(/^(icon_level_|btn_rebirth_preset|btn_preset|base_perks|Text_HP$|Text_MP$)/); // base_perks: Myko'nun ekstra özellik listesi (şimdilik yok)
     const harca = (ad: 'str' | 'sta' | 'dex' | 'int') => () => {
@@ -1478,7 +1589,9 @@ export class OyunArayuzu {
   private envanterKur(): void {
     const p = this.pencereler.envanter;
     p.tikla.set('btn_close', () => this.ac('envanter', false)); // sağ üstteki çarpı
-    p.gizleDesen(/(_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^btn_gold$|^base_(inven_notice|bag|LockImg|cos)$)/);
+    p.gizleDesen(/(_bag|string_Bag|btn_bag|PreView|close_cos|Emblem|Pathos|helmetview|ecli666|TrashLock|^base_(inven_notice|bag|LockImg|cos)$)/);
+    // Coin kutusunun solundaki orijinal Coin simgesi (btn_gold, 24×27) görünür kalır; tıklanınca bir şey yapmaz, üzerine gelince "Coin" der.
+    for (const e of p.bul('btn_gold')) { e.title = 'Coin'; e.style.cursor = 'default'; }
     for (let i = 28; i <= 39; i++) p.goster(String(i), false);
     this.copKur(p);
     this.envanterSurukleKur(p);
@@ -1591,6 +1704,13 @@ export class OyunArayuzu {
     this.hedefCiz(); this.ganimetCiz();
     this.magazaYeni?.ciz();
     if (this.acik.has('depo')) this.depoCiz();
-    if (this.acik.has('envanter')) { this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, giyimEkipmani(this.b.oyuncu.ekipman)); }
+    if (this.acik.has('envanter')) {
+      // Önizleme, oyuncunun şu anki ırk/cinsiyet modelini gösterir: sunucudan ırk gelip oyun içi model değişince (ya da karakter değişince) önizleme de değişir.
+      const mn = this.b.oyuncu.modelNo;
+      if (mn) {
+        if (!this.onizleme) { const kap = this.pencereler.envanter.bul('area_char')[0]; if (kap) { this.onizleme = new KarakterOnizleme(kap, mn); void this.onizleme.baslat(); } }
+        else if (this.onizleme.modelNo !== mn) void this.onizleme.modelDegistir(mn);
+      }
+      this.envanterCiz(); this.onizleme?.ciz(dt, this.b.oyuncu.ekipman[6]?.no ?? 0, this.b.oyuncu.ekipman[8]?.no ?? 0, giyimEkipmani(this.b.oyuncu.ekipman)); }
   }
 }

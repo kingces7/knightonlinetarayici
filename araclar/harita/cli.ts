@@ -4,7 +4,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { CIKTI_DIZINI, SUNUCU_HARITA_DIZINI, oyunDisindaOlmali } from '../ortak/yollar.ts';
-import { smdOku, type SmdKapi } from './smd.ts';
+import { saglamYuzler, smdOku, type SmdKapi } from './smd.ts';
+import { SUNUCU_HARITASI, eslesmeGuvenilir, eslesmeNedeni, yukseklikEslesmesi } from './eslesme.ts';
 import { KAPI_ADLARI } from '../../client/src/oyun/kapiAdlari.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dxtOku, rgbayaCevir, tctOku } from '../doku/dxt.ts';
@@ -145,9 +146,6 @@ export function renkHaritasi(parcalar: Uint8Array[]): { rgba: Uint8Array; boyut:
   return { rgba, boyut: S };
 }
 
-/** İstemci haritası → sunucu haritası (.smd) eşleşmesi. İstemci adıyla aynı olmayanlar burada. */
-const SUNUCU_HARITASI: Record<string, string> = { karus2004: '1098karus2004.smd', elmo2004: '1098elmo2004.smd', moradon: '1098moradon_0826.smd', '14th_oldmoradon': 'old_moradon.smd' };
-
 /**
  * Eski .smd dosyalarında kapı adı Korece (CP949). Adı client'ın İngilizce listesinde (KAPI_ADLARI) olan kapılar
  * İngilizceye çevrilir, özgün Korece metin adKorece/duyuruKorece alanlarında saklanır. Listede olmayan kapı değişmez.
@@ -162,29 +160,47 @@ function kapiyiIngilizceyeCevir(k: SmdKapi): SmdKapi & { adKorece?: string; duyu
 /**
  * Sunucu haritasından çarpışma üçgenlerini (carpisma.bin: ham float32, üçgen başına 9 sayı, x/y/z — istemci
  * arazisiyle aynı dünya koordinatı) ve kapı/olay bilgisini (sunucu.json) yazar. Dosya yoksa atlar.
+ * Bozuk üçgenler (NaN / |değer| > 1e5) atlanır. `.smd`'nin yüksekliği client `.gtd`'siyle uyuşmuyorsa (boyut farklı ya da
+ * benzerlik < %50) hiçbir şey yazılmaz; `zorla` ile geçilir. Sunucu paketindeki çoğu `.smd` başka haritanın kopyasıdır.
  */
-function sunucuVerisiniYaz(harita: string, hedef: string): void {
+function sunucuVerisiniYaz(harita: string, hedef: string, arazi: Arazi | null, zorla: boolean): void {
   const ad = SUNUCU_HARITASI[harita.toLowerCase()] ?? `${harita}.smd`;
   if (!fs.existsSync(SUNUCU_HARITA_DIZINI)) { console.log('  çarpışma: sunucu harita klasörü yok, atlandı'); return; }
   const dosya = fs.readdirSync(SUNUCU_HARITA_DIZINI).find((f) => f.toLowerCase() === ad.toLowerCase());
   if (!dosya) { console.log(`  çarpışma: sunucu haritası (${ad}) bulunamadı, atlandı`); return; }
   const s = smdOku(fs.readFileSync(path.join(SUNUCU_HARITA_DIZINI, dosya)));
-  fs.writeFileSync(path.join(hedef, 'carpisma.bin'), Buffer.from(s.yuzler.buffer, s.yuzler.byteOffset, s.yuzler.byteLength));
+  if (arazi) {
+    const e = yukseklikEslesmesi(arazi, s);
+    if (!eslesmeGuvenilir(e)) {
+      const nedeni = `${dosya} bu client haritasıyla uyuşmuyor: ${eslesmeNedeni(e)}`;
+      if (!zorla) { console.log(`  çarpışma: ATLANDI (carpisma.bin ve sunucu.json yazılmadı). ${nedeni}. Yine de yazmak için --zorla`); return; }
+      console.log(`  uyarı: ${nedeni}; --zorla ile yazılıyor, çarpışma/kapı verisi bu haritaya uymayabilir`);
+    }
+  } else if (!zorla) { console.log(`  çarpışma: ATLANDI. Client haritası (.gtd) okunamadığı için ${dosya} ile eşleşme doğrulanamadı; yazmak için --zorla`); return; }
+  const { yuzler, atlanan } = saglamYuzler(s.yuzler);
+  fs.writeFileSync(path.join(hedef, 'carpisma.bin'), Buffer.from(yuzler.buffer, yuzler.byteOffset, yuzler.byteLength));
   fs.writeFileSync(path.join(hedef, 'sunucu.json'), JSON.stringify({ kaynak: dosya, kapilar: s.kapilar.map(kapiyiIngilizceyeCevir), nesneOlaylari: s.nesneOlaylari, dogus: s.dogus }, null, 1));
-  console.log(`  çarpışma: ${s.yuzler.length / 9} üçgen, ${s.kapilar.length} kapı, ${s.nesneOlaylari.length} nesne olayı (${dosya})`);
+  console.log(`  çarpışma: ${yuzler.length / 9} üçgen${atlanan ? ` (${atlanan} bozuk üçgen atlandı)` : ''}, ${s.kapilar.length} kapı, ${s.nesneOlaylari.length} nesne olayı (${dosya})`);
 }
 
 function main(argv: string[]): number {
   const harita = argv.find((x) => !x.startsWith('--'));
-  if (!harita) { console.log('Kullanım: npm run harita -- <harita_adı> [--onizleme | --sadece-sunucu]'); return 1; }
+  if (!harita) { console.log('Kullanım: npm run harita -- <harita_adı> [--onizleme | --sadece-sunucu] [--zorla]'); return 1; }
+  const zorla = argv.includes('--zorla'); // .smd ile .gtd uyuşmasa da sunucu verisini yaz
   if (argv.includes('--sadece-sunucu')) { // yalnızca sunucu.json + carpisma.bin yenilenir (arazi/doku yeniden üretilmez)
     const klasor = path.join(CIKTI_DIZINI, 'web', 'harita', harita.toLowerCase());
     oyunDisindaOlmali(klasor);
     if (!fs.existsSync(klasor)) { console.log(`Harita klasörü yok: ${klasor} (önce: npm run harita -- ${harita})`); return 1; }
-    sunucuVerisiniYaz(harita, klasor);
+    let arazi: Arazi | null = null;
+    try { arazi = gtdOku(new OyunDosyalari().oku(`Zones/${harita}.gtd`)); } catch (e) { console.log(`  client haritası okunamadı: ${(e as Error).message}`); }
+    sunucuVerisiniYaz(harita, klasor, arazi, zorla);
     return 0;
   }
   const od = new OyunDosyalari();
+  if (!od.var(`Zones/${harita}.gtd`)) {
+    console.log(`Kaynak yok: Zones/${harita}.gtd client klasöründe bulunamadı, harita dönüştürülemez. (Client Zones tablosunun gösterdiği ama dosyası olmayan haritalar: npm run harita-eslesme -- --eksik)`);
+    return 1;
+  }
   const a = gtdOku(od.oku(`Zones/${harita}.gtd`));
   console.log(`${harita}: ${a.boyut}x${a.boyut} ızgara, ${a.karolar.length} karo dokusu`);
   const karolar = karolariYukle(od, a);
@@ -219,7 +235,7 @@ function main(argv: string[]): number {
     ikili: { dosya: 'arazi.bin', duzen: 'float32 yukseklik[N*N], uint16 doku1[N*N], uint16 doku2[N*N], uint8 yon1[N*N], uint8 yon2[N*N]; sira x*N+z' },
   }, null, 2));
   console.log(`  -> ${hedef}`);
-  sunucuVerisiniYaz(harita, hedef);
+  sunucuVerisiniYaz(harita, hedef, a, zorla);
   // Su (nehir, kanal, deniz): .gtd kuyruğu + dalga dokusu ve 32 kare kostik (Misc/river/caust00..31) → su.json ve su/*.png
   {
     const gtd = od.oku(`Zones/${harita}.gtd`), arz = gtdOku(gtd);

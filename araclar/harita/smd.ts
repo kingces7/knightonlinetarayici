@@ -13,8 +13,13 @@ export interface SmdKapi { id: number; ad: string; duyuru: string; bolge: number
 export interface Smd {
   boyut: number; birim: number;
   yukseklik: Float32Array;
-  /** Çarpışma üçgenleri: 9 float (3 köşe × xyz) × yuz sayısı. Sunucu koordinatı (x, y yukarı, z). */
+  /**
+   * Çarpışma üçgenleri: 9 float (3 köşe × xyz) × yuz sayısı. Sunucu koordinatı (x, y yukarı, z).
+   * Bozuk üçgenler de burada kalır (`hucreler` üçgen sırasına göre indeksler); dışa aktarırken `saglamYuzler` kullan.
+   */
   yuzler: Float32Array;
+  /** Bozuk üçgen sayısı (köşe değeri sonlu değil ya da |değer| > YUZ_ESIK). */
+  bozukYuz: number;
   /** Hücre (16 m) başına alt hücre (4 m) başına üçgen indeksleri. Anahtar: hücre sırası → 16 alt hücre. */
   hucreler: Map<number, Uint32Array[]>;
   nesneOlaylari: { sahip: number; indeks: number; tur: number; npc: number; durum: number; x: number; y: number; z: number }[];
@@ -25,6 +30,23 @@ export interface Smd {
 
 const CELL = 16;
 const WARP_BOYU = 320; // hizalamasız _WARP_INFO
+/** Haritalar en çok 4097×4 ≈ 16 km; bundan büyük ya da sonlu olmayan köşe değeri bozuk veridir (freezone_a ailesinde 1586 üçgen). */
+export const YUZ_ESIK = 1e5;
+
+/** `yuzler` içindeki i. üçgen bozuk mu (köşe değerlerinden biri NaN/sonsuz ya da |değer| > YUZ_ESIK)? */
+export function bozukYuzMu(yuzler: Float32Array, i: number): boolean {
+  for (let k = i * 9; k < i * 9 + 9; k++) { const v = yuzler[k]; if (!Number.isFinite(v) || Math.abs(v) > YUZ_ESIK) return true; }
+  return false;
+}
+
+/** Bozuk üçgenleri atar; dışa aktarım (carpisma.bin) için. Dönen dizi `hucreler` indeksleriyle uyumlu DEĞİLDİR. */
+export function saglamYuzler(yuzler: Float32Array): { yuzler: Float32Array; atlanan: number } {
+  const n = yuzler.length / 9;
+  const sag = new Float32Array(yuzler.length);
+  let yaz = 0;
+  for (let i = 0; i < n; i++) { if (bozukYuzMu(yuzler, i)) continue; sag.set(yuzler.subarray(i * 9, i * 9 + 9), yaz); yaz += 9; }
+  return { yuzler: sag.slice(0, yaz), atlanan: n - yaz / 9 };
+}
 
 export function smdOku(b: Buffer): Smd {
   let o = 0;
@@ -39,6 +61,8 @@ export function smdOku(b: Buffer): Smd {
   if (yuzSayisi < 0 || o + yuzSayisi * 36 > b.length) throw new Error('Çarpışma yüzleri okunamadı');
   const yuzler = new Float32Array(yuzSayisi * 9);
   for (let i = 0; i < yuzler.length; i++) yuzler[i] = f32();
+  let bozukYuz = 0;
+  for (let i = 0; i < yuzSayisi; i++) if (bozukYuzMu(yuzler, i)) bozukYuz++;
   const hucreler = new Map<number, Uint32Array[]>();
   const hx = Math.ceil(genislik / CELL);
   let z = 0;
@@ -94,5 +118,5 @@ export function smdOku(b: Buffer): Smd {
       o += WARP_BOYU;
     }
   }
-  return { boyut, birim, yukseklik, yuzler, hucreler, nesneOlaylari, karoOlay, dogus, kapilar };
+  return { boyut, birim, yukseklik, yuzler, bozukYuz, hucreler, nesneOlaylari, karoOlay, dogus, kapilar };
 }

@@ -28,10 +28,29 @@ export interface Arazi {
 const MAX_PATH = 260;
 const cstr = (b: Buffer, o: number) => b.toString('latin1', o, o + MAX_PATH).replace(/\0[\s\S]*$/, '');
 
+/**
+ * İkinci başlık biçimi (clanfight, clanfight_c, elmorad_start, karus_start, freezone, freezone_new): `int32 sürüm (1-2)`,
+ * `int32 ad uzunluğu`, **düz** ASCII ad, hemen ardından `int32 N` (arada int32 0 yok). Kaynak: N3Terrain::Load (N3FORMAT_VER_1264 ve üstü:
+ * `iIdk0`, `iNL`, ad). Eski biçimde ilk int32 ad uzunluğudur ve ad XOR'ludur; ikisi ad baytlarının yazdırılabilir ASCII olup olmamasıyla ayrılır.
+ */
+function yeniBaslikMi(d: Buffer): boolean {
+  const surum = d.readInt32LE(0), uz = d.readInt32LE(4);
+  if (surum < 1 || surum > 16 || uz < 1 || uz > 255 || 8 + uz + 4 > d.length) return false;
+  for (let i = 0; i < uz; i++) { const c = d[8 + i]; if (c < 0x20 || c > 0x7e) return false; }
+  return true;
+}
+
 export function gtdOku(dosya: Buffer): Arazi {
-  const adUz = dosya.readInt32LE(0);
-  const ad = Buffer.from(xorCoz(dosya.subarray(4, 4 + adUz), XOR_ESKI)).toString('latin1');
-  let o = 4 + adUz + 4;
+  let ad: string, o: number;
+  if (yeniBaslikMi(dosya)) {
+    const uz = dosya.readInt32LE(4);
+    ad = dosya.toString('latin1', 8, 8 + uz);
+    o = 8 + uz;
+  } else {
+    const adUz = dosya.readInt32LE(0);
+    ad = Buffer.from(xorCoz(dosya.subarray(4, 4 + adUz), XOR_ESKI)).toString('latin1');
+    o = 4 + adUz + 4;
+  }
   const n = dosya.readInt32LE(o); o += 4;
   if (n < 2 || n > 4097) throw new Error(`Geçersiz ızgara boyu ${n}`);
   const yukseklik = new Float32Array(n * n);

@@ -15,6 +15,7 @@
     "paket-yaz": "node paket/cli.ts yaz",
     "paket-dogrula": "node paket/cli.ts dogrula",
     "harita": "node harita/cli.ts",
+    "harita-eslesme": "node harita/eslesme-tara.ts",
     "karakter": "node model/cli.ts",
     "irk": "node model/irk.ts",
     "giyim": "node model/giyim.ts",

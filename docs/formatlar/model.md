@@ -77,7 +77,9 @@ int32 karo_doku_sayısı, int32 kaynak_sayısı, kaynak_sayısı × char[260] (.
 karo_doku_sayısı × { int16 kaynak, int16 kaynak içi sıra }
 (devamı okunmuyor)
 ```
-Bazı haritalarda (`clanfight`, `freezone`, `moradon_xmas`…) başlık farklı → okunamıyor (YAPILACAKLAR).
+İkinci başlık biçimi (✅ çözüldü 2026-11-19; `clanfight`, `clanfight_c`, `elmorad_start`, `karus_start`, `freezone`, `freezone_new`):
+`int32 sürüm (1-2)`, `int32 ad uzunluğu`, **düz** ASCII ad, hemen ardından `int32 N` (eski biçimdeki XOR'lu ad ve arada `int32 0` yok); gövde (`MAPDATA`…) aynı. Kaynak: `N3Terrain::Load`'daki `N3FORMAT_VER_1264` dalı (`iIdk0`, `iNL`, ad). `gtdOku` ikisini de ayırt eder (`arazi.test.ts`).
+`moradon_xmas` ayrı bir sorundu (4096 baytlık blok yok), o da okunuyor. `.lilith` uzantılı (şifreli) client haritaları hâlâ okunmuyor.
 Karo dokuları kenarlarında kararan "geçiş karoları"; oyundaki birebir karışım kuralı ve yön kodlarının
 anlamı henüz kesin değil (istemci yaklaşık bir karışım kullanıyor).
 

@@ -12,7 +12,7 @@ export class KarakterOnizleme {
   private donus = Math.PI; // model -z'ye baktığı için kameraya çevrilir
   private surukleniyor = false;
 
-  constructor(private kap: HTMLElement, private modelNo: number, genislik = 170, yukseklik = 257) {
+  constructor(private kap: HTMLElement, public modelNo: number, genislik = 170, yukseklik = 257) {
     this.cizici = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     this.cizici.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.cizici.setSize(genislik, yukseklik);

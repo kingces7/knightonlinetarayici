@@ -47,7 +47,23 @@ export class UiPencere {
    * Pencerenin GÖRÜNEN resim alanı (pencere kutusuna göre, ölçeksiz piksel): [sol, üst, sağ, alt]. Pencere kutusu çoğu zaman saydam boşluk içerir
    * (ör. envanterin solunda/sağında); ekrana yaslarken bu boşluk hesaba katılır.
    */
-  sinirTemizle(): void { this.sinirOnbellek = null; }
+  sinirTemizle(): void { this.sinirOnbellek = null; this.sinirPiksel = false; }
+  private sinirPiksel = false;
+  /** Sınırı piksel düzeyinde (saydam kenarlar atılarak) bir kez hesaplar; `sinirTemizle()`'e kadar geçerlidir. */
+  async sinirKesinlestir(): Promise<void> {
+    if (this.sinirPiksel) return;
+    this.sinirPiksel = true;
+    if (!(await this.sinirKesinles())) this.sinirPiksel = false;
+  }
+  /**
+   * Pencerenin sol-üst konumunu (x, y) ekranın içinde tutar: GÖRÜNEN resim dört kenara da tam oturabilir (0,0 dâhil), dışına taşamaz.
+   * Pencere kutusundaki saydam boşluklar sayılmaz (sinir()). Görünen resim ekrandan büyükse sol/üst kenara hizalanır.
+   */
+  ekranIcinde(x: number, y: number): [number, number] {
+    const [l, t, r, b] = this.sinir(), o = this.olcek || 1;
+    const enSol = -l * o, enUst = -t * o;
+    return [Math.max(enSol, Math.min(Math.max(enSol, innerWidth - r * o), x)), Math.max(enUst, Math.min(Math.max(enUst, innerHeight - b * o), y))];
+  }
   /**
    * `sinir()`'in piksel düzeyinde hâli: her resmin SAYDAM olmayan piksellerinin sınırı bulunur (resim dosyalarının kendi saydam kenar boşlukları da atılır).
    * Resimler yüklendikten sonra çağrılır; önbelleği günceller. Başarılıysa true.
@@ -100,6 +116,8 @@ export class UiPencere {
     return s;
   }
   olcekAyarla(o: number): void { this.olcek = o; this.el.style.transformOrigin = '0 0'; this.el.style.setProperty('scale', String(o)); }
+  /** Pencere dosyasındaki kök düğüm kutusu (çocukların koordinat başlangıcı; ör. sol kenar -3 olabilir). */
+  get kokKutu(): Kutu { return this.veri.kok.k; }
   /** Düğme tıklamaları: id → işlev. */
   readonly tikla = new Map<string, () => void>();
 
@@ -272,9 +290,10 @@ export class UiPencere {
       const lx = x / this.olcek, ly = y / this.olcek; // pencerenin kendi (ölçeksiz) koordinatı
       if (lx < yerel[0] || lx > yerel[2] || ly < yerel[1] || ly > yerel[3]) return;
       const dx = x, dy = y;
+      void this.sinirKesinlestir(); // sürükleme başlarken görünen sınır piksel düzeyinde bulunur (dört kenara tam oturması için)
       const tasi = (ev: PointerEvent) => {
-        this.el.style.left = `${Math.max(0, Math.min(innerWidth - 40, ev.clientX - dx))}px`;
-        this.el.style.top = `${Math.max(0, Math.min(innerHeight - 30, ev.clientY - dy))}px`;
+        const [nx, ny] = this.ekranIcinde(ev.clientX - dx, ev.clientY - dy);
+        this.el.style.left = `${nx}px`; this.el.style.top = `${ny}px`;
       };
       const bitir = () => { removeEventListener('pointermove', tasi); removeEventListener('pointerup', bitir); };
       addEventListener('pointermove', tasi); addEventListener('pointerup', bitir);

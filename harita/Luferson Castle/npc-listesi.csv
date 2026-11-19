@@ -1,5 +1,6 @@
 sid,ad,model,tur,satis_grubu,x,z,yon
 25267,<Draki Rift>,32010,213,0,436,1603,0
+29990,[Item Master] GM Market,12100,22,999000,447,1630,180
 20301,Luferson Monument,24000,121,0,353,1739,45
 20304,Laon Camp Monument,30091,121,0,1012,919,45
 21610,[Knight Clerk]Delaga,21510,36,0,352,1746,70
@@ -32,7 +33,6 @@ sid,ad,model,tur,satis_grubu,x,z,yon
 24404,[Election Official]Roben,21610,79,0,317,1780,70
 20303,Bellua monument,24001,121,0,399,685,90
 20302,Linate Monument,24002,121,0,1726,816,90
-29990,[Item Master] Aurora,12100,22,999000,447,1630,180
 13001,[Accessory Merchant]Hera,31200,21,203002,421,1644,25
 22301,[Scrolls]Charon,30900,21,254000,428,1651,25
 23400,Lilith [Scrolls],25263,22,281000,435,1644,25

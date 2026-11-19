@@ -43,7 +43,7 @@ Son güncelleme: 2026-11-14 · Biten işler `[x]` ile işaretlenir. Görmek içi
 - [x] Envanter Coin simgesi (ross, 2026-11-19): küçük `noah.png` yerine pencerenin kendi orijinal Coin simgesi (`btn_gold`, 24×27, kutunun solunda) görünür yapıldı; üzerine gelince "Coin" yazar, tıklayınca bir şey yapmaz.
 - [x] Envanter karakter önizlemesi (ross, 2026-11-19): önizleme açılışta bir kez insan modeliyle kuruluyordu; artık oyuncunun şu anki ırk/cinsiyet modelini izler (sunucudan ırk gelince ya da karakter değişince güncellenir). Karus, El Morad kadın, Barbar ve başlangıç modeliyle denendi.
 - [x] Işınlanma ve NPC pencereleri (ross, 2026-11-19): ışınlanma kapısı artık oyunun kendi "Zone List" penceresi (`re_el_warp` / Karus için `re_ka_warp`; `client/src/arayuz/isinlanmaPenceresi.ts`, mantık OpenKO `UIWarp.cpp`): bölge adları, seçili satırda yeşil çubuk, altta sunucunun kapı duyurusu (+ ücret satırı), Confirm/Enter ya da çift tık ışınlar, Cancel/Esc kapatır. Mağaza tüccarı ve Inn Hostess menüleri Lua NPC'lerle aynı orijinal konuşma penceresini (`re_Quest_Npc_Menu`) kullanır; kendi çizdiğimiz `duzDiyalog.ts` kaldırıldı. Not: orijinal pencerenin "lv35 ~ lv45" seviye satırı gizli (sunucu seviye aralığını yollamıyor); ücret ve duyuru alttaki kutuda gösterilir.
-- [x] Işınlanma duyurusu bozuk yazı + NPC penceresi şeridi (ross, 2026-11-19): kapı duyuruları veritabanında Korece (CP949); `kopru/protokol/ikili.ts` tüm yazıları windows-1252 sanıp çözdüğü için bozuk görünüyordu. Zone List penceresi (El Morad ve Karus) metni geri çevirip CP949 olarak çözüyor (`korceDuzelt`), düz İngilizce metne dokunmuyor. Hâlâ Korece görünür: **karar bekliyor** → duyurular İngilizce yazılsın mı (veritabanı işi, müdür) yoksa Korece mi kalsın? Ayrıca aynı bozulma başka DB metinlerinde (eşya/NPC açıklamaları) olabilir: asıl çözüm `ikili.ts` okuyucusunda (müdür/protokol işi). NPC konuşma penceresinin sağındaki 10 px'lik koyu şerit (dosyadaki kutu 373 px, resimler 363 px) kaldırıldı.
+- [x] Işınlanma duyurusu bozuk yazı + NPC penceresi şeridi (ross, 2026-11-19): kapı duyuruları veritabanında Korece (CP949) ve protokol okuyucusu windows-1252 sanıp çözdüğü için bozuk görünüyordu. Karar (ces): oyunda hiçbir yerde Korece yazı görünmeyecek. `main.ts` kapı adı/duyurusunu sunucu.json'daki İngilizce metinden alır (müdür); Zone List penceresi son güvenlik ağı olarak ASCII dışı her karakteri atar (`sadeceAscii`, `isinlanmaPenceresi.ts`; önce yazdığım CP949→Korece çözücü bu karara aykırı olduğu için kaldırıldı). UI'da Korece/bozuk yazı görülürse düzeltmek ross'un işi. NPC konuşma penceresinin sağındaki 10 px'lik koyu şerit (dosyadaki kutu 373 px, resimler 363 px) kaldırıldı.
 - [ ] Hasar bilgisi mesajları yalnızca bilgi penceresinde; ganimet penceresi eski arayüzde.
 - [x] Hedef çerçevesi orijinal `re_target_framebar` ile (isim, can çubuğu/yazısı, seviye farkı rengi). Kalan: `frame_N` hedef türüne göre çerçeve seçimi ve renk eşikleri orijinalden bilinmiyor (şimdi sade çerçeve + tahmin eşikleri).
 - [ ] `animAdi` artık özgün animasyon adlarına bakıyor; 155 animasyonlu modellerde saldırı animasyonları `attack_sword0_A` gibi adlarla duruyor (`saldir0/1` olarak eşlenmedi).
@@ -123,7 +123,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] `.n3pmesh`, `.n3shape` statik modeller → glTF
 - [x] `.n3joint`, `.n3cskins`, `.n3cpart`, `.n3anim` karakterler ve animasyonlar → glTF
 - [ ] `.n3chr`, `.n3cplug`, `.n3chrplug`, `.n3vmesh`, `.n3mesh`
-- [x] `.gtd` arazi (çoğu harita; bazı haritaların başlığı farklı, okunamıyor)
+- [x] `.gtd` arazi (58 `.gtd`'nin hepsi okunuyor; 2026-11-19'da ikinci başlık biçimi eklendi; yalnız `.lilith` şifreli client haritaları okunmuyor)
 - [x] `.opd` harita nesneleri (kayıtlar arasındaki bilinmeyen ek alan atlanıyor)
 - [ ] `.tct` (renk haritası, şifreli), `.tlt` (ışık haritası), `.glo`, `.gmd`, `.gev`, `.gfo`, `.ens`, `.flag`, `.brd`
 - [ ] `.opdext`, `.opdsub`, `.evt`, `.evtsub` harita nesne ekleri ve olayları
@@ -148,7 +148,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 **Modeller ve haritalar**
 - [ ] `.n3anim` kayıtlarının başındaki 2 bayt ve bazı float alanların anlamı (şimdilik başlangıç/bitiş/hız/vuruş kullanılıyor).
 - [ ] `.opd` nesne listesinde kayıt işareti (1051 / 5147) ve nadir ek alanın anlamı.
-- [ ] Bazı `.gtd` dosyaları farklı başlıkta (ör. `clanfight`, `freezone`, `war_a`). `moradon_xmas` çözüldü (4096 baytlık blok yok); diğerleri aynı yedek düzenle denenecek.
+- [x] Bazı `.gtd` dosyaları farklı başlıkta (`clanfight`, `clanfight_c`, `elmorad_start`, `karus_start`, `freezone`, `freezone_new`): çözüldü (2026-11-19, `arazi.ts` + `arazi.test.ts`; biçim `formatlar/model.md`). `moradon_xmas` ayrı sorundu, o da çözüldü.
 - [ ] 30 deri ve 11 iskelet dosyası özel durumlar nedeniyle okunamıyor (çok kemikli / çok çocuklu).
 - [ ] `misc\river\caust36_*.dxt` (39 dosya) anti-cheat'in oyun çalışırken bıraktığı geçici dosyalar; silinebilir.
 
@@ -343,7 +343,7 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] Moradon'daki iki ışınlanma kapısı (Karus 4014, El Morad 4013) sağ tıkla kullanılır; kapı listesi orijinal görünümlü menüyle açılır; seçim → bölge değişimi → harita yeniden yüklenir (kayıtlı girişle otomatik). Protokol: `kopru/protokol/isinlanma.ts` (+ test).
 - [x] Kök neden: sunucu Moradon için `1098moradon_0826.smd` kullanıyordu; kapılar client'ta olmayan x≈800-840'taydı (seçim "kapıya yakın değil" diye reddediliyordu). `ZONE_INFO1098` bölge 21 → `old_moradon.smd` yapıldı (`araclar/sunucu/moradon-smd.sql`, özgün değer yedekli). **Sunucu yeniden başlatılınca geçerli olur.**
 - [x] Işınlanma uçtan uca doğrulandı (2026-11-18): El Morad kapısı (kotestkar → El Morad Castle 1594,411) ve Karus kapısı (PvPRobot → Luferson 441,1622); `client/scripts/isinlanmaTesti.mjs`.
-- [ ] Haritası olmayan bölgeler (Delos, Ronark Land, Ardream) kapı listesinde gri.
+- [ ] Haritası olmayan bölgeler (Delos, Ronark Land, Ardream) kapı listesinde gri. (Kaynak tarafı: client'ta dosyası hiç olmayan bölgeler 65 Moradon War, 67 Test Zone, 88 Lk War, 109 Moradon War (kısmen); liste için `npm run harita-eslesme -- --eksik`. Sunucu `.smd`'si client haritasıyla uyuşmayan 32 bölge: `formatlar/smd.md`.)
 - [ ] `Town` komutu Moradon koordinatına ışınlar (Luferson/El Morad'da yanlış yer).
 
 ## Büyük haritalarda performans (2026-11-18, El Morad / Luferson)
@@ -454,3 +454,20 @@ Ayrıntılı durum: [formatlar/README.md](formatlar/README.md)
 - [x] **Portal sonrası karakter seçme ekranı kalktı:** bölge değişiminde sayfa yenilenirken mevcut karakter adı `sessionStorage`'a (`SWAP_ANAHTARI`) bırakılır; yeni sayfa aynı karakterle doğrudan girer. **Gerçek sunucuyla elle doğrulanmadı** (Remember açık olmalı).
 - [x] **Tarayıcı kilidi:** oyun açıkken sağ tık menüsü, metin seçme, sürükle-bırak, orta tık ve Ctrl+S/P/U engellenir (`client/src/arayuz/tarayiciKilidi.ts`); yazı kutularında serbest, F5 ve F12 açık. Test: `client/scripts/tarayiciKilidiTesti.mjs`.
 - [ ] **GameServer yeniden başlatılmalı** (ganimet/tarif/NPC adı değişti): oyundan çıkınca `kopru/sunucu-yeniden-baslat.ps1`. Not: `harita/*/npc-listesi.csv` ve `magaza-listesi.csv` hâlâ "Aurora" yazıyor; `node araclar/oyun/harita-klasoru.ts` ile yenilenir (fast'ın klasörü, dokunulmadı).
+
+## Harita hata raporu (bugger, 2026-11-19) — fast
+Rapor: `docs/raporlar/2026-11-19-harita-hata-raporu-fast.md`. Kod: `araclar/harita/` (`smd.ts`, `eslesme.ts`, `eslesme-tara.ts`, `cli.ts`, `arazi.ts`), testler 20/20, `npx tsc --noEmit` temiz.
+- [x] **H-1 bozuk çarpışma üçgenleri:** `freezone_a` ailesinde (5 dosya) 11.319 üçgenin 1586'sı bozuk, kendim de doğruladım. `saglamYuzler()` bunları atar, `cli.ts` "N bozuk üçgen atlandı" yazar; `smdOku().bozukYuz`; testler `eslesme.test.ts`.
+- [x] **H-2 `.smd` ↔ `.gtd` eşleşme denetimi:** `npm run harita -- <ad>` (ve `--sadece-sunucu`) uyuşmayan (boyut farklı ya da benzerlik < %50) `.smd`'den `carpisma.bin`/`sunucu.json` YAZMAZ, `--zorla` ile geçilir. Doğrulanmış tablo `SUNUCU_HARITASI` (`eslesme.ts`) bölge bazında ölçülerek genişletildi. Tarama: `npm run harita-eslesme` (`-- --en-iyi`, `-- --eksik`). Uyuşmayan bölgeler `formatlar/smd.md`'de.
+- [x] **H-3 eksik harita dosyaları:** `npm run harita-eslesme -- --eksik` (844 yoldan 27'si yok, 4 bölge: 65, 67, 88, 109); `npm run harita -- <ad>` eksik `.gtd` için "Kaynak yok" uyarısı verip duruyor. Kapı listesinde gri gösterme `[ ]` arayüz tarafı (müdür/ross).
+- [x] **H-4 okunamayan 6 `.gtd`:** ikinci başlık biçimi çözüldü, hepsi okunuyor (`formatlar/model.md`).
+- [x] **H-5 `smd.md` x/z notu:** yalnız `moradon`, `moradon_xmas`, `bossmode` devrik; geri kalan eşleşenler aynı sırada (düzeltildi).
+- [ ] **Karar (müdür/kullanıcı):** client `Zones` tablosu bölge 75 için `itemzone_a.gtd` (sunucu `.smd`'siyle %13), 51-55/92 için `clanfight_b/_d.gtd` (%25) gösteriyor; oysa sunucunun dosyaları client'ın `freezone_new.gtd` (%100) ve `clanfight_c.gtd` (%100) haritalarıyla örtüşüyor. Bu bölgeler oyuna alınacaksa hangi client haritası kullanılacak?
+- [ ] **Karar:** `eslantzone` için `k_eslant.smd` mi `e_eslant.smd` mi (bölgeye göre; yükseklikleri aynı, kapı listeleri farklı)? Tablo yok, bu yüzden `eslantzone` için sunucu verisi yazılmaz.
+- [ ] **Sonra bakılacak:** `.lilith` şifreli client haritaları (bölge 21-24, 71, 109, 112, 114) hâlâ okunmuyor; `freezone_a` ailesindeki bozuk üçgenlerin nedeni (dosya bozulması mı?) ve sunucuya etkisi doğrulanmadı; `freezone_b` ve `newfreezone_b` eşleşmesi %50,9 (eşiğin hemen üstünde); bölge 63 ve 18 için `Zones.csv`'de iki satır var, client'ın hangisini kullandığı doğrulanmadı.
+
+## Güncelleme (2026-11-19, altıncı): Korece yasağı, kilit, NPC listeleri
+- [x] **Oyunda Korece yazı görünmez (ces kararı).** Ross'un bekleyen sorusu (kapı duyuruları İngilizce mi Korece mi) cevaplandı: İngilizce. Kapı adı/duyurusu client'ta `sunucu.json`'daki İngilizce metinden gelir (`main.ts` `kapiMetinleri`); ASCII dışı ya da bozuk her yazı `yalnizAscii` ile elenir. `ikili.ts` okuyucusuna dokunulmadı (sunucu yazıları windows-1252 çözülüyor; Korece görünmesin diye CP949'a çevrilmedi). `[ ]` Eşya/NPC açıklamalarında bozuk metin ross ve bugger'a bildirildi (UI/veri taramasında ayıklanacak).
+- [x] **Tarayıcı kilidi genişledi:** sağ tık menüsü yazı kutularında da kapalı; F12, Ctrl+Shift+I/J/C engelli (tarayıcı menüsünden açılan araçlar engellenemez). F5 açık. `client/scripts/tarayiciKilidiTesti.mjs` güncellendi.
+- [x] **NPC listeleri:** `node araclar/oyun/harita-klasoru.ts` yeniden çalıştırıldı (`harita/*` npc/magaza/drop CSV'leri), `luferson/` CSV'lerinde "Aurora" → "GM Market". ross, fast ve bugger bilgilendirildi.
+- [x] GameServer yeniden başlatıldı (22:50): ganimet/tarif/NPC adı değişiklikleri sunucuda geçerli.

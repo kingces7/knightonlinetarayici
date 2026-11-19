@@ -19,6 +19,8 @@ export interface GenelBaglam {
   mesaj: (m: string) => void;
   /** Pencere açılmadan hemen önce çağrılır (ör. sağdaki pencereler birbirini kapatsın). */
   acilirken?: (ad: string) => void;
+  /** Sağdan açılan pencerelerin (envanter, skill) şu anki GÖRÜNEN üst kenarı (ekran pikseli); Command da aynı yerden açılsın diye. Yoksa null. */
+  sagUst?: () => number | null;
 }
 
 /** Pencereye özel bağlama: açılırken bir kez çağrılır (düğme tıklamaları, gizlenecek parçalar, metinler). */
@@ -80,7 +82,8 @@ export class GenelPencereler {
       const gw = (r2 - l2) * ol, gh = (b2 - t2) * ol, kay = (this.sayac++ % 6) * 26;
       if (SAGDAN.has(ad)) { // envanter gibi: sağ kenara yaslı, sağdan kayarak gelir
         p.el.style.left = `${innerWidth - r2 * ol}px`; // görünen resim sağ kenara tam oturur
-        p.el.style.top = `${Math.max(-t2 * ol, Math.min(innerHeight - bos - b2 * ol, 70))}px`;
+        const ust = this.b.sagUst?.() ?? 70 + t2 * ol; // envanter/skill ile aynı görünen üst kenar
+        p.el.style.top = `${Math.max(-t2 * ol, Math.min(innerHeight - bos - b2 * ol, ust - t2 * ol))}px`;
         p.el.style.display = ''; void p.el.offsetWidth;
         p.el.classList.remove('kapali');
       } else {

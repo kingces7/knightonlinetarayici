@@ -17,11 +17,11 @@ for (const [harita, beklenen] of [['14th_oldmoradon', [304, 341]], ['elmo2004', 
       const girdi = document.createElement('input'); document.body.appendChild(girdi);
       const sag = (el) => { const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true }); el.dispatchEvent(e); return e.defaultPrevented; };
       const orta = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 1 }); document.body.dispatchEvent(orta);
-      const ctrlS = new KeyboardEvent('keydown', { key: 's', ctrlKey: true, bubbles: true, cancelable: true }); document.dispatchEvent(ctrlS);
-      return { govde: sag(bos), girdi: sag(girdi), orta: orta.defaultPrevented, ctrlS: ctrlS.defaultPrevented, secim: getComputedStyle(document.body).userSelect };
+      const tus = (init) => { const e = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }); document.dispatchEvent(e); return e.defaultPrevented; };
+      return { govde: sag(bos), girdi: sag(girdi), orta: orta.defaultPrevented, ctrlS: tus({ key: 's', ctrlKey: true }), f12: tus({ key: 'F12' }), ctrlShiftI: tus({ key: 'I', ctrlKey: true, shiftKey: true }), f5: tus({ key: 'F5' }), secim: getComputedStyle(document.body).userSelect };
     });
-    kontrol('sağ tık menüsü oyun alanında engellendi', k.govde); kontrol('yazı kutusunda sağ tık serbest', !k.girdi);
-    kontrol('orta tık engellendi', k.orta); kontrol('Ctrl+S engellendi', k.ctrlS); kontrol('metin seçimi kapalı', k.secim === 'none', k.secim);
+    kontrol('sağ tık menüsü oyun alanında engellendi', k.govde); kontrol('sağ tık menüsü yazı kutusunda da engellendi', k.girdi);
+    kontrol('orta tık engellendi', k.orta); kontrol('Ctrl+S engellendi', k.ctrlS); kontrol('F12 engellendi', k.f12); kontrol('Ctrl+Shift+I engellendi', k.ctrlShiftI); kontrol('F5 (yenile) açık', !k.f5); kontrol('metin seçimi kapalı', k.secim === 'none', k.secim);
   }
   const gm = await s.evaluate(async () => {
     const var_ = () => window.ke.npcler.some((n) => n.tanim.sid === 29990);

@@ -192,8 +192,10 @@ async function basla(): Promise<void> {
 
   // Işınlanma kapıları: sunucu haritasındaki WARP_GATE (tür 5) nesneleri; sağ tıkla kullanılır (yanına gider, kapı listesi açılır).
   const kapilar: { indeks: number; sahip: number; konum: THREE.Vector2; kutu: THREE.Mesh }[] = [];
+  const kapiMetinleri = new Map<number, { ad: string; duyuru: string }>(); // kapı no → İngilizce ad/duyuru (sunucu bunları .smd'den Korece gönderir; oyunda Korece yazı görünmez)
   try {
-    const sj = await (await fetch(`/harita/${HARITA}/sunucu.json`)).json() as { nesneOlaylari: { sahip: number; indeks: number; tur: number; durum: number; x: number; y: number; z: number }[] };
+    const sj = await (await fetch(`/harita/${HARITA}/sunucu.json`)).json() as { kapilar?: { id: number; ad: string; duyuru: string }[]; nesneOlaylari: { sahip: number; indeks: number; tur: number; durum: number; x: number; y: number; z: number }[] };
+    for (const k of sj.kapilar ?? []) kapiMetinleri.set(k.id, { ad: k.ad, duyuru: k.duyuru });
     for (const n of sj.nesneOlaylari) {
       if (n.tur !== 5 || n.durum !== 1) continue;
       const kutu = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 6, 10), new THREE.MeshBasicMaterial({ visible: false }));
@@ -967,15 +969,15 @@ async function basla(): Promise<void> {
     if (oyuncu.konum.distanceTo(k.konum) <= KAPI_MENZILI) { oyuncu.yuruHedef = null; kapiKullan(k); return; }
     const hedef = k.konum.clone(); oyuncu.yuruHedef = hedef; acilacakKapi = { k, hedef };
   };
-  const kapiListesiGoster = (kapilarSunucu: { no: number; ad: string; bolge: number; ucret: number }[]) => {
+  const yalnizAscii = (m: string | undefined, yedek = ''): string => (m && !/[^\x20-\x7E]/.test(m) ? m : yedek); // Korece ya da bozuk yazı oyunda gösterilmez
+  const kapiListesiGoster = (kapilarSunucu: { no: number; ad: string; duyuru?: string; bolge: number; ucret: number }[]) => {
     const indeks = sonKapiIndeksi;
-    arayuz?.diyalogDuz('Warp Gate', 'Where would you like to go?', [
-      ...kapilarSunucu.map((g) => ({
-        yazi: `${KAPI_ADLARI[g.no] ?? g.ad}${g.ucret ? `  (${g.ucret.toLocaleString('en-US')} Coin)` : ''}`,
-        pasif: !BOLGE_HARITASI[g.bolge], // haritası henüz dönüştürülmemiş bölgeler gri
-        sec: () => { arayuz?.diyalogKapat(); sunucuOturumu?.gonder(WIZ.ISINLANMA_LISTESI, kapiSecimiIstegi(indeks, g.no)); },
-      })),
-      { yazi: 'Cancel', sec: () => arayuz?.diyalogKapat() }]);
+    // Orijinal "Zone List" penceresi (re_el_warp): bölge adları, seçilince duyuru, Confirm/Cancel
+    arayuz?.isinlanmaListesi(kapilarSunucu.map((g) => ({
+      ad: yalnizAscii(KAPI_ADLARI[g.no] ?? kapiMetinleri.get(g.no)?.ad ?? g.ad, `Zone ${g.bolge}`), duyuru: yalnizAscii(kapiMetinleri.get(g.no)?.duyuru ?? g.duyuru), ucret: g.ucret,
+      pasif: !BOLGE_HARITASI[g.bolge], // haritası henüz dönüştürülmemiş bölgeler gri
+      sec: () => { sunucuOturumu?.gonder(WIZ.ISINLANMA_LISTESI, kapiSecimiIstegi(indeks, g.no)); },
+    })));
   };
   const ISINLANMA_HATALARI: Record<number, string> = { 0: 'You cannot use this gate right now.', 3: 'You cannot enter during the Castle Siege War.', 4: 'You cannot enter during the Lunar War.', 5: 'You cannot enter when you have 0 national points.', 255: 'You cannot use this gate.' };
   let bekleyenBolge: { harita: string } | null = null;
