@@ -9,7 +9,7 @@ Müdür, kullanıcıyla ana sohbeti yürüten Claude oturumudur. Diğer oturumla
 | Kullanıcı | Proje sahibi | Karar verme, test, işi doğrulama |
 | Ross | Ayrı Claude oturumu | Arayüz (UI), giriş ekranları, butonlar, pencereler |
 | Bugger | Ayrı Claude oturumu | Veri hata taraması, tutarsızlık bulma, rapor yazma |
-| Fast | (tanımlanacak) | ? |
+| Fast | Ayrı Claude oturumu | Harita (format, dönüştürme, hızlı erişim, performans) |
 
 ## Müdürün alanı
 - **Oyun verisi ve eşyalar:** veritabanı (`LILITH_MYKO`), eşya/ganimet/mağaza verisi, `araclar/oyun/*`, `araclar/sunucu/*` (SQL ve betikler), eşya ipucu mantığı (`esyaBilgisi.ts`: +N mor, unique sarı).

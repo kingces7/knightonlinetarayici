@@ -31,7 +31,7 @@ değiştirilmeden kullanılacak.
   kullanıcı kararı bekleyen iş buraya eklenir; biten iş `[x]` yapılır.
 
 ## Ajanlar ve oturumlar
-Projede birden fazla Claude oturumu/ajanı çalışır (müdür = ana oturum, ross = UI, bugger = veri hata taraması; alt ajanlar `.claude/agents/`).
+Projede birden fazla Claude oturumu/ajanı çalışır (müdür = ana oturum, ross = UI, bugger = veri hata taraması, fast = harita; alt ajanlar `.claude/agents/`).
 Her oturum/ajan işe başlarken **kendi talimat dosyasını okur**: `docs/ajanlar/<ad>.md` (liste ve iş bölümü: `docs/ajanlar/README.md`).
 Kullanıcı bir oturumu adıyla açarsa ("sen rosssun") önce o dosyayı oku. Yeni ajan/oturum eklenince oraya talimat dosyası ve liste satırı eklenir.
 
