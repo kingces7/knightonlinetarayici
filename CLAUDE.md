@@ -31,9 +31,13 @@ değiştirilmeden kullanılacak.
   kullanıcı kararı bekleyen iş buraya eklenir; biten iş `[x]` yapılır.
 
 ## Ajanlar ve oturumlar
-Projede birden fazla Claude oturumu/ajanı çalışır (müdür = ana oturum, ross = UI, bugger = veri hata taraması, fast = harita; alt ajanlar `.claude/agents/`).
-Her oturum/ajan işe başlarken **kendi talimat dosyasını okur**: `docs/ajanlar/<ad>.md` (liste ve iş bölümü: `docs/ajanlar/README.md`).
-Kullanıcı bir oturumu adıyla açarsa ("sen rosssun") önce o dosyayı oku. Yeni ajan/oturum eklenince oraya talimat dosyası ve liste satırı eklenir.
+Projede birden fazla Claude oturumu/ajanı çalışır:
+- **Ana oturum:** müdür (veri, eşyalar, sunucu, protokol, GM işleri)
+- **Ayrı oturumlar:** bugger (veri hata taraması), fast (harita)
+- **Alt ajanlar** (`.claude/agents/`): ross (UI), hata-tarayici, format-cozucu (ve sistem ajanları)
+
+Her oturum/ajan işe başlarken **kendi talimat dosyasını okur**: ayrı oturumlar `docs/ajanlar/<ad>.md`, alt ajanlar `.claude/agents/<ad>.md` (liste ve iş bölümü: `docs/ajanlar/README.md`).
+Müdür alt ajanları (ross, hata-tarayici, format-cozucu) çağırabilir ve arka planda çalıştırabilir. Yeni ajan/oturum eklenince oraya talimat dosyası ve liste satırı eklenir.
 
 ## Kesin kurallar
 1. **Orijinal oyun dosyaları asla depoya girmez.** Oyun dosyaları depo klasörünün **dışında**,

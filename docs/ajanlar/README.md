@@ -6,7 +6,7 @@ Yeni bir ajan ya da oturum eklenince buraya bir satır ve bir talimat dosyası e
 | Ad | Ne | Talimat dosyası |
 |---|---|---|
 | müdür | Ana oturum: veri, eşyalar, sunucu, protokol, GM işleri; diğerlerini yönlendirir | `docs/ajanlar/mudur.md` |
-| ross | Ayrı oturum: UI, giriş ekranları, butonlar | `docs/ajanlar/ross.md` |
+| ross | Alt ajan (Claude Code çağırır): arayüz, butonlar, pencereler | `.claude/agents/ross.md` |
 | bugger | Ayrı oturum: veri hata taraması ve rapor | `docs/ajanlar/bugger.md` (+ `.claude/agents/hata-tarayici.md`) |
 | fast | Ayrı oturum: harita formatı, dönüştürme, hızlı erişim | `docs/ajanlar/fast.md` |
 | hata-tarayici | Alt ajan (Claude Code çağırır): veri hata taraması | `.claude/agents/hata-tarayici.md` |
