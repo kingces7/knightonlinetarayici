@@ -69,6 +69,9 @@ function main(): number {
     }
   } catch (e) { console.log('Sunucu eşyaları eklenemedi (SQL Server yok mu?): ' + (e as Error).message.split(String.fromCharCode(10))[0]); }
   console.log(`sunucudan eklenen (tabloda olmayan) eşya: ${sunucudan}`);
+  // Silahlar sınıfa özeldir (sunucu ITEM.Class ile aynı eşleme: araclar/sunucu/silah-sinifi.sql); ipucunda meslek satırı için sınıfı 0 olan silahlara yazılır
+  const SILAH_SINIFI: Record<number, number> = { 11: 2, 70: 2, 71: 2, 21: 1, 22: 1, 31: 1, 32: 1, 41: 1, 42: 1, 51: 1, 52: 1, 110: 3, 181: 4 };
+  for (const e of liste) { if (!e.sinif && SILAH_SINIFI[e.tip as number]) e.sinif = SILAH_SINIFI[e.tip as number]; }
   fs.writeFileSync(path.join(klasor, 'tum.json'), JSON.stringify(liste));
   od.kapat();
   console.log(`${liste.length} eşya, ${yazilan.size} simge (${ikonYok} eşyanın simgesi yok) -> ${klasor}`);

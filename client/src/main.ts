@@ -985,7 +985,7 @@ async function basla(): Promise<void> {
     const q = new URLSearchParams(location.search); q.set('harita', harita);
     hud.mesaj('Loading the map…', 'sistem');
     if (!yukleme) yukleme = new YuklemeEkrani(); yukleme.ilerle(0.04, 'Moving to the next zone...'); // klasik yükleme ekranı hemen açılır; yeni sayfa kendi yüklemesini gösterir
-    if (sunucuOturumu) { try { sessionStorage.setItem(SWAP_ANAHTARI, oyuncu.ad); } catch { /* depolama kapalı: seçim ekranı açılır */ } } // yeni sayfa aynı karakterle doğrudan girer (karakter seçim ekranı çıkmaz)
+    if (sunucuOturumu) { try { if (!sessionStorage.getItem(SWAP_ANAHTARI)) sessionStorage.setItem(SWAP_ANAHTARI, oyuncu.ad); } catch { /* depolama kapalı: seçim ekranı açılır */ } } // yeni sayfa aynı karakterle doğrudan girer (karakter seçim ekranı çıkmaz)
     sunucuOturumu?.kapat(); sunucuOturumu = null; hareketGonderici = null;
     setTimeout(() => { location.search = `?${q.toString()}`; }, gecikmeMs); // sunucu eski bağlantıyı kapatıp kaydedene kadar beklenir (aynı hesapla çifte giriş olmasın)
   };

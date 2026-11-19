@@ -31,6 +31,12 @@ export function arayuzOlcegi(): number {
   return Math.max(1, Math.min(2.2, Math.min(innerWidth / 1280, innerHeight / 640) * ARAYUZ_CARPANI));
 }
 
+/**
+ * Pencere dosyalarındaki yazı şablonlarında Korece (CP949, windows-1252 sanılarak "Ã¸Â°..." gibi bozuk çıkan) metin olabilir; oyunda Korece/bozuk yazı görünmez (karar: ces).
+ * ASCII dışı karakter içeren şablon yazısı boş geçilir. Oyun verisiyle sonradan yazılan metinler (`metin()`) bundan etkilenmez.
+ */
+export function temizYazi(s: string): string { return /[^\u0000-\u007f]/.test(s) ? '' : s; }
+
 export class UiPencere {
   readonly el = document.createElement('div');
   readonly ad: string;
@@ -196,7 +202,7 @@ export class UiPencere {
     el.style.display = 'flex'; el.style.alignItems = dikey;
     el.style.justifyContent = st & STIL.ortala ? 'center' : st & STIL.sagaYasla ? 'flex-end' : 'flex-start';
     el.style.whiteSpace = st & STIL.tekSatir ? 'nowrap' : 'pre-wrap';
-    const ic = document.createElement('span'); ic.textContent = y.s; el.appendChild(ic);
+    const ic = document.createElement('span'); ic.textContent = temizYazi(y.s); el.appendChild(ic);
   }
 
   private dugmeKur(el: HTMLElement, n: Sade, kendi: [number, number]): void {

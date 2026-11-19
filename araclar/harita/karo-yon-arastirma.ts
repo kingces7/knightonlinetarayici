@@ -1,3 +1,7 @@
+// !!! ESKİ / YANLIŞ SONUÇ (2026-11-20): bu araç "tüm karolara aynı dönüşüm uygulanınca dikiş sürekliliği değişmez" varsayar ve "orijinal" adayı v-çevrilmiş kurar.
+// İkisi de yanlış: karo kenarları yönlüdür, global dönüşüm (kimlik / dikey ayna / 180° …) dikiş hatasını değiştirir (karus2004: %2,2 / %7,5 / %10,1).
+// Gerçekte orijinal N3Terrain tablosu AYNEN (dönüşümsüz) en iyisidir; bu araçtaki "yön = dönüşüm numarası" eşlemesi yollarda kırık karo üretiyordu.
+// Doğru araç: araclar/harita/karo-denetim.ts (görsel + ölçü) ve karo-tara.ts (58 harita). Bu dosya yalnız tarihçe için duruyor.
 // Arazi karolarının YÖN kodu (0-7) gerçekte hangi dönüşüm/aynalamaya karşılık geliyor? Veriden çıkarım (doğrulama aracı):
 // Her karo iki katman çizer: renk = doku1 + doku2 (orijinal D3DTOP_ADD). Doğru yön eşlemesinde komşu karoların ortak kenarında renkler süreklilik göstermelidir.
 // 8 yön kodu için 8 olası dönüşüm (4 döndürme × ayna) denenir; toplam kenar süreksizliği en küçük olan eşleme seçilir.

@@ -21,7 +21,7 @@ import { IsinlanmaPenceresi, type KapiSatiri } from './isinlanmaPenceresi';
 /** Hazır metinli NPC seçeneği (sunucu Lua betiği olmayan NPC'ler). `pasif` seçenek gri görünür ve tıklanmaz. */
 export interface DuzSecenek { yazi: string; sec: () => void; pasif?: boolean }
 import { diyalogVerisi } from '../oyun/diyalogVeri';
-import { baskinStatlar, sinifMesleki, statRengiUygula, statRengiUygulaRenk, SEKME_SECILI_RENK } from './baskinStat';
+import { baskinStatlar, sinifMesleki, statRengiUygula, statRengiUygulaRenk, SEKME_SECILI_RENK, SEKME_KREM } from './baskinStat';
 import { tamirUcreti } from '../../../kopru/protokol/envanter.ts';
 import { gerekenDeneyim, giyimEkipmani, gmDukkaniSayfalari, kurallar } from '../oyun/veri';
 import type { TakipKamerasi } from '../dunya/kamera';
@@ -316,7 +316,12 @@ export class OyunArayuzu {
 
   /** Kısayol tuşlarını işler; işlendiyse true. */
   tus(kod: string): boolean {
-    if (kod === 'KeyU') { this.degistir('durum'); return true; }
+    if (kod === 'KeyU') {
+      // U bir sekme penceresindeyken (Quest/Clan/Friend/Title) o pencereyi kapatır; arkada Character Report açılmaz
+      const acikSekme = Object.values(OyunArayuzu.SEKME_PENCERE).find((a) => this.genel.acik(a));
+      if (acikSekme) { this.genel.kapat(acikSekme); return true; }
+      for (const a of Object.values(OyunArayuzu.SEKME_PENCERE)) this.genel.onYukle(a); this.degistir('durum'); return true;
+    } // sekme pencereleri önceden yüklenir
     if (kod === 'KeyK') { this.degistir('beceri'); return true; }
     if (kod === 'KeyI') { this.degistir('envanter'); return true; }
     // Orijinal tuş tablosu (GameDef.h eKeyMap): M mini harita, H komut listesi, F10 yardım, PageUp/PageDown skill çubuğu sayfası
@@ -1022,6 +1027,13 @@ export class OyunArayuzu {
     p.gizleDesen(/^(btn_(mage|ranger|blade|cleric|reaper)\d|btn_master|btn_[4-7]$|img_(sorcerer|hunter|berserker|shaman|reaper)_\d|string_[4-7]$)/);
     p.gizleMetin('Master');
     if (!terfili) return;
+    // Ağaç puanı paneli (Attack | Defence / Fervor | Master): hücreleri ince altın çizgiler ayırır (pencere kutusunun koordinatlarıyla; kök sol kenarı çıkarılır)
+    const [kokSol, kokUst] = p.kokKutu; p.el.querySelectorAll('.ke-agac-cizgi').forEach((e) => e.remove());
+    const cizgi = (x: number, y: number, w: number, h: number) => { const e = document.createElement('div'); e.className = 'ke-agac-cizgi'; Object.assign(e.style, { position: 'absolute', left: `${x - kokSol}px`, top: `${y - kokUst}px`, width: `${w}px`, height: `${h}px`, background: 'rgba(143,97,40,.95)', boxShadow: '0 0 0 1px rgba(0,0,0,.45)', pointerEvents: 'none', zIndex: '1' }); p.el.appendChild(e); };
+    // Üst kenar ve yan kenarlar pencere resminde zaten altın çerçevedir (çift çizgi olmasın): yalnız iç ayırıcılar ve alt kenar eklenir.
+    cizgi(4, 122, 355, 1); cizgi(4, 142, 355, 1); // yatay: iki satır arası, panelin altı
+    cizgi(181, 103, 1, 39); // dikey: iki sütun arası
+    cizgi(3, 103, 1, 39); cizgi(360, 103, 1, 39); // sol ve sağ kenar (resimde yalnız üst kenar çerçevelidir)
     const sekmeDugmeleri = [['btn_public'], [0, 1, 2].map((t) => `btn_${grup[0]}${t}`)].flat();
     const sekmeRengi = () => { // seçili sekmenin yazısı pastel, göz yormayan gri; diğerleri özgün renginde
       const adlar = ['btn_public', `btn_${grup[0]}0`, `btn_${grup[0]}1`, `btn_${grup[0]}2`, 'btn_master'];
@@ -1367,7 +1379,7 @@ export class OyunArayuzu {
   private sekmeSeridi(p: UiPencere, aktif: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', y = 44): void {
     const [kokSol] = p.kokKutu;
     const UV = { normal: [301, 43], basili: [441, 121], uzerinde: [301, 121] } as const; // sol-üst köşe; parça 67×36, düğme kutusu 67×37
-    const adlar: [typeof aktif, string, number][] = [['durum', 'Character<br>Report', 4], ['gorev', 'Quest', 75], ['klan', 'Clan', 145], ['dost', 'Friends', 215]];
+    const adlar: [typeof aktif, string, number][] = [['durum', 'Character', 4], ['gorev', 'Quest', 75], ['klan', 'Clan', 145], ['dost', 'Friends', 215]];
     for (const [kod, yazi, x] of adlar) {
       const b = document.createElement('div'); b.innerHTML = yazi; b.dataset.sekme = kod;
       Object.assign(b.style, { position: 'absolute', left: `${x - kokSol}px`, top: `${y}px`, width: '67px', height: '37px', zIndex: '3', cursor: 'pointer', boxSizing: 'border-box',
@@ -1376,8 +1388,10 @@ export class OyunArayuzu {
       const goster = (uv: readonly [number, number]) => { b.style.backgroundPosition = `${-uv[0]}px ${-uv[1] * 37 / 36}px`; };
       const buAktif = kod === aktif;
       goster(buAktif ? UV.basili : UV.normal);
+      if (buAktif) b.style.color = SEKME_SECILI_RENK; // seçili sekme: skill sekmelerindeki gri
       if (!buAktif) {
-        b.addEventListener('pointerenter', () => goster(UV.uzerinde)); b.addEventListener('pointerleave', () => goster(UV.normal));
+        // üzerine gelince yazı skill sekmelerindeki gibi gri
+        b.addEventListener('pointerenter', () => { goster(UV.uzerinde); b.style.color = SEKME_KREM; }); b.addEventListener('pointerleave', () => { goster(UV.normal); b.style.color = '#ffff80'; });
         b.addEventListener('pointerdown', () => goster(UV.basili)); b.addEventListener('pointerup', () => goster(UV.uzerinde));
         b.addEventListener('click', () => { void this.sekmeGit(kod, p); });
       } else b.style.cursor = 'default';
@@ -1391,6 +1405,14 @@ export class OyunArayuzu {
     const [kokSol] = p.kokKutu;
     for (const [id, x] of Object.entries(SOL)) for (const e of p.bul(id)) { e.style.left = `${x - kokSol}px`; e.style.top = '44px'; }
     for (const e of p.bul('btn_close')) if (e.parentElement === p.el && e.style.top === '18px') e.style.left = `${9 - kokSol}px`; // X: Quest'teki yerde (9,18)
+    // Yazılar: "Character" (tek satır), üzerine gelince krem, seçili sekme gri (skill sekmeleriyle aynı renkler)
+    for (const [id, hedef] of Object.entries(hedefler)) for (const e of p.bul(id)) {
+      const yazilar = Array.from(e.querySelectorAll<HTMLElement>('.ui-yazi'));
+      for (const y of yazilar) { if (y.textContent === 'Report') y.style.display = 'none'; else if (y.textContent === 'Character') Object.assign(y.style, { top: '0px', height: '37px', alignItems: 'center' }); }
+      const renk = (c: string) => { for (const y of yazilar) y.style.color = c; };
+      if (hedef === aktif) renk(SEKME_SECILI_RENK);
+      else { e.addEventListener('pointerenter', () => renk(SEKME_KREM)); e.addEventListener('pointerleave', () => renk('#ffff80')); }
+    }
     for (const [id, hedef] of Object.entries(hedefler)) {
       if (hedef === aktif) { p.tikla.set(id, () => { /* zaten bu sekmedeyiz */ }); p.dugmeBasili(id, true); }
       else p.tikla.set(id, () => { void this.sekmeGit(hedef, p); });
@@ -1400,6 +1422,8 @@ export class OyunArayuzu {
   /** Sekme değiştirir: yeni pencere aynı yerde açılır, eskisi kapanır. */
   private async sekmeGit(hedef: 'durum' | 'gorev' | 'klan' | 'dost' | 'baslik', kaynak: UiPencere): Promise<void> {
     const sol = kaynak.el.style.left, ust = kaynak.el.style.top, ol = kaynak.olcek;
+    // Sekme geçişi anlıktır: durum penceresinin kayarak açılma/kapanma animasyonu bu sırada kapalıdır (yoksa her dönüşte pencere yeniden açılıyormuş gibi kayar)
+    const durumEl = this.pencereler.durum.el; durumEl.classList.add('anlik'); setTimeout(() => durumEl.classList.remove('anlik'), 400);
     let yeni: UiPencere | undefined;
     if (hedef === 'durum') { this.ac('durum', true); yeni = this.pencereler.durum; }
     else { const ad = OyunArayuzu.SEKME_PENCERE[hedef]; if (!(await this.genel.ac(ad))) return; yeni = this.genel.pencere(ad); }

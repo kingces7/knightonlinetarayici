@@ -3,7 +3,8 @@
 import { UiPencere } from './orijinal';
 import { KarakterOlustur } from './karakterOlustur';
 import type { OlusturmaAraclari } from '../ag/sunucu';
-import { kurallar } from '../oyun/veri';
+import { kurallar, IRK_MODELLERI } from '../oyun/veri';
+import { KarakterOnizleme } from './karakterOnizleme';
 import { IRK_MESLEKLERI, YENI_KARAKTER_MESAJLARI, sinifKodu } from '../../../kopru/protokol/olustur.ts';
 
 /** `/swap <karakter>` komutunun sessionStorage'a bıraktığı hedef: yeniden girişte bu karakter seçilir. */
@@ -58,7 +59,7 @@ export class GirisEkrani {
   /** Ekranı açar; yüklenemezse false (çağıran oyunu doğrudan gösterir). */
   async ac(): Promise<boolean> {
     try {
-      [this.giris, this.secim] = await Promise.all([UiPencere.yukle('re_login_intro'), UiPencere.yukle('re_characterselect')]);
+      [this.giris, this.secim] = await Promise.all([UiPencere.yukle('re_login_intro'), UiPencere.yukle('co_characterselect_us')]);
     } catch (e) { console.warn('Giriş ekranı yüklenemedi', e); return false; }
     Object.assign(this.katman.style, { position: 'fixed', inset: '0', background: '#000', zIndex: '9000', overflow: 'hidden' });
     Object.assign(this.sahne.style, { position: 'absolute', left: '0', top: '0', width: `${SAHNE_GENISLIK}px`, height: `${SAHNE_YUKSEKLIK}px`, transformOrigin: '0 0' });
@@ -81,6 +82,7 @@ export class GirisEkrani {
   }
 
   kapat(): void {
+    this.onizlemeKapat();
     removeEventListener('resize', this.yenidenBoyutla);
     this.katman.remove();
   }
@@ -97,8 +99,9 @@ export class GirisEkrani {
   private girisKur(p: UiPencere): void {
     p.el.style.left = '0'; p.el.style.top = '0';
     // Bu sürümde kullanılmayanlar: sunucu listesi (sunucu tek, girişten sonra bilinir), krallar/duyurular, boş kutular
-    for (const id of ['Group_ServerList_01', 'Group_ServerListSub', 'Group_introduction_el', 'Group_introduction_ka', 'Group_Notice_1', 'Group_Notice_2', 'Group_Notice_3', 'premium', 'btn_homepage']) p.gizle(id);
+    for (const id of ['Group_ServerListSub', 'Group_introduction_el', 'Group_introduction_ka', 'Group_Notice_1', 'Group_Notice_2', 'Group_Notice_3', 'premium', 'btn_homepage']) p.gizle(id);
     p.metin('copyright', 'KnightEmpire');
+    this.sunucuListesiKur(p);
     this.idKutusu = this.kutuKoy(p, 'Edit_ID', 'text');
     this.sifreKutusu = this.kutuKoy(p, 'Edit_PW', 'password');
     try { this.idKutusu.value = localStorage.getItem(KAYIT_HESAP) ?? ''; } catch { /* depolama kapalı */ }
@@ -116,6 +119,33 @@ export class GirisEkrani {
     p.el.appendChild(cevrimdisi); this.cevrimdisiEl = cevrimdisi;
   }
 
+  // ---------------------------------------------------------------- sunucu seçimi (orijinal sunucu listesi paneli)
+  private swapVarMi(): boolean { try { return !!sessionStorage.getItem(SWAP_ANAHTARI); } catch { return false; } }
+  private sunucuAcilis = 0;
+  private sunucuKarari: ((tamam: boolean) => void) | null = null;
+  /** Oyunun kendi sunucu listesi paneli (re_login_intro / Group_ServerList_01): tek sunucu "ATAKUM". */
+  private sunucuListesiKur(p: UiPencere): void {
+    p.gizle('Group_ServerList_01');
+    for (let i = 2; i <= 20; i++) { p.gizle(`server_${i}`); p.gizle(`Btn_list_${i}`); }
+    p.metin('server_1', 'ATAKUM');
+    p.dugmeBasili('Btn_list_1', true); // tek sunucu: seçili
+    const bitir = (tamam: boolean) => { const k = this.sunucuKarari; this.sunucuKarari = null; p.gizle('Group_ServerList_01'); if (k) k(tamam); };
+    p.tikla.set('Btn_Connect', () => bitir(true));
+    for (const e of p.bul('Btn_list_1')) e.addEventListener('dblclick', () => bitir(true));
+    addEventListener('keydown', (e) => {
+      if (!this.sunucuKarari || performance.now() - this.sunucuAcilis < 300) return; // şifre kutusundaki Enter paneli açan olayın kendisidir
+      if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); bitir(true); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); bitir(false); }
+    }, true);
+  }
+  private sunucuSec(): Promise<boolean> {
+    const p = this.giris!;
+    this.sunucuAcilis = performance.now();
+    p.gizle('Group_Login'); p.goster('Group_ServerList_01'); this.durum('Select a server (double-click or press Enter to connect, Esc to go back).');
+    return new Promise<boolean>((coz) => {
+      this.sunucuKarari = (t) => { p.goster('Group_Login'); this.durum(''); coz(t); };
+    });
+  }
+
   /** Giriş çubuğundaki yazı alanının üstüne gerçek bir <input> koyar. */
   private kutuKoy(p: UiPencere, id: string, tur: 'text' | 'password'): HTMLInputElement {
     const alan = p.alan(id); if (!alan) throw new Error(`Alan yok: ${id}`);
@@ -126,7 +156,7 @@ export class GirisEkrani {
   }
 
   private durumKur(): void {
-    Object.assign(this.durumYazisi.style, { position: 'absolute', left: '21px', top: '666px', width: '978px', textAlign: 'center', color: '#ffe46b', font: 'bold 14px Verdana, Arial, sans-serif', textShadow: '0 1px 3px #000, 0 0 6px #000', pointerEvents: 'none', minHeight: '18px' });
+    Object.assign(this.durumYazisi.style, { position: 'absolute', left: '21px', top: '606px', width: '978px', textAlign: 'center', color: '#ffe46b', font: 'bold 14px Verdana, Arial, sans-serif', textShadow: '0 1px 3px #000, 0 0 6px #000', pointerEvents: 'none', minHeight: '18px' });
   }
   private durum(m: string): void { this.durumYazisi.textContent = m; }
 
@@ -134,6 +164,13 @@ export class GirisEkrani {
     if (this.mesgul) return;
     const hesap = this.idKutusu.value.trim(), sifre = this.sifreKutusu.value;
     if (!hesap || !sifre) { this.durum('Enter your ID and password.'); (hesap ? this.sifreKutusu : this.idKutusu).focus(); return; }
+    // Sunucu seçimi (orijinal Group_ServerList_01): otomatik giriş (F5) ve /swap ile karakter değişimi bu ekranı atlar
+    if (!this.otomatik && !this.swapVarMi()) {
+      this.mesgul = true;
+      const tamam = await this.sunucuSec();
+      this.mesgul = false;
+      if (!tamam) { this.idKutusu.focus(); return; }
+    }
     this.mesgul = true; this.idKutusu.disabled = this.sifreKutusu.disabled = true; this.durum('Connecting…');
     try {
       await this.b.baglan(hesap, sifre, (k, a) => this.karakterSec(k, a));
@@ -153,15 +190,16 @@ export class GirisEkrani {
   private karakterIstegi: { coz: (ad: string) => void; hata: (e: Error) => void } | null = null;
 
   private secimKur(p: UiPencere): void {
-    // Pencere 1024×435: sahnenin altına oturur
-    p.el.style.left = '0'; p.el.style.top = `${SAHNE_YUKSEKLIK - 435}px`;
-    p.gizle('Group_Bottom_Img'); p.gizle('logo'); // orijinalde 3B sahnenin alt süslemesi; burada arka plan resmi varken yersiz kalır
+    // Eski (oldschool) Myko karakter seçme çubuğu (co_characterselect_us, 1024×113): sahnenin altında, telif satırının üstünde
+    p.el.style.left = '0'; p.el.style.top = `${SAHNE_YUKSEKLIK - 113 - 24}px`;
+    p.tikla.set('btn_delete', () => this.durum('Deleting characters is not available yet.'));
     p.tikla.set('btn_back', () => this.karakterIstegi?.hata(new GirisIptal()));
     p.tikla.set('btn_exit', () => this.karakterIstegi?.hata(new GirisIptal()));
     // Karakter oluştur: karakterSec içinde (bağlantı açıkken) kurulur
   }
 
   private girisGoster(): void {
+    this.onizlemeGizle();
     this.secim!.el.style.display = 'none'; this.giris!.goster('Group_Login'); this.giris!.goster('copyright'); this.giris!.el.style.display = ''; if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = '';
   }
 
@@ -201,15 +239,48 @@ export class GirisEkrani {
     } catch (e) { this.durum((e as Error).message || 'Switching characters failed.'); }
   }
 
+  // ---------------------------------------------------------------- karakter seçiminde animasyonlu 3B karakter
+  private onizleme: KarakterOnizleme | null = null; private onizlemeKap: HTMLElement | null = null; private onizlemeKare = 0;
+  private secimTusu: ((e: KeyboardEvent) => void) | null = null;
+  private onizlemeGoster(irk: number): void {
+    const model = IRK_MODELLERI[irk] ?? IRK_MODELLERI[12];
+    if (!this.karartma) { // seçim ekranında arka plan resmi karartılır (3B karakter öne çıksın)
+      const k = this.karartma = document.createElement('div');
+      Object.assign(k.style, { position: 'absolute', left: '0', top: '0', width: `${SAHNE_GENISLIK}px`, height: `${SAHNE_YUKSEKLIK - 137}px`, background: 'radial-gradient(ellipse at 50% 55%, rgba(30,20,36,.55), rgba(6,3,10,.92) 75%)', pointerEvents: 'none' });
+      this.sahne.insertBefore(k, this.secim!.el);
+    }
+    this.karartma.style.display = '';
+    if (!this.onizlemeKap) {
+      const kap = this.onizlemeKap = document.createElement('div');
+      Object.assign(kap.style, { position: 'absolute', left: '162px', top: '10px', width: '700px', height: '610px' });
+      this.sahne.insertBefore(kap, this.secim!.el); // karakter seçme çubuğunun arkasında
+    }
+    this.onizlemeKap.style.display = '';
+    if (!this.onizleme) {
+      this.onizleme = new KarakterOnizleme(this.onizlemeKap, model, 700, 610); this.onizleme.kameraAyarla(5.0, 0.95); void this.onizleme.baslat();
+      let son = performance.now();
+      const dongu = () => { const t = performance.now(); this.onizleme?.ciz(Math.min(0.1, (t - son) / 1000)); son = t; this.onizlemeKare = requestAnimationFrame(dongu); };
+      this.onizlemeKare = requestAnimationFrame(dongu);
+    } else if (this.onizleme.modelNo !== model) void this.onizleme.modelDegistir(model);
+  }
+  private karartma: HTMLElement | null = null;
+  private onizlemeGizle(): void { if (this.onizlemeKap) this.onizlemeKap.style.display = 'none'; if (this.karartma) this.karartma.style.display = 'none'; }
+  private onizlemeKapat(): void {
+    cancelAnimationFrame(this.onizlemeKare); this.onizleme?.kapat(); this.onizleme = null; this.onizlemeKap?.remove(); this.onizlemeKap = null; this.karartma?.remove(); this.karartma = null;
+    if (this.secimTusu) { removeEventListener('keydown', this.secimTusu, true); this.secimTusu = null; }
+  }
+
   private karakterSec(ilk: SecimKarakteri[], araclar: OlusturmaAraclari): Promise<string> {
     const p = this.secim!;
     return new Promise<string>((coz, hata) => {
       let liste = ilk, dolu = liste.filter((k) => k.ad), sira = 0;
+      const irkler = new Map<string, number>(); // karakter adı → ırk (3B önizleme modeli için)
       const goster = () => {
-        if (!dolu.length) { p.metin('str_id', ''); p.metin('str_lev', ''); p.metin('str_job', ''); p.goster('Group_OtherCharacter', false); return; }
+        if (!dolu.length) { p.metin('str_id', ''); p.metin('str_lev', ''); p.metin('str_job', ''); p.goster('btn_left', false); p.goster('btn_right', false); this.onizlemeGizle(); return; }
         const k = dolu[sira];
+        this.onizlemeGoster(irkler.get(k.ad.toLowerCase()) ?? (k.sinif < 200 ? 1 : 12));
         p.metin('str_id', k.ad); p.metin('str_lev', k.seviye); p.metin('str_job', sinifAdi(k.sinif));
-        p.goster('Group_OtherCharacter', dolu.length > 1);
+        p.goster('btn_left', dolu.length > 1); p.goster('btn_right', dolu.length > 1);
       };
       const olustur = async () => {
         const yuva = liste.findIndex((k) => !k.ad);
@@ -222,7 +293,19 @@ export class GirisEkrani {
       p.tikla.set('btn_create', () => void olustur());
       p.tikla.set('btn_left', () => { if (dolu.length) { sira = (sira + dolu.length - 1) % dolu.length; goster(); } });
       p.tikla.set('btn_right', () => { if (dolu.length) { sira = (sira + 1) % dolu.length; goster(); } });
-      p.tikla.set('btn_start', () => { if (!dolu.length) { this.durum('Create a character first.'); return; } this.durum('Entering the game…'); coz(dolu[sira].ad); });
+      // Start ya da Enter: karakter ekrana doğru yürür, ardından oyuna girilir (klasik yükleme ekranı)
+      let yuruyor = false;
+      const baslat = async () => {
+        if (!dolu.length) { this.durum('Create a character first.'); return; }
+        if (yuruyor) return; yuruyor = true;
+        this.durum('Entering the game…');
+        try { await this.onizleme?.yuruBaslat(); } catch { /* önizleme yoksa doğrudan gir */ }
+        coz(dolu[sira].ad);
+      };
+      p.tikla.set('btn_start', () => void baslat());
+      this.secimTusu = (e: KeyboardEvent) => { if (e.key === 'Enter' && this.sahne.style.visibility !== 'hidden' && p.el.style.display !== 'none' && !(e.target instanceof HTMLInputElement)) { e.preventDefault(); e.stopPropagation(); void baslat(); } };
+      addEventListener('keydown', this.secimTusu, true);
+      void araclar.yenile().then((l) => { for (const y of l) if (y.ad) irkler.set(y.ad.toLowerCase(), y.irk); goster(); }).catch(() => undefined);
       this.karakterIstegi = { coz, hata: (e) => { this.karakterIstegi = null; hata(e); } };
       // Giriş çubuğu ve telif satırı gizlenir; karakter penceresi açılır
       this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright'); if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = 'none';

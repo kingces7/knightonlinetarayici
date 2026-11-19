@@ -165,7 +165,9 @@ export class KarakterModeli {
     1000: [44, 45, 46, 118, 119], // çift silah (ANI_DUAL_BREATH_A, ATTACK_A0/A1, SKILL_DUAL0/1)
     11: [38, 39, 40, 116, 117], 21: [32, 33, 34, 128, 129], 22: [50, 51, 52, 134, 135],
     31: [68, 69, 70, 112, 113], 32: [71, 72, 73, 132, 133], 41: [56, 57, 58, 120, 121], 42: [62, 63, 64, 122, 123],
-    51: [74, 75, 76, 126, 127], 52: [80, 81, 82, 124, 125], 70: [92, 96, 97, 0, 0], 71: [93, 96, 97, 0, 0], 110: [98, 99, 100, 0, 0],
+    51: [74, 75, 76, 126, 127], 52: [80, 81, 82, 124, 125], 70: [92, 96, 97, 0, 0], 71: [93, 96, 97, 0, 0],
+    60: [98, 99, 100, 0, 0], // kalkan (ANI_SHIELD_BREATH_A, ATTACK_A0/A1)
+    110: [0, 39, 39, 0, 0], // asa: özel duruş yok, saldırı hep ANI_DAGGER_ATTACK_A0 (orijinal JudgeAnimationAttack)
   };
   private aile: [number, number, number, number, number] | null = null;
   /** Yürüme/koşma/geri animasyonları (hız buff'ında hızlanır: orijinalde animasyon hızı m_fMoveDelta ile çarpılır). */
@@ -217,7 +219,7 @@ export class KarakterModeli {
     if (this.ustSaldiriAktif || this.oturAsama !== 'yok' || (this.aktifAd !== 'kos' && this.aktifAd !== 'yuru')) return;
     // Skill kullanılırken skill tablosundaki animasyon (yürüyerek de) üst gövdede oynar; numara yoksa/26 ise silahın hareket-saldırısı (14).
     const skillAd = skillAnimNo && skillAnimNo !== 26 ? this.klipNo(skillAnimNo) : null;
-    const saldiri = (klipAdi ? this.klipler.get(klipAdi) : undefined) ?? (skillAd ? this.klipler.get(skillAd) : undefined) ?? [...this.klipler.values()][14], hareket = this.klipler.get(this.aktifAd);
+    const saldiri = (klipAdi ? this.klipler.get(klipAdi) : undefined) ?? (skillAd ? this.klipler.get(skillAd) : undefined) ?? [...this.klipler.values()][this.silahTipi === 0 ? 15 : 14], hareket = this.klipler.get(this.aktifAd);
     if (!saldiri || !hareket || !this.aktif) return;
     const ust = this.bol(saldiri).ust, alt = this.bol(hareket).alt;
     if (!ust.tracks.length || !alt.tracks.length) return;
@@ -251,7 +253,7 @@ export class KarakterModeli {
     const anahtar = cift(tip) && cift(solTip) ? 1000 : !tip && solTip === 60 ? 1060 : tip;
     if (anahtar === this.silahTipi) return;
     this.silahTipi = anahtar;
-    const aile = anahtar === 1000 ? KarakterModeli.SILAH_AILESI[1000] : anahtar === 1060 ? KarakterModeli.SILAH_AILESI[110] : (KarakterModeli.SILAH_AILESI[tip] ?? KarakterModeli.SILAH_AILESI[21]);
+    const aile = anahtar === 1000 ? KarakterModeli.SILAH_AILESI[1000] : anahtar === 1060 ? KarakterModeli.SILAH_AILESI[60] : (KarakterModeli.SILAH_AILESI[tip] ?? KarakterModeli.SILAH_AILESI[21]);
     this.aile = this.klipNo(32) ? aile : null; // numaralı animasyonu olmayan modellerde (canavar) yok
     if (this.aktifAd === 'bekle') { this.aktifAd = ''; this.calistir('bekle', true, 0.2); }
   }

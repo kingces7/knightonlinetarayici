@@ -6,6 +6,7 @@ import path from 'node:path';
 import { CIKTI_DIZINI, SUNUCU_HARITA_DIZINI, oyunDisindaOlmali } from '../ortak/yollar.ts';
 import { saglamYuzler, smdOku, type SmdKapi } from './smd.ts';
 import { SUNUCU_HARITASI, eslesmeGuvenilir, eslesmeNedeni, yukseklikEslesmesi } from './eslesme.ts';
+import { hipO } from './karo-denetim.ts';
 import { KAPI_ADLARI } from '../../client/src/oyun/kapiAdlari.ts';
 import { OyunDosyalari } from '../ortak/oyunDosyalari.ts';
 import { dxtOku, rgbayaCevir, tctOku } from '../doku/dxt.ts';
@@ -18,18 +19,12 @@ import { nehirleriOku, nehirUcgenleri } from './nehir.ts';
 const KARO_PX = 128;
 const ATLAS_KOLON = 16;
 
-/** Yön kodu (0-7) için karo içi (u,v) dönüşümü. */
-export function yonUv(yon: number, u: number, v: number): [number, number] {
-  switch (yon & 7) {
-    case 0: return [u, v];
-    case 1: return [v, 1 - u];
-    case 2: return [1 - u, 1 - v];
-    case 3: return [1 - v, u];
-    case 4: return [1 - u, v];
-    case 5: return [u, 1 - v];
-    case 6: return [v, u];
-    default: return [1 - v, 1 - u];
-  }
+/**
+ * Yön kodu (0-7) için karo içi (a = +x, b = +z) → doku (u, v) dönüşümü: orijinal N3Terrain tablosu (karo-denetim.ts `hipO`), v aşağı doğru artar.
+ * (Eski burada başka bir "sezgisel" tablo vardı; komşu karo dikişlerinde yollar kırılıyordu.)
+ */
+export function yonUv(yon: number, a: number, b: number): [number, number] {
+  return hipO(yon & 7, a, b);
 }
 
 function karolariYukle(od: OyunDosyalari, a: Arazi): Uint8Array[] {

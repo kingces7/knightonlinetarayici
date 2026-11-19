@@ -1,0 +1,14 @@
+﻿import { chromium } from 'playwright-core';
+const t = await chromium.connectOverCDP('http://127.0.0.1:9333');
+const s = await (t.contexts()[0] ?? await t.newContext()).newPage();
+await s.setViewportSize({ width: 1600, height: 900 });
+await s.goto('http://localhost:5173/?giris=0');
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
+const acik = () => s.evaluate(() => { const a = window.ke.arayuz(); return ['re_el_page_quest', 're_el_clan_window', 're_el_page_friend'].filter((x) => a.genel.acik(x)).concat(a.acik.has('durum') ? ['durum'] : []); });
+await s.keyboard.press('KeyU'); await s.waitForTimeout(700);
+await s.evaluate(async () => { const a = window.ke.arayuz(); await a.sekmeGit('dost', a.pencereler.durum); }); await s.waitForTimeout(900);
+const r = { sekmede: await acik() };
+await s.keyboard.press('KeyU'); await s.waitForTimeout(900); r.uSonrasi = await acik();
+await s.keyboard.press('KeyU'); await s.waitForTimeout(900); r.ikinciU = await acik();
+r.yazi = await s.evaluate(() => [...window.ke.arayuz().pencereler.durum.el.querySelectorAll('[data-sekme]')].map((e) => e.textContent + ':' + getComputedStyle(e).color));
+console.log(JSON.stringify(r)); await s.close(); await t.close();

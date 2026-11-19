@@ -80,8 +80,11 @@ karo_doku_sayısı × { int16 kaynak, int16 kaynak içi sıra }
 İkinci başlık biçimi (✅ çözüldü 2026-11-19; `clanfight`, `clanfight_c`, `elmorad_start`, `karus_start`, `freezone`, `freezone_new`):
 `int32 sürüm (1-2)`, `int32 ad uzunluğu`, **düz** ASCII ad, hemen ardından `int32 N` (eski biçimdeki XOR'lu ad ve arada `int32 0` yok); gövde (`MAPDATA`…) aynı. Kaynak: `N3Terrain::Load`'daki `N3FORMAT_VER_1264` dalı (`iIdk0`, `iNL`, ad). `gtdOku` ikisini de ayırt eder (`arazi.test.ts`).
 `moradon_xmas` ayrı bir sorundu (4096 baytlık blok yok), o da okunuyor. `.lilith` uzantılı (şifreli) client haritaları hâlâ okunmuyor.
-Karo dokuları kenarlarında kararan "geçiş karoları"; oyundaki birebir karışım kuralı ve yön kodlarının
-anlamı henüz kesin değil (istemci yaklaşık bir karışım kullanıyor).
+Karo dokuları kenarlarında kararan "geçiş karoları"; birleştirme kuralı kaynaktan bilinir (doku1 + doku2 **ADD**, bkz. `luferson/arazi-doku-notlari.md`).
+**Yön kodları (0-7) ✅ doğrulandı (2026-11-20):** anlamı orijinal `N3Terrain.cpp` `m_fTileDirU/V` tablosunun **birebir** kendisidir (karo köşeleri A=(x,z)=[2], B=(x,z+1)=[0], C=(x+1,z+1)=[1], D=(x+1,z)=[3];
+(u,v) D3D düzeninde v aşağı artar; `karolar.bin` satırları üstten alta olduğundan doğrudan örneklenir). 8 olası global dönüşümden (kimlik, dikey/yatay ayna, 180°, döndürmeler) bu tablonun dikiş hatası en düşüktür
+(karus2004 %2,2; dikey ayna %7,5; yatay ayna %6,1; 180° %10,1; döndürmeler > %20) ve yollar kesintisiz çıkar. Karo kenarları yönlüdür, bu yüzden "bütün karolara aynı dönüşüm dikişi değiştirmez" varsayımı YANLIŞTIR
+(eski `karo-yon-arastirma.ts` bu yüzden "yön = dönüşüm numarası" gibi yanlış bir eşlemeye varmıştı; yollarda kırık karo üretiyordu). Araç: `araclar/harita/karo-denetim.ts`, tarama: `karo-tara.ts`, test: `karo-denetim.test.ts`.
 
 Sunucunun `.smd` haritası (`SMDFile.cpp`) aynı yükseklik ızgarasını + çarpışma üçgenlerini içerir.
 

@@ -32,6 +32,8 @@ export function statRengiUygula(el: HTMLElement | undefined, baskin: boolean): v
 
 /** Seçili skill sekmesinin yazı rengi: pastel, göz yormayan gri. */
 export const SEKME_SECILI_RENK = '#c4c9ce';
+/** Üzerine gelinen sekmenin yazı rengi: orijinal skill sekmesi yazı rengi (re_el_skill: 0xFFFCDA81, krem). */
+export const SEKME_KREM = '#fcda81';
 /** Yazı düğümünün rengini verilen renge çevirir (null = özgün renk). */
 export function statRengiUygulaRenk(el: HTMLElement, renk: string | null): void {
   if (el.dataset.renk0 === undefined) el.dataset.renk0 = el.style.color;

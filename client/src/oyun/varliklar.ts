@@ -175,6 +175,8 @@ export class Canavar extends Varlik {
   private gezHedef: THREE.Vector2 | null = null;
   private bekle = rastgele(0, 4);
   saldiriSayaci = 0;
+  /** Son saldırı klibinin süresi (sn): "bekle"ye dönüş klip bitince olur (eskiden sabit 0,8 sn klibi yarıda kesiyordu). */
+  private saldiriKlipSuresi = 0.8;
   oluSuresi = 0;
   ganimetBirakildi = false;
   kizgin = false;
@@ -272,10 +274,10 @@ export class Canavar extends Varlik {
         this.saldiriSayaci -= dt;
         if (this.saldiriSayaci <= 0) {
           this.saldiriSayaci = this.tur.gecikme / 1000; // sunucu sAttackDelay (ms)
-          this.model?.oynatRastgele('saldir', 2, false, 0.1);
+          this.saldiriKlipSuresi = this.model?.oynatRastgele('saldir', 2, false, 0.1) || 0.8;
           return true;
         }
-        if (this.saldiriSayaci < this.tur.gecikme / 1000 - 0.8 && this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
+        if (this.saldiriSayaci < this.tur.gecikme / 1000 - this.saldiriKlipSuresi && this.model?.aktifAd !== 'bekle') this.model?.oynat('bekle');
       }
       return false;
     }

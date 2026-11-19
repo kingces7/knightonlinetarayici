@@ -17,7 +17,7 @@ export interface OlusturBaglami {
   yuva: number;
 }
 
-const SAHNE_GENISLIK = 925, SAHNE_YUKSEKLIK = 710;
+const SAHNE_GENISLIK = 1024, SAHNE_YUKSEKLIK = 790;
 type Stat = 'str' | 'sta' | 'dex' | 'int' | 'cha';
 /** Arayüzdeki satır adı → stat (map = charisma/büyü gücü). */
 const STAT_ID: [string, Stat][] = [['str', 'str'], ['dex', 'dex'], ['sta', 'sta'], ['int', 'int'], ['map', 'cha']];
@@ -49,8 +49,9 @@ export class KarakterOlustur {
   /** Ekranı açar. Karakter oluşturulursa adı, iptal edilirse null döner. */
   async ac(): Promise<string | null> {
     let ulus = this.b.araclar.ulus;
-    if (ulus !== 1 && ulus !== 2) ulus = await this.ulusSor(); // yeni hesap: ilk karakter ulusu belirler
-    this.p = await UiPencere.yukle(ulus === 1 ? 're_ka_charactercreate' : 're_el_charactercreate');
+    if (ulus !== 1 && ulus !== 2) ulus = await this.ulusSor(); // yeni hesap: ilk karakter ulusu belirler (ırk seçimi → karakter oluşturma)
+    if (ulus !== 1 && ulus !== 2) return null; // ulus seçiminde Back
+    this.p = await UiPencere.yukle(ulus === 1 ? 'ka_charactercreate_us' : 'el_charactercreate_us');
     this.irk = ulus === 1 ? 1 : 12;
     this.katmanKur();
     this.pencereKur(ulus);
@@ -58,24 +59,27 @@ export class KarakterOlustur {
     return new Promise<string | null>((coz) => { this.bitir = (a) => { this.kapat(); coz(a); }; });
   }
 
-  private ulusSor(): Promise<number> {
+  /** Ulus seçimi: oyunun kendi pencereleri (re_nation_select: Karus / El Morad iki yarı, Back). 0 = geri dönüldü. */
+  private async ulusSor(): Promise<number> {
+    const p = await UiPencere.yukle('re_nation_select');
+    const katman = document.createElement('div'), sahne = document.createElement('div');
+    Object.assign(katman.style, { position: 'fixed', inset: '0', background: '#000', zIndex: '9100', overflow: 'hidden' });
+    Object.assign(sahne.style, { position: 'absolute', width: '1024px', height: '768px', transformOrigin: '0 0' });
+    p.el.style.left = '0'; p.el.style.top = '0';
+    for (const y of p.el.querySelectorAll<HTMLElement>('.ui-yazi')) if (!y.closest('.ui-t1')) y.style.display = 'none';
+    sahne.appendChild(p.el); katman.appendChild(sahne); this.b.kok.appendChild(katman);
+    const yerles = () => { const o = Math.min(innerWidth / 1024, innerHeight / 768); sahne.style.scale = String(o); sahne.style.left = `${(innerWidth - 1024 * o) / 2}px`; sahne.style.top = `${(innerHeight - 768 * o) / 2}px`; };
+    yerles(); addEventListener('resize', yerles);
     return new Promise((coz) => {
-      const k = document.createElement('div');
-      Object.assign(k.style, { position: 'fixed', inset: '0', background: 'rgba(0,0,0,.88)', zIndex: '9100', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '18px', color: '#ffe9a8', font: '18px Verdana, sans-serif' });
-      k.innerHTML = '<div>Choose your nation (it cannot be changed later):</div>';
-      for (const [ad, no] of [['Karus', 1], ['El Morad', 2]] as const) {
-        const d = document.createElement('button'); d.textContent = ad;
-        Object.assign(d.style, { width: '220px', padding: '12px', font: 'bold 18px Verdana, sans-serif', background: '#3a2a12', color: '#ffe9a8', border: '1px solid #c9a24a', borderRadius: '6px', cursor: 'pointer' });
-        d.onclick = () => { k.remove(); coz(no); }; k.appendChild(d);
-      }
-      this.b.kok.appendChild(k);
+      const bitir = (n: number) => { removeEventListener('resize', yerles); katman.remove(); coz(n); };
+      p.tikla.set('btn_karus_selection', () => bitir(1)); p.tikla.set('btn_elmo_selection', () => bitir(2)); p.tikla.set('btn_back', () => bitir(0));
     });
   }
 
   private katmanKur(): void {
     Object.assign(this.katman.style, { position: 'fixed', inset: '0', background: '#000', zIndex: '9050', overflow: 'hidden' });
     Object.assign(this.sahne.style, { position: 'absolute', left: '0', top: '0', width: `${SAHNE_GENISLIK}px`, height: `${SAHNE_YUKSEKLIK}px`, transformOrigin: '0 0' });
-    Object.assign(this.durumYazisi.style, { position: 'absolute', left: '289px', top: '630px', width: '200px', textAlign: 'center', color: '#ffe46b', font: 'bold 13px Verdana, Arial, sans-serif', textShadow: '0 1px 2px #000', pointerEvents: 'none' });
+    Object.assign(this.durumYazisi.style, { position: 'absolute', left: '353px', top: '703px', width: '324px', textAlign: 'center', color: '#ffe46b', font: 'bold 13px Verdana, Arial, sans-serif', textShadow: '0 1px 2px #000', pointerEvents: 'none' });
     this.p.el.style.left = '0'; this.p.el.style.top = '0';
     this.sahne.append(this.p.el, this.durumYazisi);
     this.katman.appendChild(this.sahne); this.b.kok.appendChild(this.katman);
@@ -95,9 +99,9 @@ export class KarakterOlustur {
     const p = this.p;
     // Diğer ulusun ırk düğmeleri ve bu sürümde olmayan yüz/saç denetimleri gizlenir
     for (const [irk, id] of Object.entries(IRK_DUGMELERI)) if (irkUlusu(Number(irk)) !== ulus) p.gizle(id);
-    p.gizle('El Morad Male'); p.gizleDesen(/^(btn_(face|hair)_|btn_hair_color$|face$|hair$)/);
+    p.gizle('El Morad Male'); p.gizleDesen(/^(btn_(face|hair)_|btn_hair_color$|face$|hair$|img_face$|img_hair$)/);
     // Bu sürümde olmayan yüz/saç başlıkları ve ad kutusundaki örnek rakamlar gizlenir
-    for (const e of p.el.querySelectorAll<HTMLElement>('.ui-yazi')) if (/^(Face|Hair Style|Details For Character|12345678910)$/.test((e.textContent ?? '').trim())) e.style.display = 'none';
+    for (const e of p.el.querySelectorAll<HTMLElement>('.ui-yazi')) if (/^(Face|Hair ?[Ss]tyle|Details For Character|12345678910)$/.test((e.textContent ?? '').trim())) e.style.display = 'none';
     // Düğme yazıları durum resimlerinin ÜSTÜNDE olmalı (bazı düğmelerde resimler sonradan eklenmiş, yazıyı örtüyordu)
     for (const id of [...Object.values(IRK_DUGMELERI), ...Object.values(MESLEK_DUGMELERI), 'btn_create', 'btn_cancel']) for (const el of p.bul(id)) for (const y of el.querySelectorAll<HTMLElement>('.ui-yazi')) y.style.zIndex = '5';
     // Ad kutusu
@@ -120,9 +124,12 @@ export class KarakterOlustur {
     p.tikla.set('btn_cancel', () => this.bitir(null));
     // 3B önizleme: sağdaki boş alanda; kendi çizim döngüsü
     const kap = document.createElement('div');
-    Object.assign(kap.style, { position: 'absolute', left: '520px', top: '90px', width: '390px', height: '600px' });
+    Object.assign(kap.style, { position: 'absolute', left: '353px', top: '59px', width: '323px', height: '573px' }); // oyunun kendi önizleme kutusu (area_character)
     p.el.appendChild(kap);
-    this.onizleme = new KarakterOnizleme(kap, IRK_MODELLERI[this.irk] ?? 931137, 390, 600);
+    this.onizleme = new KarakterOnizleme(kap, IRK_MODELLERI[this.irk] ?? 931137, 323, 573);
+    this.onizleme.kameraAyarla(5.0, 0.95); // iri modeller (Karus, Barbarian) kırpılmasın
+    const aciklama = p.alan('text_desc');
+    if (aciklama) Object.assign(aciklama.style, { textAlign: 'left', justifyContent: 'flex-start', alignItems: 'flex-start', fontSize: '14px', lineHeight: '1.35', color: '#f4ecd2' });
     let son = performance.now();
     const dongu = () => { const t = performance.now(); this.onizleme?.ciz(Math.min(0.1, (t - son) / 1000)); son = t; this.kare = requestAnimationFrame(dongu); };
     this.kare = requestAnimationFrame(dongu);

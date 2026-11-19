@@ -32,6 +32,17 @@ export class KarakterOnizleme {
     tuval.addEventListener('pointerup', birak); tuval.addEventListener('pointercancel', birak);
   }
 
+  private yuruSure = 0; private yuruGecen = 0; private yuruBitti: (() => void) | null = null;
+  /** Karakter kameraya doğru yürür (seçim ekranında Start): yürüme animasyonu + ileri hareket; bitince çözülür. */
+  yuruBaslat(sureMs = 1700): Promise<void> {
+    this.donus = Math.PI; this.model?.oynat('yuru', true, 0.15);
+    this.yuruSure = sureMs / 1000; this.yuruGecen = 0;
+    return new Promise((coz) => { this.yuruBitti = coz; });
+  }
+
+  /** Kamerayı geri çeker/yükseltir (uzun modeller, ör. Karus ırkları, sığsın diye). */
+  kameraAyarla(uzaklik: number, bakisY: number): void { this.kamera.position.set(0, bakisY + 0.1, uzaklik); this.kamera.lookAt(0, bakisY, 0); }
+
   /** Önizlenen modeli değiştirir (karakter oluşturma ekranında ırk seçilince). */
   async modelDegistir(modelNo: number): Promise<void> {
     if (this.model) { this.sahne.remove(this.model.kok); this.model = null; }
@@ -57,6 +68,11 @@ export class KarakterOnizleme {
     this.model.silahAyarla(elSilahiTipi(ekipman as { tip?: number }[]), solSilahTipi(ekipman as { tip?: number }[]));
     void this.model.plugTak('sag', silah); void this.model.plugTak('sol', kalkan);
     this.model.guncelle(dt);
+    if (this.yuruSure > 0) { // kameraya doğru yürüyüş
+      this.yuruGecen += dt; const o = Math.min(1, this.yuruGecen / this.yuruSure);
+      this.model.kok.position.z = o * 1.7;
+      if (o >= 1) { this.yuruSure = 0; this.yuruBitti?.(); this.yuruBitti = null; }
+    }
     this.model.kok.rotation.y = this.donus;
     this.cizici.render(this.sahne, this.kamera);
   }

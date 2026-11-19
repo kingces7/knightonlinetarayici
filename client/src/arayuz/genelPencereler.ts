@@ -44,6 +44,9 @@ export class GenelPencereler {
   /** Açık pencere sayısı (Esc davranışı için). */
   get sayi(): number { return this.acikPencereler.size; }
 
+  /** Pencereyi önceden yükler (açılınca bekleme/titreme olmasın). */
+  onYukle(ad: string): void { void this.yukle(ad); }
+
   private async yukle(ad: string): Promise<UiPencere | null> {
     let o = this.onbellek.get(ad);
     if (!o) {
