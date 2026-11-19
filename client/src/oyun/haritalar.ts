@@ -19,11 +19,11 @@ export const HARITALAR: Record<string, HaritaAyari> = {
   // Şehir meydanı (oval alan) — kuşbakışı önizlemeye ve sunucudaki kapı olaylarına (x≈800-840, z≈526) göre.
   moradon: { baslangic: [815, 440], canavar: false, bolge: 18, deneyimKaybi: true },
   // Sunucu NPC dizilimi, başlangıç noktası (START_POSITION1098 bölge 21 = 264, 302) ve kapılar bu haritaya uyuyor.
-  '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21, deneyimKaybi: true, sehir: [305, 342] },
+  '14th_oldmoradon': { baslangic: [264, 302], canavar: false, bolge: 21, deneyimKaybi: true, sehir: [304, 341] }, // moradon town (ces)
   // Luferson Castle (Karus, sunucu bölgesi 1): sunucu eşi 1098karus2004.smd; kapıdan varış noktası (441, 1625).
-  karus2004: { baslangic: [441, 1625], canavar: false, bolge: 1, deneyimKaybi: true },
+  karus2004: { baslangic: [441, 1625], canavar: false, bolge: 1, deneyimKaybi: true, sehir: [433, 1629] }, // lufer town (ces)
   // El Morad Castle (sunucu bölgesi 2): sunucu eşi 1098elmo2004.smd; kapıdan varış noktası (1595, 412).
-  elmo2004: { baslangic: [1595, 412], canavar: false, bolge: 2, deneyimKaybi: true, sehir: [1600, 408] }, // emc town (ces)
+  elmo2004: { baslangic: [1595, 412], canavar: false, bolge: 2, deneyimKaybi: true, sehir: [1600, 412] }, // emc town (ces)
 };
 
 /** Sunucu bölge numarası → client harita adı (bölge değişiminde ve girişte doğru harita yüklenir). */

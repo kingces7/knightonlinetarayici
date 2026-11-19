@@ -21,6 +21,7 @@ import { EfektDeneme, type Tanecik } from './dunya/efektDeneme';
 import { EfektYoneticisi } from './dunya/efekt';
 import { sunucuyaBaglan, type SunucuOturumu } from './ag/sunucu';
 import { GirisEkrani, SWAP_ANAHTARI } from './arayuz/girisEkrani';
+import { tarayiciKilidiniKur } from './arayuz/tarayiciKilidi';
 import { sunucuVerisiniUygula } from './oyun/sunucuVerisi';
 import { SunucuDunyasi } from './oyun/sunucuDunyasi';
 import { HareketGonderici } from '../../kopru/protokol/hareket.ts';
@@ -52,7 +53,7 @@ const SIS = new THREE.Color(0x9fb4c8);
 const menzilDe = (h: { secimYaricapi: number }) => SALDIRI_MENZILI + Math.max(0, h.secimYaricapi - 0.8);
 const SALDIRI_MENZILI = 5.0; // sunucu melee için 15 birim + silah menziline izin verir (User.cpp isInAttackRange); client temkinli ama içine girmeden vurur
 /** Town komutunun ışınlandığı Moradon şehir noktası (kullanıcı verdi). */
-const SEHIR_NOKTASI: [number, number] = [305, 342]; // yakın dövüş vuruş menzili (m); eskiden 2,6 (canavarın çok yakınına girmek gerekiyordu)
+const SEHIR_NOKTASI: [number, number] = [304, 341];
 /**
  * Oyuncu koşma hızı (m/sn). Sunucu kaynağı: SpeedHackUser() normal oyuncuda en çok 45, savaşçı/büyücü/rahipte 67 (= 45 × 1,5; Sprint %150 buff) izin verir;
  * hız paketi onda bir metre/sn biriminde olduğundan temel koşu 4,5 m/sn. Yürüme oranı (0,5) orijinalden doğrulanmadı.
@@ -177,12 +178,14 @@ async function basla(): Promise<void> {
 
   // NPC'ler: sunucu veritabanından dışa aktarılan npc.json (yoksa NPC olmaz)
   const npcler: Npc[] = [];
+  const gmNpcler: Npc[] = []; let gmNpcGorunur = false; // GM Market NPC'si (sid 29990): yalnız GM karakterlere görünür; npcleriGuncelle listeye alır/çıkarır
   try {
     const yanit = await fetch(`/harita/${HARITA}/npc.json`);
     const tanimlar = ((await yanit.json()) as { npc: NpcTanimi[] }).npc;
     await Promise.all(tanimlar.map(async (t) => {
       const n = new Npc(t);
       try { await n.modelYukle(); } catch (e) { console.warn('NPC modeli yüklenemedi', t.ad, t.model, e); return; }
+      if (t.sid === 29990) { gmNpcler.push(n); return; }
       sahne.add(n.grup); npcler.push(n);
     }));
   } catch { /* bu haritada NPC verisi yok */ }
@@ -448,9 +451,10 @@ async function basla(): Promise<void> {
       ipucuGoster: (e, ev, satin, tamir) => hud.ipucuGoster(e, ev, satin, tamir), tamirEt: (k) => tamirEt(k), tamirmi: () => !!aktifMagaza && aktifMagaza.npc.tanim.tur === 22, gmDukkani: () => aktifMagaza?.grup === 999000, ipucuGizle: () => hud.ipucuGizle(),
       mesaj: (t) => hud.mesaj(t, 'sistem'), statDegisti: () => {},
       partiDavet: () => partiDavetEt(),
-      // Town: Moradon'da şehir noktası (305, 342). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
+      // Town: her haritanın kendi şehir noktası (haritalar.ts `sehir`). Sunucuda ışınlanma "durağan" hareket paketiyle bildirilir (test araçlarındaki yöntem).
       sehreDon: () => {
-        const [x, z] = ayar.sehir ?? ayar.baslangic ?? SEHIR_NOKTASI; // her haritanın kendi town noktası (aynı bölge: sunucuyla uyumlu) kalk(); oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null;
+        const [x, z] = ayar.sehir ?? ayar.baslangic ?? SEHIR_NOKTASI;
+        kalk(); oyuncu.isinla(x, z, arazi); oyuncu.hedef = null; oyuncu.saldiriyor = false; oyuncu.yuruHedef = null;
         if (sunucuOturumu) { const p = (m: number) => Math.round(m * 10); const y = p(arazi.yukseklikAl(x, z)); sunucuOturumu.gonder(WIZ.HAREKET, new PaketYazici().u16(p(x)).u16(p(z)).u16(y).i16(0).u8(0).u16(p(x)).u16(p(z)).u16(y).baytlar()); }
         hud.mesaj('You returned to town.', 'sistem');
       },
@@ -979,6 +983,7 @@ async function basla(): Promise<void> {
     const q = new URLSearchParams(location.search); q.set('harita', harita);
     hud.mesaj('Loading the map…', 'sistem');
     if (!yukleme) yukleme = new YuklemeEkrani(); yukleme.ilerle(0.04, 'Moving to the next zone...'); // klasik yükleme ekranı hemen açılır; yeni sayfa kendi yüklemesini gösterir
+    if (sunucuOturumu) { try { sessionStorage.setItem(SWAP_ANAHTARI, oyuncu.ad); } catch { /* depolama kapalı: seçim ekranı açılır */ } } // yeni sayfa aynı karakterle doğrudan girer (karakter seçim ekranı çıkmaz)
     sunucuOturumu?.kapat(); sunucuOturumu = null; hareketGonderici = null;
     setTimeout(() => { location.search = `?${q.toString()}`; }, gecikmeMs); // sunucu eski bağlantıyı kapatıp kaydedene kadar beklenir (aynı hesapla çifte giriş olmasın)
   };
@@ -1283,7 +1288,12 @@ async function basla(): Promise<void> {
     }
   };
 
-  const npcleriGuncelle = (dt: number) => { for (const n of npcler) { n.model?.guncelle(dt); n.sahneyeYerlestir(arazi); } };
+  const npcleriGuncelle = (dt: number) => {
+    if (oyuncu.gm !== gmNpcGorunur) {
+      gmNpcGorunur = oyuncu.gm;
+      for (const n of gmNpcler) { if (gmNpcGorunur) { sahne.add(n.grup); npcler.push(n); } else { sahne.remove(n.grup); const i = npcler.indexOf(n); if (i >= 0) npcler.splice(i, 1); } }
+    }
+    for (const n of npcler) { n.model?.guncelle(dt); n.sahneyeYerlestir(arazi); } };
 
   /**
    * Canavarlar birbirinin içine girmesin: yakın çiftler yumuşakça ayrılır (yalnız görüntü konumu; sunucu kuralları değişmez).
@@ -1466,4 +1476,5 @@ async function girisEkraniAc(): Promise<void> {
   await ekran.ac();
 }
 
+tarayiciKilidiniKur();
 basla().then(girisEkraniAc).catch((e) => { durum('Error: ' + (e as Error).message); console.error(e); });

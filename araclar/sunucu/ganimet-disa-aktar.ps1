@@ -20,7 +20,8 @@ foreach ($m in $mon) {
     $satir = @(Sorgu "SELECT * FROM K_MONSTER_ITEM WHERE sIndex = $([int]$m.sItem)")
     if ($satir.Count) {
       for ($j = 1; $j -le 12; $j++) {
-        $k = $j.ToString('00'); $no = [int64]$satir[0]["iItem$k"]; $yuzde = [int]$satir[0]["sPersent$k"]
+        $k = $j.ToString('00'); $hn = $satir[0]["iItem$k"]; $hy = $satir[0]["sPersent$k"] # NULL yuva (ör. 750-752'de 12. yuva) bos sayilir
+        $no = if ($hn -is [DBNull]) { [int64]0 } else { [int64]$hn }; $yuzde = if ($hy -is [DBNull]) { 0 } else { [int]$hy }
         if ($no -ne 0 -and $yuzde -ne 0) {
           $ogeler += @{ no = $no; yuzde = $yuzde }
           if ($no -lt 100000000 -and -not $gruplar.ContainsKey([string]$no)) {
