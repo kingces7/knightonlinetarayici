@@ -29,6 +29,8 @@ function tablo(dosya: string): Record<string, string> {
 }
 
 const talk = tablo('Quest_Talk_us.csv'), menu = tablo('Quest_Menu_us.csv');
+// Özgün metni bozuk ("???") olan, oyuncuya görünen konuşmalar için İngilizce karşılık (orijinal tablo değişmez): 45034 = [Peddler] Hemes (Moradon)
+talk['45034'] = "Fresh goods for sale! Take a look and see if anything catches your eye.";
 /** Görev adları (Quest_Npc_Desc_us: sütun 0 görev no, 6 ad, 7 açıklama): görev no → [ad, açıklama] (ilk satır). */
 const gorev: Record<string, string[]> = {};
 for (const s of csvOku(fs.readFileSync(path.join(CIKTI_DIZINI, 'tablolar', 'Data', 'Quest_Npc_Desc_us.csv'), 'utf8')).slice(1)) { if (/^\d+$/.test(s[0] ?? '') && !gorev[s[0]] && s[6]) gorev[s[0]] = [s[6].trim(), (s[7] ?? '').replace(/\s+/g, ' ').trim()]; }
