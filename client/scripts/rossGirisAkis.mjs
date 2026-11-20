@@ -9,15 +9,16 @@ await s.goto('http://localhost:5173/?giris=0');
 await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
 const r = {};
 await s.evaluate(async () => {
-  window.ke.arayuz().genel.hepsiniKapat();
+  window.ke.arayuz().genel.hepsiniKapat(); try { localStorage.removeItem('ke_giris_sifre'); localStorage.removeItem('ke_giris_hesap'); } catch {}
   const { GirisEkrani } = await import('/src/arayuz/girisEkrani.ts');
   const araclar = { ulus: 1, olustur: async () => 0, yenile: async () => [{ ad: 'kingces', seviye: 1, sinif: 101, irk: 1, yuz: 1, sac: 1 }] };
   window.__sonuc = null;
   const g = new GirisEkrani({ kok: document.body, baglan: async (_h, _s, sec) => { window.__sonuc = await sec([{ ad: 'kingces', seviye: 1, sinif: 101 }, { ad: '', seviye: 0, sinif: 0 }], araclar); }, cevrimdisi: () => undefined });
-  window.__g = g; await g.ac(); g.idKutusu.value = 'x'; g.sifreKutusu.value = 'y'; g.girisYap();
+  window.__g = g; await g.ac(); g.idKutusu.value = 'x'; g.sifreKutusu.value = 'y'; g.hatirla = false; g.girisYap();
 });
 await s.waitForTimeout(1200); await s.screenshot({ path: `${klasor}/ga_sunucu.png` });
-await s.keyboard.press('Enter'); await s.waitForTimeout(3500); await s.screenshot({ path: `${klasor}/ga_secim.png` });
+await s.keyboard.press("Enter"); for (const ms of [2500, 2500, 2500]) { await s.waitForTimeout(ms); await s.screenshot({ path: `${klasor}/ga_secim_${ms}_${Math.round(Math.random()*1000)}.png` }); r.durum = await s.evaluate(() => ({ yuru: window.__g.secimUi?.gs?.yuru?.sure, ui: window.__g.secimUi?.el?.style.display })); }
+await s.screenshot({ path: `${klasor}/ga_secim.png` });
 await s.keyboard.press('Enter'); await s.waitForTimeout(900); await s.screenshot({ path: `${klasor}/ga_yuru.png` });
 r.ara = await s.evaluate(() => ({ sure: window.__g.onizleme?.yuruSure, gecen: window.__g.onizleme?.yuruGecen, tus: !!window.__g.secimTusu, aktif: document.activeElement?.tagName })); await s.waitForTimeout(2500); r.sonuc = await s.evaluate(() => window.__sonuc);
 // boş hesap: ulus seçimi

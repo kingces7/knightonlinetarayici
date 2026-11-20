@@ -9,12 +9,13 @@ const [rapor, klasor, ...secili] = process.argv.slice(2);
 if (!rapor) { console.log('Kullanım: node scripts/haritaAcmaTesti.mjs <rapor.json> [klasör] [harita ...]'); process.exit(1); }
 if (klasor) fs.mkdirSync(klasor, { recursive: true });
 const t = await chromium.connectOverCDP(process.env.KO_CDP ?? 'http://127.0.0.1:9333');
-const ctx = t.contexts()[0] ?? await t.newContext();
+
 const bolgeler = await (await fetch('http://localhost:5173/harita/bolgeler.json')).json();
 const haritalar = [...new Set(Object.values(bolgeler).map((b) => b.ad))].sort().filter((a) => !secili.length || secili.includes(a));
 const sonuc = [];
-for (const ad of haritalar) {
-  const s = await ctx.newPage(); await s.setViewportSize({ width: 1280, height: 720 });
+for (const ad of haritalar) for (let deneme = 1; deneme <= 2; deneme++) {
+  const c = await t.newContext(); // her harita temiz bağlamda (önbellek yok): gerçek ilk açılış süresi
+  const s = await c.newPage(); await s.setViewportSize({ width: 1280, height: 720 });
   const hatalar = [];
   s.on('pageerror', (e) => hatalar.push('pageerror: ' + e.message.slice(0, 200)));
   s.on('console', (m) => { if (m.type() === 'error') hatalar.push(m.text().slice(0, 200)); });
@@ -39,9 +40,12 @@ for (const ad of haritalar) {
     ayrinti.yuklemeSn = Math.round(ms / 100) / 10;
     if (klasor) await s.screenshot({ path: `${klasor}/${ad}.png` });
   } catch (e) { durum = 'HATA: ' + String(e.message).split('\n')[0]; }
+  if (durum !== 'tamam' && deneme === 1) { console.log(ad.padEnd(26), durum, '(sayfa çöktü mü? bir kez daha denenecek)'); await c.close().catch(() => {}); continue; }
   sonuc.push({ harita: ad, durum, ...ayrinti, hatalar: [...new Set(hatalar)].slice(0, 6), istekHatalari: [...new Set(istekHatalari)].slice(0, 8) });
   console.log(ad.padEnd(26), durum, JSON.stringify(ayrinti), hatalar.length ? `| ${hatalar.length} hata` : '', istekHatalari.length ? `| ${istekHatalari.length} istek hatası` : '');
-  await s.close();
+  await c.close().catch(() => {});
+  fs.writeFileSync(rapor, JSON.stringify(sonuc, null, 1));
+  break;
 }
 fs.writeFileSync(rapor, JSON.stringify(sonuc, null, 1));
 await t.close();

@@ -4,7 +4,7 @@ import { UiPencere } from './orijinal';
 import { KarakterOlustur } from './karakterOlustur';
 import type { OlusturmaAraclari } from '../ag/sunucu';
 import { kurallar, IRK_MODELLERI } from '../oyun/veri';
-import { KarakterOnizleme } from './karakterOnizleme';
+import { SecimEkrani } from './secimEkrani';
 import { IRK_MESLEKLERI, YENI_KARAKTER_MESAJLARI, sinifKodu } from '../../../kopru/protokol/olustur.ts';
 
 /** `/swap <karakter>` komutunun sessionStorage'a bıraktığı hedef: yeniden girişte bu karakter seçilir. */
@@ -43,7 +43,7 @@ export class GirisEkrani {
   private katman = document.createElement('div');
   private sahne = document.createElement('div');
   private giris: UiPencere | null = null;
-  private secim: UiPencere | null = null;
+  private secimUi!: SecimEkrani; private secimUlus: 'ka' | 'el' = 'ka';
   private durumYazisi = document.createElement('div');
   /** Otomatik girişte (F5, /swap, portal) giriş paneli ve seçim sahnesi gösterilmez; yerine bu yazı çıkar (ekranda titreme/yanıp sönme olmasın). */
   private ortaYazi = document.createElement('div');
@@ -69,17 +69,17 @@ export class GirisEkrani {
   /** Ekranı açar; yüklenemezse false (çağıran oyunu doğrudan gösterir). */
   async ac(): Promise<boolean> {
     try {
-      [this.giris, this.secim] = await Promise.all([UiPencere.yukle('re_login_intro'), UiPencere.yukle('co_characterselect_us')]);
+      this.giris = await UiPencere.yukle('re_login_intro');
     } catch (e) { console.warn('Giriş ekranı yüklenemedi', e); return false; }
     Object.assign(this.katman.style, { position: 'fixed', inset: '0', background: '#000', zIndex: '9000', overflow: 'hidden' });
     Object.assign(this.sahne.style, { position: 'absolute', left: '0', top: '0', width: `${SAHNE_GENISLIK}px`, height: `${SAHNE_YUKSEKLIK}px`, transformOrigin: '0 0' });
     this.katman.appendChild(this.sahne);
     this.giris.gizleDesen(/^Rose Anim$/); // Myko'nun gül animasyonu kaldırıldı: orijinal (resmî) giriş görseli kullanılır (araclar/arayuz/giris-orijinal.ts)
     this.girisKur(this.giris);
-    this.secimKur(this.secim);
+    this.secimKur();
     this.durumKur();
-    this.sahne.append(this.giris.el, this.secim.el, this.durumYazisi);
-    this.secim.el.style.display = 'none';
+    this.sahne.append(this.giris.el, this.durumYazisi);
+    this.secimUi = new SecimEkrani(this.katman); // karakter seçim ekranı (tam ekran 3B taht odası): karakterSec'te gösterilir
     this.b.kok.appendChild(this.katman);
     addEventListener('resize', this.yenidenBoyutla);
     this.yerlestir();
@@ -92,7 +92,7 @@ export class GirisEkrani {
   }
 
   kapat(): void {
-    this.onizlemeKapat();
+    this.secimTemizle();
     removeEventListener('resize', this.yenidenBoyutla);
     this.katman.remove();
   }
@@ -168,7 +168,7 @@ export class GirisEkrani {
   private durumKur(): void {
     Object.assign(this.durumYazisi.style, { position: 'absolute', left: '21px', top: '606px', width: '978px', textAlign: 'center', color: '#ffe46b', font: 'bold 14px Verdana, Arial, sans-serif', textShadow: '0 1px 3px #000, 0 0 6px #000', pointerEvents: 'none', minHeight: '18px' });
   }
-  private durum(m: string): void { this.durumYazisi.textContent = m; if (m && this.ortaYazi.isConnected) this.ortaYazi.textContent = m; }
+  private durum(m: string): void { this.durumYazisi.textContent = m; this.secimUi?.durum(m); if (m && this.ortaYazi.isConnected) this.ortaYazi.textContent = m; }
 
   private async girisYap(): Promise<void> {
     if (this.mesgul) return;
@@ -206,26 +206,21 @@ export class GirisEkrani {
   // ---------------------------------------------------------------- karakter seçimi
   private karakterIstegi: { coz: (ad: string) => void; hata: (e: Error) => void } | null = null;
 
-  private secimKur(p: UiPencere): void {
-    // Eski (oldschool) Myko karakter seçme çubuğu (co_characterselect_us, 1024×113): sahnenin altında, telif satırının üstünde
-    p.el.style.left = '0'; p.el.style.top = `${SAHNE_YUKSEKLIK - 113 - 24}px`;
-    p.tikla.set('btn_delete', () => this.durum('Deleting characters is not available yet.'));
-    p.tikla.set('btn_back', () => this.karakterIstegi?.hata(new GirisIptal()));
-    p.tikla.set('btn_exit', () => this.karakterIstegi?.hata(new GirisIptal()));
-    // Karakter oluştur: karakterSec içinde (bağlantı açıkken) kurulur
+  private secimKur(): void {
+    const ui = this.secimUi;
+    void ui;
   }
 
   private girisGoster(): void {
-    this.onizlemeGizle();
-    this.secim!.el.style.display = 'none'; this.giris!.goster('Group_Login'); this.giris!.goster('copyright'); this.giris!.el.style.display = ''; if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = '';
+    this.secimUi.gizle(); this.sahne.style.display = ''; this.giris!.goster('Group_Login'); this.giris!.goster('copyright'); this.giris!.el.style.display = ''; if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = '';
   }
 
   /** Bağlantı açıkken karakter oluşturma ekranını açar; oluşturulan karakterin adı ya da iptalde null. */
   private async olusturAc(araclar: OlusturmaAraclari, yuva: number): Promise<string | null> {
-    this.secim!.el.style.display = 'none'; this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright');
+    this.secimUi.gizle(); this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright');
     this.sahne.style.visibility = 'hidden'; // oluşturma ekranı kendi tam ekran katmanını açar
     try { return await new KarakterOlustur({ kok: this.b.kok, araclar, baslangic: kurallar?.yeniKarakter ?? {}, yuva }).ac(); }
-    finally { this.sahne.style.visibility = ''; this.secim!.el.style.display = ''; }
+    finally { this.sahne.style.visibility = ''; this.secimUi.goster(this.secimUlus); }
   }
 
   /** `/swap` ile bırakılan hedef karakter adı (bir kez okunur ve silinir); yoksa boş. */
@@ -257,48 +252,25 @@ export class GirisEkrani {
     } catch (e) { this.durum((e as Error).message || 'Switching characters failed.'); return false; }
   }
 
-  // ---------------------------------------------------------------- karakter seçiminde animasyonlu 3B karakter
-  private onizleme: KarakterOnizleme | null = null; private onizlemeKap: HTMLElement | null = null; private onizlemeKare = 0;
+  // ---------------------------------------------------------------- karakter seçim ekranı (SecimEkrani)
   private secimTusu: ((e: KeyboardEvent) => void) | null = null;
-  private onizlemeGoster(irk: number): void {
-    const model = IRK_MODELLERI[irk] ?? IRK_MODELLERI[12];
-    if (!this.karartma) { // seçim ekranında arka plan resmi karartılır (3B karakter öne çıksın)
-      const k = this.karartma = document.createElement('div');
-      Object.assign(k.style, { position: 'absolute', left: '0', top: '0', width: `${SAHNE_GENISLIK}px`, height: `${SAHNE_YUKSEKLIK - 137}px`, background: 'radial-gradient(ellipse at 50% 55%, rgba(30,20,36,.55), rgba(6,3,10,.92) 75%)', pointerEvents: 'none' });
-      this.sahne.insertBefore(k, this.secim!.el);
-    }
-    this.karartma.style.display = '';
-    if (!this.onizlemeKap) {
-      const kap = this.onizlemeKap = document.createElement('div');
-      Object.assign(kap.style, { position: 'absolute', left: '162px', top: '10px', width: '700px', height: '610px' });
-      this.sahne.insertBefore(kap, this.secim!.el); // karakter seçme çubuğunun arkasında
-    }
-    this.onizlemeKap.style.display = '';
-    if (!this.onizleme) {
-      this.onizleme = new KarakterOnizleme(this.onizlemeKap, model, 700, 610); this.onizleme.kameraAyarla(5.0, 0.95); void this.onizleme.baslat();
-      let son = performance.now();
-      const dongu = () => { const t = performance.now(); this.onizleme?.ciz(Math.min(0.1, (t - son) / 1000)); son = t; this.onizlemeKare = requestAnimationFrame(dongu); };
-      this.onizlemeKare = requestAnimationFrame(dongu);
-    } else if (this.onizleme.modelNo !== model) void this.onizleme.modelDegistir(model);
-  }
-  private karartma: HTMLElement | null = null;
-  private onizlemeGizle(): void { if (this.onizlemeKap) this.onizlemeKap.style.display = 'none'; if (this.karartma) this.karartma.style.display = 'none'; }
-  private onizlemeKapat(): void {
-    cancelAnimationFrame(this.onizlemeKare); this.onizleme?.kapat(); this.onizleme = null; this.onizlemeKap?.remove(); this.onizlemeKap = null; this.karartma?.remove(); this.karartma = null;
+  private secimTemizle(): void {
     if (this.secimTusu) { removeEventListener('keydown', this.secimTusu, true); this.secimTusu = null; }
+    this.secimUi?.kapat();
   }
 
   private karakterSec(ilk: SecimKarakteri[], araclar: OlusturmaAraclari): Promise<string> {
-    const p = this.secim!;
+    const ui = this.secimUi;
     return new Promise<string>((coz, hata) => {
       let liste = ilk, dolu = liste.filter((k) => k.ad), sira = 0;
-      const irkler = new Map<string, number>(); // karakter adı → ırk (3B önizleme modeli için)
+      const irkler = new Map<string, number>(); // karakter adı → ırk (3B modeli için)
       const goster = () => {
-        if (!dolu.length) { p.metin('str_id', ''); p.metin('str_lev', ''); p.metin('str_job', ''); p.goster('btn_left', false); p.goster('btn_right', false); this.onizlemeGizle(); return; }
+        if (!dolu.length) { ui.bilgi('', '', ''); ui.oklariGoster(false); return; }
         const k = dolu[sira];
-        this.onizlemeGoster(irkler.get(k.ad.toLowerCase()) ?? (k.sinif < 200 ? 1 : 12));
-        p.metin('str_id', k.ad); p.metin('str_lev', k.seviye); p.metin('str_job', sinifAdi(k.sinif));
-        p.goster('btn_left', dolu.length > 1); p.goster('btn_right', dolu.length > 1);
+        this.secimUlus = k.sinif < 200 ? 'ka' : 'el';
+        ui.goster(this.secimUlus); this.sahne.style.display = 'none'; // giriş resmi yerine 3B oda
+        ui.bilgi(k.ad, k.seviye, sinifAdi(k.sinif)); ui.oklariGoster(dolu.length > 1);
+        void ui.karakterGoster(IRK_MODELLERI[irkler.get(k.ad.toLowerCase()) ?? (k.sinif < 200 ? 1 : 12)] ?? IRK_MODELLERI[12]);
       };
       const olustur = async () => {
         const yuva = liste.findIndex((k) => !k.ad);
@@ -308,31 +280,32 @@ export class GirisEkrani {
         liste = (await araclar.yenile()).map((y) => ({ ad: y.ad, seviye: y.seviye, sinif: y.sinif })); dolu = liste.filter((k) => k.ad);
         sira = Math.max(0, dolu.findIndex((k) => k.ad.toLowerCase() === ad.toLowerCase())); goster(); this.durum('');
       };
-      p.tikla.set('btn_create', () => void olustur());
-      p.tikla.set('btn_left', () => { if (dolu.length) { sira = (sira + dolu.length - 1) % dolu.length; goster(); } });
-      p.tikla.set('btn_right', () => { if (dolu.length) { sira = (sira + 1) % dolu.length; goster(); } });
-      // Start ya da Enter: karakter ekrana doğru yürür, ardından oyuna girilir (klasik yükleme ekranı)
+      ui.tikla.create = () => void olustur();
+      ui.tikla.back = () => this.karakterIstegi?.hata(new GirisIptal());
+      ui.tikla.exit = () => this.karakterIstegi?.hata(new GirisIptal());
+      ui.tikla.left = () => { if (dolu.length) { sira = (sira + dolu.length - 1) % dolu.length; goster(); } };
+      ui.tikla.right = () => { if (dolu.length) { sira = (sira + 1) % dolu.length; goster(); } };
+      // Start ya da Enter: karakter kameraya doğru yürür, ardından oyuna girilir (klasik yükleme ekranı)
       let yuruyor = false;
       const baslat = async () => {
         if (!dolu.length) { this.durum('Create a character first.'); return; }
         if (yuruyor) return; yuruyor = true;
         this.durum('Entering the game…');
-        try { await this.onizleme?.yuruBaslat(); } catch { /* önizleme yoksa doğrudan gir */ }
+        try { await ui.yuruBaslat(); } catch { /* sahne yoksa doğrudan gir */ }
         coz(dolu[sira].ad);
       };
-      p.tikla.set('btn_start', () => void baslat());
-      this.secimTusu = (e: KeyboardEvent) => { if (e.key === 'Enter' && this.sahne.style.visibility !== 'hidden' && p.el.style.display !== 'none' && !(e.target instanceof HTMLInputElement)) { e.preventDefault(); e.stopPropagation(); void baslat(); } };
+      ui.tikla.start = () => void baslat();
+      this.secimTusu = (e: KeyboardEvent) => { if (e.key === 'Enter' && this.sahne.style.visibility !== 'hidden' && ui.el.style.display !== 'none' && !(e.target instanceof HTMLInputElement)) { e.preventDefault(); e.stopPropagation(); void baslat(); } };
       addEventListener('keydown', this.secimTusu, true);
       void araclar.yenile().then((l) => { for (const y of l) if (y.ad) irkler.set(y.ad.toLowerCase(), y.irk); goster(); }).catch(() => undefined);
       this.karakterIstegi = { coz, hata: (e) => { this.karakterIstegi = null; hata(e); } };
-      // Giriş çubuğu ve telif satırı gizlenir; karakter penceresi açılır
+      // Giriş çubuğu ve telif satırı gizlenir
       this.giris!.gizle('Group_Login'); this.giris!.gizle('copyright'); if (this.cevrimdisiEl) this.cevrimdisiEl.style.display = 'none';
-      this.durum(''); goster();
-      p.el.style.display = '';
+      this.durum('');
       const swap = this.swapHedefi();
-      if (swap) { void this.swapYap(swap, araclar, coz).then((tamam) => { if (!tamam) this.sahneAc(); }); return; } // /swap: seçim ekranı atlanır; olmazsa normal seçim ekranı kalır
+      if (swap) { void this.swapYap(swap, araclar, coz).then((tamam) => { if (!tamam) { this.sahneAc(); goster(); } }); return; } // /swap: seçim ekranı atlanır; olmazsa normal seçim ekranı kalır
       if (this.otomatik && dolu.length === 1) { this.durum('Entering the game…'); coz(dolu[0].ad); return; } // F5 otomatik giriş: tek karakter doğrudan oyuna girer
-      this.sahneAc(); // otomatik giriş burada kaldıysa (birden çok karakter ya da boş hesap) seçim ekranı görünür
+      this.sahneAc(); goster(); // otomatik giriş burada kaldıysa (birden çok karakter ya da boş hesap) seçim ekranı görünür
       if (!dolu.length) void olustur(); // boş hesap: doğrudan karakter oluşturma ekranı
     });
   }
