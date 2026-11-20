@@ -1,0 +1,13 @@
+﻿import { chromium } from 'playwright-core';
+const t = await chromium.connectOverCDP('http://127.0.0.1:9333');
+const s = await (t.contexts()[0] ?? await t.newContext()).newPage();
+const h = []; s.on('pageerror', (e) => h.push(e.message));
+await s.setViewportSize({ width: 1600, height: 900 });
+await s.goto('http://localhost:5173/?giris=0');
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
+await s.keyboard.press('KeyN'); await s.waitForTimeout(500);
+await s.screenshot({ path: process.argv[2] });
+const r = {}; r.acik = await s.evaluate(() => window.ke.arayuz().yamaNotlari.acik);
+await s.keyboard.press('Escape'); r.escSonrasi = await s.evaluate(() => window.ke.arayuz().yamaNotlari.acik);
+await s.keyboard.press('KeyF'); await s.waitForTimeout(500); r.friend = await s.evaluate(() => window.ke.arayuz().genel.acik('re_el_page_friend'));
+console.log(JSON.stringify({ h, r })); await s.close(); await t.close();

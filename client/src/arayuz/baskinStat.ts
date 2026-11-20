@@ -1,6 +1,6 @@
 // Karakterin baskın olduğu yetenek grubu (stat) pastel okyanus mavisiyle boyanır: karakter yaratma ekranında ve oyun içi karakter (stat) penceresinde.
-// Baskın stat, sınıfın başlangıç değerlerindeki (NewChrValue) en yüksek statlardır: Warrior STR + STA, Rogue DEX, Mage INT + DEX, Priest INT.
-export type Stat = 'str' | 'sta' | 'dex' | 'int';
+// Baskın stat, sınıfın başlangıç değerlerindeki (NewChrValue) en yüksek statlardır: Warrior STR + STA, Rogue DEX, Mage INT + Magic Power (sunucuda cha), Priest INT.
+export type Stat = 'str' | 'sta' | 'dex' | 'int' | 'cha';
 
 /** Pastel, göz yormayan okyanus mavisi. */
 export const OKYANUS_MAVISI = '#8fd6e6';
@@ -10,7 +10,7 @@ export function baskinStatlar(meslek: number): Stat[] {
   switch (meslek) {
     case 1: return ['str', 'sta'];
     case 2: return ['dex'];
-    case 3: return ['int', 'dex'];
+    case 3: return ['int', 'cha']; // Mage: Intelligence + Magic Power
     case 4: return ['int'];
     default: return ['str'];
   }

@@ -1,0 +1,15 @@
+[
+  {
+    "tarih": "2026-11-20",
+    "baslik": "Latest changes",
+    "maddeler": [
+      "Weapons are now class-restricted: only the matching class can equip them.",
+      "Upgrade (+N) items now show their real defense, attack, durability and requirements.",
+      "Monsters rest for a shorter time between moves and stay closer to their own spawn group.",
+      "New server list: ATAKUM.",
+      "Portals no longer send you back to character selection.",
+      "Right-click menu and browser shortcuts are disabled in game.",
+      "GM Market is visible to Game Masters only."
+    ]
+  }
+]

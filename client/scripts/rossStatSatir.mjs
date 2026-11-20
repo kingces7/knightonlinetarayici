@@ -1,0 +1,12 @@
+﻿import { chromium } from 'playwright-core';
+const [yol, sinif = '201'] = process.argv.slice(2);
+const t = await chromium.connectOverCDP('http://127.0.0.1:9333');
+const ctx = t.contexts()[0]; const s = await ctx.newPage();
+await s.setViewportSize({ width: 1600, height: 900 });
+await s.goto('http://localhost:5173/?giris=0');
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
+await s.evaluate((n) => { window.ke.oyuncu.sinif = Number(n); }, sinif);
+await s.keyboard.press('KeyU'); await s.waitForTimeout(1200);
+const b = await s.evaluate(() => { const e = window.ke.arayuz().pencereler.durum.el.getBoundingClientRect(); return [e.left, e.top]; });
+await s.screenshot({ path: yol, clip: { x: Math.max(0, b[0]), y: b[1] + 290, width: 300, height: 120 } });
+await s.close(); await t.close();

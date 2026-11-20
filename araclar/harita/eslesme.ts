@@ -24,6 +24,8 @@ export const SUNUCU_HARITASI: Record<string, string> = {
   freezone_new: 'itemzone_a.smd', // %100 (sonraki aday %88)
   clanfight_c: 'clanfight_b.smd', // %100
   clanfight: 'clanfight_b.smd', // %98,9
+  // Eslant: iki .smd'nin yükseklikleri aynı (%80,6), kapı listeleri farklı; bölge 11/13/14 k_eslant, 12/15/16 e_eslant kullanır. Tek klasör olduğundan Karus'unki seçildi (karar bekliyor).
+  eslantzone: 'k_eslant.smd',
 };
 
 export interface IzgaraKaynak { boyut: number; yukseklik: Float32Array }

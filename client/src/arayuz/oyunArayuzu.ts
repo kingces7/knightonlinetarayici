@@ -8,6 +8,7 @@ import { SerbestPencere } from './serbestPencere';
 import { MesajListesi } from './mesajListesi';
 import { SOHBET_ON_EKLERI, shoutManaBedeli } from './sohbetKurallari';
 import { ustCerceveEkle } from './pencereCercevesi';
+import { YamaNotlari } from './yamaNotlari';
 import { UiPencere, arayuzOlcegi } from './orijinal';
 import { KarakterOnizleme } from './karakterOnizleme';
 import type { GanimetKutusu, Oyuncu, YuvaKonumu } from '../oyun/varliklar';
@@ -89,8 +90,17 @@ export interface ArayuzBaglami {
 }
 
 /** Eşya simgeleri 64×64 dokunun sol üst 45×45'ine çizilir; yuvayı tam doldurmak için büyütülür. */
+/**
+ * Mini harita (M) ekrandaki SABİT yeri: sol üst; görünen resmin sol ve üst kenarı bu değerlerde (ekran pikseli). Konum ces'ten gelince yalnız bu değerler değişir.
+ * `CUBUK_HARITA_KONUMU`: harita açıkken skill çubuğunun gideceği (sol, üst) konum; null ise çubuk haritayla çakışıyorsa otomatik olarak haritanın altına alınır (çakışmıyorsa yerinde kalır).
+ */
+const MINIHARITA_KONUMU = { sol: 45, ust: 105 }; // sol-üst, karakter çubuğunun (HP/MP) hemen altı (ces'in fotoğrafı)
+const CUBUK_HARITA_KONUMU: { x: number; y: number } | null = null;
+/** Haritanın görünür çerçevesinin iç kenarı (kutuya oranla): NPC noktaları bunun dışına taşınca (çerçeve/kenar üstünde) gizlenir. */
+const MINIHARITA_IC_PAYI = 0.12;
+
 /** Kısayol tuşu → pencere (P/F/L/N istek üzerine eklendi; orijinal kaynakta yalnız M/H/F10 pencere tuşudur, bkz. tus()). */
-const GENEL_TUSLAR: Record<string, string> = { KeyP: 're_el_party', KeyF: 're_el_page_friend', KeyL: 're_el_clan_window', KeyN: 're_el_notice', };
+const GENEL_TUSLAR: Record<string, string> = { KeyL: 're_el_clan_window', }; // F (Friend) kaldırıldı: Friend listesine yalnız U sekmesinden gidilir; N = yama notları
 /** Görev çubuğu düğmesi → orijinal pencere (eşleşme pencerenin metinlerinden tahmin edildi). */
 const GOREV_PENCERELERI: Record<string, string> = {
   btn_map: 're_minimap', btn_exit: 're_exitmenu', btn_command: 're_el_cmdlist', btn_invite: 're_el_party', btn_option: 're_el_various_frame',
@@ -112,6 +122,7 @@ export class OyunArayuzu {
   private b: ArayuzBaglami;
   private hpbar!: UiPencere; private gorev!: UiPencere;
   private sohbet!: UiPencere; private bilgi!: UiPencere;
+  private yamaNotlari: YamaNotlari | null = null;
   private sohbetListe: MesajListesi | null = null; private bilgiListe: MesajListesi | null = null;
   /** Skill çubuğu (re_el_hotkey, yatay): 8 yuva, 1-8 tuşları; yuvalara skill penceresinden sürükleyip bırakılır. */
   private cubuk!: UiPencere;
@@ -234,10 +245,27 @@ export class OyunArayuzu {
         const ox = yakin > 1 ? Math.min(0, Math.max(w - w * yakin, w / 2 - px * w * yakin)) : 0, oy = yakin > 1 ? Math.min(0, Math.max(h - h * yakin, h / 2 - py * h * yakin)) : 0;
         Object.assign(harita.style, { width: `${w * yakin}px`, height: `${h * yakin}px`, left: `${ox}px`, top: `${oy}px` });
         nokta.style.left = `${ox + px * w * yakin}px`; nokta.style.top = `${oy + py * h * yakin}px`;
-        npcler.forEach((n, i) => { const e = npcNoktalari[i]; e.style.left = `${ox + (n.x / hb.genislik) * w * yakin}px`; e.style.top = `${oy + (1 - n.y / hb.genislik) * h * yakin}px`; });
+        const ix = w * MINIHARITA_IC_PAYI, iy = h * MINIHARITA_IC_PAYI;
+        npcler.forEach((n, i) => {
+          const e = npcNoktalari[i], sx = ox + (n.x / hb.genislik) * w * yakin, sy = oy + (1 - n.y / hb.genislik) * h * yakin;
+          e.style.left = `${sx}px`; e.style.top = `${sy}px`;
+          e.style.display = sx < ix || sx > w - ix || sy < iy || sy > h - iy ? 'none' : ''; // görünür harita alanının dışındakiler gizli
+        });
         p.metin('Text_Position', `${Math.round(o.konum.x)} ${Math.round(o.konum.y)}`);
       };
     });
+    // Mini harita her açılışta sabit yere oturur; skill çubuğu haritayı engelliyorsa kenara kayar, harita kapanınca kullanıcının yerine döner
+    let cubukOnceki: { l: string; t: string } | null = null;
+    this.genel.acildi.set('re_minimap', (p) => {
+      const ol = p.olcek || 1, [sl, st] = p.sinir();
+      const [x, y] = p.ekranIcinde(MINIHARITA_KONUMU.sol - sl * ol, MINIHARITA_KONUMU.ust - st * ol);
+      p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
+      const c = this.cubuk.el, cr = c.getBoundingClientRect(), pr = p.el.getBoundingClientRect();
+      if (!cubukOnceki) cubukOnceki = { l: c.style.left, t: c.style.top };
+      if (CUBUK_HARITA_KONUMU) { c.style.left = `${CUBUK_HARITA_KONUMU.x}px`; c.style.top = `${CUBUK_HARITA_KONUMU.y}px`; }
+      else if (cr.left < pr.right && cr.right > pr.left && cr.top < pr.bottom && cr.bottom > pr.top) c.style.top = `${Math.min(innerHeight - cr.height, pr.bottom + 6)}px`; // haritanın altına in
+    });
+    this.genel.kapaninca.set('re_minimap', () => { if (cubukOnceki) { this.cubuk.el.style.left = cubukOnceki.l; this.cubuk.el.style.top = cubukOnceki.t; cubukOnceki = null; } });
     this.genel.davranis.set('re_el_cmdlist', (p) => this.komutListesi(p));
     this.genel.acilista.set('re_el_cmdlist', (p) => this.komutListesi(p)); // her açılışta yeşil çerçeve Private ve PM üzerinde başlar
     this.genel.davranis.set('re_title_window', (p) => this.sekmeSeridi(p, 'baslik', -37)); // bu pencerenin kendi sekmeleri farklı (Character/Clan/Friend/Achievements resimde); dört sekme üstüne dizilir
@@ -316,6 +344,8 @@ export class OyunArayuzu {
 
   /** Kısayol tuşlarını işler; işlendiyse true. */
   tus(kod: string): boolean {
+    if (kod === 'KeyN') { this.yamaNotlari ??= new YamaNotlari(this.b.kok); this.yamaNotlari.degistir(); return true; }
+    if (kod === 'Escape' && this.yamaNotlari?.acik) { this.yamaNotlari.kapat(); return true; }
     if (kod === 'KeyU') {
       // U bir sekme penceresindeyken (Quest/Clan/Friend/Title) o pencereyi kapatır; arkada Character Report açılmaz
       const acikSekme = Object.values(OyunArayuzu.SEKME_PENCERE).find((a) => this.genel.acik(a));
@@ -693,7 +723,7 @@ export class OyunArayuzu {
   }
   /** Üye satırlarını sunucudaki parti bilgisiyle doldurur; boş satırlar gizlenir. */
   private partiCiz(p: UiPencere): void {
-    const pt = this.b.parti?.(); const uyeler = pt?.uyeler ?? [];
+    const pt = this.b.parti?.(); const uyeler = (pt?.uyeler.length ?? 0) >= 2 ? pt!.uyeler : []; // parti listesi yalnız en az 2 oyuncu birlikteyken görünür
     for (let i = 0; i < 8; i++) {
       const u = uyeler[i]; p.goster(`Base_Party${i}`, !!u);
       if (!u) continue;
@@ -1507,7 +1537,7 @@ export class OyunArayuzu {
     p.metin('Text_Strength', o.stat.str); p.metin('Text_Stamina', o.stat.sta); p.metin('Text_Dexterity', o.stat.dex);
     { // sınıfın baskın statları (etiket ve değer) pastel okyanus mavisi
       const baskin = baskinStatlar(sinifMesleki(o.sinif)) as string[];
-      const idler: [string, string[]][] = [['str', ['img_str', 'text_13', 'Text_Strength']], ['sta', ['img_sta', 'Text_Stamina']], ['dex', ['img_dex', 'text_15', 'Text_Dexterity']], ['int', ['img_int', 'text_16', 'Text_Intelligence']]];
+      const idler: [string, string[]][] = [['str', ['img_str', 'text_13', 'Text_Strength']], ['sta', ['Text_Stamina']], ['dex', ['img_dex', 'text_15', 'Text_Dexterity']], ['int', ['img_int', 'text_16', 'Text_Intelligence']], ['cha', ['img_map', 'Text_MagicAttack']]]; // cha = Magic Power (MP etiketi ve değeri)
       for (const [s, ids] of idler) for (const id of ids) for (const e of p.bul(id)) statRengiUygula(e, baskin.includes(s));
     }
     p.metin('Text_Intelligence', o.stat.int); p.metin('Text_MagicAttack', Math.max(0, o.stat.int - 30));

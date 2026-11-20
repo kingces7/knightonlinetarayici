@@ -34,6 +34,10 @@ export class GenelPencereler {
   readonly davranis = new Map<string, Davranis>();
   /** Pencere HER açıldığında çalışır (ilk kuruluşta değil): seçimleri/içeriği sıfırlamak için. */
   readonly acilista = new Map<string, (p: UiPencere) => void>();
+  /** Pencere HER açıldığında, varsayılan yerleşim uygulandıktan sonra çalışır (sabit konumlu pencereler için). */
+  readonly acildi = new Map<string, (p: UiPencere) => void>();
+  /** Pencere HER kapandığında çalışır (ör. mini harita kapanınca skill çubuğu eski yerine döner). */
+  readonly kapaninca = new Map<string, (p: UiPencere) => void>();
 
   constructor(private b: GenelBaglam) {}
 
@@ -94,6 +98,7 @@ export class GenelPencereler {
         p.el.style.top = `${Math.max(-t2 * ol, Math.min(innerHeight - bos - b2 * ol, (innerHeight - bos - gh) / 2 - t2 * ol + kay - 60))}px`;
         p.el.style.display = '';
       }
+      this.acildi.get(ad)?.(p); // varsayılan yerleşimden SONRA: pencereye özel sabit konum
     }
     p.el.style.zIndex = String(++this.z);
     return true;
@@ -102,6 +107,7 @@ export class GenelPencereler {
   kapat(ad: string): void {
     const p = this.acikPencereler.get(ad); if (!p) return;
     this.acikPencereler.delete(ad);
+    this.kapaninca.get(ad)?.(p);
     if (SAGDAN.has(ad)) { p.el.classList.add('kapali'); setTimeout(() => { if (!this.acikPencereler.has(ad)) p.el.style.display = 'none'; }, 300); }
     else p.el.style.display = 'none';
   }

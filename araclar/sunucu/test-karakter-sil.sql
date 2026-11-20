@@ -5,9 +5,9 @@ SET XACT_ABORT ON;
 BEGIN TRAN;
 IF EXISTS (SELECT 1 FROM CURRENTUSER) BEGIN THROW 50001, 'Cevrimici oyuncu var, islem iptal', 1; END
 DECLARE @karakter TABLE (ad varchar(21));
-INSERT INTO @karakter VALUES ('KoTestA'), ('KoGm'), ('KoObs'); -- DIKKAT: kullanicinin karakterleri (admin, kingces...) bu listeye ASLA yazilmaz
+INSERT INTO @karakter VALUES ('KoTestA'), ('KoTestB'), ('KoTestK'), ('KoGm'), ('KoObs'); -- DIKKAT: kullanicinin karakterleri (admin, kingces...) bu listeye ASLA yazilmaz
 DECLARE @hesap TABLE (ad varchar(21));
-INSERT INTO @hesap VALUES ('kotest'), ('kotest2');
+INSERT INTO @hesap VALUES ('kotest'), ('kotest2'), ('kotestk');
 
 DELETE FROM DAILY_RANK WHERE StrUserID IN (SELECT ad FROM @karakter);
 DELETE FROM GAME_MASTER_SETTINGS WHERE strCharID IN (SELECT ad FROM @karakter);

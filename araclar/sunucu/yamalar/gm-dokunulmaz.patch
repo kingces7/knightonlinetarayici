@@ -1,0 +1,14 @@
+# GM karakteri (admin) dokunulmazdir: diger oyuncular onu hedef alamaz, saldiri/beceri uygulayamaz (Unit::isAttackable); hasar zaten CUser::HpChange icinde GM icin engelli, canavarlar GM i zaten hedeflemez.
+--- Unit.cpp.orig
++++ Unit.cpp
+@@ -1265,6 +1265,10 @@
+ 
+ 	if (pTarget)
+ 	{
++		// GM dokunulmazdir: baska oyuncular (ve canavarlar) GM karakterini hedef alamaz, beceri/saldiri uygulayamaz; yalniz GM digerini hedefleyebilir
++		if (pTarget->isPlayer() && TO_USER(pTarget)->isGM() && !(pTarget != this && isPlayer() && TO_USER(this)->isGM()))
++			return false;
++
+ 		if (pTarget->isNPC())
+ 		{
+ 			CNpc * pNpc = TO_NPC(pTarget);

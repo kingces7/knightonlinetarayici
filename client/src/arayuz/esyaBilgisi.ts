@@ -1,7 +1,7 @@
 // Orijinal eşya bilgisi penceresi (client UIImageTooltipDlg::CalcTooltipStringNumAndWrite): satır sırası ve metinler orijinalden (Texts_us.tbl 2501-2530, 4501-4564).
 // Sıra (kullanıcının oyun ekran görüntülerine göre): ad (ortalı; yükseltilmişse mor) → tür → ırk → meslek (uymuyorsa kırmızı) → saldırı gücü/hızı/menzil → dayanıklılık → savunma →
 //       gereken seviye/güç/dayanıklılık/çeviklik/zekâ/büyü gücü (yetmeyen kırmızı) → Item Grade (yeşil) → fiyat. Ağırlık ve zırh/silah açıklaması gösterilmez.
-import { esyaEkAlanlari, esyaUniqueMi, type EsyaTanimi } from '../oyun/veri';
+import { esyaDegeriUygula, esyaEkAlanlari, esyaUniqueMi, type EsyaTanimi } from '../oyun/veri';
 
 export interface OyuncuOzeti { altin?: number; seviye: number; sinif: number; irk: number; stat: { str: number; sta: number; dex: number; int: number; cha: number } }
 
@@ -33,12 +33,13 @@ function satir(metin: string, renk = AKSA, ortali = false): HTMLElement {
 
 /** Eşya bilgisi gövdesini üretir. `satin`: mağaza penceresindeki eşya (alış fiyatı), değilse satış fiyatı. */
 export function esyaBilgisiOlustur(e: EsyaTanimi, o: OyuncuOzeti | null, satin: boolean, tamir = 0): HTMLElement {
+  e = esyaDegeriUygula(e); // +N eşyada savunma/saldırı/dayanıklılık ve şartlar seviyeyle artar (sunucudaki gerçek değerler)
   const kok = document.createElement('div'); kok.className = 'esya-bilgi';
   // Orijinal renkler (sınıfı ne olursa olsun): yükseltilmiş eşya (+N) → mor ad + "(Upgrade Item)"; unique eşya (ITEM.ItemType = 4) → sarı ad + "(Unique Item)"; unique önceliklidir.
   const unique = esyaUniqueMi(e), arti = unique ? 0 : (e.sunucuNo ?? e.no) % 10; // unique eşyada son haneler özel koddur, yükseltme değildir
   const adMetni = arti > 0 && !/\(\+\d+\)/.test(e.ad) ? `${e.ad}(+${arti})` : e.ad;
   const yukseltme = !unique && /\(\+\d+\)\s*$/.test(adMetni);
-  const ad = satir(adMetni + (e.adet && e.adet > 1 ? ` (${e.adet})` : ''), unique ? ALTIN : yukseltme ? MOR : AKSA, true);
+  const ad = satir(adMetni, unique ? ALTIN : yukseltme ? MOR : AKSA, true); // yığın adedi eşyanın üstünde zaten yazar: ipucu başlığında (N) yok
   ad.classList.add('baslik'); kok.appendChild(ad);
   if (unique) kok.appendChild(satir('(Unique Item)', ALTIN, true));
   else if (yukseltme) kok.appendChild(satir('(Upgrade Item)', MOR, true));

@@ -67,6 +67,13 @@ export class KarakterOlustur {
     Object.assign(sahne.style, { position: 'absolute', width: '1024px', height: '768px', transformOrigin: '0 0' });
     p.el.style.left = '0'; p.el.style.top = '0';
     for (const y of p.el.querySelectorAll<HTMLElement>('.ui-yazi')) if (!y.closest('.ui-t1')) y.style.display = 'none';
+    // "KARUS" / "ELMORAD" yazısı dosyada yalnız normal durum resminde var, üzerine gelince kayboluyordu: kalıcı kopyası konur (sabit, okunur krem-altın ton)
+    for (const id of ['btn_karus_selection', 'btn_elmo_selection']) for (const b of p.bul(id)) {
+      const etiket = Array.from(b.querySelectorAll<HTMLElement>('.ui-durum')).find((e) => e.style.backgroundImage.includes('nationselect_02'));
+      if (!etiket) continue;
+      const kopya = etiket.cloneNode(true) as HTMLElement; kopya.classList.remove('ui-durum'); kopya.style.display = ''; kopya.style.pointerEvents = 'none'; kopya.style.filter = 'sepia(.35) brightness(1.08)';
+      b.appendChild(kopya);
+    }
     sahne.appendChild(p.el); katman.appendChild(sahne); this.b.kok.appendChild(katman);
     const yerles = () => { const o = Math.min(innerWidth / 1024, innerHeight / 768); sahne.style.scale = String(o); sahne.style.left = `${(innerWidth - 1024 * o) / 2}px`; sahne.style.top = `${(innerHeight - 768 * o) / 2}px`; };
     yerles(); addEventListener('resize', yerles);

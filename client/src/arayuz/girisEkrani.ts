@@ -45,6 +45,16 @@ export class GirisEkrani {
   private giris: UiPencere | null = null;
   private secim: UiPencere | null = null;
   private durumYazisi = document.createElement('div');
+  /** Otomatik girişte (F5, /swap, portal) giriş paneli ve seçim sahnesi gösterilmez; yerine bu yazı çıkar (ekranda titreme/yanıp sönme olmasın). */
+  private ortaYazi = document.createElement('div');
+  private sahneGizle(): void {
+    this.sahne.style.visibility = 'hidden';
+    Object.assign(this.ortaYazi.style, { position: 'absolute', inset: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffe46b', font: 'bold 16px Verdana, Arial, sans-serif', textShadow: '0 1px 3px #000, 0 0 6px #000', pointerEvents: 'none' });
+    this.ortaYazi.textContent = 'Entering the game…';
+    if (!this.ortaYazi.isConnected) this.katman.appendChild(this.ortaYazi);
+  }
+  /** Otomatik giriş yarıda kalırsa (hata, karakter yok, birden çok karakter) normal ekran geri gelir. */
+  private sahneAc(): void { this.sahne.style.visibility = ''; this.ortaYazi.remove(); }
   private idKutusu!: HTMLInputElement;
   private sifreKutusu!: HTMLInputElement;
   private hatirla = true;
@@ -76,7 +86,7 @@ export class GirisEkrani {
     this.idKutusu.focus();
     if (new URLSearchParams(location.search).has('unut')) { try { localStorage.removeItem(KAYIT_SIFRE); } catch { /* depolama kapalı */ } this.durum('Saved login was removed.'); }
     else if (this.idKutusu.value && oku(KAYIT_SIFRE)) { // kayıtlı hesap ve şifre varsa F5 yeterli: otomatik giriş
-      this.sifreKutusu.value = atob(oku(KAYIT_SIFRE)); this.otomatik = true; setTimeout(() => void this.girisYap(), 150);
+      this.sifreKutusu.value = atob(oku(KAYIT_SIFRE)); this.otomatik = true; this.sahneGizle(); setTimeout(() => void this.girisYap(), 150);
     }
     return true;
   }
@@ -158,7 +168,7 @@ export class GirisEkrani {
   private durumKur(): void {
     Object.assign(this.durumYazisi.style, { position: 'absolute', left: '21px', top: '606px', width: '978px', textAlign: 'center', color: '#ffe46b', font: 'bold 14px Verdana, Arial, sans-serif', textShadow: '0 1px 3px #000, 0 0 6px #000', pointerEvents: 'none', minHeight: '18px' });
   }
-  private durum(m: string): void { this.durumYazisi.textContent = m; }
+  private durum(m: string): void { this.durumYazisi.textContent = m; if (m && this.ortaYazi.isConnected) this.ortaYazi.textContent = m; }
 
   private async girisYap(): Promise<void> {
     if (this.mesgul) return;
@@ -173,11 +183,18 @@ export class GirisEkrani {
     }
     this.mesgul = true; this.idKutusu.disabled = this.sifreKutusu.disabled = true; this.durum('Connecting…');
     try {
-      await this.b.baglan(hesap, sifre, (k, a) => this.karakterSec(k, a));
+      // /swap ve portal: sayfa yenilenirken eski oturum sunucuda hemen kapanmaz ("already in the game"); kapanana kadar otomatik yeniden denenir
+      for (let deneme = 0; ; deneme++) {
+        try { await this.b.baglan(hesap, sifre, (k, a) => this.karakterSec(k, a)); break; }
+        catch (e) {
+          if (deneme >= 12 || !/already in the game/i.test((e as Error).message ?? '') || !(this.otomatik || this.swapVarMi())) throw e;
+          this.durum('Waiting for the previous session to close…'); await new Promise((r) => setTimeout(r, 2500));
+        }
+      }
       try { if (this.hatirla) { localStorage.setItem(KAYIT_HESAP, hesap); localStorage.setItem(KAYIT_SIFRE, btoa(sifre)); } else { localStorage.removeItem(KAYIT_HESAP); localStorage.removeItem(KAYIT_SIFRE); } } catch { /* depolama kapalı */ }
       this.kapat();
     } catch (e) {
-      this.girisGoster(); this.otomatik = false;
+      this.sahneAc(); this.girisGoster(); this.otomatik = false;
       if (!(e instanceof GirisIptal)) this.durum((e as Error).message || 'Connection failed.');
       else this.durum('');
       this.sifreKutusu.value = ''; this.sifreKutusu.focus();
@@ -217,26 +234,27 @@ export class GirisEkrani {
   }
 
   /** Hedef karakter hesapta varsa seçer; "admin" ise ve yoksa hesabın ulusunda oluşturup seçer. Olmazsa iletiyi gösterir, seçim ekranı kullanıcıda kalır. */
-  private async swapYap(hedef: string, araclar: OlusturmaAraclari, coz: (ad: string) => void): Promise<void> {
+  private async swapYap(hedef: string, araclar: OlusturmaAraclari, coz: (ad: string) => void): Promise<boolean> {
     try {
       let yuvalar = await araclar.yenile();
       let bulunan = yuvalar.find((y) => y.ad && y.ad.toLowerCase() === hedef.toLowerCase())?.ad;
       if (!bulunan && hedef.toLowerCase() === YONETICI_ADI) {
         const ilk = yuvalar.find((y) => y.ad), yuva = yuvalar.findIndex((y) => !y.ad);
-        if (!ilk || yuva < 0) { this.durum(ilk ? 'There is no free character slot for the admin character.' : 'Create a character first.'); return; }
+        if (!ilk || yuva < 0) { this.durum(ilk ? 'There is no free character slot for the admin character.' : 'Create a character first.'); return false; }
         const izinli = IRK_MESLEKLERI[ilk.irk] ?? [1], meslek = (izinli.includes(1) ? 1 : izinli[0]) as 1 | 2 | 3 | 4, sinif = sinifKodu(ilk.irk, meslek);
         const t = kurallar?.yeniKarakter?.[String(ilk.irk * 10000 + sinif)];
         const stat = t ? { str: t.str, sta: t.sta, dex: t.dex, int: t.int, cha: t.cha } : { str: 60, sta: 60, dex: 60, int: 60, cha: 60 };
         stat.str += 300 - (stat.str + stat.sta + stat.dex + stat.int + stat.cha); // kalan bonus puan güce
         this.durum('Creating the admin character…');
         const kod = await araclar.olustur({ yuva, ad: YONETICI_ADI, irk: ilk.irk, sinif, yuz: ilk.yuz, sac: ilk.sac, ...stat });
-        if (kod !== 0) { this.durum(YENI_KARAKTER_MESAJLARI[kod] ?? `The admin character could not be created (code ${kod}).`); return; }
+        if (kod !== 0) { this.durum(YENI_KARAKTER_MESAJLARI[kod] ?? `The admin character could not be created (code ${kod}).`); return false; }
         yuvalar = await araclar.yenile();
         bulunan = yuvalar.find((y) => y.ad && y.ad.toLowerCase() === YONETICI_ADI)?.ad;
       }
-      if (bulunan) { this.durum('Entering the game…'); coz(bulunan); return; }
+      if (bulunan) { this.durum('Entering the game…'); coz(bulunan); return true; }
       this.durum(`Character "${hedef}" was not found on this account.`);
-    } catch (e) { this.durum((e as Error).message || 'Switching characters failed.'); }
+      return false;
+    } catch (e) { this.durum((e as Error).message || 'Switching characters failed.'); return false; }
   }
 
   // ---------------------------------------------------------------- karakter seçiminde animasyonlu 3B karakter
@@ -312,8 +330,9 @@ export class GirisEkrani {
       this.durum(''); goster();
       p.el.style.display = '';
       const swap = this.swapHedefi();
-      if (swap) { void this.swapYap(swap, araclar, coz); return; } // /swap: seçim ekranı atlanır; olmazsa normal seçim ekranı kalır
+      if (swap) { void this.swapYap(swap, araclar, coz).then((tamam) => { if (!tamam) this.sahneAc(); }); return; } // /swap: seçim ekranı atlanır; olmazsa normal seçim ekranı kalır
       if (this.otomatik && dolu.length === 1) { this.durum('Entering the game…'); coz(dolu[0].ad); return; } // F5 otomatik giriş: tek karakter doğrudan oyuna girer
+      this.sahneAc(); // otomatik giriş burada kaldıysa (birden çok karakter ya da boş hesap) seçim ekranı görünür
       if (!dolu.length) void olustur(); // boş hesap: doğrudan karakter oluşturma ekranı
     });
   }

@@ -1,0 +1,11 @@
+﻿import { chromium } from 'playwright-core';
+const t = await chromium.connectOverCDP('http://127.0.0.1:9333');
+const s = await (t.contexts()[0] ?? await t.newContext()).newPage();
+await s.setViewportSize({ width: 1600, height: 900 });
+await s.goto('http://localhost:5173/?giris=0');
+await s.waitForFunction(() => window.ke?.arayuz?.(), null, { timeout: 120000 }); await s.waitForTimeout(3000);
+await s.evaluate(async () => { window.ke.arayuz().genel.hepsiniKapat(); const { KarakterOlustur } = await import('/src/arayuz/karakterOlustur.ts'); window.__o = new KarakterOlustur({ kok: document.body, araclar: { ulus: 0, olustur: async () => 0, yenile: async () => [] }, baslangic: {}, yuva: 0 }); window.__oc = window.__o.ac(); });
+await s.waitForTimeout(1500);
+await s.mouse.move(580, 600); await s.waitForTimeout(400);
+await s.screenshot({ path: process.argv[2], clip: { x: 300, y: 450, width: 1000, height: 250 } });
+await s.close(); await t.close();

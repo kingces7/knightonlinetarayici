@@ -8,7 +8,7 @@ import { Hud } from './arayuz/hud';
 import { OyunArayuzu } from './arayuz/oyunArayuzu';
 import { Canavar, DigerOyuncu, GanimetKutusu, Npc, type NpcTanimi, type YuvaKonumu, Oyuncu, Varlik, acıyaYaklas } from './oyun/varliklar';
 import { YuklemeEkrani, ulusKaydet } from './arayuz/yuklemeEkrani';
-import { BOLGE_HARITASI, HARITALAR, VARSAYILAN_AYAR } from './oyun/haritalar';
+import { BOLGE_HARITASI, VARSAYILAN_AYAR, bolgeleriYukle, haritaAyari } from './oyun/haritalar';
 import { KAPI_ADLARI } from './oyun/kapiAdlari';
 import { paraBirimiKur } from './arayuz/paraBirimi';
 import { BOLGE_DEGISIMI, bolgeDegisimiIstegi, bolgeIsinlanmasi, kapiSecimiIstegi, nesneOlayiIstegi } from '../../kopru/protokol/isinlanma.ts';
@@ -47,7 +47,7 @@ import { beceriVurusu, canavarVurusu, oyuncuVurusu, vurusAraligi } from './oyun/
 paraBirimiKur(); // "Noah" yok: ekrandaki her yazı Coin olur
 const parametre = new URLSearchParams(location.search);
 const HARITA = parametre.get('harita') ?? '14th_oldmoradon';
-const ayar = HARITALAR[HARITA] ?? VARSAYILAN_AYAR;
+let ayar = VARSAYILAN_AYAR; // basla() içinde bolgeler.json okunduktan sonra haritaAyari(HARITA) ile belirlenir
 const SIS = new THREE.Color(0x9fb4c8);
 /** Hedefin boyuna göre menzil: büyük canavarın merkezi uzaktadır (orijinal DistanceExceptRadius). */
 const menzilDe = (h: { secimYaricapi: number }) => SALDIRI_MENZILI + Math.max(0, h.secimYaricapi - 0.8);
@@ -82,6 +82,8 @@ function durum(metin: string): void {
 }
 
 async function basla(): Promise<void> {
+  await bolgeleriYukle(); // bölge no → harita eşlemesi (bolgeler.json); sonra bu haritanın ayarı
+  ayar = haritaAyari(HARITA);
   const tuval = document.getElementById('oyun') as HTMLCanvasElement;
   const cizici = new THREE.WebGLRenderer({ canvas: tuval, antialias: true });
   cizici.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -847,6 +849,7 @@ async function basla(): Promise<void> {
     uygula?.(); envanterYenile();
   };
   const npcEtkilesim = (n: Npc) => {
+    if (arayuz?.npcPencereAcik()) return; // açık bir NPC penceresi varken yenisi açılmaz
     const sayfalar = n.tanim.satis > 0 ? magazaSayfalari(n.tanim.satis) : null;
     if (sayfalar && arayuz) { // mağazası olan her NPC (Inn Hostess hariç: o ayrı menü): önce orijinal konuşma menüsü (alışveriş / tamir / takas / ayrıl)
       const magazaAc = (tamir: boolean) => { arayuz.diyalogKapat(); aktifMagaza = { npc: n, grup: n.tanim.satis }; arayuz.magazaAc(n.ad, sayfalar); if (tamir) hud.mesaj('Right-click an item to repair it.', 'sistem'); };
@@ -965,6 +968,7 @@ async function basla(): Promise<void> {
   const kapiKullan = (k: (typeof kapilar)[number]) => { sonKapiIndeksi = k.indeks; sunucuOturumu?.gonder(WIZ.NESNE_OLAYI, nesneOlayiIstegi(k.indeks)); };
   const kapiyaGit = (k: (typeof kapilar)[number]) => {
     if (!sunucuOturumu) { hud.mesaj('The gate needs a server connection.', 'sistem'); return; }
+    if (arayuz?.npcPencereAcik()) return; // NPC penceresi açıkken kapı da açılmaz
     oyuncu.hedef = null; acilacakKutu = null; acilacakNpc = null;
     if (oyuncu.konum.distanceTo(k.konum) <= KAPI_MENZILI) { oyuncu.yuruHedef = null; kapiKullan(k); return; }
     const hedef = k.konum.clone(); oyuncu.yuruHedef = hedef; acilacakKapi = { k, hedef };
@@ -981,11 +985,12 @@ async function basla(): Promise<void> {
   };
   const ISINLANMA_HATALARI: Record<number, string> = { 0: 'You cannot use this gate right now.', 3: 'You cannot enter during the Castle Siege War.', 4: 'You cannot enter during the Lunar War.', 5: 'You cannot enter when you have 0 national points.', 255: 'You cannot use this gate.' };
   let bekleyenBolge: { harita: string } | null = null;
-  const haritayaGec = (harita: string, gecikmeMs: number) => {
+  /** `karakter` verilirse (girişte karakter başka bölgedeyse) yeni sayfa o karakterle girer; verilmezse `/swap` hedefi korunur, yoksa mevcut karakter. */
+  const haritayaGec = (harita: string, gecikmeMs: number, karakter?: string) => {
     const q = new URLSearchParams(location.search); q.set('harita', harita);
     hud.mesaj('Loading the map…', 'sistem');
     if (!yukleme) yukleme = new YuklemeEkrani(); yukleme.ilerle(0.04, 'Moving to the next zone...'); // klasik yükleme ekranı hemen açılır; yeni sayfa kendi yüklemesini gösterir
-    if (sunucuOturumu) { try { if (!sessionStorage.getItem(SWAP_ANAHTARI)) sessionStorage.setItem(SWAP_ANAHTARI, oyuncu.ad); } catch { /* depolama kapalı: seçim ekranı açılır */ } } // yeni sayfa aynı karakterle doğrudan girer (karakter seçim ekranı çıkmaz)
+    if (sunucuOturumu) { try { if (karakter) sessionStorage.setItem(SWAP_ANAHTARI, karakter); else if (!sessionStorage.getItem(SWAP_ANAHTARI)) sessionStorage.setItem(SWAP_ANAHTARI, oyuncu.ad); } catch { /* depolama kapalı: seçim ekranı açılır */ } } // yeni sayfa aynı karakterle doğrudan girer (karakter seçim ekranı çıkmaz)
     sunucuOturumu?.kapat(); sunucuOturumu = null; hareketGonderici = null;
     setTimeout(() => { location.search = `?${q.toString()}`; }, gecikmeMs); // sunucu eski bağlantıyı kapatıp kaydedene kadar beklenir (aynı hesapla çifte giriş olmasın)
   };
@@ -1000,6 +1005,7 @@ async function basla(): Promise<void> {
     // Sağ tık NPC'ye: yanına gider ve dükkânını/konuşmasını açar (sol tık yalnızca seçer)
     const npcVurus = isin.intersectObjects(npcler.map((x) => x.secimKutusu))[0];
     if (npcVurus) {
+      if (arayuz?.npcPencereAcik()) return; // bir NPC penceresi (mağaza, diyalog, banka, Zone List) açıkken başka NPC açılmaz: tıklama yok sayılır
       const n = npcler.find((x) => x.secimKutusu === npcVurus.object)!;
       secilenNpc = n; oyuncu.hedef = null; oyuncu.yuruHedef = n.konum.clone(); acilacakKutu = null; acilacakNpc = n;
       if (oyuncu.konum.distanceTo(n.konum) < 3) { oyuncu.yuruHedef = null; acilacakNpc = null; npcEtkilesim(n); }
@@ -1386,7 +1392,7 @@ async function basla(): Promise<void> {
       sunucuOturumu = s; ulusKaydet(s.ulus); // yükleme ekranı ulusa göre (Karus/El Morad)
       const hedefHarita = BOLGE_HARITASI[s.bolge]; // karakter başka bir bölgedeyse (ör. Luferson) o haritaya geçilir; kayıtlı giriş yeniden girer
       if (hedefHarita && hedefHarita !== HARITA.toLowerCase() && (!navigator.webdriver || parametre.has('bolgeYonlendir'))) {
-        haritayaGec(hedefHarita, 3500);
+        haritayaGec(hedefHarita, 3500, s.benim.ad); // oyuncu.ad henüz güncellenmedi (varsayılan "kingces"): seçilen karakterin adı verilir
         return { ad: s.benim.ad, seviye: s.benim.seviye, altin: s.benim.altin, can: s.benim.can, bolge: s.bolge, yonlendirildi: hedefHarita } as never;
       }
       const ozet = sunucuVerisiniUygula(oyuncu, s.benim, arazi, s.bolge, HARITA);

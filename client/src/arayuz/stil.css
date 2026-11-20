@@ -88,5 +88,5 @@ body.imlec-saldir, body.imlec-saldir * { cursor: url('/arayuz/doku/cursorattack.
 body.kamera-donuyor, body.kamera-donuyor * { cursor: none !important; }
 
 /* Orijinal eşya bilgisi görünümü (esyaBilgisi.ts) */
-.esya-bilgi .baslik { font-weight: 400; }
+.esya-bilgi .baslik { font-weight: 700; } /* eşya adı da kalın */
 .esya-bilgi .aciklama { font-size: 14px; margin-top: 3px; }

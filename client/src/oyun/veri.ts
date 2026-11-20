@@ -122,10 +122,17 @@ let ekAlanlar: string[] = [];
 const ekUnique = new Set<number>();
 const ekBilgi = new Map<number, number[]>();
 const ekYukselt = new Map<number, number[]>(); // +N (1-9) → yükseltilmiş eşya numaraları
+const ekDeger = new Map<number, number[]>(); // +N eşyanın gerçek [savunma, saldırı, dayanıklılık, güç, sağlık, çeviklik, zekâ, karizma, seviye]
+/** +N eşyada ipucu değerlerini sunucudaki gerçek değerlerle değiştirir (client tablosu yalnız taban eşyayı bilir); verisi yoksa eşya aynen döner. */
+export function esyaDegeriUygula<T extends { no: number; sunucuNo?: number; savunma?: number; hasar?: number; dayanim?: number; gerekGuc?: number; gerekSta?: number; gerekCev?: number; gerekZeka?: number; gerekBuyu?: number; gerekSeviye?: number }>(e: T): T {
+  const d = ekDeger.get(e.sunucuNo ?? e.no); if (!d) return e;
+  return { ...e, savunma: d[0], hasar: d[1], dayanim: d[2], gerekGuc: d[3], gerekSta: d[4], gerekCev: d[5], gerekZeka: d[6], gerekBuyu: d[7], gerekSeviye: d[8] };
+}
 export async function esyaEkYukle(): Promise<void> {
   if (ekAlanlar.length) return;
   try {
-    const j = await (await fetch('/esya/ek.json')).json() as { alanlar: string[]; unique: number[]; yukselt?: Record<string, number[]>; ek: Record<string, number[]> };
+    const j = await (await fetch('/esya/ek.json')).json() as { alanlar: string[]; unique: number[]; yukselt?: Record<string, number[]>; ek: Record<string, number[]>; deger?: Record<string, number[]> };
+    for (const [n, d] of Object.entries(j.deger ?? {})) ekDeger.set(Number(n), d);
     for (const n of j.unique) ekUnique.add(n);
     for (const [n, d] of Object.entries(j.ek)) ekBilgi.set(Number(n), d);
     for (const [n, d] of Object.entries(j.yukselt ?? {})) ekYukselt.set(Number(n), d);
